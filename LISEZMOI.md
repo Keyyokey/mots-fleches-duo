@@ -23,3 +23,8 @@ Le même jeu que dans Claude, en vrai site web : **n'importe qui ouvre le lien e
 3. Render te donne l'adresse du site, par ex. `https://mots-fleches-duo.onrender.com`.
 
 Option gratuite : dans `render.yaml`, remplace `plan: starter` par `plan: free` et supprime le bloc `disk:` (le site s'endort après 15 min sans visite et les parties sont perdues au redémarrage).
+
+## Bouton « Soutenir le site » (dons)
+Le site affiche un bouton ☕ (accueil, menu, fin de partie) **dès que la variable `SUPPORT_URL` est renseignée** chez l'hébergeur.
+Sur Render : ton service → **Environment** → `SUPPORT_URL` = ton lien de don (Ko-fi, PayPal.me, lien de paiement Stripe, Lydia…), puis « Save ».
+Options : `SUPPORT_LABEL` (texte du bouton) et `MONTHLY_COST` (coût affiché, par défaut « 7 € »).

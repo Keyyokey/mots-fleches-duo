@@ -15,6 +15,9 @@ const PAGE = path.join(__dirname, "public", "index.html");
 const MAX_DOC = 300 * 1024;          // taille max d'une partie
 const MAX_DOCS = 40;                 // parties max par salon
 const CODE_RE = /^[A-Z0-9]{5}$/;
+// Bouton « Soutenir le site » : renseigne SUPPORT_URL (lien Ko-fi, PayPal, Stripe, Lydia…) dans l'hébergeur.
+const SUPPORT_URL = /^https:\/\/[^\s"'<>]+$/.test(process.env.SUPPORT_URL || "") ? process.env.SUPPORT_URL : "";
+const SUPPORT = JSON.stringify({ url: SUPPORT_URL, label: process.env.SUPPORT_LABEL || "☕ Soutenir le site", cost: process.env.MONTHLY_COST || "7 €" }).replace(/</g, "\\u003c");
 
 // ---------- salons ----------
 const salons = new Map();            // code -> { docs:{id:data}, touched, sockets:Set }
@@ -81,7 +84,8 @@ const server = http.createServer((req, res) => {
   if (url.pathname === "/" || /^\/[A-Za-z0-9]{5}\/?$/.test(url.pathname)) {
     return fs.readFile(PAGE, (err, data) => {
       if (err) { res.writeHead(500); return res.end("Page manquante"); }
-      res.writeHead(200, { "content-type": "text/html; charset=utf-8", "cache-control": "no-cache" }); res.end(data);
+      res.writeHead(200, { "content-type": "text/html; charset=utf-8", "cache-control": "no-cache" });
+      res.end(data.toString("utf8").replace("<head>", "<head>\n<script>window.SUPPORT=" + SUPPORT + ";</script>"));
     });
   }
   res.writeHead(404, { "content-type": "text/plain; charset=utf-8" }); res.end("Introuvable");

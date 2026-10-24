@@ -221,6 +221,11 @@ html,body{margin:0}img{max-width:100%}[hidden]{display:none!important}
 .inv-copy{min-height:44px}
 .inv-txt{font-size:.86rem;color:var(--muted)}
 .inv-new{background:none;border:none;box-shadow:none;padding:0;min-height:0;color:var(--accent);text-decoration:underline;font-size:inherit}
+.support{border:1px dashed var(--line);border-radius:var(--r-lg);padding:12px 14px;display:flex;align-items:center;gap:12px;flex-wrap:wrap;background:var(--card)}
+.sup-txt{flex:1 1 200px;font-size:.88rem;color:var(--muted);line-height:1.4}.sup-txt b{color:var(--ink)}
+.sup-btn{display:inline-flex;align-items:center;justify-content:center;min-height:44px;padding:0 16px;border-radius:var(--r-md);background:#ffcf5a;color:#3a2a00;font-weight:700;text-decoration:none;white-space:nowrap}
+.sup-menu{display:flex;align-items:center;min-height:44px;padding:0 14px;border-radius:var(--r-md);border:1px solid var(--line);color:var(--ink);text-decoration:none;font-weight:600}
+.sup-win{margin-top:6px;font-size:.92rem;font-weight:500}.sup-win a{color:var(--accent);font-weight:700}
 .offline{position:fixed;left:50%;top:10px;transform:translateX(-50%);z-index:50;background:var(--bad);color:#fff;padding:6px 14px;border-radius:999px;font-weight:600;font-size:.9rem}
 </style>
 </head>
@@ -404,6 +409,18 @@ html,body{margin:0}img{max-width:100%}[hidden]{display:none!important}
     card.querySelector(".inv-copy").onclick=e=>{const b=e.currentTarget;(navigator.clipboard?navigator.clipboard.writeText(link):Promise.reject()).then(()=>{b.textContent="Lien copié ✓";setTimeout(()=>b.textContent="Copier le lien",1800)},()=>{prompt("Copie ce lien :",link)})};
     card.querySelector(".inv-new").onclick=()=>{location.href="/"};
     const pill=lobby.querySelector(".pill");lobby.insertBefore(card,pill?pill.nextSibling:lobby.firstChild);
+    // ---------- soutien (dons) ----------
+    const S=window.SUPPORT||{};
+    if(S.url){
+      const mk=(cls,txt)=>{const a=document.createElement("a");a.className=cls;a.href=S.url;a.target="_blank";a.rel="noopener";a.textContent=txt;return a};
+      const box=document.createElement("div");box.className="support";
+      box.innerHTML='<div class="sup-txt"><b>Gratuit et sans pub.</b> Le site coûte environ <span class="sup-cost"></span> par mois à héberger. Si tu t\'amuses, un petit geste aide à le garder en ligne.</div>';
+      box.querySelector(".sup-cost").textContent=S.cost;box.appendChild(mk("sup-btn",S.label));
+      const rules=lobby.querySelector("details.rules");lobby.insertBefore(box,rules||null);
+      const menu=document.getElementById("menu");if(menu){const a=mk("sup-menu",S.label);menu.insertBefore(a,document.getElementById("menuInfo"))}
+      const win=document.getElementById("winbox");
+      if(win)new MutationObserver(()=>{if(!win.hidden&&!win.querySelector(".sup-win")){const d=document.createElement("div");d.className="sup-win";d.append("Tu as aimé la partie ? ");d.appendChild(mk("",S.label));win.appendChild(d)}}).observe(win,{attributes:true,childList:true});
+    }
     const off=document.createElement("div");off.id="offline";off.className="offline";off.hidden=true;off.textContent="Connexion perdue… reconnexion en cours";document.body.appendChild(off);
   });
 })();
