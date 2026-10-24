@@ -1,21 +1,17 @@
-# Déploiement en un clic sur Render (https://render.com)
+# Déploiement sur Render (https://render.com) — offre GRATUITE
+# Le site s'endort après ~15 min sans visite (réveil ~1 min) et les parties sont effacées à chaque redémarrage.
+# Pour passer en payant plus tard : plan: starter + bloc disk (voir LISEZMOI).
 services:
   - type: web
     name: mots-fleches-duo
     runtime: node
-    plan: starter            # offre payante (~7 $/mois) : le site ne s'endort jamais
-    region: frankfurt        # serveur en Europe
+    plan: free
+    region: frankfurt
     buildCommand: npm install
     startCommand: npm start
     healthCheckPath: /healthz
     envVars:
-      - key: DATA_DIR
-        value: /var/data
       - key: NODE_VERSION
         value: "20"
-      - key: SUPPORT_URL      # ton lien de don (Ko-fi, PayPal, Stripe, Lydia…) — à remplir sur Render
+      - key: SUPPORT_URL      # lien de don (facultatif) — à remplir plus tard sur Render
         sync: false
-    disk:                    # disque pour garder les parties en cas de redémarrage (~0,25 $/mois)
-      name: salons
-      mountPath: /var/data
-      sizeGB: 1
