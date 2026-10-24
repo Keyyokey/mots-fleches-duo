@@ -1,0 +1,17 @@
+{
+  "name": "mots-fleches-duo",
+  "version": "1.0.0",
+  "description": "Mots fléchés multijoueur",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "license": "UNLICENSED",
+  "dependencies": {
+    "ws": "^8.18.0"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "private": true
+}

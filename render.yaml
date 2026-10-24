@@ -1,0 +1,19 @@
+# Déploiement en un clic sur Render (https://render.com)
+services:
+  - type: web
+    name: mots-fleches-duo
+    runtime: node
+    plan: starter            # offre payante (~7 $/mois) : le site ne s'endort jamais
+    region: frankfurt        # serveur en Europe
+    buildCommand: npm install
+    startCommand: npm start
+    healthCheckPath: /healthz
+    envVars:
+      - key: DATA_DIR
+        value: /var/data
+      - key: NODE_VERSION
+        value: "20"
+    disk:                    # disque pour garder les parties en cas de redémarrage (~0,25 $/mois)
+      name: salons
+      mountPath: /var/data
+      sizeGB: 1

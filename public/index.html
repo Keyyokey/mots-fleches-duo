@@ -1,0 +1,804 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="description" content="Mots fléchés en solo ou entre amis, en direct, sans compte.">
+<meta property="og:title" content="Mots Fléchés Duo">
+<meta property="og:description" content="On fait une partie de mots fléchés ? Rejoins mon salon.">
+<meta name="theme-color" content="#121214">
+<title>Mots Fléchés Duo</title>
+
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Roboto+Condensed:wght@400;500&display=swap">
+<style>
+/* Layout: application mobile sombre — scores et menu en haut, grille ajustée au centre, définition + clavier AZERTY ancrés en bas */
+:root{
+  --bg:#121214; --card:#1E1E24; --card2:#26262e; --line:#2f2f39; --ink:#ECEDF2; --muted:#8B8C99;
+  --accent:#00ADB5; --accent-soft:rgba(0,173,181,.16); --accent-glow:rgba(0,173,181,.55); --violet:#A26BFF;
+  --clue:#1a2a33; --clue-ink:#bfe9ec; --good:#3ddc97; --bad:#ff4d6d; --warn:#ffc857;
+  --p0:#5ad8ff; --p1:#ffa45c; --p2:#7cf0a9; --p3:#c49bff; --paperpen:#9aa0ad; --reveal:#5b5d6b; --pic:#191920;
+  --r-lg:16px; --r-md:12px; --r-sm:9px;
+  --f-ui:"Inter","Poppins",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+  --f-hand:var(--f-ui);
+  --cellbg:#2a2a33; --btn2:#22222a; --btnsh:#0b0b0d; --glass:rgba(30,30,36,.94); --hair:rgba(255,255,255,.08);
+  --shadow:rgba(0,0,0,.45); --scrim:rgba(5,5,8,.6); --wordbg:rgba(0,173,181,.30); --wordline:rgba(0,173,181,.45);
+  color-scheme:dark;
+}
+/* mode clair : papier frais, encre bleu nuit, accent sarcelle plus profond pour garder le contraste */
+body.light{
+  --bg:#F2F4F7; --card:#FFFFFF; --card2:#E9EDF2; --line:#D6DCE4; --ink:#14181F; --muted:#5E6573;
+  --accent:#00858C; --accent-soft:rgba(0,133,140,.12); --accent-glow:rgba(0,133,140,.35); --violet:#6D3FD8;
+  --clue:#DDEFF1; --clue-ink:#0E3A3F; --good:#11905A; --bad:#D92D4A; --warn:#B97800;
+  --p0:#0B6FB8; --p1:#D24A0B; --p2:#1E8A3E; --p3:#6B3FE0; --paperpen:#737A87; --reveal:#AAB1BC; --pic:#E9EDF2;
+  --cellbg:#FFFFFF; --btn2:#EEF1F5; --btnsh:#C7CED8; --glass:rgba(255,255,255,.95); --hair:rgba(15,25,40,.10);
+  --shadow:rgba(20,30,50,.16); --scrim:rgba(20,25,35,.35); --wordbg:rgba(0,133,140,.16); --wordline:rgba(0,133,140,.40);
+  color-scheme:light;
+}
+body.light .grid{background:var(--card2)}
+body.light .c .L.pend,body.light .c.word .L.pend{color:var(--ink)}
+body.light .c.sel .L{color:#fff!important}
+body.light .c.sel{box-shadow:0 0 0 2px #59d3d9,0 0 14px var(--accent-glow)}
+body.light button.primary,body.light .k.go{color:#fff}
+body.light .cluebar .dir{color:#fff}
+body.light .k:active{color:#fff}
+.themebtn{position:absolute;right:max(14px,env(safe-area-inset-right,0px));top:14px}
+header{position:relative}
+header h1{padding-right:52px;font-size:clamp(1.3rem,6vw,1.7rem)}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{height:100%}
+body{background:var(--bg);color:var(--ink);font-family:var(--f-ui);font-size:15px;-webkit-font-smoothing:antialiased}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--bg)}
+.wrap{max-width:560px;margin:0 auto;padding-left:max(14px,env(safe-area-inset-left,0px));padding-right:max(14px,env(safe-area-inset-right,0px));padding-block:14px 28px;display:flex;flex-direction:column;gap:12px}
+h1{margin:0;font-size:1.7rem;font-weight:800;letter-spacing:-.02em;text-wrap:balance}
+h1 b{background:linear-gradient(90deg,var(--accent),var(--violet));-webkit-background-clip:text;background-clip:text;color:transparent}
+h1 span{font-weight:500;color:var(--muted)}
+h2{margin:0;font-size:1.05rem;font-weight:700;letter-spacing:.01em}
+.muted{color:var(--muted)}
+button{font-family:var(--f-ui);font-size:.98rem;font-weight:600;border:1px solid var(--line);background:var(--card);color:var(--ink);border-radius:var(--r-md);padding:10px 14px;cursor:pointer;
+  box-shadow:0 1px 0 var(--hair) inset,0 4px 14px var(--shadow);transition:transform .08s ease,background .15s ease,border-color .15s ease,opacity .15s}
+button:active{transform:scale(.96)}
+button.primary{background:linear-gradient(135deg,var(--accent),#0a8f96);border-color:transparent;color:#041b1d;font-weight:700}
+button:disabled{opacity:.35;cursor:default;transform:none}
+button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+input[type=text],select{font-family:var(--f-ui)}
+
+/* accueil */
+.lobby{display:flex;flex-direction:column;gap:14px;width:100%}
+.picks{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:8px}
+.pick{text-align:left;display:flex;flex-direction:column;gap:3px;padding:11px 12px;min-width:0;border-radius:var(--r-md)}
+.pick .pg{font-size:1.05rem;font-weight:700}
+.pick .ht{font-size:.82rem;font-weight:500;color:var(--muted);line-height:1.25}
+.pick .st{font-size:.78rem;font-weight:700;color:var(--good)}
+.pick[aria-pressed="true"]{border-color:var(--accent);background:var(--accent-soft);box-shadow:0 0 0 1px var(--accent),0 0 18px var(--accent-soft)}
+.form{display:flex;flex-direction:column;gap:10px;background:var(--card);border:1px solid var(--line);border-radius:var(--r-lg);padding:14px}
+.form label{display:flex;align-items:center;gap:10px;font-size:.98rem;font-weight:600}
+.form label .sw{width:12px;height:12px;border-radius:50%;flex:none;box-shadow:0 0 10px currentColor}
+.form input[type=text],.myst input{flex:1;min-width:0;font-size:1.05rem;padding:11px 12px;border:1px solid var(--line);border-radius:var(--r-md);background:var(--bg);color:var(--ink)}
+.form select{font-size:1rem;padding:9px 10px;border:1px solid var(--line);border-radius:var(--r-sm);background:var(--bg);color:var(--ink)}
+.form .chk{font-weight:500;font-size:.92rem;color:var(--muted)}
+.rules{background:var(--card);border:1px solid var(--line);border-radius:var(--r-lg);padding:12px 14px;font-size:.88rem;line-height:1.45;color:var(--muted)}
+.rules b{color:var(--ink)}
+.rules p{margin:.25em 0}
+.err{color:var(--bad);font-weight:600;min-height:1.2em}
+.net{border-radius:var(--r-md);padding:10px 12px;font-size:.92rem;line-height:1.35;border:1px solid var(--bad);background:rgba(255,77,109,.08)}
+.net b{color:var(--bad)}
+.online{font-size:.85rem;color:var(--muted);text-align:center}
+.online b{color:var(--good)}
+.foot{font-size:.78rem;color:var(--muted);text-align:center;margin:0;display:flex;gap:10px;justify-content:center;flex-wrap:wrap;align-items:center}
+.dot{display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--muted);margin-right:5px}
+.dot.on{background:var(--good);box-shadow:0 0 8px var(--good)}
+
+/* fenêtres */
+.overlay{position:fixed;inset:0;z-index:30;background:var(--scrim);-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);display:grid;place-items:center;padding:16px;animation:fade .18s ease}
+@keyframes fade{from{opacity:0}to{opacity:1}}
+.seat,.sheet{background:var(--glass);border:1px solid var(--hair);border-radius:var(--r-lg);padding:18px;display:flex;flex-direction:column;gap:12px;text-align:center;max-width:420px;width:100%;box-shadow:0 20px 60px var(--shadow)}
+.seat .opts{display:flex;flex-wrap:wrap;gap:8px;justify-content:center}
+.seat .opts button{min-height:48px;font-size:1.05rem;flex:1 1 140px}
+.sheet button{min-height:48px}
+.sheet .danger{border-color:rgba(255,77,109,.5);color:var(--bad)}
+.hint{text-align:center;color:var(--muted);font-size:.9rem;margin:0}
+.myst{display:flex;gap:8px;justify-content:center;flex-wrap:wrap}
+.myst input{text-transform:uppercase;letter-spacing:.08em;max-width:14em}
+.win{border:1px solid var(--good);border-radius:var(--r-lg);padding:12px;text-align:center;font-size:1.1rem;font-weight:700;background:rgba(61,220,151,.08);box-shadow:0 0 24px rgba(61,220,151,.15)}
+
+/* écran de jeu */
+body.playing{overflow:hidden;position:fixed;inset:0}
+body.playing .wrap{padding-block:8px 0;gap:6px;height:var(--vvh,100%);padding-bottom:var(--dockh,120px)}
+body.playing #game{flex:1;min-height:0}
+body.playing > .wrap > header,body.playing .online,body.playing .net:not([hidden]) ~ .online{display:none}
+.gbar{display:flex;align-items:center;gap:8px}
+.scores{flex:1;min-width:0;display:grid;grid-template-columns:repeat(auto-fit,minmax(88px,1fr));gap:6px}
+.chip{display:flex;align-items:center;justify-content:space-between;gap:6px;min-width:0;border-radius:var(--r-sm);padding:5px 9px;background:var(--card);border:1px solid var(--line);position:relative;overflow:hidden;transition:box-shadow .2s,border-color .2s}
+.chip::before{content:"";position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--pc)}
+.chip .nm{font-weight:600;color:var(--pc);font-size:.86rem;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.chip b{font-size:1.05rem;font-weight:800;font-variant-numeric:tabular-nums}
+.chip.on{border-color:var(--pc);box-shadow:0 0 14px color-mix(in srgb,var(--pc) 35%,transparent)}
+.chip.me .nm::after{content:" ·toi";color:var(--muted);font-weight:500}
+.tools{position:relative;display:flex;gap:6px}
+.ico{width:40px;height:40px;min-height:40px;padding:0;font-size:1.05rem;display:grid;place-items:center;border-radius:var(--r-md)}
+.dropdown{position:absolute;right:0;top:48px;z-index:25;background:var(--glass);-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);border:1px solid var(--hair);border-radius:var(--r-lg);padding:8px;display:flex;flex-direction:column;gap:6px;min-width:240px;box-shadow:0 14px 40px var(--shadow);animation:fade .15s}
+.dropdown button{text-align:left;min-height:44px;box-shadow:none}
+.dropdown .keys{font-size:.8rem;color:var(--muted);padding:2px 4px}
+.statusrow{display:flex;gap:8px;align-items:center;min-height:26px}
+.status{flex:1;min-width:0;text-align:left;font-size:.88rem;font-weight:500;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.status.good{color:var(--good)} .status.bad{color:var(--bad)} .status.wait{color:var(--warn)}
+.timer{font-size:.95rem;font-weight:700;font-variant-numeric:tabular-nums;border-radius:999px;padding:3px 10px;background:var(--card);border:1px solid var(--line)}
+.timer.low{border-color:var(--bad);color:var(--bad);box-shadow:0 0 12px rgba(255,77,109,.35);animation:pulse 1s infinite}
+@keyframes pulse{50%{opacity:.6}}
+.mystery{display:flex;gap:4px;justify-content:center}
+.m{display:flex;flex-direction:column;align-items:center;gap:1px}
+.m small{color:var(--muted);font-weight:600;font-size:.62rem}
+.m div{width:30px;height:30px;border-radius:50%;background:var(--card);border:1px solid var(--line);display:grid;place-items:center;font-size:.85rem;font-weight:800}
+
+/* grille */
+.gridbox{flex:1;min-height:0;overflow:auto;-webkit-overflow-scrolling:touch;overscroll-behavior:contain;border-radius:var(--r-lg)}
+.gpick{display:flex;flex-direction:column;gap:6px}
+#gsel{width:100%;font-size:1.05rem;font-weight:600;padding:12px 40px 12px 14px;border-radius:var(--r-md);border:1px solid var(--accent);background:var(--card);color:var(--ink);font-family:var(--f-ui);
+  appearance:none;-webkit-appearance:none;background-image:linear-gradient(45deg,transparent 50%,var(--accent) 50%),linear-gradient(135deg,var(--accent) 50%,transparent 50%);background-position:calc(100% - 20px) 52%,calc(100% - 14px) 52%;background-size:6px 6px;background-repeat:no-repeat}
+.ghint{font-size:.88rem;color:var(--muted);padding-inline:4px}
+.ghint b{color:var(--good)}
+.seg{display:grid;grid-auto-flow:column;grid-auto-columns:1fr;gap:6px;padding:4px;background:var(--card);border:1px solid var(--line);border-radius:var(--r-md)}
+.seg button{min-height:46px;box-shadow:none;border-color:transparent;background:transparent;font-size:.98rem}
+.seg button[aria-checked="true"]{background:var(--accent-soft);border-color:var(--accent);color:var(--ink);box-shadow:0 0 0 1px var(--accent)}
+body.mode-solo .net,body.mode-solo .pill,body.mode-solo .multiOnly,body:not(.mode-solo) .soloOnly{display:none!important}
+.lvl{font-size:.72rem;font-weight:700;padding:2px 7px;border-radius:999px;background:var(--accent-soft);color:var(--accent);white-space:nowrap}
+.pill{align-self:flex-start;display:inline-flex;align-items:center;gap:2px;font-size:.78rem;color:var(--muted);background:var(--card);border:1px solid var(--line);border-radius:999px;padding:4px 10px}
+details.rules summary{cursor:pointer;font-weight:700;color:var(--ink);font-size:.98rem;list-style:none;display:flex;justify-content:space-between;align-items:center}
+details.rules summary::after{content:"▾";color:var(--muted);transition:transform .2s}
+details.rules[open] summary::after{transform:rotate(180deg)}
+details.rules[open] summary{margin-bottom:6px}
+.addp{border-style:dashed;background:transparent;box-shadow:none;color:var(--muted);min-height:44px}
+.startbar{position:sticky;bottom:0;padding-top:6px;padding-bottom:max(6px,env(safe-area-inset-bottom,0px));background:linear-gradient(180deg,transparent,var(--card) 30%);z-index:3}
+.startbar #start{width:100%;min-height:54px;font-size:1.1rem}
+.cluebar{padding:4px 4px!important;gap:6px!important}
+.cluebar .nav{width:40px;min-width:40px;height:38px;min-height:38px;padding:0;font-size:1.5rem;line-height:1;border-radius:10px;box-shadow:none;background:transparent;border-color:transparent;color:var(--accent)}
+.cluebar .nav:active{background:var(--accent-soft)}
+#bartxt{flex:1;cursor:pointer;text-align:left}
+.c.f{background:color-mix(in srgb,var(--fc) 13%,var(--cellbg))}
+.chip.on b{padding-right:10px}
+.chip.on::after{content:"";position:absolute;right:5px;top:50%;margin-top:-3px;width:6px;height:6px;border-radius:50%;background:var(--pc);box-shadow:0 0 8px var(--pc);animation:pulse 1.2s infinite}
+.q > div > span{display:inline-block;white-space:pre-line;max-width:none}
+.acts{display:grid;grid-template-columns:1fr 1.6fr;gap:8px}
+.actwrap{position:relative}
+.actwrap #actBtn{width:100%;font-size:1rem;font-weight:700}
+.actmenu{position:absolute;left:0;bottom:56px;z-index:30;min-width:230px;display:flex;flex-direction:column;gap:6px;padding:8px;background:var(--glass);-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);border:1px solid var(--hair);border-radius:var(--r-lg);box-shadow:0 -10px 40px var(--shadow);animation:fade .15s}
+.actmenu button{text-align:left;min-height:46px;font-size:1rem;box-shadow:none}
+.acts .k{height:48px;min-height:48px}
+.grid{--s:44px;display:grid;grid-template-columns:repeat(10,var(--s));grid-auto-rows:var(--s);width:max-content;margin:0 auto;gap:2px;position:relative;padding:4px;background:var(--card);border-radius:var(--r-lg);border:1px solid var(--line);box-shadow:0 10px 30px var(--shadow)}
+.c{background:var(--cellbg);border-radius:max(3px,calc(var(--s)*.14));position:relative;display:grid;place-items:center;cursor:pointer;user-select:none;-webkit-user-select:none;transition:background .14s ease,box-shadow .14s ease,transform .14s ease}
+.c.word{background:var(--wordbg);box-shadow:inset 0 0 0 1px var(--wordline)}
+.c.sel{background:var(--accent);box-shadow:0 0 0 2px #7cf6fb,0 0 16px var(--accent-glow);transform:scale(1.04);z-index:3}
+.c.sel .L{color:#041b1d!important}
+.c .L{font-weight:800;font-size:calc(var(--s)*.58);line-height:1;letter-spacing:-.01em;text-rendering:geometricPrecision;transition:color .15s}
+.c .L.pend{color:#e9eef5}
+.c.word .L.pend{color:#ffffff}
+.c .L.live{opacity:.65}
+.c.livecell{box-shadow:inset 0 0 0 2px currentColor}
+.c.wrong{background:var(--bad)!important;animation:shake .42s cubic-bezier(.36,.07,.19,.97)}
+.c.wrong .L{color:#fff!important}
+@keyframes shake{10%,90%{transform:translateX(-1px)}20%,80%{transform:translateX(3px)}30%,50%,70%{transform:translateX(-5px)}40%,60%{transform:translateX(5px)}}
+.c.ok{animation:pop .55s ease}
+@keyframes pop{0%{transform:scale(1)}40%{transform:scale(1.16);box-shadow:0 0 18px var(--good)}100%{transform:scale(1)}}
+.c .n{position:absolute;top:1px;right:3px;font-size:max(7px,calc(var(--s)*.22));font-weight:700;color:var(--warn)}
+.c.db{box-shadow:inset 0 -3px 0 var(--warn)} .c.dr{box-shadow:inset -3px 0 0 var(--warn)}
+.q{background:var(--clue);border-radius:max(3px,calc(var(--s)*.14));display:flex;flex-direction:column;cursor:pointer;overflow:hidden}
+.q > div{flex:1;min-height:0;display:flex;align-items:center;justify-content:center;text-align:center;font-size:calc(var(--s)*.21);line-height:1.04;color:var(--clue-ink);font-weight:400;font-family:"Roboto Condensed","Arial Narrow","Helvetica Neue",sans-serif;letter-spacing:0;padding:1px 2px;word-break:normal;overflow-wrap:normal;hyphens:none;white-space:pre-line;overflow:hidden;transition:background .14s,color .14s}
+.q > div + div{border-top:1px solid var(--hair)}
+.q > div.hl{background:var(--violet);color:#fff}
+.q > div.done{opacity:.35;text-decoration:line-through}
+.pic{background:var(--pic);border-radius:var(--r-md);display:grid;place-items:center;text-align:center;font-size:calc(var(--s)*.32);color:var(--muted);padding:8px}
+.ar{position:absolute;z-index:2;pointer-events:none;color:var(--accent);font-size:calc(var(--s)*.26);line-height:1;filter:drop-shadow(0 0 3px var(--accent-glow))}
+
+/* bas d'écran : définition + clavier */
+.dock{position:fixed;left:0;right:0;bottom:var(--kbo,0px);z-index:12;background:linear-gradient(180deg,transparent,var(--bg) 18px);padding:14px max(8px,env(safe-area-inset-right,0px)) calc(8px + env(safe-area-inset-bottom,0px)) max(8px,env(safe-area-inset-left,0px))}
+.dock .in{max-width:560px;margin:0 auto;display:flex;flex-direction:column;gap:7px}
+.cluebar{display:flex;align-items:center;gap:10px;background:var(--glass);-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);border:1px solid rgba(0,173,181,.35);border-radius:var(--r-md);padding:9px 12px;font-size:1rem;font-weight:600;min-height:44px;box-shadow:0 0 20px rgba(0,173,181,.12)}
+.cluebar .dir{font-size:.72rem;font-weight:700;color:#041b1d;background:var(--accent);border-radius:999px;padding:3px 8px;white-space:nowrap}
+#bartxt{min-width:0;overflow:hidden;text-overflow:ellipsis}
+.kbd{display:flex;flex-direction:column;gap:6px;user-select:none;-webkit-user-select:none;touch-action:manipulation}
+.kr{display:flex;gap:5px;justify-content:center}
+.k{flex:1 1 0;min-width:0;height:46px;min-height:46px;padding:0;border-radius:10px;font-size:1.12rem;font-weight:700;background:var(--cellbg);border:1px solid var(--hair);box-shadow:0 2px 0 var(--btnsh)}
+.k:active{background:var(--accent);color:#041b1d;transform:translateY(1px) scale(.97)}
+.k.fn{flex:1.5 1 0;font-size:1rem;background:var(--btn2);color:var(--muted)}
+.k.act{flex:1 1 0;font-size:.82rem;font-weight:600;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;line-height:1.05;background:var(--btn2);color:var(--ink)}
+.k.act .ic{font-size:1.05rem}
+.k.go{flex:2 1 0;font-size:1.05rem;background:linear-gradient(135deg,var(--accent),#0a8f96);color:#041b1d;border:none}
+.k:disabled{opacity:.35}
+input#kb{position:absolute;left:8px;bottom:6px;width:2px;height:2px;opacity:0;font-size:16px;border:0;padding:0;background:transparent;color:transparent;caret-color:transparent}
+@media (hover:hover) and (pointer:fine) and (min-width:700px){.kbd .kr[data-row],.kbd .kr:nth-child(3){display:none}.dock{padding-top:10px}}
+.kbhint{display:none;font-size:.78rem;color:var(--muted);text-align:center}
+@media (hover:hover) and (pointer:fine) and (min-width:700px){.kbhint{display:block}}
+@media (prefers-reduced-motion:reduce){.c,.c.ok,.c.wrong,.timer.low,.overlay,.dropdown{animation:none;transition:none}}
+</style>
+<style>
+html,body{margin:0}img{max-width:100%}[hidden]{display:none!important}
+.invite{background:linear-gradient(135deg,var(--accent-soft),transparent);border:1px solid var(--accent);border-radius:var(--r-lg);padding:12px 14px;display:flex;flex-direction:column;gap:8px}
+.inv-top{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}
+.inv-lbl{font-size:.78rem;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:.06em}
+.inv-code{font-size:1.7rem;font-weight:800;letter-spacing:.18em;color:var(--accent)}
+.inv-btns{display:flex;gap:8px}
+.inv-wa{display:inline-flex;align-items:center;justify-content:center;min-height:44px;padding:0 14px;border-radius:var(--r-md);background:#25d366;color:#06301a;font-weight:700;text-decoration:none}
+.inv-copy{min-height:44px}
+.inv-txt{font-size:.86rem;color:var(--muted)}
+.inv-new{background:none;border:none;box-shadow:none;padding:0;min-height:0;color:var(--accent);text-decoration:underline;font-size:inherit}
+.offline{position:fixed;left:50%;top:10px;transform:translateX(-50%);z-index:50;background:var(--bad);color:#fff;padding:6px 14px;border-radius:999px;font-weight:600;font-size:.9rem}
+</style>
+</head>
+<body>
+
+
+
+<div class="wrap">
+  <header><h1><b>MOTS FLÉCHÉS</b> <span id="htitle">entre amis</span></h1><button class="ico themebtn" id="themeBtn" type="button" aria-label="Changer de thème" title="Mode clair / sombre">☀️</button></header>
+  <div class="net" id="net" hidden></div>
+  <div class="online" id="online"></div>
+
+  <section id="lobby" class="lobby">
+    <div class="pill"><span class="dot" id="ldot"></span><span id="sync">Connexion au salon…</span></div>
+    <h2>1. Mode de jeu</h2>
+    <div class="seg" id="modeSeg" role="radiogroup" aria-label="Mode de jeu">
+      <button type="button" data-v="solo" role="radio">👤 Solo</button>
+      <button type="button" data-v="multi" role="radio">👥 À plusieurs</button>
+    </div>
+    <h2>2. Difficulté</h2>
+    <div class="seg" id="levelSeg" role="radiogroup" aria-label="Difficulté">
+      <button type="button" data-v="facile" role="radio">🌱 Facile</button>
+      <button type="button" data-v="normal" role="radio">⚖️ Normal</button>
+      <button type="button" data-v="difficile" role="radio">🔥 Difficile</button>
+    </div>
+    <div class="ghint" id="levelInfo"></div>
+    <h2>3. Grille</h2>
+    <div class="gpick">
+      <select id="gsel" aria-label="Choisir la grille"></select>
+      <div class="ghint" id="ghint"></div>
+    </div>
+    <h2 id="step4">4. Joueurs</h2>
+    <div id="resume" hidden>
+      <button class="primary" id="resumeBtn" type="button" style="width:100%">Reprendre la partie en cours</button>
+      <div class="muted" id="resumeInfo" style="text-align:center;margin-top:4px"></div>
+    </div>
+    <div class="form">
+      <label><span class="sw" style="background:var(--p0)"></span><input type="text" id="n0" maxlength="14" placeholder="Pseudo du joueur 1"></label>
+      <label class="multiOnly"><span class="sw" style="background:var(--p1)"></span><input type="text" id="n1" maxlength="14" placeholder="Pseudo du joueur 2"></label>
+      <button type="button" class="addp multiOnly" id="addP">＋ Ajouter un joueur</button>
+      <label class="multiOnly extra" id="row2" hidden><span class="sw" style="background:var(--p2)"></span><input type="text" id="n2" maxlength="14" placeholder="Joueur 3 (facultatif)"></label>
+      <label class="multiOnly extra" id="row3" hidden><span class="sw" style="background:var(--p3)"></span><input type="text" id="n3" maxlength="14" placeholder="Joueur 4 (facultatif)"></label>
+      <label class="chk multiOnly" for="tsel">⏱ Chrono par tour :
+        <select id="tsel" style="font-family:var(--f-ui);font-size:1rem;padding:8px 10px;border:1px solid var(--line);border-radius:var(--r-sm);background:var(--bg);color:var(--ink)">
+          <option value="0">Sans chrono</option><option value="60">1 minute</option><option value="120">2 minutes</option><option value="180">3 minutes</option>
+        </select></label>
+      <div class="ghint soloOnly">En solo, un chronomètre mesure ton temps total.</div>
+      <div class="err" id="lerr"></div>
+      <div class="startbar"><button class="primary" id="start" type="button">▶ Lancer la partie</button></div>
+    </div>
+    <details class="rules">
+      <summary>📖 Règles du jeu</summary>
+      <p><b>Facile :</b> les lettres justes d'un essai sont gardées même s'il y a une faute, et 💡 peut révéler une lettre.</p>
+      <p><b>Normal :</b> une seule faute efface tout l'essai.</p>
+      <p><b>Difficile :</b> chaque lettre fausse coûte 2 points et il n'y a pas d'aide, à part abandonner pour voir la solution.</p>
+      <p><b>À distance :</b> envoie le lien du salon à tes amis ; chacun l'ouvre chez lui, choisit la grille, puis indique qui il est. Seul le joueur dont c'est le tour peut écrire.</p>
+      <p><b>Ton tour :</b> touche une case, écris un mot ou quelques lettres, puis « Valider ».</p>
+      <p><b>Tout est juste :</b> 1 point par lettre, +2 par case numérotée, +3 par mot terminé. Tu rejoues.</p>
+      <p><b>Une lettre fausse :</b> ton essai s'efface et la main passe au suivant.</p>
+      <p><b>Mot mystère :</b> +20 points s'il est juste, sinon tu passes ton tour.</p>
+      <p><b>Finir la grille :</b> +20 points de bonus pour celui qui place la dernière lettre.</p>
+      <p><b>Chrono :</b> si le temps est écoulé, la main passe au joueur suivant.</p>
+      <p><b>Astuce :</b> les flèches ‹ › de la barre de définition passent au mot suivant non résolu ; touche la définition pour changer de sens.</p>
+    </details>
+  </section>
+
+  <section id="game" hidden style="flex-direction:column;gap:6px">
+    <div class="gbar">
+      <div class="scores" id="scores"></div>
+      <div class="tools">
+        <button class="ico" id="zoomBtn" type="button" title="Taille du plateau" aria-label="Taille du plateau">🔍</button>
+        <button class="ico" id="mystOpen" type="button" title="Mot mystère" aria-label="Mot mystère">🔤</button>
+        <button class="ico" id="menuBtn" type="button" title="Menu" aria-label="Menu" aria-expanded="false">☰</button>
+        <div class="dropdown" id="menu" hidden>
+          <button type="button" id="back">← Autres grilles</button>
+          <button type="button" id="chSeat">👤 Changer de joueur</button>
+          <button type="button" id="themeBtn2">☀️ Mode clair</button>
+          <div class="keys" id="menuInfo"></div>
+          <div class="foot" style="justify-content:flex-start"><span><span class="dot" id="gdot"></span><span id="gsync"></span></span></div>
+          <div class="keys" id="diag"></div>
+        </div>
+      </div>
+    </div>
+    <div class="statusrow"><div class="status" id="status"></div><div class="timer" id="timer" hidden></div></div>
+    <div class="gridbox" id="gridbox"><div class="grid" id="g"></div></div>
+    <div id="winbox" hidden class="win"></div>
+    <div class="overlay" id="seatBox" hidden>
+      <div class="seat">
+        <h2>Qui joue sur cet appareil ?</h2>
+        <div class="opts" id="seatOpts"></div>
+        <div class="muted">Chez toi, choisis ton pseudo. Si vous jouez tous sur ce téléphone, choisis « Tout le monde ».</div>
+        <button type="button" id="seatBack">← Revenir aux grilles</button>
+      </div>
+    </div>
+  </section>
+  <div class="dock" id="dock" hidden>
+    <div class="in">
+      <div class="cluebar"><button type="button" class="nav" id="prevW" aria-label="Mot précédent">‹</button><span class="dir" id="bardir">→</span><span id="bartxt">Touche une case ou une définition</span><button type="button" class="nav" id="nextW" aria-label="Mot suivant">›</button></div>
+      <div class="acts">
+        <div class="actwrap">
+          <button class="k act" id="actBtn" type="button" aria-haspopup="true" aria-expanded="false">Actions ▴</button>
+          <div class="actmenu" id="actMenu" hidden>
+            <button type="button" id="flip">⇄ Changer de sens</button>
+            <button type="button" id="clear">🧹 Effacer mon essai</button>
+            <button type="button" id="pass">⏭ Passer mon tour</button>
+            <button type="button" id="solBtn">💡 Solution</button>
+          </div>
+        </div>
+        <button class="k go" id="valid" type="button">✓ Valider</button>
+      </div>
+    </div>
+  </div>
+  <div class="overlay" id="solBox" hidden>
+    <div class="sheet">
+      <h2>Besoin d'aide ?</h2>
+      <button type="button" id="revLetter">Révéler la lettre sélectionnée</button>
+      <button type="button" id="revWord">Révéler le mot sélectionné</button>
+      <div class="muted" id="revInfo">Le mot s'affiche en gris, sans points, et la main passe au joueur suivant.</div>
+      <button type="button" class="danger" id="revAll">Voir toute la solution (fin de partie)</button>
+      <button type="button" id="solCancel">Annuler</button>
+    </div>
+  </div>
+  <div class="overlay" id="mystBox" hidden>
+    <div class="sheet">
+      <h2>Mot mystère</h2>
+      <p class="hint" id="hint"></p>
+      <div class="mystery" id="mys"></div>
+      <div class="myst"><input id="mystIn" type="text" maxlength="12" placeholder="Ta proposition" autocomplete="off"><button id="mystBtn" type="button">Proposer (+20)</button></div>
+      <div class="muted">Juste : +20 points et tu rejoues. Faux : tu passes ton tour.</div>
+      <button type="button" id="mystClose">Fermer</button>
+    </div>
+  </div>
+</div>
+<input id="kb" autocomplete="off" autocapitalize="characters" spellcheck="false" aria-label="Saisie">
+
+<script>
+// Branche la page du jeu sur le serveur du site : parties partagées par salon.
+(function(){
+  const CH="ABCDEFGHJKMNPQRSTUVWXYZ23456789";
+  let code=(location.pathname.match(/^\/([A-Za-z0-9]{5})\/?$/)||[])[1];
+  if(!code){code=Array.from({length:5},()=>CH[Math.floor(Math.random()*CH.length)]).join("");try{history.replaceState(null,"","/"+code)}catch(e){}}
+  code=code.toUpperCase();
+  window.SALON=code;
+
+  let ws=null,myId=null,ready=false,retry=0,reqN=0;
+  const pending={},snapSubs=[],peerSubs=[];let lastDocs=null,lastPeers=null,myPresence={};
+  function sendRaw(o){if(ws&&ws.readyState===1){ws.send(JSON.stringify(o));return true}return false}
+  function connect(){
+    ws=new WebSocket((location.protocol==="https:"?"wss://":"ws://")+location.host+"/ws");
+    ws.onopen=()=>{retry=0;sendRaw({t:"join",room:code});if(Object.keys(myPresence).length)sendRaw({t:"presence",presence:myPresence});setOnline(true)};
+    ws.onmessage=e=>{let m;try{m=JSON.parse(e.data)}catch(_){return}
+      if(m.t==="hello")myId=m.id;
+      else if(m.t==="snap"){ready=true;lastDocs=m.docs;const snap={docs:m.docs.map(d=>({id:d.id,data:()=>d.data}))};snapSubs.forEach(f=>{try{f.next(snap)}catch(err){console.error(err)}})}
+      else if(m.t==="peers"){lastPeers=m.peers;const ch={peers:m.peers.map(p=>({isMe:p.id===myId,kind:"viewer",guest:false,presence:p.presence||{}}))};peerSubs.forEach(f=>{try{f(ch)}catch(err){console.error(err)}})}
+      else if(m.t==="ack"){const p=pending[m.req];if(p){delete pending[m.req];m.ok?p.res():p.rej({code:m.code||"unavailable"})}}};
+    ws.onclose=()=>{setOnline(false);for(const k in pending){pending[k].rej({code:"unavailable"});delete pending[k]}setTimeout(connect,Math.min(5000,400*(++retry)))};
+  }
+  function setOnline(on){const b=document.getElementById("offline");if(b)b.hidden=on}
+  const col={
+    onSnapshot(next,err){const s={next,err};snapSubs.push(s);if(lastDocs)setTimeout(()=>next({docs:lastDocs.map(d=>({id:d.id,data:()=>d.data}))}),0);return()=>{const i=snapSubs.indexOf(s);if(i>=0)snapSubs.splice(i,1)}},
+    doc(id){return{set(data){return new Promise((res,rej)=>{const req=++reqN;pending[req]={res,rej};if(!sendRaw({t:"set",id,data,req})){delete pending[req];rej({code:"unavailable"})}})}}}
+  };
+  const db={collection(){return col}};
+  const room={
+    presence(p){myPresence=p||{};sendRaw({t:"presence",presence:myPresence});return Promise.resolve()},
+    onPeers(f){peerSubs.push(f);if(lastPeers)setTimeout(()=>f({peers:lastPeers.map(p=>({isMe:p.id===myId,kind:"viewer",guest:false,presence:p.presence||{}}))}),0);return()=>{}}
+  };
+  window.claude={use:async n=>n==="db"?db:n==="room"?room:null};
+  connect();
+
+  // carte « Inviter » à l'accueil
+  document.addEventListener("DOMContentLoaded",()=>{
+    const lobby=document.getElementById("lobby");if(!lobby)return;
+    const link=location.origin+"/"+code;
+    const card=document.createElement("div");card.className="invite multiOnly";
+    card.innerHTML='<div class="inv-top"><div><div class="inv-lbl">Ton salon</div><div class="inv-code"></div></div>'
+      +'<div class="inv-btns"><a class="inv-wa" target="_blank" rel="noopener">WhatsApp</a><button type="button" class="inv-copy">Copier le lien</button></div></div>'
+      +'<div class="inv-txt">Envoie ce lien à tes amis : vous verrez les mêmes parties en direct, sans compte. <button type="button" class="inv-new">Nouveau salon</button></div>';
+    card.querySelector(".inv-code").textContent=code;
+    card.querySelector(".inv-wa").href="https://wa.me/?text="+encodeURIComponent("On fait une partie de mots fléchés ? "+link);
+    card.querySelector(".inv-copy").onclick=e=>{const b=e.currentTarget;(navigator.clipboard?navigator.clipboard.writeText(link):Promise.reject()).then(()=>{b.textContent="Lien copié ✓";setTimeout(()=>b.textContent="Copier le lien",1800)},()=>{prompt("Copie ce lien :",link)})};
+    card.querySelector(".inv-new").onclick=()=>{location.href="/"};
+    const pill=lobby.querySelector(".pill");lobby.insertBefore(card,pill?pill.nextSibling:lobby.firstChild);
+    const off=document.createElement("div");off.id="offline";off.className="offline";off.hidden=true;off.textContent="Connexion perdue… reconnexion en cours";document.body.appendChild(off);
+  });
+})();
+
+</script>
+<script>
+const GRIDS=[{"id": "p43", "page": 43, "hint": "Indice : quelque chose qui se porte sur le corps.", "myst": "TATOUAGE", "clues": {"0,0": [["REMETTRE\nEN PAGE", "RD"], ["RÉADAPTER", "DR"]], "0,2": [["HANTISE DE\nCHAUFFARD", "RD"], ["OHÉ !", "D"]], "0,4": [["NOTE\nÉLEVÉE", "RD"], ["OUVRAGE\nSUR LAC", "D"]], "0,6": [["CONSPUA", "RD"], ["BROCHURE", "D"]], "0,8": [["GAZOUILLIS", "RD"], ["COMPTE\nSUR", "D"]], "2,0": [["RECULA", "R"], ["DIRECTION\nAU NORD", "DR"]], "2,5": [["BASSINE,\nFATIGUE", "R"], ["CHANGENT\nDE PLACE", "D"]], "3,2": [["BLINDA", "R"], ["CULOT,\nCRAN", "D"]], "3,7": [["EU LE\nDROIT", "R"], ["GUINDAI", "D"]], "4,0": [["OISEAU\nGRIMPEUR\nOU VOILE", "R"], ["MOINS BIEN", "DR"]], "4,9": [["NOMMES", "D"]], "5,3": [["CAUSÉ,\nPROVOQUÉ", "R"], ["COMMENÇAS", "D"]], "6,0": [["NIVEAU,\nÉCHELON", "R"], ["BALADAS", "DR"]], "6,6": [["PRODUIT\nEXTRAIT\nDE SALIN", "R"], ["CINTRE", "D"]], "7,8": [["DOUCETTE", "D"]], "8,0": [["ÉLÉGANT,\nTRÈS CHIC", "DR"]], "8,1": [["MÉGAOCTET\nEN BREF", "R"], ["MOUTARD,\nGOSSE", "D"]], "8,4": [["TRAINS DE\nVILLES", "R"], ["CACHA", "D"]], "9,5": [["AGENCE\nDES USA", "R"], ["EX-SIGLE\nPOSTAL", "D"]], "9,9": [["FOURREAUX", "D"]], "10,0": [["ACCAPARÉ", "R"], ["PETITE\nLONGUEUR", "DR"]], "10,7": [["OBJET À\nÉCOUTER", "R"], ["CARTE\nBANCAIRE", "D"]], "11,2": [["ÉLÉMENT DE\nMAINTIEN", "R"]], "12,0": [["LENTILLES\nÀ BESTIAUX", "R"]], "12,4": [["CANAUX", "R"]]}, "nums": {"12,5": 1, "8,7": 2, "1,6": 3, "10,1": 4, "4,5": 5, "3,3": 6, "6,4": 7, "11,9": 8}, "paper": ["3,5", "4,5", "5,5", "6,5", "7,5", "8,5", "8,2", "8,3", "8,6", "8,7", "8,8", "8,9", "5,9", "6,9", "7,9", "6,7", "6,8", "7,6", "7,7", "9,6", "9,7", "9,8", "10,6", "10,8", "10,9", "11,6", "11,7", "11,8", "11,9", "12,3", "12,5", "12,6", "12,7", "12,8", "12,9"], "alt": {}, "dash": [], "nr": 13, "k": "U0VCVVQjU1JFI0VIQ0FUVEEjTUNEQyNFUFVDQ08jI0FJQyNUUkFNU1NNQVJUI09NIyNJI1NBTkVNT1JQTEVTI0VHQVRFI0VSSVRUQSNTSVAjRUhDVVJSRVAjVVAjQU1SQSNPTkVTQVIjQURFQyNSRVVUSUJBSEVSQSNII1MjUiNSIw=="}, {"id": "p45", "page": 45, "hint": "", "myst": "", "clues": {"0,0": [["CURE À\nLA MER", "RD"], ["BIEN\nFOURNI", "DR"]], "0,2": [["POISON", "RD"], ["TEMPS DE\nROTATION", "D"]], "0,4": [["SLAVES", "RD"], ["SCORPION\nD'EAU", "D"]], "2,0": [["POIGNÉES\nDE MAINS", "R"], ["DÉCILITRE", "DR"]], "3,2": [["ÉDUCATION\nPHYSIQUE", "R"], ["CE PAIN\nGARNI", "D"]], "4,0": [["SANS AIR\n(EN)", "R"], ["M'EN-\nHARDIS", "DR"]], "4,6": [["FRANC,\nDIRECT", "RD"], ["BOULE DES\nPAYS-BAS", "D"]], "4,8": [["DÉITÉ", "RD"], ["RAILLERAS", "D"]], "5,4": [["ÉLIMINA-\nTOIRE", "R"], ["VALEUR\nSÛRE", "D"]], "6,0": [["SOCIÉTÉ\nDE TRAINS", "R"], ["PRÉNOM DE\nMARLEY", "DR"]], "6,5": [["S'ÉTERNISE", "R"], ["PRÉNOM\nDE FEMME", "D"]], "7,3": [["CHEMINERA", "R"], ["SIFFLÉ,\nAVALÉ", "D"]], "7,7": [["CÔTE,\nVERTÈBRE", "R"], ["ARDEUR,\nVIVACITÉ", "D"]], "8,0": [["VÉGÉTAUX\nMARINS", "DR"]], "8,1": [["VENTRES", "R"], ["JOYEUX\nCOMPA-\nGNONS", "D"]], "9,6": [["BAS FOND", "R"], ["DEMEURE\nAU SOLEIL", "D"]], "10,0": [["ENTRE LE\nZÉRO ET\nL'INFINI", "R"], ["MONTÉ", "DR"]], "10,3": [["MOINES\nDU TIBET", "R"], ["TRÈS\nANIMÉS", "D"]], "10,9": [["EST\nINFORMÉ", "D"]], "11,5": [["BÊTES\nRÉTIVES", "R"], ["PINÇA", "D"]], "12,0": [["MAUX\nD'OREILLES", "R"], ["SOURCE\nPEU CLAIRE", "DR"]], "12,7": [["LE RADIUM", "R"], ["HECTARE", "D"]], "13,2": [["FOYER,\nINCENDIE", "R"]], "13,6": [["ABHORRÉ,\nDÉTESTÉ", "R"]], "14,0": [["LETTRES\nALAR-\nMANTES", "R"]], "14,4": [["CANAPÉ", "R"]]}, "nums": {}, "paper": [], "alt": {}, "dash": [[6, 2, "b"]], "nr": 15, "k": "VFNBT1QjU09TI0lBSCNVRUYjTk9BUiNTRVRJVE8jU0VOQSNJVkFSRyNTQU1BTCNOVSNFSUwjU0VVR0xBU05FTU9EQkEjI1NPI0FSSSNCT0JFUlVEI0ZDTlMjRUlSRVMjSUFTT0QjQyNFRU5QQSNAQEBAU1BFI0xEQEBAQFNFU05BI0BAQEBVTlJBSENAQEBAUiNBI1Qj", "pic": "Illustration : un sandwich garni"}, {"id": "p47", "page": 47, "hint": "Un film d'animation américain sorti en 2010.", "myst": "DRAGONS", "clues": {"0,0": [["RAMENA EN\nARRIÈRE", "RD"], ["REFUSA", "DR"]], "0,2": [["PETIT\nHECTARE", "RD"], ["TEMPS DES\nCRÊPES", "D"]], "0,4": [["BOTTE\nDES USA", "RD"], ["PLACE,\nENDROIT", "D"]], "0,6": [["ENCLOS", "RD"]], "1,6": [["ANIMAL\nNUISIBLE", "R"], ["VOITURE", "D"]], "0,8": [["AVANT\nIMPÔT", "RD"], ["DIRIGEAS", "D"]], "2,0": [["MESURE DE\nCHIMISTE", "R"], ["OBTURA-\nTEURS", "DR"]], "2,3": [["TABLE\nALPHABÉ-\nTIQUE", "R"], ["RISSOLA", "D"]], "2,9": [["FAUX\nBRILLANT", "D"]], "3,7": [["CHAMPION,\nPRO", "R"], ["TÊTE DE\nLINOTTE", "D"]], "4,0": [["DU JAMAIS\nVU", "R"], ["INSIPIDE,\nSANS GOÛT", "DR"]], "4,6": [["POINT", "R"], ["TRÉSOR\nRAVI À\nL'ENNEMI", "D"]], "5,4": [["BASE D'UNE\nSCIENCE", "R"], ["RIVIÈRE DE\nFRANCE", "D"]], "5,8": [["REMIT\nSOUS\nPRESSE", "D"]], "6,0": [["MARMONNAI", "DR"]], "6,1": [["ÉCLAIRCIRA", "R"], ["UNIE PAR\nUN TRAITÉ", "D"]], "7,5": [["À FORTE\nDOSE", "R"], ["DERMATOSE\nD'ADOS", "D"]], "8,0": [["ARTICLE\nCOURANT", "R"], ["CROSSE\nDE GOLF", "DR"]], "8,3": [["NIAISES", "R"], ["APPELÉ\nL'INTERNE", "D"]], "9,4": [["IL FORME À\nDISTANCE", "R"], ["COURSE DE\nCYCLES", "D"]], "9,9": [["CONSER-\nVATEUR", "D"]], "10,0": [["RELATIF\nÀ L'ŒIL", "R"], ["PRONOM\nPERSONNEL", "DR"]], "10,6": [["EMBLÈME\nDE COUR", "R"], ["LA FRANCE\nDU NET", "D"]], "11,2": [["FONC-\nTION-\nNAIRE", "R"]], "12,0": [["ARME À\nDOUBLE\nTRANCHANT", "R"]], "12,5": [["ÉQUIPE\nMADRILÈNE", "R"]]}, "nums": {"2,6": 1, "10,2": 2, "12,8": 3, "6,5": 4, "4,3": 5, "8,4": 6, "3,9": 7}, "paper": [], "alt": {"11,0": "JMTS"}, "dash": [], "nr": 13, "k": "TEFFUiNFRVBFI0VURUZFUlAjRUpTSUwjTkVJUkkjI0RFTkMjQlVMQ1NFVklBTiNFTCNTRVJUI0lBTEFSQVJFVUdBTEUjI1IjQ0JBI0VEQUZUU0UjSVVPTkkjU0EjU1RFUEFMQyNYRUROSSNIUCNUQVIjQUxBQ0VSSCNQI1MjSCNSIw=="}, {"id": "p49", "page": 49, "hint": "Un meuble qui servait à la toilette féminine.", "myst": "POUDREUSE", "clues": {"0,0": [["VIOLON-\nCELLISTE", "RD"], ["PLANTE DE\nMARAIS", "DR"]], "0,2": [["CLASSE DU\nPRIMAIRE", "RD"], ["BEAU\nMONSTRE", "D"]], "0,4": [["PRONOM\nRELATIF", "RD"], ["TRANQUIL-\nLISENT", "D"]], "0,6": [["INSUFFI-\nSANCE", "RD"]], "1,6": [["FAVORABLE", "R"], ["CEINTURE,\nPÉRIPHÉRIE", "D"]], "0,8": [["LADY", "RD"], ["CHAMP DES\nSIRÈNES", "D"]], "2,0": [["SILICIUM\nEN CHIMIE", "R"], ["MARQUA\nDE RAIES", "DR"]], "2,3": [["SOIF (LA)", "R"], ["PAS LOIN\nD'ELLE", "D"]], "2,9": [["SUPPORT\nDE CAISSE", "D"]], "3,5": [["GÉANT", "R"], ["MOT QUI\nUNIT", "D"]], "4,0": [["ARTISAN\nDU LIVRE", "R"], ["AVISÉ", "DR"]], "4,8": [["CHAUS-\nSURES\nLÉGÈRES", "D"]], "5,3": [["ANXIÉTÉ,\nANGOISSE", "R"], ["ASSEMBLÉE\nD'ÉLUS", "D"]], "6,0": [["APPUYÉ\nFORTEMENT", "R"], ["CAP À\nSUIVRE", "DR"]], "6,5": [["FIS LA\nPEAU", "R"], ["CITROUILLE", "D"]], "7,2": [["BLESSÉ\nPAR UN\nANIMAL", "R"], ["ÉTRIQUÉ", "D"]], "8,0": [["RENFLÉ,\nBOMBÉ", "R"], ["BROYA", "DR"]], "8,7": [["ARTICLE\nPARTITIF", "R"], ["SKI UNIQUE", "D"]], "9,4": [["FORTIFIA", "R"], ["SAVOIR-\nFAIRE", "D"]], "9,9": [["ÇA FAIT\nSURFACE", "D"]], "10,0": [["FORCE DE\nLA NATURE", "R"], ["VACCIN\nBILIÉ", "DR"]], "10,6": [["MOUVEMENT\nDE FOULE", "R"], ["ÉPREUVE\nDE F1", "D"]], "11,3": [["PRÉVALOIR", "R"]], "12,0": [["NOMBRE", "R"]], "12,5": [["PLACE", "R"]]}, "nums": {"12,6": 1, "7,1": 2, "6,7": 3, "8,8": 4, "11,9": 5, "2,8": 6, "1,5": 7, "5,4": 8, "4,2": 9}, "paper": [], "alt": {"7,0": "NS"}, "dash": [], "nr": 13, "k": "RVNPUCNUSVVII1JFTkdFUiNHQ0JBTE8jTkFUSVQjI0FNUkEjQVhJTVVEI1VSVE5FViNFTlJPQ05FI09OSUFVVCNFU0VQI1NTRVJUUyNOT0JTI1JVRUlMRVIjRVJHTyNBSVJUUyNFSVBFUCNJUyNJTUEjVUFFU09SRCNNI1EjQyNSIw=="}, {"id": "p51", "page": 51, "hint": "Une friandise belge de forme conique.", "myst": "CUBERDON", "clues": {"0,0": [["IL FAIT\nSEMBLANT", "RD"], ["INDIVIDU\nBIZARRE", "DR"]], "0,2": [["PÉTRO-\nLETTE", "RD"], ["FOU DE", "D"]], "0,4": [["SUSTENTER", "RD"], ["SANS\nRETARD", "D"]], "0,6": [["ÉLUE DU\nCALEN-\nDRIER", "RD"]], "1,6": [["ÇA RELÈVE\nLE NIVEAU", "R"], ["SOCIABLES", "D"]], "0,8": [["CLASSE DE\nPRIMAIRE", "RD"], ["ESPOIR\nDE STAR", "D"]], "2,0": [["DINGUES", "R"], ["TASSE,\nCHOPE", "DR"]], "2,9": [["ÉPAIS-\nSISSAIT", "D"]], "3,3": [["SÉLECTION", "R"], ["SERVICE DU\nPERSONNEL", "D"]], "3,7": [["CENTIÈME\nÀ BOIRE", "R"], ["EMPÊCHA\nDE PARLER", "D"]], "4,0": [["HOMME AU\nHARAS", "R"], ["ACTION\nBIEN COTÉE", "DR"]], "4,4": [["MANIAI LA\nPAGAIE", "R"], ["ZONE,\nDOMAINE", "D"]], "5,2": [["ENTAILLA", "R"], ["VENT\nCHAUD\nET SEC", "D"]], "6,0": [["HABITS\nLÉGERS", "R"], ["ÉTATS UNIS\nDE L'EST", "DR"]], "6,8": [["AIR DE LA\nJAMAÏQUE", "D"]], "7,3": [["PAREILLE", "D"]], "7,5": [["OUVRE\nLE JEU", "R"], ["COURT\nREPOS", "D"]], "8,0": [["DÉCHETS\nNATURELS", "R"], ["BOISSON\nCHAUDE", "DR"]], "8,6": [["ARTICLE\nDÉFINI", "R"], ["TANGIBLE,\nCONCRET", "D"]], "8,9": [["TÊTES\nBLONDES", "D"]], "9,4": [["BROUILLE,\nDISPUTE", "R"], ["DANS TEL\nLIEU", "D"]], "10,0": [["DEMAN-\nDERAI AVEC\nFORCE", "DR"]], "10,1": [["DÉTENDU", "R"], ["D'ELLE OU\nDE LUI", "D"]], "10,7": [["GRAND\nPRIX", "R"], ["LA RÉPU-\nBLIQUE", "D"]], "12,0": [["RESCAPÉ\nDU DÉLUGE", "R"]], "12,4": [["GÉNIES\nAÉRIENS", "R"]]}, "nums": {"11,2": 1, "3,1": 2, "2,3": 3, "9,9": 4, "7,8": 5, "4,3": 6, "1,5": 7, "5,6": 8}, "paper": [], "alt": {"7,0": "*"}, "dash": [[6, 1, "r"]], "nr": 13, "k": "U0VGTEUjRU9OI0lBUkVNQUxDRVJQRyNFTUxBQyMjRUdBUk8jR09SRyNFTCNTRUVSVSNUUkVTI1IjSUUqSSNTVFJJSFNUI0FSVU5JQVIjQUFJQU1BUiNEQUwjTEMjSVJUI0dVTSNTRUxVT0JBTSNQT1QjT1RPR0laQyNTI04jTSNTIw=="}, {"id": "p52", "page": 52, "hint": "", "myst": "", "clues": {"0,0": [["CASSURE", "RD"], ["DÉFIAI", "DR"]], "0,2": [["RACCOURCI\nD'AVENUE", "RD"], ["REFUGE,\nTOIT", "D"]], "0,4": [["AU\nNATUREL", "RD"], ["ALLIAGE", "D"]], "0,6": [["TARTINER", "RD"]], "1,6": [["POINT À\nL'HORIZON", "R"], ["ANTILLAIS", "D"]], "0,8": [["BREVET\nTECHNIQUE", "RD"], ["VILLE DU\nMIDI", "D"]], "2,0": [["ASSEZ BIEN", "R"], ["COLORAI\nEN BRUN", "DR"]], "2,3": [["MASSES EN\nMOUVEMENT", "R"], ["ROYAUME\nD'ASIE", "D"]], "3,5": [["TALENT,\nSAVOIR-\nFAIRE", "R"], ["FIGNOLAI", "D"]], "3,9": [["GLACE\nÀ L'EAU", "D"]], "4,0": [["CAGNOTTES", "R"], ["ÉTÉ\nAPTE À", "DR"]], "5,2": [["ANGLE", "R"], ["BALANCE,\nMOUCHARD", "D"]], "5,8": [["BÉCASSE\nOU GRUE", "D"]], "6,0": [["RELEVÉ\nBANCAIRE", "R"], ["DÉCOUVRE", "DR"]], "6,4": [["ENCAUS-\nTIQUER", "R"], ["OUTIL\nD'ARBITRE", "D"]], "7,7": [["MOYEN DE\nPAIEMENT", "R"], ["COURAGE,\nCULOT", "D"]], "8,0": [["SPORT\nD'HIVER", "DR"]], "8,1": [["QUI SE\nDANDINE", "R"], ["FIBRE TRÈS\nSOLIDE", "D"]], "9,3": [["ÉTÉ GAI", "R"], ["OISEAU\nDE PROIE\nNOCTURNE", "D"]], "9,6": [["ÉLÈVE DE\nDANSE", "R"], ["PATRIARCHE", "D"]], "10,0": [["PHÉNOMÈNE\nDE\nRÉFLEXION", "R"], ["RAYONS", "DR"]], "10,5": [["FOULÉE", "R"], ["DÉGUSTÉ", "D"]], "10,9": [["GRAND\nAMOUR\nD'ARAGON", "D"]], "11,2": [["FOU,\nDÉMENT", "R"], ["ENTRE\nDEUX ÂGES", "D"]], "12,0": [["TRAVAIL DE\nLA TERRE", "R"], ["CHANT\nPORTUGAIS", "DR"]], "12,7": [["SUJET", "R"], ["QUI EST\nÀ TOI", "D"]], "13,4": [["ÊTRES\nANIMÉS", "R"]], "14,0": [["BATTIS,\nFRAPPAI", "R"]], "14,6": [["IL A UN\nBEAU\nPLUMAGE", "R"]]}, "nums": {}, "paper": [], "alt": {}, "dash": [], "nr": 15, "k": "QVJBI0lBVU9SI1NFVEVCI09EQUZMSSNSVU9CQUwjRVNORVNOSSNWVSNTQVAjT0hDRSNUQVIjSVIjSUtTRUhDTkFIRUQjI0JDI0VIQ0lORURSRVJJQyNCSVIjTyNFVEVSQSNVUFNFUklMRVJJVCMjVFJBI0lBUkNPU0VVSE9DI0JBI1RTRSNJQVZBUkJCI0IjQiNBI0Yj"}, {"id": "p53", "page": 53, "hint": "Une danse en couple, d'origine provençale.", "myst": "RIGAUDON", "clues": {"0,0": [["METTRA\nBAS AU\nCLAPIER", "RD"], ["MÉCÉNAT", "DR"]], "0,2": [["ADMIS,\nGOBÉ", "RD"], ["ERRA", "D"]], "0,4": [["ORIENTÉ", "RD"], ["MODÉRÉ", "D"]], "0,6": [["EAU-DE-VIE\nNORMANDE", "RD"], ["ARRIVÉ\nEN VIE", "D"]], "0,8": [["TOUT-\nTERRAIN", "RD"], ["COULISSA", "D"]], "2,0": [["ÉLÉMENT\nPORTEUR", "R"], ["MAISON DE\nJEUNES", "DR"]], "3,3": [["TITANE\nEN BREF", "R"], ["PERCEUSE", "D"]], "3,6": [["UN DE LA\nJET-SET", "R"], ["PRESSA", "D"]], "4,0": [["JOUAS LES\nSKIPPERS", "R"], ["BÊLEMENT", "DR"]], "4,9": [["ÉTONNERA\nVIVEMENT", "D"]], "5,2": [["RAIRE,\nBRAMER", "R"], ["ALERTES", "D"]], "5,7": [["SIGLE D'OR-\nGANISME\nSOCIAL", "R"], ["TENTATIVE", "D"]], "6,0": [["INCURSION\nBRUTALE", "R"], ["REGROU-\nPÉES", "DR"]], "6,5": [["OISEAU\nDES BOIS", "R"], ["PLUS\nALLUMÉ", "D"]], "7,8": [["SANS\nQUOI", "D"]], "8,0": [["PREND\nLE\nDESSUS", "DR"]], "8,1": [["CAPONE\nOU PACINO", "R"], ["BOIS", "D"]], "8,4": [["RÉCIPIENT\nÀ BOIRE", "R"], ["TITRE\nABRÉGÉ", "D"]], "9,6": [["SOUFFLE\nEN\nCOURANT", "R"], ["DÉVELOPPÉ", "D"]], "10,0": [["GRANDE\nÉQUIPE", "R"], ["ALERTÉ", "DR"]], "10,3": [["MENOTTE", "R"], ["SOUS-\nTITRÉ (EN)", "D"]], "11,7": [["POURTANT", "R"]], "12,0": [["SENS\nDU VENT", "R"]], "12,4": [["SE MIT EN\nÉVIDENCE", "R"]]}, "nums": {"9,9": 1, "3,1": 2, "4,5": 3, "1,7": 4, "2,3": 5, "6,4": 6, "10,1": 7, "12,8": 8}, "paper": [], "alt": {}, "dash": [], "nr": 13, "k": "QU5PUlQjT1NTI1JPI1VORVZFUlBFTklNSU0jTU8jUklBI0VNRVJDRUVTU0FUI0xBIyNEI1NFRUlMTEFSSUFFRyNESUFSI1NTI1JFRVIjRUIjU0FVR0lWQU4jUElWI0lUI0RJTkVMTEVSVFVPUCNFR0FOSUFSUkFQSiNDI0QjQyNMIw=="}, {"id": "p54", "page": 54, "hint": "", "myst": "", "clues": {"0,0": [["COULOIR", "RD"], ["RÉFUTER", "DR"]], "0,2": [["PAS NET", "RD"], ["APPAREIL\nD'ÉCLAI-\nRAGE", "D"]], "0,4": [["SAPE,\nNIPPE", "RD"], ["RECOM-\nPOSÉS", "D"]], "0,6": [["APRÈS V\nÀ ROME", "RD"], ["AUBE", "D"]], "0,8": [["CÉLÈBRE", "RD"], ["TIRE DE\nNOUVEAU\nSUR", "D"]], "2,0": [["NOTE\nMUSICALE", "R"], ["BADIN, GAI", "DR"]], "2,3": [["MORCEAU\nDE VIVALDI", "R"], ["HABITE", "D"]], "2,7": [["LIEN DE\nMOTS", "R"], ["ESPIONNAS", "D"]], "3,5": [["BENÊT", "R"], ["ON AIME\nQU'IL SOIT\nVIERGE", "D"]], "4,0": [["VACANT", "R"], ["TRAVAUX\nÀ LA FAC", "DR"]], "4,9": [["CONVOITÉE", "D"]], "5,2": [["PAS PIQUÉ\nDES VERS", "R"], ["SIGNE\nMUSICAL", "D"]], "6,0": [["ÉCOUTES\nL'ORDRE", "R"], ["ENDROIT\nVERT", "DR"]], "6,6": [["ACIDE DES\nGÈNES", "R"], ["FRISÉ", "D"]], "7,3": [["SIGNES DE\nNERVOSITÉ", "R"], ["COMMU-\nNIQUÉ", "D"]], "7,8": [["FROMAGE\nNORMAND", "D"]], "8,0": [["POISSON\nMARIN", "DR"]], "8,1": [["GAGER", "R"], ["STYLE DE\nMUSIQUE", "D"]], "8,7": [["LITHIUM\nEN CHIMIE", "R"], ["NAVIRE\nANCIEN", "D"]], "9,4": [["ELLE EST\nPROCHE\nDU STUDIO", "R"], ["CELA", "D"]], "10,0": [["RETRAITE", "R"], ["COURSE AU\nCASTELLET", "DR"]], "10,5": [["LECTURE\nINDIGESTE", "R"], ["RESTAU\nMILITAIRE", "D"]], "11,2": [["ADDI-\nTIONNA", "R"], ["ONDE DE\nSUISSE", "D"]], "11,9": [["FRUIT\nCROQUANT", "D"]], "12,0": [["BIEN\nÉLEVÉE", "R"], ["GARDIEN\nDES BUTS", "DR"]], "12,6": [["FERA LA\nROUTE", "R"], ["CLASSE\nD'INSTIT", "D"]], "13,4": [["PREMIÈRE\nNOUVELLE", "R"]], "14,0": [["VAGUEMENT\nPRÉVU", "R"]]}, "nums": {}, "paper": [], "alt": {}, "dash": [[11, 1, "b"]], "nr": 15, "k": "SVRORVNTRVJQI1BPT0NTI0xBT0dBUkkjRVRVQUgjI0FMVU1VQyNQR0VWQVAjVE9MSSNFSUdFUiNOT0hUSUwjUkVTSU0jI1YjU0NJVCNFUlBOREEjU0lFQk8jRU5JVEFSRyNEVCNFUFVDQ09OSSNBVEVCI0VMT1JEVEUjRVRFI0VSI0VSSURFUlROT0NGI1YjViNII0Mj"}, {"id": "p55", "page": 55, "hint": "Une marionnette du théâtre de Guignol.", "myst": "MADELON", "clues": {"0,0": [["BOÎTE\nUTILE", "RD"], ["VOLA, PRIT", "DR"]], "0,2": [["NOTE PEU\nÉLEVÉE", "RD"], ["FIT PLACE\nNETTE", "D"]], "0,4": [["JOYEUX,\nRIANT", "RD"], ["ÉCU", "D"]], "0,6": [["CITÉ\nSUR LA\nGARONNE", "RD"]], "1,6": [["GOÛT,\nFANTAISIE", "R"], ["RUINA PEU\nÀ PEU", "D"]], "0,8": [["PETIT\nVERRE À\nBOIRE", "RD"], ["REMET", "D"]], "2,0": [["CHIFFRE\nD'AFFAIRES", "R"], ["SCOOTER\nITALIEN", "DR"]], "2,3": [["RABOTÉE", "R"], ["FLÛTE DE\nCAMPAGNE", "D"]], "2,9": [["EXPULSÉE", "D"]], "3,5": [["NATUREL", "R"], ["INSTRU-\nMENT,\nAPPAREIL", "D"]], "4,0": [["UNE PAR\nTRIMESTRE", "R"], ["IL BAT\nLE ROI", "DR"]], "4,7": [["DISC-\nJOCKEY", "R"], ["EU DANS\nLE NEZ", "D"]], "5,2": [["MOT DE\nDÉGOÛT", "R"], ["BOUR-\nDONNER", "D"]], "5,8": [["VIANDE\nPOCHÉE", "D"]], "6,0": [["QUATRE\nSEMAINES\nAVANT NOËL", "R"], ["RENVOYA", "DR"]], "6,6": [["PREMIÈRE\nLECTURE", "R"], ["SORT,\nAVENIR", "D"]], "7,4": [["BOUCHÉ", "R"], ["TECHNIQUE\nAISÉE", "D"]], "8,0": [["UNITÉ\nRUSSE", "R"], ["METS\nVIETNAMIEN", "DR"]], "8,7": [["SIGLE\nEUROPÉEN", "R"], ["PISTOLET", "D"]], "9,3": [["PAYS\nD'EUROPE", "D"]], "9,5": [["ÉTONNE\nVIVEMENT", "R"], ["SOUFFRIT", "D"]], "10,0": [["MIT DU\nDÉSORDRE", "DR"]], "10,1": [["VILLE\nANGLAISE", "R"], ["RADIUM\nEN BREF", "D"]], "10,9": [["RÉUNION\nDU\nSYNDICAT", "D"]], "12,0": [["VOLATILE\nCOLORÉ", "R"]], "12,4": [["CONTRE\nLA\nPESANTEUR", "R"]]}, "nums": {"9,2": 1, "12,3": 2, "7,6": 3, "1,1": 4, "11,7": 5, "5,4": 6, "3,8": 7}, "paper": [], "alt": {}, "dash": [[12, 8, "r"]], "nr": 13, "k": "R0lUTkEjQVJBI0FMTElVT0ZJUlQjTE9UU0lSQiMjRUlDUyNSI01FTkVVI0VMQlVPUiNUT0lESSNBUklWQ0JBI1RORVZBI0UjSEFVT1AjU0FKRCNOT1NJQVMjRU5OSSNBUFNFViNFRU1JTCNBQyNFUkcjQUJPUkVERCNBI0cjRCNOIw=="}, {"id": "p56", "page": 56, "hint": "", "myst": "", "clues": {"0,0": [["PARTIE DE\nCHAUSSURE", "RD"], ["INTRONISAI", "DR"]], "0,2": [["FRANCE\nSUR\nINTERNET", "RD"], ["STÉRAIT", "D"]], "0,4": [["REFUSA\nD'AD-\nMETTRE", "RD"], ["GARANTIT", "D"]], "0,6": [["DÉSIR\nDE\nMANGER", "RD"]], "1,6": [["SERVICE\nTRAVAILLÉ", "R"], ["LE MOT DE\nL'AFIN", "D"]], "0,8": [["CHARGES\nDE\nBALLONS", "RD"], ["PEIGNER", "D"]], "2,0": [["VU", "R"], ["IL\nTRAVAILLE À\nLA CHAÎNE", "DR"]], "2,3": [["ANIMAUX À\nTROMPE", "R"], ["ENNUI,\nPROBLÈME", "D"]], "3,5": [["SAUTE,\nNÉGLIGE", "R"], ["AUTANT", "D"]], "4,0": [["NARINE", "R"], ["LIÉ,\nJOINT", "DR"]], "4,7": [["NOTE\nD'OUBLI", "R"], ["FIS MON\nTROU", "D"]], "5,3": [["GLISSE\nSUR L'EAU", "R"], ["AGRANDI,\nAMPLIFIÉ", "D"]], "5,9": [["DÉPÔT\nAU FOND", "D"]], "6,0": [["EMPIRES", "R"], ["IL A SA\nCLÉ", "DR"]], "6,6": [["SPÉCIA-\nLISTE DE\nLA TÊTE", "R"], ["COURRIEL", "D"]], "7,2": [["PLACER", "R"], ["FORTIFIÉE", "D"]], "7,8": [["RACLES", "D"]], "8,0": [["RÉPLIQUE\nÉQUITABLE", "R"], ["PRESSA,\nCOMPRIMA", "DR"]], "8,4": [["PORTRAIT", "R"], ["DÉCIDÉ,\nFERME", "D"]], "9,5": [["MÉLODIE", "R"], ["ANIMAL\nÀ LAINE", "D"]], "9,9": [["DÉJEUNER\nDE BÉBÉ", "D"]], "10,0": [["PATRIARCHE\nÀ\nL'ARCHE", "DR"]], "10,1": [["RÉGAL\nDU PETIT\nDÉJEUNER", "R"], ["TE LANCES", "D"]], "10,7": [["SIGLE DE\nLA BIBLE", "R"], ["ÉTENDUES\nDE SABLE", "D"]], "11,3": [["CRASSE,\nSALISSURE", "R"], ["RÉGNANT", "D"]], "12,0": [["CONTRE-\nPOISON", "R"], ["IMITE LE\nBÊLEMENT", "DR"]], "12,6": [["TRAVAIL\nEN MOINS", "R"], ["LE SODIUM\nEN CHIMIE", "D"]], "13,2": [["ENTRE\nJAUNE\nET\nROUGE", "R"]], "14,0": [["ELLE\nSORT\nDE LA\nCHEMINÉE", "R"]], "14,5": [["FIN\nPÉJO-\nRATIVE", "R"]]}, "nums": {}, "paper": [], "alt": {}, "dash": [[7, 6, "b"]], "nr": 15, "k": "RVNTQSNFSVVTI0VFR05BUk8jRUJUVFIjTVVSRVMjRVRFTEFTI0VPTlRBI0lMU1VNIyMjUklBI0FSUkVTRUdBTUkjQ0FUI0kjUkVTQUMjVFVMUk8jU1RBVEUjI0VGUlVTI0lOVVNQI1VBRVNBTiNURU1PI1RPQk9SU1JJUEFUI1VMI0VDQSNJQVJDQVNMI0YjTiNGI1Qj"}, {"id": "p57", "page": 57, "hint": "Le surnom de Nelson Mandela.", "myst": "MADIBA", "clues": {"0,0": [["PAS\nSOUPLE", "RD"], ["COURSE DU\nTOUQUET", "DR"]], "0,2": [["FAIRE\nBOUGER", "RD"], ["APPAR-\nTENIR", "D"]], "0,4": [["MET À LA\nPORTE", "RD"], ["RADIUM DE\nCHIMISTE", "D"]], "0,6": [["ENNUYA", "RD"]], "1,6": [["S'IL VOUS\nPLAÎT", "R"], ["PRIVÉ DE,\nEN PRÉFIXE", "D"]], "0,8": [["COURS\nPRÉPARA-\nTOIRE", "RD"], ["ARRIVÉ", "D"]], "2,0": [["PÉTRIFIÉ,\nABASOURDI", "R"], ["BOLET\nGOÛTEUX", "DR"]], "2,9": [["LÂCHER,\nDISTANCER", "D"]], "3,4": [["COUPS DE\nPOING", "R"], ["OS LONG\nDU BRAS", "D"]], "4,0": [["CACHÉ,\nDISSIMULÉ", "R"], ["COOL", "DR"]], "4,6": [["ANIMÉE,\nPOUSSÉE", "R"], ["IRRITANT,\nPIQUANT", "D"]], "5,3": [["LE PREMIER\nHOMME", "R"], ["COURT\nBROUILLON", "D"]], "5,8": [["DRÔLE\nDE\nLASCAR", "D"]], "6,0": [["PRO DU\nRASAGE", "DR"]], "6,1": [["QUÊTE\nDE FAN", "R"], ["IMMODÉRÉ,\nEXCESSIF", "D"]], "7,7": [["IL EST\nJAUNE", "R"], ["PERCE", "D"]], "8,0": [["NOBLE", "R"], ["EU LA\nPOSSIBI-\nLITÉ DE", "DR"]], "8,5": [["FIN\nD'ÉNUMÉ-\nRATION", "R"], ["ARCEAUX", "D"]], "8,9": [["BELLE\nSUR LE\nPODIUM", "D"]], "9,2": [["ABÎMA,\nÉRODA", "R"], ["ÉTÉ\nEFFICACE", "D"]], "9,6": [["RÉGION\nD'OUTRE-\nMER", "R"], ["PAS ELLE", "D"]], "10,0": [["CABAS", "R"], ["BOÎTES À\nMUSIQUE", "DR"]], "10,4": [["CITÉ DU\nBRÉSIL", "R"], ["OUTIL DE\nDESSIN", "D"]], "10,8": [["SIGLE\nPOSTAL", "D"]], "12,0": [["ONT\nPARLÉ\n(SE SONT)", "R"]], "12,6": [["GYM À\nL'ÉCOLE", "R"]]}, "nums": {"9,9": 1, "2,4": 2, "5,5": 3, "12,2": 4, "11,8": 5, "7,1": 6}, "paper": [], "alt": {}, "dash": [[11, 4, "r"]], "nr": 13, "k": "U1BFI1NFRUlGI1NCVUxDVEhHSU5JI09JUiNDQVMjTU9SI0FTVSNVUCNDVEUjVUFFQiNSTyNSRUlCUkFCRUNBQ0lERUQjI00jTUFEQSNORVpFVU0jRVJSRVQjU05PTkcjRVBFQyNFU0lOQVRFVCNQVlMjT1JVRE5FQyNBI0MjTSNFIw=="}, {"id": "p58", "page": 58, "hint": "", "myst": "", "clues": {"0,0": [["DEVANCE", "RD"], ["MANAGERAI", "DR"]], "0,2": [["PEU\nCOLORÉ", "RD"], ["CLASSE\nD'ÉCOLE", "D"]], "0,4": [["MARQUE\nINFINITIVE", "RD"], ["PERD LE\nCONTRÔLE", "D"]], "0,6": [["SANS\nAMBAGES", "RD"], ["RENSEIGNE", "D"]], "0,8": [["MALADIE\nDU SUCRE", "RD"], ["RENVERSE,\nDÉMOLIT", "D"]], "2,0": [["PRÉFIXE DE\nDISTANCE", "R"], ["EN PARTIE", "DR"]], "2,5": [["FIEF DE\nFIDEL", "R"], ["GRIMPEUR\nÀ PLUMES", "D"]], "3,2": [["EXAMEN", "R"], ["REBELLE", "D"]], "3,7": [["GROUPE\nSANGUIN", "R"], ["MOISIES", "D"]], "4,0": [["ELLE\nOPACIFIE LE\nCRISTALLIN", "R"], ["ENCORE", "DR"]], "5,3": [["DIVISIBLE\nPAR DEUX", "R"], ["PRESQUE\nAU SUD", "D"]], "5,8": [["PITT\nINTIME", "D"]], "6,0": [["INSTALLE", "R"], ["TARIS", "DR"]], "6,5": [["HABIT DE\nJUGE", "R"], ["PÂTURE", "D"]], "7,4": [["JETONS", "R"], ["IRRIGUA", "D"]], "7,9": [["DEMANDE\nÉCRITE\nOU\nVERBALE", "D"]], "8,0": [["ÉCOLE\nDES\nGRANDS", "DR"]], "8,1": [["DÉSINFECTA", "R"], ["PRATIQUAS\nLA BRASSE", "D"]], "8,6": [["IL INDIQUE\nLE MOYEN", "R"], ["ENIVRAI", "D"]], "9,3": [["AUSTÈRE", "R"], ["INTER-\nVALLE", "D"]], "10,0": [["VARIÉTÉ\nDE GYPSE", "R"], ["MILLI-\nGRAMME", "DR"]], "10,8": [["RETENUES", "D"]], "11,2": [["LITHIUM\nEN BREF", "R"], ["PLUS UN\nNOVICE", "D"]], "11,5": [["SORTI DE\n(... DE)", "R"], ["DISQUE\nÀ VOIR", "D"]], "12,0": [["ÉTENDS", "R"], ["MUSÉE\nPARISIEN", "DR"]], "12,7": [["UNION\nDE PAYS\nEUROPÉENS", "R"], ["ARTICLE", "D"]], "14,0": [["LAME DE\nLABOUR", "R"]], "14,4": [["ALTÉ-\nRATION\nMUSICALE", "R"]]}, "nums": {}, "paper": [], "alt": {}, "dash": [], "nr": 15, "k": "RVNFSUQjQ09TI1RFTEFWQU5SQUNFVSNTRE5BUEUjVVNTSSNJTCNHTVEjRVJUQUJMQSNFRElHSVIjQU5FUkFQI0FET0kjIyNSVUVQI1NDRVNFQk9SI0VTT1AjVCNSSUFQI1NJQkVUQ0FSQVRBQyNCQSNMQVJPI0lNQUJVQyNFTEVUI0lBUkVSREFDTkVEI0MjRSNQI0Ej"}, {"id": "p59", "page": 59, "hint": "Le nom donné à toute pièce formant couvercle.", "myst": "OPERCULE", "clues": {"0,0": [["ACOLYTE", "RD"], ["AVEC\nAVIDITÉ", "DR"]], "0,2": [["PROPRE\nAUX CHIENS", "RD"], ["RIGOLÉ", "D"]], "0,4": [["SUIT LES\nAFFAIRES", "RD"], ["N'EST PAS\nD'ACCORD", "D"]], "0,6": [["FER DU\nSAVANT", "RD"], ["SEGMENT\nDE DROITE", "D"]], "0,8": [["SIGLE D'UN\nDIPLÔME", "RD"], ["JUGEA", "D"]], "2,0": [["MINIMISE", "R"], ["DÉBUT DU\nPRIMAIRE", "DR"]], "2,7": [["DIFFI-\nCULTÉ", "R"], ["CORROMPU", "D"]], "3,2": [["NEUF", "R"], ["SE JETER\n(S')", "D"]], "3,9": [["MÉLANGEAI", "D"]], "4,0": [["LONG", "R"], ["CAUCHEMAR\nDE VAMPIRE", "DR"]], "4,5": [["CHEF DE\nPRIÈRE", "R"], ["QUANTITÉ\nRÉDUITE", "D"]], "5,3": [["BOULE DE\nFROMAGE", "R"], ["DENSES", "D"]], "5,8": [["ÉTAT\nMEMBRE\nDE L'UE", "D"]], "6,0": [["BROYEUR\nDE TABLE", "R"], ["ARBRIS-\nSEAU", "DR"]], "7,5": [["ALLA ÇÀ\nET LÀ", "R"], ["FORMULA", "D"]], "8,0": [["RESTER\nOUVERT", "DR"]], "8,1": [["ENGENDRÉ,\nFABRIQUÉ", "R"], ["SON EN\nRETOUR", "D"]], "8,6": [["BABA OU\nPACHA", "R"], ["ESSENCE,\nNATURE", "D"]], "9,4": [["MÉLANGEA", "R"], ["HELLO !", "D"]], "9,9": [["EMBRA-\nSEMENT", "D"]], "10,0": [["ENDUIT\nUN MUR", "R"], ["ÇA ALORS !", "DR"]], "10,7": [["NORME DE\nQUALITÉ", "R"], ["AU MATIN", "D"]], "11,2": [["REFUGE\nDE PION", "R"]], "12,0": [["SORTEZ !", "R"]], "12,5": [["OISEAU\nINCAPABLE\nDE VOLER", "R"]]}, "nums": {"2,8": 1, "3,1": 2, "9,6": 3, "7,7": 4, "1,4": 5, "12,9": 6, "5,2": 7, "11,3": 8}, "paper": [], "alt": {"11,0": "AOE"}, "dash": [[6, 5, "r"]], "nr": 13, "k": "VUVNRSNUU1VPI0VEQVJUU0UjSE9GTiNUSVBFUkMjI0FMRU0jUkVFQklMQSNFRVJDIyNBUlJFI1RFTkVHWElPTkVTU0FDI0kjTUFERSNMSUFNQU1JI1RORUwjI1RJREVOSSNQQ1NPI0VST05JTSNUTkVNRUNBUk9WQiNGI0cjQyNDIw=="}, {"id": "p60", "page": 60, "hint": "", "myst": "", "clues": {"0,0": [["AGITÉS", "RD"], ["MOUILLÉ", "DR"]], "0,2": [["TROUÉ,\nRONGÉ", "RD"], ["DONNÉES\nDU TEMPS", "D"]], "0,4": [["BANDES DE\nTAPISSIER", "RD"], ["PRONON-\nCERA", "D"]], "0,6": [["VIEILLE", "RD"]], "1,6": [["MATIÈRE À\nL'ÉCOLE", "R"], ["COUPÉ À\nL'ÉGOÏNE", "D"]], "0,8": [["POINT AU\nNORD", "RD"], ["ESCALIER\nMÉCANIQUE", "D"]], "2,0": [["CROISÉS", "R"], ["HEURTER", "DR"]], "2,9": [["NI VOUS\nNI MOI", "D"]], "3,5": [["PAS AUTRE\nCHOSE", "R"], ["PARÉ,\nPRÉPARÉ", "D"]], "4,0": [["ARTICLE\nCOMMUN", "R"], ["IMMOBILISE\nLA VOITURE", "DR"]], "4,3": [["NOM D'UNE\nPOMME", "R"], ["ÉVITÉ", "D"]], "4,7": [["L'ALU, EN\nSYMBOLE", "R"], ["LÉSION\nDERMIQUE", "D"]], "5,4": [["ZIDANE L'A\nENTRAÎNÉ", "R"], ["FAVEUR", "D"]], "5,9": [["AUTEURS\nDE\nFILMS", "D"]], "6,0": [["HABITUDE\nCOMMUNE", "R"], ["MAÎTRE", "DR"]], "6,6": [["INDICE À\nPARIS", "R"], ["MACHINE", "D"]], "7,2": [["FUSÉ", "R"], ["TRESSE", "D"]], "8,0": [["GROUPE\nHUMAIN", "R"], ["ORIENTA", "DR"]], "8,5": [["LUMIÈRE\nEN TUBE", "R"], ["SALUT\nDÉFINITIF", "D"]], "9,3": [["GRAFF", "R"], ["PERDU, À\nL'ÉCART", "D"]], "9,7": [["DE\nNOUVEAU\nEN PRÉFIXE", "R"], ["CACHET", "D"]], "10,0": [["ÉLÉMENTS\nDE\nVOILIERS", "DR"]], "10,1": [["CHAUFFÉS\nLÉGÈRE-\nMENT", "R"], ["CITÉ DU 81", "D"]], "10,8": [["BAC\nALIMEN-\nTAIRE", "D"]], "11,4": [["CIVILI-\nSATION\nDISPARUE", "R"], ["HÉRITAGE", "D"]], "12,0": [["DEVISE DE\nFREETOWN", "R"], ["ACCEP-\nTABLE", "DR"]], "12,6": [["POSSÉDA", "R"], ["VILAIN\nPAPILLON", "D"]], "13,2": [["ÉCHEC,\nRATAGE", "R"]], "14,0": [["LA\nMÊME\nCHOSE", "R"]], "14,5": [["EXAMINÉES", "R"]]}, "nums": {}, "paper": [], "alt": {"8,3": "EI"}, "dash": [], "nr": 15, "k": "U0VVViNNRURJI0VHQVBVT0wjQkFUVUUjRU5PRUwjU0FDTkkjU1RBTUEjU0lERUlUIyNFUiNHQVQjQVhBTk9FTiNTRU5VI0lUTkVURVIjRU1DQUMjRUdBU1UjI0xBRVIjUE9UU0xBI0lQQSNFTCNJQ0VDI1JFVFVCI1NFU1NJVEVNI09FRyNFRElNVUhOI0EjTCNNI1Qj"}, {"id": "p61", "page": 61, "hint": "", "myst": "", "pic": "Illustration : un hérisson", "clues": {"0,0": [["CET ANIMAL\nSOLITAIRE", "RD"], ["EXPRIMÉE\nÀ NOUVEAU", "DR"]], "0,2": [["CHOIX\nCORNÉLIEN", "RD"], ["CINÉASTE\nFRANÇAIS", "D"]], "0,4": [["CHAGRINAS", "RD"], ["PRONOM\nUTILISÉ\nENTRE AMIS", "D"]], "2,0": [["EU DE\nL'ÉCLAT", "R"], ["COMÉDIEN\nMUET", "DR"]], "3,4": [["CHEMIN", "D"]], "4,0": [["AIMABLE,\nAGRÉABLE", "R"], ["FIN DE\nMISSIVE", "DR"]], "4,6": [["COMITÉ\nDES J.O.", "RD"], ["MINIMES-\nSAGE", "D"]], "4,8": [["GOUTTE,\nEAU-DE-VIE", "RD"], ["FRISÉE,\nSINUEUSE", "D"]], "5,2": [["CHARGE À\nACCOMPLIR", "R"], ["TEL UN\nTRIANGLE", "D"]], "6,0": [["PRODUC-\nTRICES DE\nFOIE GRAS", "R"], ["DURÉES", "DR"]], "6,5": [["MONITEUR", "R"], ["BOMBE,\nATOMISEUR", "D"]], "7,3": [["RÉUNION\nD'AFFAIRES", "R"], ["TÉRAOCTET", "D"]], "7,7": [["DÉCILITRE\nEN PETIT", "R"], ["INFOS\nBANCAIRES", "D"]], "8,0": [["CRÊPE\nMEXICAINE\nFOURRÉE", "DR"]], "8,1": [["SOUS-\nTRAITE", "R"], ["ADÉQUAT,\nAPPROPRIÉ", "D"]], "8,6": [["ARTÈRE\nURBAINE", "R"], ["POUSSER,\nINCITER", "D"]], "9,4": [["BARRE\nD'ACIER", "R"], ["DIS\nBONJOUR", "D"]], "9,9": [["PLUS\nQU'IL\nN'EN\nFAUT", "D"]], "10,0": [["OUTIL DE\nCOUTU-\nRIÈRE", "R"], ["DIFFICILE", "DR"]], "10,3": [["RENFLÉE", "R"], ["ABRI\nNATUREL", "D"]], "11,7": [["HORS DE", "R"], ["EUT\nCHAUD", "D"]], "12,0": [["RÉFLÉ-\nCHISSONS", "R"], ["LES INFOS", "DR"]], "12,8": [["MODÈLE\nDE\nSAINTETÉ", "D"]], "13,2": [["ELLE\nROULE\nEN\nHIVER", "R"]], "14,0": [["VIVEZ,\nEXISTEZ", "R"]], "14,5": [["VECTEURS\nDE LA\nPESTE", "R"]]}, "nums": {}, "paper": [], "alt": {}, "dash": [], "nr": 15, "k": "U1RBUiNTRVRFI0VTVUVMQVMjVEpDI1NOT1NORVAjWEUjRVNJQUxBTUVFQk1PQiNFRCMjTElBUiNPQ0FURVVSI0VFVE8jI0xEI1NBVCNTTkFPTk9NI1NFSU8jTk9JU1NJTSNTUEcjQyNBUE1ZUyNAQEBATiNFTUlNQEBAQElVTEVSI0BAQEBFVElERVJAQEBAUCNEI0gj"}, {"id": "p62", "page": 62, "hint": "", "myst": "", "clues": {"0,0": [["EU EN\nMÉMOIRE", "RD"], ["PERPLEXE", "DR"]], "0,2": [["CRI DU\nMOUTON", "RD"], ["MAGIMEL\nINTIME", "D"]], "0,4": [["CÉLÉBRA-\nTION", "RD"], ["CABOCHE,\nCARAFE", "D"]], "0,6": [["POIL", "RD"]], "1,6": [["DU\nTERROIR\n(D')", "R"], ["ASPERGÉ", "D"]], "0,8": [["MINUTE\nBRÈVE", "RD"], ["PROPOSER\nÀ LA VENTE", "D"]], "2,0": [["POUR MOI", "R"], ["SE\nPROMENER\nEN BARQUE", "DR"]], "2,3": [["REPRO-\nDUCTEUR", "R"], ["IMPORTUNA", "D"]], "3,7": [["OR DES\nCHIMISTES", "D"]], "3,9": [["FAIT\nSOUFFRIR", "D"]], "4,0": [["EST NAÏF", "R"], ["LE RÉGAL\nDE LA\nPOULE", "DR"]], "4,5": [["AVIRON", "R"], ["UN CÔTÉ\nDANS UN\nVOLUME", "D"]], "5,4": [["PORT SUR\nLA SEINE", "R"], ["PERÇOIT\nENCORE", "D"]], "6,0": [["MESURES\nDU BOIS", "R"], ["SEPTIÈME\nDEGRÉ", "DR"]], "6,7": [["LA FRANCE", "R"], ["HÉROÏNE\nNATURA-\nLISTE", "D"]], "7,2": [["PUDEUR", "R"], ["ÔTERA LES\nPARASITES", "D"]], "8,0": [["VIDE", "R"], ["PIED\nTORDU", "DR"]], "8,6": [["VENT\nLÉGER", "R"], ["MARQUÉE\nDE POINTS", "D"]], "9,3": [["HEURTA", "R"], ["AU\nSECOURS !", "D"]], "9,9": [["PETITE\nAVENUE", "D"]], "10,0": [["FASSE\nENTRER", "DR"]], "10,1": [["DÉGRADA,\nDÉTÉRIORA", "R"], ["PARADIS\nPERDU", "D"]], "10,5": [["PESTA", "R"], ["IMPORTANT\nPERSON-\nNAGE", "D"]], "11,7": [["NOMBRE\nDU LATIUM", "R"], ["PERSONNE\nPRÉFÉRÉE", "D"]], "12,0": [["TRACES", "R"], ["QUE\nD'EAU !", "DR"]], "12,9": [["NAPPE\nDES\nPYRÉNÉES", "D"]], "13,3": [["EXPLO-\nRATION\nSOUTER-\nRAINE", "R"]], "14,0": [["FICHU,\nHORS\nD'USAGE", "R"]], "14,5": [["MONNAIE\nD'UN\nCONTINENT", "R"]]}, "nums": {}, "paper": [], "alt": {}, "dash": [], "nr": 15, "k": "T1JVRSNFWkFOI09FTEVQUyNSRU0jU0VOSVNTRUQjVkkjRVZJT0NFUkFMQVIjQVNVIyMjQU5HT0MjUEVDUklBI1ROQUVOI0VDTkVDRUQjSVNGUiNTRVJFVFMjTkVVT1IjU0lBTUVNQVIjRUJPRyMjTSNSRVRPTkFDTk9MQVRFI0VNI0lDSSNFVEVCTUVNI0MjRiNCI0Uj"}, {"id": "p63", "page": 63, "hint": "Une station balnéaire de la côte Vermeille.", "myst": "CERBERE", "clues": {"0,0": [["DEMANDÉE", "RD"], ["MALADROIT\nOU DISGRA-\nCIEUX", "DR"]], "0,2": [["S'ESQUIVE\n(S')", "RD"], ["GROUPE\nDE PAYS", "D"]], "0,4": [["MOL\nANIMAL", "RD"], ["APPELA", "D"]], "0,6": [["ÉCRIT", "RD"]], "1,6": [["FAIT DE\nL'EFFET", "R"], ["APERÇU,\nAVIS", "D"]], "0,8": [["DIMINUTIF\nDE DIANA", "RD"], ["SCIENCE\nHUMAINE", "D"]], "2,0": [["CAPE", "R"], ["ENTRÉE EN\nPRIMAIRE", "DR"]], "2,9": [["PETITE\nENTRE-\nPRISE", "D"]], "3,2": [["PRIVÉ DE,\nEN PRÉFIXE", "R"], ["HAUTE VOIX", "D"]], "3,5": [["GROUPES\nVOCAUX", "R"], ["DENT,\nENTAILLE", "D"]], "4,0": [["INTER-\nVALLES", "R"], ["TERMINÉ,\nACHEVÉ", "DR"]], "4,8": [["RÉGRES-\nSENT", "D"]], "5,4": [["PAUSE DES\nPOTACHES", "R"], ["RÉUNIE,\nMARIÉE", "D"]], "6,0": [["CITA\nCHAQUE\nLETTRE", "R"], ["TROIS FOIS", "DR"]], "6,6": [["ÎLE FACE À\nOLÉRON", "R"], ["ENVIES", "D"]], "6,9": [["REPOS\nDIGESTIF", "D"]], "7,3": [["BALANCES,\nINFORMA-\nTEURS", "R"], ["RESTO", "D"]], "8,0": [["RENARDS\nDU\nSAHARA", "DR"]], "8,1": [["FIN DE\nFERMENT", "R"], ["FOLÂTRE,\nJOUE (S')", "D"]], "8,5": [["PROTEC-\nTEUR", "R"], ["TERROIR,\nVIGNOBLE", "D"]], "9,7": [["ARTICLE\nMASCULIN", "R"], ["MOIS\nFLEURI", "D"]], "10,0": [["GROS\nSERPENT", "R"], ["SODIUM DU\nCHIMISTE", "DR"]], "10,4": [["ACCORDS", "R"], ["ÉCUEIL", "D"]], "11,2": [["ÇA VAUT\nLE JUS !", "R"]], "12,0": [["ARBRES\nTROPICAUX", "R"]], "12,5": [["LIEU\nGÉOGRA-\nPHIQUE", "R"]]}, "nums": {"1,3": 1, "8,4": 2, "6,7": 3, "10,1": 4, "12,9": 5, "2,5": 6, "4,6": 7}, "paper": [], "alt": {}, "dash": [], "nr": 13, "k": "RVRJUyNTS0VUI1ROQVJVT0MjQU5TRU1JUiNBT0IjRUwjU0NFTk5FRklVVEUjRVNBIyNTQ0lETkkjUkVUI0VSI0FMRVBFI0VSQ0VSI1NPTENUI1NFQ0FQU0UjU09VRCNMSSNQQyNFTklSRUxFUCNJR0EjRUhDVUFHRCNNI1YjRSNSIw=="}];
+const PCOL=["var(--p0)","var(--p1)","var(--p2)","var(--p3)"];
+const NC=10;
+const $=id=>document.getElementById(id);
+const norm=s=>s.normalize("NFD").replace(/[̀-ͯ]/g,"").toUpperCase();
+
+let cur=null,SOL={},ALL=[],words=[],cellWords={},isQ=()=>false,NR=13;
+let games={};            // toutes les parties partagées, par grille
+let G=null;              // partie de la grille choisie
+let pend={},sel=null,dir="h",col=null,seenLast=null;
+const els={};const g=$("g");
+
+function prep(def){
+  cur=def;NR=def.nr;const K=atob(def.k).split("").reverse().join("");
+  SOL={};ALL=[];for(let r=0;r<NR;r++)for(let c=0;c<NC;c++){const ch=K[r*NC+c];if(ch!=="#"&&ch!=="@"){SOL[r+","+c]=ch;ALL.push(r+","+c)}}
+  isQ=(r,c)=>{const ch=K[r*NC+c];return ch==="#"||ch==="@"};
+  words=[];cellWords={};
+  for(const k in def.clues){const [r,c]=k.split(",").map(Number);
+    def.clues[k].forEach(([t,a],i)=>{let sr=r,sc=c,dr=0,dc=0;
+      if(a==="R"){sc=c+1;dc=1}else if(a==="D"){sr=r+1;dr=1}else if(a==="RD"){sc=c+1;dr=1}else{sr=r+1;dc=1}
+      const cells=[];let rr=sr,cc=sc;while(rr<NR&&cc<NC&&!isQ(rr,cc)){cells.push(rr+","+cc);rr+=dr;cc+=dc}
+      const w={id:words.length,text:t.replace(/-\n/g,"").replace(/\n/g," "),dir:dc?"h":"v",cells,q:k,qi:i};words.push(w);
+      cells.forEach(x=>(cellWords[x]=cellWords[x]||{})[w.dir]=w)});}
+  // grille
+  g.innerHTML="";for(const k in els)delete els[k];
+  const pics=[];for(let r=0;r<NR;r++)for(let c=0;c<NC;c++)if(K[r*NC+c]==="@")pics.push([r,c]);
+  if(pics.length){const r0=Math.min(...pics.map(p=>p[0])),r1=Math.max(...pics.map(p=>p[0])),c0=Math.min(...pics.map(p=>p[1])),c1=Math.max(...pics.map(p=>p[1]));
+    const d=document.createElement("div");d.className="pic";d.style.gridArea=`${r0+1}/${c0+1}/${r1+2}/${c1+2}`;d.textContent=def.pic||"Illustration";g.appendChild(d)}
+  for(let r=0;r<NR;r++)for(let c=0;c<NC;c++){const k=r+","+c;if(K[r*NC+c]==="@")continue;const d=document.createElement("div");
+    d.style.gridArea=`${r+1}/${c+1}`;d.dataset.k=k;
+    if(def.clues[k]){d.className="q";def.clues[k].forEach(([t])=>{const s=document.createElement("div");const sp=document.createElement("span");sp.textContent=t;s.appendChild(sp);d.appendChild(s)});
+      d.onclick=e=>{const idx=[...d.children].indexOf(e.target.closest(".q > div"));const ws=words.filter(w=>w.q===k&&w.cells.length);const w=ws.find(w=>w.qi===idx)||ws[0];
+        if(w){dir=w.dir;select(w.cells.find(x=>!G||G.filled[x]===undefined)||w.cells[0])}};}
+    else{d.className="c";d.innerHTML='<span class="L"></span>'+(def.nums[k]?'<span class="n">'+def.nums[k]+'</span>':'');
+      d.onclick=()=>{if(sel===k){const o=dir==="h"?"v":"h";if(cellWords[k]?.[o])dir=o}else if(!cellWords[k]?.[dir])dir=cellWords[k]?.h?"h":"v";select(k)};}
+    g.appendChild(d);els[k]=d;}
+  (def.dash||[]).forEach(([r,c,s])=>els[r+","+c]?.classList.add(s==="b"?"db":"dr"));
+  $("hint").textContent=def.hint||"";$("hint").hidden=!def.hint;
+  $("mystOpen").hidden=!def.myst;
+  $("htitle").textContent="grille "+def.page;
+  sel=null;pend={};
+}
+function drawArrows(){g.querySelectorAll(".ar").forEach(e=>e.remove());const f=g.querySelector(".q");if(!f)return;const cw=f.offsetWidth;if(cw<5)return;
+  const gs=getComputedStyle(g);const pad=parseFloat(gs.paddingLeft)||0;const gap=parseFloat(gs.columnGap)||0;const st=cw+gap;
+  const X=c=>pad+c*st,Y=r=>pad+r*st;
+  for(const k in cur.clues){const [r,c]=k.split(",").map(Number);const n=cur.clues[k].length;
+    cur.clues[k].forEach(([t,a],i)=>{const e=document.createElement("span");e.className="ar";const ym=Y(r)+(i+.5)*(cw/n);let x,y,ch,tf;
+      if(a==="R"){x=X(c)+cw+gap/2;y=ym;ch="▶";tf="translate(-30%,-50%) scale(.75)"}
+      else if(a==="D"){x=X(c)+cw/2;y=Y(r)+cw+gap/2;ch="▼";tf="translate(-50%,-35%) scale(.75)"}
+      else if(a==="RD"){x=X(c)+cw+gap/2;y=ym;ch="↴";tf="translate(-20%,-40%)"}
+      else{x=X(c)+3;y=Y(r)+cw+gap/2;ch="↳";tf="translate(0,-25%)"}
+      e.style.left=x+"px";e.style.top=y+"px";e.style.transform=tf;e.textContent=ch;g.appendChild(e)})}}
+window.addEventListener("resize",()=>{if(!$("game").hidden)drawArrows()});
+
+// ---------- qui joue ici ----------
+function seatKey(){return "fleches-seat:"+(G&&G.gid)}
+function mySeat(){if(G&&G.solo)return 0;try{const v=localStorage.getItem(seatKey());return v===null?null:(v==="all"?"all":Number(v))}catch(e){return window.__seat?.[seatKey()]??null}}
+function setSeat(v){try{localStorage.setItem(seatKey(),String(v))}catch(e){(window.__seat=window.__seat||{})[seatKey()]=v}announce()}
+let room=null;
+let annT=null,lastAnn="";
+function announce(){if(!room)return;if(annT)return;annT=setTimeout(()=>{annT=null;
+  const s=G?mySeat():null;const nm=G&&s!==null?(s==="all"?"tout le monde":G.players[s]?.name):null;
+  const live=G&&canPlay()?{...pend}:{};const msg={name:nm||null,grid:G?G.grid:null,gid:G?G.gid:null,seat:s===null?null:String(s),pend:live,sel:G&&canPlay()?sel:null};
+  const j=JSON.stringify(msg);if(j===lastAnn)return;lastAnn=j;room.presence(msg).catch(()=>{})},120)}
+let peerPend={},peerWho=null;
+function takePeers(peers){peerPend={};peerWho=null;if(!G)return;
+  for(const p of peers){if(p.isMe||p.kind!=="viewer")continue;const pr=p.presence||{};if(pr.gid!==G.gid||!pr.pend||typeof pr.pend!=="object")continue;
+    const seat=pr.seat==="all"?G.turn:Number(pr.seat);if(!(seat>=0&&seat<G.players.length))continue;
+    let any=false;for(const k in pr.pend){const l=String(pr.pend[k]||"").slice(0,1);if(/^[A-Z]$/.test(l)&&SOL[k]!==undefined&&G.filled[k]===undefined){peerPend[k]={l,seat};any=true}}
+    if(any)peerWho=G.players[seat].name}}
+function showPeers(peers){const el=$("online");if(!peers){el.textContent="";return}
+  const others=peers.filter(p=>!p.isMe&&p.kind==="viewer");
+  if(!others.length){el.innerHTML="Personne d'autre n'a la page ouverte en ce moment.";return}
+  const names=others.map(p=>{const n=p.presence&&p.presence.name;return n?String(n).slice(0,20):"un joueur (pas encore choisi)"});
+  el.innerHTML="<b>●</b> Connecté"+(others.length>1?"s":"")+" en ce moment : ";el.append(names.join(", "))}
+function canPlay(){if(!G||G.done)return false;if(G.solo)return true;const s=mySeat();return s==="all"||s===G.turn}
+
+// ---------- rendu ----------
+function playerCard(i){const s=mySeat();
+  return `<div class="pl ${G.turn===i&&!G.done?"active":""}" style="border-color:${PCOL[i]}"><span style="min-width:0;display:flex;flex-direction:column"><span class="nm" style="color:${PCOL[i]}"></span>${s===i?'<span class="me">c\'est toi</span>':''}</span><span class="tag">À son tour</span><span class="sc">${G.players[i].score}</span></div>`}
+function renderScores(){const el=$("scores");el.innerHTML="";const s=mySeat();
+  G.players.forEach((p,i)=>{const d=document.createElement("div");d.className="chip"+(G.turn===i&&!G.done?" on":"")+(s===i?" me":"");d.style.setProperty("--pc",PCOL[i]);
+    d.innerHTML='<span class="nm"></span><b></b>';d.firstChild.textContent=p.name;d.lastChild.textContent=p.score;d.title=p.name+" : "+p.score+" points";el.appendChild(d)})}
+function fillBand(el,idx){el.innerHTML=idx.map(playerCard).join("");[...el.children].forEach((d,j)=>d.querySelector(".nm").textContent=G.players[idx[j]].name)}
+function render(){
+  if(!G)return;
+  const s=mySeat();
+  $("seatBox").hidden=s!==null;
+  if(s===null){const o=$("seatOpts");o.innerHTML="";G.players.forEach((p,i)=>{const b=document.createElement("button");b.type="button";b.textContent=p.name;b.style.borderColor=PCOL[i];b.style.color=PCOL[i];b.onclick=()=>{setSeat(i);render()};o.appendChild(b)});
+    const b=document.createElement("button");b.type="button";b.textContent="Tout le monde (un seul appareil)";b.onclick=()=>{setSeat("all");render()};o.appendChild(b)}
+  renderScores();
+  for(const k of ALL){const L=els[k].querySelector(".L");const f=G.filled[k];
+    els[k].classList.remove("livecell");els[k].style.color="";els[k].classList.toggle("f",f!==undefined&&f>=0);if(f!==undefined&&f>=0)els[k].style.setProperty("--fc",PCOL[f]);
+    if(f!==undefined){L.textContent=G.letters?.[k]||SOL[k];L.className="L";L.style.color=f===-2?"var(--reveal)":f<0?"var(--paperpen)":PCOL[f]}
+    else if(G.done){L.textContent=SOL[k];L.className="L";L.style.color="var(--reveal)"}
+    else if(pend[k]){L.textContent=pend[k];L.className="L pend";L.style.color=""}
+    else if(peerPend[k]){L.textContent=peerPend[k].l;L.className="L live";L.style.color=PCOL[peerPend[k].seat];els[k].classList.add("livecell");els[k].style.color=PCOL[peerPend[k].seat]}
+    else{L.textContent="";L.className="L";L.style.color=""}}
+  words.forEach(w=>{if(!w.cells.length)return;els[w.q].children[w.qi].classList.toggle("done",w.cells.every(x=>G.filled[x]!==undefined))});
+  if(cur.myst){const m=$("mys");m.innerHTML="";const numK={};for(const k in cur.nums)numK[cur.nums[k]]=k;
+    for(let n=1;n<=cur.myst.length;n++){const k=numK[n];const f=G.filled[k];const d=document.createElement("div");d.className="m";d.innerHTML="<small>"+n+"</small><div></div>";
+      if(G.mystery!=null){d.lastChild.textContent=cur.myst[n-1];d.lastChild.style.color=PCOL[G.mystery]}
+      else if(G.done){d.lastChild.textContent=cur.myst[n-1];d.lastChild.style.color=f!==undefined&&f>=0?PCOL[f]:"var(--reveal)"}
+      else if(f!==undefined){d.lastChild.textContent=G.letters?.[k]||SOL[k];d.lastChild.style.color=f<0?"var(--paperpen)":PCOL[f]}
+      m.appendChild(d)}}
+  const play=canPlay();
+  const st=$("status");
+  if(!G.done&&s!==null&&!play){st.className="status wait";st.textContent=peerWho?"✍️ "+peerWho+" est en train d'écrire…":(G.msg?G.msg+" ":"")+"En attente de "+G.players[G.turn].name+"…"}
+  else{st.className="status "+(G.msgKind||"");st.textContent=G.msg||(play?"À toi de jouer !":"")}
+  ["valid","clear","pass","flip","solBtn","actBtn"].forEach(id=>$(id).disabled=!play);if(!play)closeAct();
+  $("pass").hidden=!!G.solo;
+  if(!play&&document.activeElement===kb)kb.blur();
+  $("dock").hidden=!!G.done;if($("dock").hidden!==window.__dh){window.__dh=$("dock").hidden;requestAnimationFrame(fit)}
+  $("mystIn").placeholder=G.mystery!=null?"Déjà trouvé":play?"Ta proposition":"Attends ton tour";
+  $("menuInfo").textContent=(G.solo?"Solo":"À plusieurs")+" · "+({facile:"Facile",normal:"Normal",difficile:"Difficile"}[G.level||"normal"])+" · "+(G.solo?"chronomètre":G.timer?"chrono "+(G.timer/60)+" min par tour":"sans chrono")+" · finir la grille : +20 points";
+  $("chSeat").hidden=!!G.solo;
+  tick();
+  announce();
+  $("mystIn").disabled=$("mystBtn").disabled=!play||G.mystery!=null;
+  $("valid").textContent=play?"✓ Valider":"Pas ton tour";
+  const wb=$("winbox");
+  if(G.done&&G.solo){const tm=Math.round(((G.ended||Date.now())-(G.started||Date.now()))/1000);wb.hidden=false;
+    wb.textContent=(G.revealed?"Solution affichée. ":"🎉 Grille terminée ! ")+G.players[0].name+" : "+G.players[0].score+" points en "+Math.floor(tm/60)+" min "+String(tm%60).padStart(2,"0")+" s ("+({facile:"facile",normal:"normal",difficile:"difficile"}[G.level||"normal"])+")."}
+  else if(G.done){const best=Math.max(...G.players.map(p=>p.score));const ws=G.players.filter(p=>p.score===best).map(p=>p.name);
+    wb.hidden=false;wb.textContent=(G.revealed?"Solution affichée. ":"")+(ws.length>1?"Égalité : "+ws.join(" et "):"🏆 "+ws[0]+" gagne")+" avec "+best+" points !"}else wb.hidden=true;
+  highlight();
+}
+function highlight(){
+  document.querySelectorAll(".c.sel,.c.word").forEach(e=>e.classList.remove("sel","word"));
+  document.querySelectorAll(".q > div.hl").forEach(e=>e.classList.remove("hl"));
+  if(!sel){$("bartxt").textContent="Touche une case ou une définition";$("bardir").textContent="→";return}
+  const w=cellWords[sel]?.[dir];
+  if(w){w.cells.forEach(x=>els[x].classList.add("word"));els[w.q].children[w.qi].classList.add("hl");
+    $("bartxt").textContent=w.text+" ("+w.cells.length+" lettre"+(w.cells.length>1?"s":"")+")";$("bardir").textContent=w.dir==="h"?"→ horizontal":"↓ vertical"}
+  els[sel].classList.add("sel");
+  try{els[sel].scrollIntoView({block:"nearest",inline:"nearest"})}catch(e){}
+}
+function buzz(ms){try{navigator.vibrate&&navigator.vibrate(ms)}catch(e){}}
+function animateLast(){
+  const L=G&&G.last;if(!L||L.n===seenLast)return;const first=seenLast===null;seenLast=L.n;if(first)return;buzz(L.ok?20:[40,40,40]);
+  if(L.ok)L.cells.forEach(k=>{const e=els[k];if(!e)return;e.classList.remove("ok");void e.offsetWidth;e.classList.add("ok")});
+  else{L.cells.forEach(k=>{const e=els[k];if(!e)return;e.classList.add("wrong");e.querySelector(".L").textContent=(L.wrong||{})[k]||""});
+    setTimeout(()=>{L.cells.forEach(k=>els[k]?.classList.remove("wrong"));render()},1400)}
+}
+const kb=$("kb");
+function select(k){if(G&&G.done)return;sel=k;highlight();showKb()}
+function showKb(){if(!canPlay())return;try{if(document.activeElement!==kb){kb.value=" ";kb.focus({preventScroll:true})}kb.setSelectionRange(1,1)}catch(e){}}
+function next(step){const w=cellWords[sel]?.[dir];if(!w)return;let i=w.cells.indexOf(sel)+step;
+  while(i>=0&&i<w.cells.length&&G.filled[w.cells[i]]!==undefined)i+=step;
+  if(i>=0&&i<w.cells.length){sel=w.cells[i];highlight()}}
+kb.addEventListener("input",()=>{const v=kb.value;kb.value=" ";try{kb.setSelectionRange(1,1)}catch(e){}
+  if(!sel||!canPlay())return;
+  if(v.length===0){backLetter();return}
+  for(const ch of v.replace(/\s/g,"")){if(/[a-zà-ÿ]/i.test(ch))typeLetter(norm(ch))}});
+kb.addEventListener("keydown",e=>{if(!sel||!G)return;
+  if(e.key==="Enter"){e.preventDefault();validate();return}
+  if(e.key==="Backspace"){e.preventDefault();backLetter();return}
+  if(e.key.startsWith("Arrow")){e.preventDefault();const [r,c]=sel.split(",").map(Number);
+    const d={ArrowUp:[-1,0],ArrowDown:[1,0],ArrowLeft:[0,-1],ArrowRight:[0,1]}[e.key];let rr=r+d[0],cc=c+d[1];
+    while(rr>=0&&rr<NR&&cc>=0&&cc<NC&&isQ(rr,cc)){rr+=d[0];cc+=d[1]}
+    if(rr>=0&&rr<NR&&cc>=0&&cc<NC&&!isQ(rr,cc)){sel=rr+","+cc;dir=d[1]?"h":"v";if(!cellWords[sel]?.[dir])dir=dir==="h"?"v":"h";highlight()}}});
+
+// ---------- règles ----------
+const nextTurn=()=>(G.turn+1)%G.players.length;
+function correct(k,l){const a=cur.alt?.[k];if(a==="*")return true;if(a)return a.includes(l);return l===SOL[k]}
+function bump(cells,ok,wrong){G.last={n:(G.last?.n||0)+1,cells,ok,wrong:wrong||{}};seenLast=G.last.n}
+function validate(){
+  if(!canPlay())return;const ks=Object.keys(pend).filter(k=>G.filled[k]===undefined);
+  if(!ks.length){G.msg="Écris au moins une lettre avant de valider.";G.msgKind="bad";render();return}
+  const bad=ks.filter(k=>!correct(k,pend[k]));const p=G.players[G.turn];const lvl=G.level||"normal";
+  if(bad.length&&lvl==="facile"&&bad.length<ks.length){
+    const good=ks.filter(k=>correct(k,pend[k]));const wrong={};bad.forEach(k=>wrong[k]=pend[k]);
+    let pts=0;const before=new Set(Object.keys(G.filled));G.letters=G.letters||{};
+    good.forEach(k=>{G.filled[k]=G.turn;G.letters[k]=pend[k];pts+=1+(cur.nums[k]?2:0)});
+    let done=0;words.forEach(w=>{if(w.cells.length&&w.cells.every(x=>G.filled[x]!==undefined)&&!w.cells.every(x=>before.has(x)))done++});
+    pts+=3*done;p.score+=pts;pend={};
+    if(!G.solo){G.turn=nextTurn();G.turnStart=Date.now()}
+    G.msg=`${good.length} lettre${good.length>1?"s":""} juste${good.length>1?"s":""} gardée${good.length>1?"s":""} (+${pts}), ${bad.length} fausse${bad.length>1?"s":""}.`+(G.solo?"":` Au tour de ${G.players[G.turn].name}.`);G.msgKind="bad";
+    if(ALL.every(k=>G.filled[k]!==undefined)){p.score+=20;G.done=true;G.msg=`${p.name} termine la grille : +20 points de bonus !`;G.msgKind="good"}
+    bump(bad,false,wrong);save();render();buzz([40,40,40]);
+    bad.forEach(k=>{els[k].classList.add("wrong");els[k].querySelector(".L").textContent=wrong[k]});
+    setTimeout(()=>{bad.forEach(k=>els[k].classList.remove("wrong"));render()},1400);return}
+  if(bad.length){buzz([40,40,40]);
+    const wrong={};bad.forEach(k=>wrong[k]=pend[k]);
+    let pen="";if(lvl==="difficile"){const m=2*bad.length;p.score-=m;pen=` (−${m} points)`}
+    pend={};
+    if(G.solo){G.msg=`Raté${pen} ! ${bad.length} lettre${bad.length>1?"s":""} fausse${bad.length>1?"s":""}. Réessaie.`}
+    else{G.turn=nextTurn();G.turnStart=Date.now();G.msg=`Raté pour ${p.name}${pen} ! Au tour de ${G.players[G.turn].name}.`}
+    G.msgKind="bad";
+    bump(bad,false,wrong);save();render();
+    bad.forEach(k=>{els[k].classList.add("wrong");els[k].querySelector(".L").textContent=wrong[k]});
+    setTimeout(()=>{bad.forEach(k=>els[k].classList.remove("wrong"));render()},1400);return}
+  const before=new Set(Object.keys(G.filled));G.letters=G.letters||{};
+  let pts=0;ks.forEach(k=>{G.filled[k]=G.turn;G.letters[k]=pend[k];pts+=1+(cur.nums[k]?2:0)});
+  let done=0;words.forEach(w=>{if(!w.cells.length)return;const full=w.cells.every(x=>G.filled[x]!==undefined);const was=w.cells.every(x=>before.has(x));if(full&&!was)done++});
+  pts+=3*done;p.score+=pts;pend={};
+  G.msg=`Bravo ${p.name} ! +${pts} point${pts>1?"s":""}${done?` (${done} mot${done>1?"s":""} terminé${done>1?"s":""})`:""}.`+(G.solo?"":" Tu rejoues.");G.msgKind="good";
+  G.turnStart=Date.now();
+  if(ALL.every(k=>G.filled[k]!==undefined)){p.score+=20;G.done=true;G.msg=`${p.name} termine la grille : +${pts} et +20 points de bonus !`;G.msgKind="good"}
+  ks.forEach(k=>{const e=els[k];e.classList.remove("ok");void e.offsetWidth;e.classList.add("ok")});
+  bump(ks,true);save();render();buzz(20);
+}
+$("valid").onclick=validate;
+$("flip").onclick=()=>{if(!sel)return;const o=dir==="h"?"v":"h";if(cellWords[sel]?.[o]){dir=o;highlight()}};
+$("clear").onclick=()=>{pend={};render()};
+let revArmed=false;
+function typeLetter(ch){if(!sel||!canPlay()||!G||G.filled[sel]!==undefined){if(sel&&canPlay())next(1);return}pend[sel]=ch;render();next(1)}
+function backLetter(){if(!sel||!canPlay())return;if(pend[sel])delete pend[sel];else{next(-1);delete pend[sel]}render()}
+$("dock").appendChild(kb);
+function gotoWord(step){if(!G)return;const list=words.filter(w=>w.cells.length);if(!list.length)return;
+  const curW=sel&&cellWords[sel]?.[dir];let i=curW?list.indexOf(curW):-1;
+  for(let n=0;n<list.length;n++){i=(i+step+list.length)%list.length;const w=list[i];const open=w.cells.find(x=>G.filled[x]===undefined);
+    if(open||G.done){dir=w.dir;sel=open||w.cells[0];highlight();showKb();return}}}
+$("prevW").onclick=()=>gotoWord(-1);$("nextW").onclick=()=>gotoWord(1);
+["prevW","nextW"].forEach(id=>$(id).addEventListener("pointerdown",e=>e.preventDefault()));
+$("bartxt").addEventListener("pointerdown",e=>e.preventDefault());
+$("bartxt").onclick=()=>{if(sel)$("flip").click();else gotoWord(1)};
+document.addEventListener("pointerdown",e=>{if($("game").hidden)return;if(e.target.closest("#solBox,#mystBox,#menu,#menuBtn,#seatBox,.tools"))return;},true);
+["pass","clear","flip","solBtn","valid","actBtn"].forEach(id=>$(id).addEventListener("pointerdown",e=>e.preventDefault()));
+function closeAct(){$("actMenu").hidden=true;$("actBtn").setAttribute("aria-expanded","false");$("actBtn").textContent="Actions ▴"}
+$("actBtn").onclick=e=>{e.stopPropagation();const m=$("actMenu");m.hidden=!m.hidden;$("actBtn").setAttribute("aria-expanded",String(!m.hidden));$("actBtn").textContent=m.hidden?"Actions ▴":"Fermer ▾"};
+$("actMenu").addEventListener("click",()=>setTimeout(closeAct,0));
+document.addEventListener("click",e=>{if(!$("actMenu").hidden&&!e.target.closest(".actwrap"))closeAct()});
+document.addEventListener("keydown",e=>{if($("game").hidden||!G||e.target===kb)return;if(e.target.closest&&e.target.closest("input,select,textarea"))return;if(e.ctrlKey||e.metaKey||e.altKey)return;
+  if(/^[a-zA-Zàâäéèêëîïôöùûüç]$/.test(e.key)){e.preventDefault();typeLetter(norm(e.key));return}
+  if(e.key==="Backspace"){e.preventDefault();backLetter();return}
+  if(e.key==="Enter"){e.preventDefault();validate();return}
+  if(e.key===" "){e.preventDefault();$("flip").click();return}
+  if(e.key.startsWith("Arrow")&&sel){e.preventDefault();const [r,c]=sel.split(",").map(Number);const d={ArrowUp:[-1,0],ArrowDown:[1,0],ArrowLeft:[0,-1],ArrowRight:[0,1]}[e.key];
+    let rr=r+d[0],cc=c+d[1];while(rr>=0&&rr<NR&&cc>=0&&cc<NC&&isQ(rr,cc)){rr+=d[0];cc+=d[1]}
+    if(rr>=0&&rr<NR&&cc>=0&&cc<NC&&els[rr+","+cc]&&!els[rr+","+cc].classList.contains("q")){sel=rr+","+cc;dir=d[1]?"h":"v";if(!cellWords[sel]?.[dir])dir=dir==="h"?"v":"h";highlight()}}});
+$("menuBtn").onclick=e=>{e.stopPropagation();const m=$("menu");m.hidden=!m.hidden;$("menuBtn").setAttribute("aria-expanded",String(!m.hidden))};
+document.addEventListener("click",e=>{if(!$("menu").hidden&&!$("menu").contains(e.target)&&e.target!==$("menuBtn"))$("menu").hidden=true});
+$("mystOpen").onclick=()=>{$("mystBox").hidden=false;if(canPlay()&&G.mystery==null)setTimeout(()=>$("mystIn").focus(),30)};
+$("mystClose").onclick=()=>{$("mystBox").hidden=true};
+$("mystIn").addEventListener("keydown",e=>{if(e.key==="Enter"){e.preventDefault();$("mystBtn").click()}});
+const ZOOMS=[["Ajusté à l'écran",0],["Grand",46],["Très grand",58]];
+let zoomI=1;try{const z=localStorage.getItem("fl-zoom");if(z!==null)zoomI=Math.min(2,Math.max(0,+z))}catch(e){}
+$("zoomBtn").onclick=()=>{zoomI=(zoomI+1)%ZOOMS.length;try{localStorage.setItem("fl-zoom",zoomI)}catch(e){}fit();const st=$("status");st.textContent="Plateau : "+ZOOMS[zoomI][0];st.className="status"};
+function fit(){if($("game").hidden||!cur)return;const box=$("gridbox");const w=box.clientWidth;
+  const fitW=Math.floor((w-10-2*(NC-1))/NC);const min=ZOOMS[zoomI][1];
+  const s=Math.max(24,Math.min(72,Math.max(fitW,min)));
+  g.style.setProperty("--s",s+"px");requestAnimationFrame(()=>{drawArrows();fitClues();if(sel&&els[sel])els[sel].scrollIntoView({block:"nearest",inline:"nearest"})})}
+function fitClues(){g.querySelectorAll(".q > div").forEach(d=>{const sp=d.firstElementChild;if(!sp)return;d.style.fontSize="";sp.style.wordBreak="";sp.style.whiteSpace="";sp.style.maxWidth="";
+  const base=parseFloat(getComputedStyle(d).fontSize);const W=d.clientWidth-2,H=d.clientHeight-1;
+  const over=()=>sp.offsetWidth>W||sp.offsetHeight>H;
+  let fs=base,n=0;while(over()&&fs>6&&n<40){fs-=.4;d.style.fontSize=fs+"px";n++}
+  if(over()){sp.style.whiteSpace="normal";sp.style.maxWidth=W+"px";fs=base;d.style.fontSize=fs+"px";n=0;while(over()&&fs>4.5&&n<50){fs-=.3;d.style.fontSize=fs+"px";n++}}
+  if(over())sp.style.wordBreak="break-all"})}
+if(document.fonts){document.fonts.ready.then(()=>{if(!$("game").hidden)fit()});document.fonts.addEventListener&&document.fonts.addEventListener("loadingdone",()=>{if(!$("game").hidden)fitClues()})}
+function vv(){const v=window.visualViewport;const h=v?v.height:window.innerHeight;const off=v?Math.max(0,window.innerHeight-v.height-v.offsetTop):0;
+  document.documentElement.style.setProperty("--vvh",h+"px");document.documentElement.style.setProperty("--kbo",off+"px");
+  const d=$("dock");if(!d.hidden)document.documentElement.style.setProperty("--dockh",(d.offsetHeight+8)+"px");
+  if(!$("game").hidden)requestAnimationFrame(fit)}
+if(window.visualViewport){visualViewport.addEventListener("resize",vv);visualViewport.addEventListener("scroll",vv)}
+window.addEventListener("resize",vv);
+function tick(){const el=$("timer");
+  if(G&&G.solo&&!G.done){const s_=Math.floor((Date.now()-(G.started||Date.now()))/1000);el.hidden=false;el.classList.remove("low");el.textContent="⏱ "+Math.floor(s_/60)+":"+String(s_%60).padStart(2,"0");return}
+  if(!G||G.done||!G.timer){el.hidden=true;return}
+  const left=Math.ceil((G.turnStart+G.timer*1000-Date.now())/1000);el.hidden=false;
+  const v=Math.max(0,left);el.textContent="⏱ "+Math.floor(v/60)+":"+String(v%60).padStart(2,"0");el.classList.toggle("low",v<=10);
+  if(left<=0&&(canPlay()||left<=-4)&&col!==undefined){const p=G.players[G.turn];const stamp=G.turnStart;
+    if(window.__toFor===stamp)return;window.__toFor=stamp;pend={};
+    G.turn=nextTurn();G.turnStart=Date.now();G.msg=`Temps écoulé pour ${p.name} ! Au tour de ${G.players[G.turn].name}.`;G.msgKind="bad";save();render()}}
+setInterval(()=>{if(!$("game").hidden&&G)tick()},500);
+function closeSol(){$("solBox").hidden=true;revArmed=false;$("revAll").textContent="Voir toute la solution (fin de partie)"}
+$("solBtn").onclick=()=>{if(!canPlay())return;const w=sel&&cellWords[sel]?.[dir];const lvl=G.level||"normal";
+  $("revLetter").hidden=lvl!=="facile";$("revLetter").disabled=!sel||G.filled[sel]!==undefined;
+  $("revWord").hidden=lvl==="difficile";
+  $("revWord").disabled=!w||w.cells.every(x=>G.filled[x]!==undefined);
+  $("revInfo").textContent=w?"« "+w.text+" » s'affiche en gris, sans points, et la main passe au joueur suivant.":"Touche d'abord une case ou une définition pour choisir le mot.";
+  $("solBox").hidden=false};
+$("solCancel").onclick=closeSol;
+$("revLetter").onclick=()=>{if(!sel||!canPlay()||G.filled[sel]!==undefined){closeSol();return}
+  G.letters=G.letters||{};G.filled[sel]=-2;G.letters[sel]=SOL[sel];delete pend[sel];const k=sel;
+  if(ALL.every(x=>G.filled[x]!==undefined)){G.done=true;G.msg="Grille terminée !";G.msgKind=""}else{G.msg="Lettre révélée (sans points).";G.msgKind=""}
+  bump([k],true);save();closeSol();next(1);render()};
+$("revWord").onclick=()=>{const w=sel&&cellWords[sel]?.[dir];if(!w||!canPlay()){closeSol();return}
+  const p=G.players[G.turn];G.letters=G.letters||{};const ks=w.cells.filter(x=>G.filled[x]===undefined);
+  ks.forEach(x=>{G.filled[x]=-2;G.letters[x]=SOL[x]});pend={};
+  if(ALL.every(k=>G.filled[k]!==undefined)){G.done=true;G.msg="Grille terminée !";G.msgKind=""}
+  else if(G.solo){G.msg=`« ${w.text} » révélé (sans points).`;G.msgKind=""}
+  else{G.turn=nextTurn();G.turnStart=Date.now();G.msg=`${p.name} a révélé « ${w.text} ». Au tour de ${G.players[G.turn].name}.`;G.msgKind=""}
+  bump(ks,true);save();closeSol();render()};
+$("revAll").onclick=()=>{if(!revArmed){revArmed=true;$("revAll").textContent="Confirmer : terminer et tout afficher";return}
+  G.done=true;G.revealed=true;G.msg=G.players[G.turn].name+" a affiché la solution.";G.msgKind="";pend={};save();closeSol();render()};
+$("pass").onclick=()=>{if(!canPlay())return;const p=G.players[G.turn];pend={};G.turn=nextTurn();G.turnStart=Date.now();G.msg=`${p.name} passe. Au tour de ${G.players[G.turn].name}.`;G.msgKind="";save();render()};
+$("mystBtn").onclick=()=>{if(!canPlay()||G.mystery!=null)return;$("mystBox").hidden=true;
+  const v=norm($("mystIn").value).replace(/[^A-Z]/g,"");if(!v)return;
+  const p=G.players[G.turn];$("mystIn").value="";
+  if(v===cur.myst){p.score+=20;G.mystery=G.turn;G.turnStart=Date.now();G.msg=`${p.name} trouve le mot mystère ! +20 points. Tu rejoues.`;G.msgKind="good"}
+  else if(G.solo){if((G.level||"normal")==="difficile")p.score-=5;G.msg=`« ${v} » n'est pas le mot mystère.`+((G.level||"normal")==="difficile"?" (−5 points)":"");G.msgKind="bad"}
+  else{G.turn=nextTurn();G.turnStart=Date.now();G.msg=`« ${v} » n'est pas le mot mystère. Au tour de ${G.players[G.turn].name}.`;G.msgKind="bad"}
+  save();render()};
+
+// ---------- lobby ----------
+function syncExtra(){const show2=!!$("n2").value.trim()||!$("row2").hidden,show3=!!$("n3").value.trim()||!$("row3").hidden;$("row2").hidden=!show2;$("row3").hidden=!show3;$("addP").hidden=show3}
+$("addP").onclick=()=>{if($("row2").hidden){$("row2").hidden=false;$("n2").focus()}else{$("row3").hidden=false;$("n3").focus()}syncExtra()};
+let pickId=GRIDS[0].id;
+let MODE="multi",LEVEL="normal";try{MODE=localStorage.getItem("fl-mode")||"multi";LEVEL=localStorage.getItem("fl-level")||"normal"}catch(e){}
+const LEVELTXT={facile:"Facile : les lettres justes sont gardées, aide « révéler une lettre », lettres du magazine déjà placées quand il y en a.",
+  normal:"Normal : une faute efface tout l'essai.",difficile:"Difficile : −2 points par lettre fausse, pas d'aide."};
+function segSet(id,v){document.querySelectorAll("#"+id+" button").forEach(b=>b.setAttribute("aria-checked",String(b.dataset.v===v)))}
+function lobbyMode(){document.body.classList.toggle("mode-solo",MODE==="solo");segSet("modeSeg",MODE);segSet("levelSeg",LEVEL);
+  $("levelInfo").textContent=LEVELTXT[LEVEL];$("step4").textContent=MODE==="solo"?"4. Ton pseudo":"4. Joueurs";
+  $("n0").placeholder=MODE==="solo"?"Ton pseudo":"Pseudo du joueur 1";try{localStorage.setItem("fl-mode",MODE);localStorage.setItem("fl-level",LEVEL)}catch(e){}refreshResume();renderPicks()}
+document.querySelectorAll("#modeSeg button").forEach(b=>b.onclick=()=>{MODE=b.dataset.v;$("start").dataset.confirm="";$("start").textContent="▶ Lancer la partie";$("lerr").textContent="";lobbyMode()});
+document.querySelectorAll("#levelSeg button").forEach(b=>b.onclick=()=>{LEVEL=b.dataset.v;lobbyMode()});
+function soloKey(id){return "fl-solo-"+id}
+function soloGame(id){try{const v=localStorage.getItem(soloKey(id));return v?JSON.parse(v):null}catch(e){return window.__solo?.[id]||null}}
+function gameFor(id){return MODE==="solo"?soloGame(id):games[id]}
+function renderPicks(){const sel_=$("gsel");sel_.innerHTML="";
+  GRIDS.forEach(d=>{const o=document.createElement("option");o.value=d.id;const gm=gameFor(d.id);
+    o.textContent="Page "+d.page+(d.myst?" · mot mystère ("+d.myst.length+" lettres)":"")+(gm&&!gm.done?" · en cours":gm&&gm.done?" · terminée":"");
+    if(d.id===pickId)o.selected=true;sel_.appendChild(o)});
+  const d=GRIDS.find(x=>x.id===pickId);const gm=gameFor(pickId);const h=$("ghint");
+  h.textContent=(d.myst?d.hint:(d.pic?"Grande grille illustrée, sans mot mystère.":"Grande grille sans mot mystère."))+" "+(d.nr)+" lignes.";
+  if(gm&&!gm.done){const b=document.createElement("b");b.textContent=" Partie en cours : "+gm.players.map(p=>p.name).join(", ");h.appendChild(b)}}
+$("gsel").addEventListener("change",()=>{pickId=$("gsel").value;$("start").dataset.confirm="";$("start").textContent="▶ Lancer la partie";$("lerr").textContent="";renderPicks();refreshResume()});
+function refreshResume(){const gm=gameFor(pickId);const r=$("resume");
+  if(gm&&!gm.done){r.hidden=false;$("resumeInfo").textContent=gm.players.map(p=>p.name+" : "+p.score+" pts").join(" · ")+" · "+({facile:"Facile",normal:"Normal",difficile:"Difficile"}[gm.level||"normal"]);gm.players.forEach((p,i)=>$("n"+i).value=p.name);syncExtra()}
+  else r.hidden=true}
+function openGame(fromHistory){prep(GRIDS.find(d=>d.id===pickId));const src=gameFor(pickId);G=src?JSON.parse(JSON.stringify(src)):G;seenLast=G?.last?.n??null;
+  $("lobby").hidden=true;$("game").hidden=false;$("game").style.display="flex";document.body.classList.add("playing");document.body.classList.toggle("mode-solo",!!(G&&G.solo));$("dock").hidden=false;
+  if(!fromHistory){try{history.pushState({v:"game"},"")}catch(e){}}
+  render();announce();requestAnimationFrame(vv);try{window.scrollTo(0,0)}catch(e){}}
+function goLobby(){$("htitle").textContent="entre amis";document.body.classList.toggle("mode-solo",MODE==="solo");$("game").hidden=true;$("game").style.display="";document.body.classList.remove("playing");$("menu").hidden=true;$("dock").hidden=true;$("lobby").hidden=false;G=null;pend={};announce();renderPicks();refreshResume();try{window.scrollTo(0,0)}catch(e){}}
+window.addEventListener("popstate",()=>{if(!$("game").hidden)goLobby()});
+$("start").onclick=()=>{
+  const solo=MODE==="solo";
+  const names=(solo?[0]:[0,1,2,3]).map(i=>$("n"+i).value.trim()).filter(Boolean);
+  if(solo&&!names.length){$("lerr").textContent="Écris ton pseudo pour jouer.";return}
+  if(!solo&&names.length<2){$("lerr").textContent="Il faut au moins 2 pseudos pour jouer.";return}
+  const ex=gameFor(pickId);
+  if(ex&&!ex.done&&$("start").dataset.confirm!=="1"){$("start").dataset.confirm="1";$("start").textContent="Confirmer : effacer la partie en cours";
+    $("lerr").textContent="Une partie est déjà en cours sur cette grille. Pour la rejoindre, utilise « Reprendre la partie en cours ».";return}
+  $("start").dataset.confirm="";$("start").textContent="▶ Lancer la partie";
+  $("lerr").textContent="";
+  const def=GRIDS.find(d=>d.id===pickId);
+  const filled={};if(LEVEL==="facile")(def.paper||[]).forEach(k=>filled[k]=-1);
+  G={gid:Math.random().toString(36).slice(2,10),grid:def.id,solo,level:LEVEL,started:Date.now(),players:names.map(n=>({name:n,score:0})),turn:0,turnStart:Date.now(),timer:solo?0:(Number($("tsel").value)||0),filled,letters:{},mystery:null,done:false,msg:solo?`À toi de jouer, ${names[0]} !`:`${names[0]} commence !`,msgKind:"",last:null};
+  if(solo){try{localStorage.setItem("fleches-seat:"+G.gid,"0")}catch(e){}}else games[pickId]=G;
+  save();openGame();
+};
+$("resumeBtn").onclick=()=>openGame();
+$("back").onclick=goLobby;$("seatBack").onclick=goLobby;
+$("chSeat").onclick=()=>{try{localStorage.removeItem(seatKey())}catch(e){if(window.__seat)delete window.__seat[seatKey()]}render()};
+
+// ---------- synchro ----------
+function setSync(on,t){$("ldot").classList.toggle("on",on);$("gdot").classList.toggle("on",on);$("sync").textContent=t;$("gsync").textContent=t}
+function net(html){const n=$("net");if(!html){n.hidden=true;return}n.hidden=false;n.innerHTML=html}
+const NOACCESS="<b>Tu peux regarder la partie, mais pas jouer.</b> Recharge la page ; si le problème continue, crée un nouveau salon.";
+async function save(){if(G&&G.solo){if(G.done&&!G.ended)G.ended=Date.now();try{localStorage.setItem(soloKey(G.grid),JSON.stringify(G))}catch(e){(window.__solo=window.__solo||{})[G.grid]=JSON.parse(JSON.stringify(G))}return}
+  if(!col||!G)return;try{await col.doc(G.grid).set(JSON.parse(JSON.stringify(G)));net(null);window.__diag&&window.__diag("ecriture","oui")}
+  catch(e){const c=e&&e.code;window.__diag&&window.__diag("ecriture","REFUSÉ ("+(c||"erreur")+")");setSync(false,"Coup non enregistré ("+(c||"erreur")+")");
+    net(c==="not_granted"||c==="revoked"||c==="invalid_argument"?NOACCESS:"<b>Ton coup n'a pas été enregistré.</b> Vérifie ta connexion internet puis recharge la page ("+(c||"erreur")+").")}}
+
+// ---------- thème ----------
+function applyTheme(m){document.body.classList.toggle("light",m==="light");const dark=m!=="light";
+  $("themeBtn").textContent=dark?"☀️":"🌙";$("themeBtn2").textContent=dark?"☀️ Mode clair":"🌙 Mode sombre";
+  try{localStorage.setItem("fl-theme",m)}catch(e){}if(!$("game").hidden)requestAnimationFrame(fit)}
+let THEME="dark";try{THEME=localStorage.getItem("fl-theme")||"dark"}catch(e){}
+applyTheme(THEME);
+$("themeBtn").onclick=()=>{THEME=THEME==="light"?"dark":"light";applyTheme(THEME)};
+$("themeBtn2").onclick=()=>{THEME=THEME==="light"?"dark":"light";applyTheme(THEME);$("menu").hidden=true};
+lobbyMode();
+(async()=>{
+  const D={claude:"non",db:"non",ecriture:"?",synchro:"…"};const showDiag=()=>{const s="Diagnostic : navigateur "+D.claude+" · partie partagée "+D.db+" · droit de jouer "+D.ecriture+" · synchro "+D.synchro;$("diag").textContent=s;$("sync").title=s};
+  window.__diag=(k,v)=>{D[k]=v;showDiag()};showDiag();
+  for(let i=0;i<30&&!window.claude;i++)await new Promise(r=>setTimeout(r,100));
+  D.claude=window.claude?"oui":"non";showDiag();
+  const db=window.claude?await window.claude.use("db"):null;D.db=db?"oui":"non";showDiag();
+  if(!db){setSync(false,"Mode local : la partie reste sur cet appareil.");
+    net("<b>Cet appareil n'est pas relié à la partie partagée.</b> Les coups ne partent pas chez l'autre joueur. Vérifie ta connexion internet puis recharge la page.");return}
+  try{const user=await window.claude.use("user");const w=user?await user.can("data.write"):null;window.__diag("ecriture",w===true?"oui":w===false?"NON":"inconnu");if(w===false)net(NOACCESS)}catch(e){}
+  try{room=await window.claude.use("room");if(room){room.onPeers(ch=>{showPeers(ch.peers);takePeers(ch.peers);if(!$("game").hidden&&G)render()},()=>showPeers(null));announce()}}catch(e){}
+  col=db.collection("games");
+  setSync(true,"Salon partagé en direct");
+  col.onSnapshot(snap=>{const m={};snap.docs.forEach(d=>{const v=d.data();if(v&&v.players)m[d.id]=JSON.parse(JSON.stringify(v))});games=m;
+      if(!$("game").hidden&&cur&&G&&G.solo){}
+      else if(!$("game").hidden&&cur){const ng=games[cur.id];
+        if(ng&&(!G||ng.gid!==G.gid)){G=ng;seenLast=G.last?.n??null;pend={};announce()}
+        else if(ng){const turnChanged=G.turn!==ng.turn;G=ng;if(turnChanged&&!canPlay())pend={};animateLast()}
+        render()}
+      else{renderPicks();refreshResume()}
+      setSync(true,"Salon partagé en direct");window.__diag("synchro","OK")},
+    e=>{window.__diag("synchro","coupée ("+(e.code||"erreur")+")");setSync(false,"Synchro coupée ("+(e.code||"erreur")+")");net(e&&(e.code==="not_granted"||e.code==="revoked")?"<b>Tu n'as pas accès à la partie partagée.</b> Demande au propriétaire de partager la page avec toi, avec un accès qui permet de l'utiliser.":"<b>La synchronisation est coupée.</b> Recharge la page ("+(e.code||"erreur")+").")});
+})();
+</script>
+
+</body>
+</html>
