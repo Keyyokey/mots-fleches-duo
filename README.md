@@ -7,8 +7,12 @@ Le même jeu que dans Claude, en vrai site web : **n'importe qui ouvre le lien e
 - Le mode **Solo** reste sur l'appareil de chacun.
 
 ## Contenu
-- `server.js` : le serveur (sert la page et partage les parties de chaque salon en direct ; sauvegarde sur disque).
-- `public/index.html` : la page du jeu (17 grilles, design clair/sombre, niveaux, solo/multi).
+- `server.js` : le serveur (sert la page et partage les parties de chaque salon en direct ; sauvegarde sur disque, et dans Upstash Redis si configuré).
+- `public/index.html` : la page du jeu (200 grilles originales en 3 niveaux + 17 grilles du magazine, grille du jour, sons, animations, design clair/sombre, solo/multi).
+- `public/mot.html` : « Le mot du jour » (jeu complémentaire, adresse `/mot`).
+- `SAUVEGARDE.md` : comment les parties sont gardées, et les options de stockage durable (Upstash…).
+- `IDEES.md` : idées reprises des autres jeux et pistes de nouveaux jeux.
+- `outils/grilles/` : le générateur de grilles et le dictionnaire de définitions.
 - `render.yaml` : configuration prête pour l'hébergeur Render.
 - `package.json` : dépendances.
 
@@ -22,7 +26,7 @@ Le même jeu que dans Claude, en vrai site web : **n'importe qui ouvre le lien e
 2. Sur https://render.com : « New + » → **Blueprint** → choisis le dépôt → « Apply ».
 3. Render te donne l'adresse du site, par ex. `https://mots-fleches-duo.onrender.com`.
 
-Option gratuite : dans `render.yaml`, remplace `plan: starter` par `plan: free` et supprime le bloc `disk:` (le site s'endort après 15 min sans visite et les parties sont perdues au redémarrage).
+Offre gratuite (réglage actuel) : le site s'endort après 15 min sans visite. Les parties sont recopiées depuis les navigateurs des joueurs au réveil ; pour un stockage 100 % durable, voir `SAUVEGARDE.md` (Upstash, gratuit).
 
 ## Bouton « Soutenir le site » (dons)
 Le site affiche un bouton ☕ (accueil, menu, fin de partie) **dès que la variable `SUPPORT_URL` est renseignée** chez l'hébergeur.

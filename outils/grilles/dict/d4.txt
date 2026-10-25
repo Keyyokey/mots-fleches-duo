@@ -1,0 +1,571 @@
+ABBE|Curé de monastère
+ABEE|Ouverture de moulin
+ABRI|Refuge
+ACHE|Céleri sauvage
+ACNE|Boutons d'ado
+ACTE|Partie de pièce
+AERE|Ventilé
+AFRO|Coiffure bouclée
+AGES|Époques
+AGIR|Passer à l'action
+AIDE|Coup de main
+AIES|Possèdes
+AIGU|Accent montant
+AILE|Membre d'oiseau
+AIME|Chérit
+AINE|Pli de la cuisse
+AINS|Mais, autrefois
+AIRE|Nid d'aigle
+AISE|Contentement
+ALEA|Hasard
+ALLO|Mot du téléphone
+ALOI|Qualité, valeur
+ALPE|Pâturage de montagne
+AMAS|Tas
+AMER|Pas sucré
+AMIE|Copine
+AMIS|Copains
+ANGE|Messager céleste
+ANIS|Plante à pastis
+ANSE|Petite baie
+ANTE|Pilier d'angle
+AOUT|Mois des vacances
+APIS|Bœuf sacré égyptien
+APTE|Capable
+ARAS|Perroquets
+ARCS|Armes de tir
+ARDU|Difficile
+ARES|Mesures agraires
+ARIA|Air d'opéra
+ARME|Équipe de soldats
+ARTS|Beaux-...
+ASIE|Continent jaune
+ATRE|Foyer de cheminée
+AUBE|Lever du jour
+AUGE|Mangeoire de porc
+AULX|Gousses d'ail
+AUNE|Arbre des rives
+AURA|Halo
+AUTO|Voiture
+AVAL|Garantie de paiement
+AVEC|En compagnie de
+AVEU|Confession
+AVIS|Opinion
+AXES|Pivots
+AZUR|Bleu du ciel
+BABA|Gâteau au rhum
+BAIE|Petit fruit
+BAIN|Trempette
+BALE|Enveloppe du grain
+BALS|Soirées dansantes
+BANC|Siège public
+BARS|Comptoirs
+BASE|Fondement
+BATI|Construit
+BEAU|Joli
+BEBE|Nourrisson
+BELE|Cri de mouton
+BENI|Consacré
+BETA|Lettre grecque
+BETE|Animal
+BIDE|Échec cuisant
+BIEN|Correctement
+BISE|Vent du nord
+BLEU|Couleur du ciel
+BLOC|Masse compacte
+BOBO|Petit mal
+BOIS|Forêt
+BOLS|Récipients
+BOND|Saut
+BONS|Coupons
+BORD|Rive
+BOUE|Gadoue
+BOUT|Extrémité
+BRAS|Membre supérieur
+BREF|En résumé
+BRIE|Fromage à croûte fleurie
+BRIN|Petite tige
+BRIO|Talent éclatant
+BRUN|Châtain foncé
+BRUT|Sans apprêt
+BUSE|Rapace diurne
+BUTE|Achoppe
+BUTS|Objectifs
+CAFE|Petit noir
+CAGE|Prison à barreaux
+CALE|Fond de navire
+CAPE|Grand manteau
+CARI|Curry
+CARS|Autocars
+CASE|Hutte africaine
+CAVE|Cellier
+CENE|Dernier repas du Christ
+CENT|Dix fois dix
+CEPE|Bolet savoureux
+CERF|Animal à bois
+CHAT|Matou
+CHEF|Patron
+CHER|Coûteux
+CHOC|Collision
+CHOU|Légume pommé
+CIEL|Firmament
+CILS|Poils des paupières
+CIME|Sommet
+CINE|Septième art
+CIRE|Matière des abeilles
+CITE|Ville
+CLAN|Tribu
+CLEF|Clé
+CLIC|Pression sur la souris
+CLOS|Fermé
+CLOU|Pointe à marteler
+CLUB|Cercle
+CODE|Chiffre secret
+COIN|Angle
+COLS|Passages de montagne
+COMA|Perte de conscience
+CONE|Forme de glace
+COQS|Ils chantent au matin
+CORS|Cuivres de chasse
+COTE|Rivage
+COUP|Choc
+COUR|Espace clos
+CREE|Invente
+CRIS|Hurlements
+CROC|Dent pointue
+CRUE|Montée des eaux
+CUBE|Dé
+CUIR|Peau tannée
+CUIT|Mijoté
+CURE|Traitement
+CUVE|Grand récipient
+CYAN|Bleu d'imprimante
+DAME|Femme de qualité
+DANS|À l'intérieur de
+DARD|Aiguillon
+DATE|Jour précis
+DECA|Café sans excitant
+DEFI|Provocation
+DEJA|Si tôt
+DELA|Au-... : plus loin
+DEMI|Bière pression
+DENT|Elle croque
+DEUX|Paire
+DIEU|Être suprême
+DIRE|Exprimer
+DIVA|Cantatrice
+DOGE|Chef de Venise
+DOIT|A une dette
+DOME|Coupole
+DONC|Par conséquent
+DONS|Cadeaux
+DORE|Couleur d'or
+DOSE|Quantité prescrite
+DOTE|Pourvoit
+DOUX|Tendre
+DRAP|Linge de lit
+DRUE|Épaisse
+DUEL|Combat singulier
+DUNE|Colline de sable
+DUOS|Paires
+DUPE|Trompé
+DURE|Persiste
+ECHO|Son répété
+ECRU|Non blanchi
+EDEN|Paradis terrestre
+EGAL|Pareil
+ELAN|Impulsion
+ELFE|Lutin
+ELLE|Pronom féminin
+ELUE|Choisie
+EMIR|Prince arabe
+EMUE|Touchée
+ENVI|À l'..., en rivalité
+EPEE|Arme de mousquetaire
+EPIS|Têtes de blé
+ERES|Époques
+ERGO|Donc, en latin
+ERRE|Vagabonde
+ESSE|Crochet en S
+ETAI|Soutien de mur
+ETAL|Table de boucher
+ETAT|Nation
+ETES|Saisons chaudes
+ETRE|Exister
+EURO|Monnaie unique
+EXIL|Bannissement
+FADE|Sans goût
+FAIM|Envie de manger
+FAIT|Événement
+FANA|Passionné
+FARD|Maquillage
+FAUX|Erroné
+FEES|Magiciennes
+FERS|Chaînes
+FETE|Réjouissance
+FEUX|Lumières de signalisation
+FIEF|Domaine
+FIER|Orgueilleux
+FIGE|Immobile
+FILE|Queue
+FILS|Garçon
+FINS|Terminaisons
+FISC|Impôts
+FLAN|Dessert à la vanille
+FLOT|Vague
+FLOU|Pas net
+FOCS|Voiles d'avant
+FOIE|Organe du gras
+FOIN|Herbe séchée
+FOIS|Occasion
+FOLK|Musique populaire
+FOND|Partie basse
+FONT|Réalisent
+FORT|Puissant
+FOUR|Il cuit le pain
+FOUS|Déments
+FRAI|Ponte des poissons
+FRIC|Argent familier
+FRIT|Cuit dans l'huile
+FUIR|S'échapper
+FUME|Grille une cigarette
+FUSE|Jaillit
+GAGE|Garantie
+GAIN|Profit
+GALA|Grande fête
+GANT|Il habille la main
+GARE|Station
+GATE|Choyé
+GAZE|Tissu léger
+GEAI|Oiseau bavard
+GELE|Glacé
+GEME|Se plaint
+GENE|Embarras
+GENS|Personnes
+GITE|Logement
+GLAS|Sonnerie funèbre
+GOAL|Gardien de but
+GOND|Pivot de porte
+GOUT|Saveur
+GRAS|Plein de graisse
+GRES|Roche sableuse
+GRIL|Barbecue
+GRIS|Couleur de souris
+GUET|Surveillance
+HAIE|Clôture végétale
+HALE|Bronzé
+HALO|Auréole
+HATE|Précipitation
+HAUT|Élevé
+HELE|Appelle de loin
+HIER|Veille
+HOTE|Celui qui reçoit
+HOUX|Arbuste de Noël
+HUER|Conspuer
+HUIT|Nombre d'octobre
+HUNE|Plate-forme de mât
+IBIS|Oiseau sacré d'Égypte
+IDEE|Pensée
+ILES|Terres entourées d'eau
+ILOT|Petite île
+INDE|Pays du Gange
+INOX|Acier inoxydable
+IRIS|Partie colorée de l'œil
+ISBA|Maison russe en bois
+ITEM|De même
+IVRE|Saoul
+JADE|Pierre verte
+JAIS|Noir brillant
+JARS|Mâle de l'oie
+JAVA|Danse populaire
+JEAN|Pantalon de toile
+JETE|Lancé
+JEUX|Divertissements
+JOIE|Bonheur
+JOLI|Mignon
+JOUE|S'amuse
+JOUR|Journée
+JUGE|Magistrat
+JUIN|Mois de l'été
+JUPE|Vêtement féminin
+JURE|Promet
+JUTE|Fibre textile
+KAKI|Fruit orange
+KILO|Mille grammes
+KIWI|Fruit poilu
+LACS|Étendues d'eau
+LAID|Pas beau
+LAIE|Femelle du sanglier
+LAIT|Boisson blanche
+LAME|Partie tranchante
+LAMA|Animal des Andes
+LAND|Région allemande
+LAPS|Espace de temps
+LARD|Graisse de porc
+LAVE|Roche en fusion
+LEGS|Héritage
+LENT|Pas rapide
+LIEN|Attache
+LIER|Attacher
+LIEU|Endroit
+LIME|Outil à ongles
+LION|Roi des animaux
+LIRE|Déchiffrer
+LITS|Couchettes
+LOBE|Bas de l'oreille
+LOGE|Habite
+LOIN|À grande distance
+LOIR|Dormeur rongeur
+LOIS|Règles votées
+LONG|Étendu
+LORS|À ce moment
+LOTO|Jeu de boules numérotées
+LOUP|Animal qui hurle
+LOUE|Prend en location
+LUGE|Petit traîneau
+LUNE|Astre de la nuit
+LUTH|Instrument à cordes
+LUXE|Somptuosité
+LYRE|Instrument d'Orphée
+MAIN|Elle a cinq doigts
+MAIS|Pourtant
+MALE|Pas femelle
+MALI|Pays d'Afrique
+MARC|Résidu de café
+MARE|Petit étang
+MARI|Époux
+MARS|Planète rouge
+MATE|Maîtrise
+MATS|Poteaux de navire
+MAUX|Douleurs
+MELO|Drame larmoyant
+MEME|Identique
+MENU|Carte du jour
+MERE|Maman
+MERS|Océans
+METS|Plats
+MIDI|Douze heures
+MIEL|Produit de la ruche
+MIEN|Ce qui est à moi
+MINE|Gisement
+MISE|Enjeu
+MITE|Insecte des placards
+MODE|Tendance
+MOIS|Trente jours
+MONT|Montagne
+MORT|Décès
+MOTS|Termes
+MOUE|Grimace de dépit
+MOUS|Pas fermes
+MUET|Sans voix
+MULE|Hybride têtu
+MURE|Fruit de la ronce
+MURS|Parois
+MUSE|Inspiratrice
+NAIF|Ingénu
+NAIN|Petit personnage de conte
+NAZE|Fichu
+NEFS|Parties d'églises
+NERF|Fibre sensible
+NETS|Clairs
+NEUF|Tout nouveau
+NIDS|Abris d'oiseaux
+NIER|Contester
+NIES|Contestés
+NOCE|Mariage
+NOEL|Fête de décembre
+NOIR|Sombre
+NOIX|Fruit du noyer
+NOMS|Patronymes
+NORD|Point cardinal
+NOTE|Annotation
+NOUE|Attache
+NUEE|Gros nuage
+NUIT|Obscurité
+NULS|Sans valeur
+OBUS|Projectile
+OCRE|Terre colorée
+ODES|Poèmes lyriques
+OEIL|Organe de la vue
+OEUF|Il est pondu
+OGRE|Mangeur d'enfants
+OIES|Volailles
+OISE|Rivière de Picardie
+ONCE|Petite mesure
+ONDE|Vague
+ONZE|Équipe de foot
+OPEN|Tournoi ouvert
+ORAL|Examen parlé
+ORGE|Céréale à bière
+ORME|Arbre des places
+ORNE|Décore
+OSER|Tenter
+OTER|Enlever
+OUIE|Sens de l'audition
+OURS|Plantigrade
+OVNI|Objet mystérieux
+PAGE|Feuille de livre
+PAIE|Salaire
+PAIN|Baguette
+PAIR|Divisible par deux
+PAIX|Fin de guerre
+PALE|Blafard
+PANS|Morceaux de mur
+PAON|Oiseau qui fait la roue
+PAPA|Père
+PARC|Jardin public
+PART|S'en va
+PATE|Préparation à tarte
+PAYS|Nation
+PEAU|Épiderme
+PERE|Papa
+PESO|Monnaie latine
+PEUR|Frayeur
+PIED|Bas de la jambe
+PIEU|Poteau
+PIGE|Comprend
+PILE|Batterie
+PINS|Conifères
+PION|Pièce de jeu
+PIPE|Elle se fume
+PIRE|Plus mauvais
+PLAN|Carte
+PLAT|Mets
+PLIE|Courbe
+PLOT|Borne
+PLUS|Davantage
+PNEU|Bandage de roue
+POIL|Cheveu du corps
+POIS|Petit légume vert
+POLE|Extrémité du globe
+POLI|Courtois
+PONT|Ouvrage sur rivière
+PORC|Cochon
+PORT|Havre
+POSE|Attitude
+POTS|Récipients
+POUR|En faveur de
+PRES|Non loin
+PRET|Paré
+PRIE|Supplie
+PRIS|Attrapé
+PRIX|Coût
+PROS|Professionnels
+PUCE|Insecte sauteur
+PULL|Tricot
+PUMA|Couguar
+PURE|Sans mélange
+QUAI|Bord de rivière
+QUIZ|Jeu de questions
+RACE|Lignée
+RADE|Bassin naturel
+RAGE|Fureur
+RAIE|Poisson plat
+RAPE|Ustensile à fromage
+RARE|Peu fréquent
+RASE|Coupé court
+RATE|Organe abdominal
+RAVI|Enchanté
+RAYE|Biffé
+REEL|Véritable
+REIN|Organe filtrant
+REPU|Rassasié
+RIEN|Néant
+RIRE|S'esclaffer
+RITE|Cérémonie
+RIVE|Berge
+ROBE|Tenue de soirée
+ROCK|Musique électrique
+RODE|Erre
+ROLE|Personnage joué
+ROND|Cercle
+ROSE|Fleur à épines
+ROUE|Elle tourne
+ROUX|Poil de carotte
+RUDE|Âpre
+RUES|Voies urbaines
+RUSE|Astuce
+SAGE|Raisonnable
+SAIN|En bonne santé
+SALE|Malpropre
+SANG|Liquide rouge
+SANS|Dépourvu de
+SAUF|Excepté
+SAUT|Bond
+SEAU|Récipient à anse
+SEIN|Poitrine
+SEPT|Nombre des nains
+SERA|Existera
+SERF|Paysan du Moyen Âge
+SEUL|Isolé
+SIEN|Ce qui est à lui
+SITE|Lieu
+SNOB|Prétentieux
+SOIE|Fil du ver
+SOIF|Envie de boire
+SOIN|Attention
+SOIR|Fin de journée
+SOLE|Poisson plat
+SOLO|Morceau joué seul
+SORT|Destin
+SOUK|Marché arabe
+SOUS|Monnaie
+SPOT|Projecteur
+STOP|Arrêt
+SUER|Transpirer
+SUIE|Dépôt de cheminée
+SURE|Certaine
+TACT|Délicatesse
+TAPE|Petit coup
+TARD|Après l'heure
+TARE|Défaut
+TAUX|Pourcentage
+TAXE|Impôt
+TELE|Petit écran
+TETE|Chef
+THES|Infusions
+TIGE|Partie de plante
+TIRE|Tracte
+TOIT|Couverture de maison
+TONS|Nuances
+TOUR|Construction élevée
+TOUS|L'ensemble
+TOUT|Totalité
+TRAC|Peur avant d'entrer en scène
+TRES|Fort
+TRIO|Groupe de trois
+TROP|Excessivement
+TROU|Cavité
+TUBE|Succès musical
+TUER|Abattre
+TYPE|Gars
+UNES|Premières pages
+UNIE|Sans motif
+UNIR|Rassembler
+URNE|Boîte de vote
+USER|Abîmer
+VAIN|Inutile
+VASE|Récipient à fleurs
+VEAU|Petit de la vache
+VELO|Bicyclette
+VENT|Courant d'air
+VERS|Ligne de poème
+VERT|Couleur de l'herbe
+VETO|Opposition
+VIDE|Néant
+VIES|Existences
+VINS|Crus
+VISA|Autorisation d'entrée
+VISE|Cible
+VITE|Rapidement
+VOIE|Chemin
+VOIR|Regarder
+VOIX|Organe vocal
+VOLS|Trajets aériens
+VOTE|Scrutin
+VOUS|Pronom de politesse
+VRAI|Exact
+YEUX|Organes de la vue
+ZERO|Rien du tout
+ZONE|Secteur
+ZOOM|Objectif grossissant

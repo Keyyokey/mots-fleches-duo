@@ -1,5 +1,6 @@
 # Déploiement sur Render (https://render.com) — offre GRATUITE
-# Le site s'endort après ~15 min sans visite (réveil ~1 min) et les parties sont effacées à chaque redémarrage.
+# Le site s'endort après ~15 min sans visite (réveil ~1 min). Les parties sont recopiées depuis les navigateurs au réveil ;
+# pour un stockage totalement durable, renseigne UPSTASH_REDIS_REST_URL et _TOKEN (voir SAUVEGARDE.md).
 # Pour passer en payant plus tard : plan: starter + bloc disk (voir LISEZMOI).
 services:
   - type: web
@@ -14,4 +15,8 @@ services:
       - key: NODE_VERSION
         value: "20"
       - key: SUPPORT_URL      # lien de don (facultatif) — à remplir plus tard sur Render
+        sync: false
+      - key: UPSTASH_REDIS_REST_URL
+        sync: false
+      - key: UPSTASH_REDIS_REST_TOKEN
         sync: false

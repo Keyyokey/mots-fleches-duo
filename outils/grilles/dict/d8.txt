@@ -1,0 +1,349 @@
+AIMES|Chéris
+AIMEE|Chérie
+AIMENT|Chérissent
+AILES|Membres d'oiseau
+AINES|Premiers-nés
+AIRS|Mélodies
+AISES|Commodités
+ALES|Bières anglaises
+AMES|Esprits
+ANES|Baudets
+ANSES|Petites baies
+ARENES|Amphithéâtres romains
+ARME|Fusil
+ARMER|Équiper
+ARTERES|Vaisseaux sanguins
+ASTRES|Corps célestes
+ATRES|Foyers
+AVERSE|Pluie soudaine
+AVEUX|Confessions
+AISE|Bien-être
+BASES|Fondements
+BETES|Animaux
+BIENS|Possessions
+BISES|Bisous
+BOTTES|Chaussures hautes
+CAPES|Grands manteaux
+CARTES|Plans
+CASES|Cabanes
+CAVES|Celliers
+CEDE|Abandonne
+CERISES|Fruits rouges
+CHATTE|Femelle du chat
+CIRES|Encaustiques
+CITES|Villes
+CLES|Passe-partout
+COTES|Rivages
+CRIER|Hurler
+CUIRE|Mijoter
+DAMES|Pièces de jeu
+DATES|Jours précis
+DENTS|Elles croquent
+DIRES|Affirmations
+DOSES|Quantités
+DOTER|Pourvoir
+DRAPS|Linge de lit
+EAUX|Ondes
+ECRIRE|Rédiger
+ECRITE|Rédigée
+ELANS|Impulsions
+ELUES|Choisies
+EMIRS|Princes arabes
+ENTRER|Pénétrer
+EPEES|Armes blanches
+ERRER|Vagabonder
+ESSES|Crochets
+ESTER|Agir en justice
+ETAIS|Supports
+ETALE|Expose
+ETAT|Condition
+ETATS|Nations
+ETERNEL|Sans fin
+ETOILES|Astres
+ETRES|Créatures
+ETUDES|Travaux scolaires
+FEES|Magiciennes
+FILES|Queues
+FINIR|Terminer
+FINIE|Terminée
+FIXE|Immobile
+FLEURS|Roses et tulipes
+FORTE|Robuste
+GARES|Stations
+GENES|Embarras
+GITES|Logements
+HAIES|Clôtures vertes
+HATES|Empressements
+IDEES|Pensées
+ILOTS|Petites îles
+IRAI|Me rendrai
+IRAS|Te rendras
+IRIS|Fleur ou partie de l'œil
+ISSUE|Sortie
+LAINES|Toisons
+LAMES|Tranchants
+LARMES|Pleurs
+LASSE|Fatiguée
+LATTE|Planche étroite
+LAVER|Nettoyer
+LEST|Poids d'équilibre
+LIANE|Plante grimpante
+LIERRE|Plante grimpante
+LIMES|Outils à ongles
+LIRES|Anciennes monnaies italiennes
+LISSE|Sans aspérité
+LITRES|Mesures de volume
+LOGES|Habites
+LUNES|Satellites
+MAINS|Elles applaudissent
+MALES|Mâles
+MARES|Flaques d'eau
+MATER|Dompter
+MENER|Diriger
+MERES|Mamans
+METRES|Unités de longueur
+MINES|Gisements
+MISES|Enjeux
+MITES|Insectes des placards
+MODES|Tendances
+MOTEURS|Engins
+MURES|Fruits de la ronce
+NEIGES|Flocons
+NETTE|Propre
+NIERA|Contestera
+NOTES|Annotations
+NOUER|Attacher
+NUES|Nuages
+ODEURS|Senteurs
+OIES|Volailles
+OSERA|Tentera
+OTERA|Enlèvera
+OURSE|Femelle de l'ours
+PAIRS|Égaux
+PALES|Blafards
+PARER|Orner
+PARTIR|S'en aller
+PATES|Spaghettis
+PATTES|Membres d'animal
+PERES|Papas
+PERTES|Manques
+PIEDS|Ils marchent
+PILES|Batteries
+PIRES|Plus mauvais
+PISTES|Traces
+PLAIES|Blessures
+POSER|Placer
+POSTE|Bureau de courrier
+PRES|Champs
+PRISE|Capture
+RAIES|Lignes
+RARES|Peu fréquents
+RASES|Coupés court
+RATES|Organes abdominaux
+RATER|Manquer
+REINE|Souveraine
+REINES|Souveraines
+RENTRE|Revient chez soi
+RESTER|Demeurer
+RETS|Filets
+REVES|Songes
+RIRES|Éclats de joie
+RITES|Cérémonies
+RIVES|Berges
+ROSES|Fleurs à épines
+ROSIER|Arbuste à fleurs
+RUSES|Astuces
+SAINE|En bonne santé
+SALES|Malpropres
+SAPER|Miner
+SATIRE|Critique moqueuse
+SEINE|Fleuve de Paris
+SENTE|Petit chemin
+SERRES|Griffes de rapace
+SERT|Est utile
+SIESTES|Repos de midi
+SITES|Lieux
+SOIES|Fils de ver
+SORTE|Genre
+SOTTE|Idiote
+SOUTE|Cale
+STAR|Vedette
+STATUE|Sculpture
+STERE|Mètre cube de bois
+TAIRE|Cacher
+TALE|Pierre tendre
+TANTES|Sœurs du père
+TAPES|Petits coups
+TARES|Défauts
+TARTE|Gâteau aux pommes
+TASSE|Récipient à thé
+TENTER|Essayer
+TERRES|Domaines
+TESTER|Essayer
+TETES|Crânes
+TIRER|Tracter
+TOILES|Tableaux
+TOTEM|Emblème tribal
+TRAITE|Lettre de change
+TRIER|Classer
+TRISTE|Morose
+TUES|Abats
+URNES|Boîtes de vote
+USEE|Abîmée
+USES|Abîmes
+VASES|Récipients à fleurs
+VERSE|Pluie battante
+VERTE|Couleur de l'herbe
+VESTES|Vestons
+VISER|Mettre en joue
+VITRES|Carreaux
+VOILES|Toiles de bateau
+VOTER|Choisir aux urnes
+AIRER|Faire son nid (rapace)
+ALLEE|Chemin bordé d'arbres
+ALLES|Partis
+AMASSE|Accumule
+ANNEES|Millésimes
+ARDENTE|Brûlante
+ARRETE|Décret municipal
+ATTENTE|Patience
+AUTRES|Différents
+AVALER|Engloutir
+BALADE|Promenade
+BALLES|Projectiles
+BATTRE|Vaincre
+BELLES|Jolies
+BETISE|Sottise
+BILLES|Petites sphères
+BOUTEILLE|Flacon
+CALMER|Apaiser
+CANNES|Ville du festival
+CARRE|Figure géométrique
+CASSER|Briser
+CEDRE|Grand conifère
+CHASSE|Traque
+CHATS|Félins domestiques
+CIRCULER|Se déplacer
+CLASSE|Élégance
+COLLER|Fixer
+COMTESSE|Noble dame
+CORRECT|Juste
+COTTE|Tunique de mailles
+COUSSIN|Coussinet
+CRAIE|Bâton de tableau noir
+DESSERT|Douceur de fin de repas
+DETESTER|Haïr
+EMETTRE|Diffuser
+ENTENTE|Accord
+ESSAIS|Tentatives
+ESTIME|Considération
+ETALER|Étendre
+ETERNITE|Infini
+ETRENNE|Cadeau du nouvel an
+FERRE|Garni de fer
+FESTIN|Banquet
+FLATTER|Complimenter
+GALETTE|Crêpe bretonne
+GARANTIE|Assurance
+INITIALE|Première lettre
+INSERER|Glisser dedans
+INTERET|Attrait
+LAISSER|Abandonner
+LANCER|Jeter
+LESTER|Alourdir
+LETTRES|Courrier
+LISTER|Énumérer
+LITTERAL|Mot à mot
+MAITRE|Patron
+MASSER|Pétrir les muscles
+MATTE|Sans éclat
+MESSES|Offices religieux
+METTRE|Placer
+NATTER|Tresser
+NETTOIE|Lave
+OISEAU|Volatile
+OREILLES|Pavillons
+PARENTE|Famille
+PASSER|Franchir
+PATIENTER|Attendre
+PRESSE|Journaux
+PRETRE|Ecclésiastique
+RAISIN|Fruit de la treille
+RAMASSER|Cueillir
+RASSIS|Pas frais
+RATTRAPER|Rejoindre
+REALISER|Accomplir
+RELIRE|Lire à nouveau
+REPAS|Festin
+RESTE|Demeure
+RETENIR|Mémoriser
+RETRAITE|Fin de carrière
+REUSSIR|Gagner
+RIRE|Pouffer
+SALIERE|Petit pot à sel
+SALTO|Saut périlleux
+SARRASIN|Blé noir
+SATIN|Tissu brillant
+SEMER|Ensemencer
+SERIE|Suite
+SERINE|Répète sans cesse
+SERRER|Étreindre
+SIRENES|Sirènes d'alarme
+SOIREE|Fête du soir
+SOLITAIRE|Isolé
+SORTIR|Quitter
+STRATE|Couche
+TASSER|Compacter
+TERRASSE|Esplanade de café
+TERRIER|Abri du lapin
+TETINE|Sucette
+TISSER|Faire de la toile
+TITRES|Intitulés
+TRAITER|Soigner
+TRESSE|Natte
+TRIANGLE|Figure à trois côtés
+TRISTESSE|Chagrin
+TROTTER|Courir à petits pas
+ARRETER|Stopper
+NAITRE|Venir au monde
+ANNEE|Millésime
+RENTRER|Revenir
+RENTREE|Retour en classe
+ARRIERE|Défenseur
+SAISIR|Attraper
+LIRA|Parcourra
+NATION|Peuple
+STATION|Gare
+ORATION|Discours
+ROTATION|Tour complet
+SENTIR|Humer
+TENIR|Garder en main
+TENTE|Abri de camping
+SAINT|Vénéré
+SAINTE|Vénérée
+SATANE|Maudit
+INSTANT|Moment
+ENTRAIN|Bonne humeur
+TRAINER|Traîner
+RATION|Portion
+NOTION|Idée
+LOTION|Soin liquide
+POTION|Breuvage magique
+ESTIMER|Évaluer
+MISERE|Pauvreté
+SIESTE|Petit somme
+TOILETTE|Lavage
+SALUTATION|Bonjour
+SINUS|Cavité nasale
+NIAIS|Benêt
+NAISSANT|Débutant
+OSIERS|Saules à paniers
+ROSEE|Gouttes de l'aube
+REGATE|Course de voiliers
+SONNET|Poème de quatorze vers
+TONNE|Mille kilos
+NONNE|Religieuse
+ANTENNE|Récepteur radio
+RENNES|Ville bretonne
+TENNIS|Sport de Roland-Garros
+SIENNE|Ville de Toscane

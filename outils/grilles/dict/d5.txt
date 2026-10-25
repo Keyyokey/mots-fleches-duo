@@ -1,0 +1,525 @@
+ABIME|Gouffre
+ABOIS|Aux ..., acculé
+ACIER|Métal trempé
+ACRES|Mesures agraires
+ACTES|Parties de pièce
+ADIEU|Salut final
+ADORE|Raffole de
+AERER|Ventiler
+AGENT|Policier
+AGILE|Leste
+AGITE|Remuant
+AIDER|Seconder
+AIMER|Chérir
+AINEE|Première-née
+AIRES|Surfaces
+AISEE|Facile
+AJOUT|Complément
+ALBUM|Recueil de photos
+ALGUE|Plante marine
+ALIBI|Excuse de suspect
+ALLER|Se rendre
+ALORS|Dans ce cas
+ALPES|Massif du mont Blanc
+AMANT|Amoureux
+AMBRE|Résine fossile
+AMENE|Conduit
+AMERE|Pas sucrée
+AMIES|Copines
+ANCRE|Ferme le bateau au fond
+ANGES|Messagers célestes
+ANNEE|Douze mois
+ANTRE|Caverne
+APPEL|Coup de fil
+APRES|Ensuite
+ARBRE|Chêne ou hêtre
+ARENE|Lieu de corrida
+ARGOT|Langue verte
+ARIDE|Sec
+ARMEE|Troupes
+ARMES|Fusils et épées
+AROME|Parfum
+ASILE|Refuge
+ASTRE|Corps céleste
+ATOME|Particule
+ATOUT|Carte maîtresse
+AUTEL|Table de sacrifice
+AVANT|Devant
+AVARE|Grippe-sou
+AVION|Appareil volant
+AVOIR|Posséder
+AVRIL|Mois du poisson
+AZOTE|Gaz de l'air
+BADGE|Insigne
+BAGNE|Prison de forçats
+BAGUE|Anneau
+BALAI|Ustensile de ménage
+BALLE|Projectile
+BANAL|Ordinaire
+BANDE|Groupe
+BANJO|Guitare ronde
+BARBE|Poils du menton
+BARON|Noble
+BARRE|Tige rigide
+BASSE|Instrument grave
+BATON|Trique
+BEIGE|Brun clair
+BELLE|Jolie
+BETON|Ciment armé
+BIERE|Boisson houblonnée
+BIJOU|Joyau
+BILAN|Compte rendu
+BILLE|Petite sphère
+BLANC|Couleur du lait
+BLOND|Couleur des blés
+BOIRE|Se désaltérer
+BOITE|Carton
+BONNE|Domestique
+BORNE|Limite
+BOSSE|Grosseur du dos
+BOTTE|Chaussure haute
+BOULE|Sphère
+BOXER|Chien de garde
+BRAVE|Courageux
+BREVE|Courte
+BRISE|Vent léger
+BRUIT|Son
+BRUME|Brouillard léger
+CABLE|Gros fil
+CACAO|Fève du chocolat
+CADRE|Encadrement
+CAFES|Petits noirs
+CAGES|Prisons à barreaux
+CALME|Paisible
+CANAL|Voie d'eau
+CANNE|Bâton de marche
+CANOE|Embarcation légère
+CANON|Pièce d'artillerie
+CAPOT|Couvercle de moteur
+CARGO|Navire marchand
+CARRE|Figure à quatre côtés
+CARTE|Plan
+CASSE|Brisé
+CAUSE|Raison
+CEDER|Abandonner
+CELLE|Pronom démonstratif
+CERNE|Ombre sous l'œil
+CHAIR|Viande
+CHAMP|Terre cultivée
+CHANT|Mélodie
+CHAOS|Désordre total
+CHATS|Matous
+CHAUD|Brûlant
+CHEFS|Patrons
+CHENE|Arbre robuste
+CHERE|Coûteuse
+CHIEN|Toutou
+CHOSE|Objet
+CHOUX|Légumes pommés
+CIDRE|Boisson de pomme
+CIRER|Faire briller
+CITER|Mentionner
+CLAIR|Lumineux
+CLOWN|Comique de cirque
+COEUR|Organe de l'amour
+COLLE|Glu
+COMTE|Noble titré
+CONTE|Histoire merveilleuse
+COPIE|Reproduction
+CORDE|Cordage
+CORNE|Défense de taureau
+CORPS|Organisme
+COSSE|Enveloppe de petit pois
+COTON|Fibre blanche
+COUDE|Articulation du bras
+COUPE|Trophée
+COURT|Pas long
+CRABE|Crustacé
+CRANE|Boîte osseuse
+CREME|Partie du lait
+CREPE|Galette fine
+CRISE|Moment difficile
+CROIX|Symbole chrétien
+CRUEL|Méchant
+CYCLE|Période
+DANSE|Valse ou tango
+DATTE|Fruit du palmier
+DEBUT|Commencement
+DELAI|Sursis
+DENSE|Épais
+DEPOT|Entrepôt
+DESIR|Envie
+DETTE|Somme due
+DIGNE|Méritant
+DINER|Repas du soir
+DISCO|Musique de danse
+DIVAN|Canapé
+DOIGT|Il porte la bague
+DOUCE|Tendre
+DOUTE|Hésitation
+DRAME|Tragédie
+DROIT|Juste
+DROLE|Amusant
+DUCHE|Terre de duc
+DUREE|Temps écoulé
+ECART|Différence
+ECHEC|Revers
+ECLAT|Brillance
+ECOLE|Lieu d'apprentissage
+ECRAN|Moniteur
+ECRIT|Texte
+EFFET|Résultat
+EGALE|Pareille
+ELEVE|Écolier
+ELITE|Crème de la crème
+EMAIL|Courriel
+ENCRE|Liquide d'écriture
+ENFER|Lieu de damnation
+ENNUI|Lassitude
+ENTRE|Parmi
+ENVIE|Désir
+EPAVE|Navire naufragé
+EPICE|Condiment
+EPINE|Piquant de rose
+EPOUX|Mari
+ESSAI|Tentative
+ETAGE|Niveau d'immeuble
+ETANG|Petit lac
+ETAPE|Halte
+ETUDE|Travail scolaire
+EXACT|Juste
+EXTRA|Supérieur
+FABLE|Récit de La Fontaine
+FACON|Manière
+FAUNE|Animaux d'une région
+FAUTE|Erreur
+FERME|Exploitation agricole
+FESSE|Moitié de derrière
+FETES|Réjouissances
+FIBRE|Filament
+FICHE|Carton de notes
+FIERE|Orgueilleuse
+FILET|Mailles de pêche
+FILLE|Demoiselle
+FLEUR|Rose ou tulipe
+FLORE|Plantes d'une région
+FOIRE|Grand marché
+FOLIE|Démence
+FONDS|Capital
+FORET|Bois étendu
+FORME|Silhouette
+FORUM|Place publique
+FOSSE|Trou
+FOULE|Multitude
+FRAIS|Dépenses
+FRANC|Sincère
+FRERE|Frangin
+FRITE|Bâtonnet de pomme de terre
+FROID|Glacial
+FRONT|Haut du visage
+FRUIT|Pomme ou poire
+FUITE|Évasion
+FUMEE|Elle sort de la cheminée
+FUSIL|Arme à feu
+GAMIN|Gosse
+GARDE|Surveillant
+GAZON|Herbe tondue
+GELEE|Confiture transparente
+GENOU|Rotule
+GENRE|Type
+GESTE|Mouvement
+GIVRE|Glace sur les branches
+GLACE|Crème glacée
+GLOBE|Sphère terrestre
+GOMME|Efface le crayon
+GORGE|Gosier
+GRACE|Élégance
+GRAIN|Semence
+GRAND|Élevé
+GRAVE|Sérieux
+GREVE|Arrêt de travail
+GUIDE|Accompagnateur
+HACHE|Outil de bûcheron
+HAINE|Détestation
+HALTE|Pause
+HAMAC|Lit suspendu
+HARPE|Instrument à cordes
+HERBE|Gazon
+HEROS|Personnage principal
+HEURE|Soixante minutes
+HIBOU|Oiseau nocturne
+HIVER|Saison froide
+HOMME|Monsieur
+HONTE|Déshonneur
+HOTEL|Établissement hôtelier
+HUILE|Matière grasse
+HYMNE|Chant national
+IDEAL|Parfait
+IDIOT|Imbécile
+IMAGE|Illustration
+INDEX|Doigt pointé
+ISSUE|Sortie
+JAMBE|Membre inférieur
+JAUNE|Couleur du citron
+JETON|Pièce de casino
+JEUNE|Pas vieux
+JOUET|Objet pour enfant
+JOUER|S'amuser
+JUSTE|Équitable
+KAYAK|Canoë inuit
+KOALA|Marsupial australien
+LACET|Cordon de chaussure
+LAINE|Toison tondue
+LAMPE|Source de lumière
+LANCE|Arme de chevalier
+LARGE|Vaste
+LARME|Goutte de chagrin
+LASER|Rayon de lumière
+LEGER|Pas lourd
+LENTE|Pas rapide
+LEVER|Soulever
+LIBRE|Indépendant
+LIEUE|Ancienne distance
+LIGNE|Trait
+LIMBE|Bord gradué
+LINGE|Vêtements à laver
+LISTE|Énumération
+LITRE|Unité de volume
+LIVRE|Bouquin
+LOCAL|Pièce
+LOGER|Héberger
+LOTUS|Fleur sacrée
+LOUPE|Verre grossissant
+LOURD|Pesant
+LOYER|Prix de la location
+LUEUR|Faible lumière
+LUNDI|Premier jour de la semaine
+LUTIN|Petit génie
+LYCEE|Établissement du bac
+MAGIE|Sorcellerie
+MAIRE|Premier magistrat de la commune
+MAJOR|Premier de la promo
+MALIN|Rusé
+MAMAN|Mère
+MANGE|Avale
+MANIE|Habitude bizarre
+MARDI|Jour de la semaine
+MARGE|Bord de page
+MARIN|Matelot
+MATCH|Rencontre sportive
+MAUVE|Violet pâle
+MELON|Fruit d'été
+MERCI|Remerciement
+MERLE|Oiseau noir
+METAL|Fer ou cuivre
+METRE|Unité de longueur
+MIEUX|De façon préférable
+MILLE|Dix fois cent
+MINCE|Svelte
+MOINE|Religieux
+MOINS|Pas autant
+MONDE|Planète
+MORAL|État d'esprit
+MOULE|Coquillage
+MOYEN|Méthode
+MUSEE|Lieu d'exposition
+NAGER|Faire des brasses
+NAPPE|Linge de table
+NATTE|Tresse
+NEIGE|Flocons blancs
+NERFS|Fibres sensibles
+NICHE|Abri de chien
+NOBLE|Aristocrate
+NOCES|Mariage
+NOEUD|Boucle serrée
+NOIRE|Note de musique
+NOTER|Écrire
+NOYAU|Centre du fruit
+NUAGE|Nuée
+NUIRE|Faire du tort
+OCEAN|Grande mer
+ODEUR|Senteur
+OFFRE|Proposition
+OISIF|Désœuvré
+OLIVE|Fruit à huile
+OMBRE|Zone sombre
+ONCLE|Frère du père
+ONGLE|Bout du doigt
+OPERA|Spectacle chanté
+ORAGE|Tempête
+ORDRE|Commandement
+ORGUE|Instrument d'église
+ORNER|Décorer
+OSIER|Saule à paniers
+OTAGE|Prisonnier de rançon
+OUTIL|Instrument
+PAGNE|Vêtement de taille
+PAIRE|Duo
+PANDA|Ours bambou
+PANNE|Arrêt accidentel
+PARIS|Capitale française
+PARMI|Entre
+PARTI|Groupe politique
+PASSE|Autrefois
+PATTE|Jambe d'animal
+PAUSE|Arrêt
+PAYER|Régler
+PEINE|Chagrin
+PELLE|Outil à creuser
+PENTE|Déclivité
+PERLE|Bijou d'huître
+PERTE|Manque
+PESER|Évaluer le poids
+PETIT|Minuscule
+PHARE|Tour de signalisation
+PHOTO|Cliché
+PIANO|Instrument à touches
+PIECE|Salle
+PIEGE|Traquenard
+PINCE|Outil de serrage
+PIPER|Truquer
+PISTE|Trace
+PIZZA|Spécialité italienne
+PLACE|Endroit
+PLAGE|Bord de mer
+PLAIE|Blessure
+PLEIN|Rempli
+PLUIE|Averse
+PLUME|Duvet d'oiseau
+POELE|Ustensile de cuisine
+POEME|Vers
+POETE|Rimeur
+POIDS|Masse
+POING|Main fermée
+POINT|Petite marque
+POIRE|Fruit à pépins
+POMME|Fruit d'Ève
+PONTS|Ouvrages sur rivière
+PORTE|Entrée
+POSTE|Emploi
+POUCE|Gros doigt
+POULE|Volaille pondeuse
+POULS|Battements du cœur
+PRIER|Implorer
+PRISE|Capture
+PRIVE|Personnel
+PROSE|Texte non versifié
+PRUNE|Fruit violet
+PUCES|Marché aux occasions
+PUITS|Trou d'eau
+QUAND|À quel moment
+QUART|Quatrième partie
+RADAR|Détecteur
+RADIO|Poste de TSF
+RAMER|Pagayer
+RANGE|Ordonné
+RASER|Couper ras
+RAYON|Rai de lumière
+RECIT|Histoire
+REGLE|Loi
+REINE|Souveraine
+RENNE|Animal du Père Noël
+REPAS|Déjeuner ou dîner
+RESTE|Reliquat
+REVER|Songer
+RICHE|Fortuné
+RIVAL|Concurrent
+ROBOT|Automate
+ROCHE|Pierre
+ROMAN|Récit long
+RONDE|Note de musique
+ROSEE|Gouttes du matin
+ROUGE|Couleur de la tomate
+ROUTE|Chemin
+RUCHE|Maison d'abeilles
+RUGBY|Sport du ballon ovale
+SABLE|Grains de plage
+SABOT|Chaussure de bois
+SAINT|Béni
+SALLE|Pièce
+SALUT|Bonjour
+SAPIN|Arbre de Noël
+SAUCE|Assaisonnement
+SAULE|Arbre pleureur
+SAUTE|Bondit
+SAVON|Pain moussant
+SCENE|Plateau de théâtre
+SELLE|Siège de cavalier
+SEMER|Planter des graines
+SERRE|Abri vitré
+SIEGE|Chaise
+SIGNE|Symbole
+SINGE|Primate
+SIROP|Liqueur sucrée
+SOCLE|Piédestal
+SOEUR|Frangine
+SOLDE|Réduction
+SOMME|Total
+SONDE|Instrument de mesure
+SONGE|Rêve
+SOUPE|Potage
+SOURD|Qui n'entend pas
+SPORT|Activité physique
+STADE|Terrain de sport
+STAGE|Formation pratique
+STYLO|Plume
+SUCRE|Édulcorant
+SUITE|Continuation
+SUJET|Thème
+SUPER|Formidable
+TABLE|Meuble à manger
+TACHE|Salissure
+TALON|Arrière du pied
+TANTE|Sœur de la mère
+TAPIS|Moquette
+TARIF|Prix
+TARTE|Gâteau aux fruits
+TASSE|Récipient à café
+TAUPE|Animal myope
+TEMPS|Durée
+TENIR|Garder
+TENTE|Abri de toile
+TERME|Fin
+TERRE|Planète bleue
+TETES|Chefs
+TEXTE|Écrit
+THEME|Sujet
+TIGRE|Félin rayé
+TISSU|Étoffe
+TITRE|Intitulé
+TOILE|Tissu
+TOMBE|Sépulture
+TORSE|Buste
+TOTAL|Somme
+TOURS|Constructions élevées
+TRACE|Empreinte
+TRAIN|Convoi ferroviaire
+TRAIT|Ligne
+TRIBU|Clan
+TRONC|Corps de l'arbre
+TUILE|Couverture de toit
+UNION|Alliance
+USAGE|Emploi
+USINE|Fabrique
+VACHE|Ruminant laitier
+VAGUE|Lame de mer
+VALSE|Danse viennoise
+VEINE|Chance
+VELOS|Bicyclettes
+VENIR|Arriver
+VENTE|Commerce
+VERBE|Mot d'action
+VERRE|Coupe
+VESTE|Veston
+VIDEO|Film
+VIEUX|Âgé
+VILLA|Maison cossue
+VILLE|Cité
+VIRUS|Agent infectieux
+VITRE|Carreau
+VIVRE|Exister
+VOILE|Toile de bateau
+VOLER|Dérober
+VOTER|Choisir
+WAGON|Voiture de train
+ZEBRE|Équidé rayé

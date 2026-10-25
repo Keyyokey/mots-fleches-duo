@@ -1,0 +1,376 @@
+ACE|Service gagnant
+ADO|Jeune en crise
+AGE|Nombre des années
+AIE|Cri de douleur
+AIL|Condiment à gousses
+AIR|On le respire
+AMI|Copain fidèle
+ANE|Baudet
+ANS|Années
+API|Petite pomme
+ARA|Perroquet coloré
+ARC|Arme de Robin
+ART|Talent créatif
+ASE|Suffixe d'enzyme
+AVE|Prière à Marie
+BAC|Examen de fin de lycée
+BAI|Cheval brun-roux
+BAL|Soirée dansante
+BAN|Applaudissement rythmé
+BAR|Comptoir à boissons
+BAS|Pas haut
+BEC|Bouche d'oiseau
+BEL|Joli devant une voyelle
+BIO|Sans pesticide
+BIS|Encore une fois
+BLE|Céréale dorée
+BOA|Serpent constricteur
+BOL|Récipient du petit déjeuner
+BON|Savoureux
+BOT|Pied difforme
+BOX|Stalle d'écurie
+BUS|Transport en commun
+BUT|Objectif
+CAP|Promontoire
+CAR|Autocar
+CAS|Situation
+CEP|Pied de vigne
+CES|Démonstratif pluriel
+CIL|Poil de paupière
+CLE|Elle ouvre la porte
+COL|Passage en montagne
+COQ|Il chante à l'aube
+COR|Instrument de chasse
+COU|Il porte la tête
+CRI|Hurlement
+CRU|Pas cuit
+CUL|Fond de bouteille
+DAM|Préjudice, au détriment
+DES|Cubes à jouer
+DIA|Cri de charretier
+DIT|Prononcé
+DIX|Deux fois cinq
+DON|Cadeau
+DOS|Revers du corps
+DOT|Apport de mariée
+DUC|Hibou à aigrettes
+DUE|Méritée
+DUO|Paire d'artistes
+DUR|Pas tendre
+EAU|Liquide vital
+ECU|Bouclier ancien
+EGO|Moi profond
+ELU|Choisi par vote
+EMU|Touché
+EON|Durée immense
+ERE|Époque
+ERS|Lentille fourragère
+EST|Point cardinal
+ETE|Saison chaude
+EUE|Possédée
+EUX|Pronom pluriel
+EVE|Première femme
+FAN|Admirateur
+FAX|Télécopie
+FEE|Magicienne bienveillante
+FER|Métal de la forge
+FEU|Flammes
+FIL|Brin à coudre
+FIN|Terme
+FOI|Croyance
+FOU|Pièce d'échecs
+FUT|Tonneau
+GAI|Joyeux
+GAG|Effet comique
+GAZ|Il chauffe la casserole
+GEL|Glace sur les vitres
+GEN|Préfixe d'origine
+GIN|Eau-de-vie anglaise
+GNU|Antilope africaine
+GOI|Non-juif (variante)
+GRE|Bon vouloir
+GUE|Passage dans la rivière
+HAI|Détesté
+HEM|Interjection d'appel
+HIC|Le point délicat
+HOU|Cri de huée
+HUE|Cri du charretier
+ICI|En ce lieu
+IDE|Poisson d'eau douce
+ILE|Terre entourée d'eau
+ILS|Pronom pluriel
+INN|Rivière d'Autriche
+ION|Atome chargé
+IRA|Se rendra
+JET|Avion à réaction
+JEU|Partie de plaisir
+JUS|Boisson de fruit
+KIR|Apéritif au cassis
+KIT|Ensemble à monter
+LAC|Étendue d'eau
+LAD|Garçon d'écurie
+LAI|Poème médiéval
+LAS|Fatigué
+LEI|Monnaie roumaine
+LES|Article pluriel
+LEU|Monnaie roumaine
+LIE|Dépôt de vin
+LIS|Fleur royale
+LIT|Meuble de chambre
+LOI|Règle votée
+LOT|Part d'héritage
+LUE|Parcourue
+LUI|Pronom masculin
+LUT|Parcourut
+LUX|Unité d'éclairement
+MAI|Mois du muguet
+MAL|Douleur
+MAT|Fin de partie d'échecs
+MER|Grande étendue salée
+MES|Possessif pluriel
+MET|Pose
+MIE|Intérieur du pain
+MIL|Céréale africaine
+MIS|Posé
+MOI|Ego
+MOL|Mou devant voyelle
+MOT|Terme
+MUE|Change de voix
+MUR|Paroi
+MUS|Poussés
+NAN|Non familier
+NEE|Venue au monde
+NEF|Partie d'église
+NET|Clair
+NEZ|Organe du flair
+NID|Abri d'oiseau
+NIE|Conteste
+NOM|Patronyme
+NON|Refus
+NOS|Possessif pluriel
+NUE|Dévêtue
+NUL|Sans valeur
+OIE|Volaille du foie gras
+OLE|Cri d'encouragement
+ONU|Assemblée des nations
+ORE|Monnaie scandinave
+ORS|Dorures
+OSE|Tente
+OTE|Enlève
+OUI|Accord
+OUT|Hors du court
+OVE|Ornement en forme d'oeuf
+PAL|Pieu
+PAN|Partie de mur
+PAR|Au moyen de
+PAS|Enjambée
+PET|Vent sonore
+PEU|Pas beaucoup
+PIC|Sommet pointu
+PIE|Bavarde à plumes
+PIN|Conifère
+PIS|Mamelle
+PLI|Repli de tissu
+PNU|Pneumatique abrégé
+POT|Petit récipient
+POU|Parasite des cheveux
+PRE|Champ d'herbe
+PRO|Professionnel
+PUE|Sent mauvais
+PUR|Sans mélange
+QUE|Conjonction
+RAI|Rayon de roue
+RAP|Musique scandée
+RAS|Rien à signaler
+RAT|Rongeur des égouts
+RAZ|Courant marin violent
+REA|Service hospitalier d'urgence
+RIA|Vallée envahie par la mer
+RIT|S'amuse
+RIZ|Céréale asiatique
+ROC|Rocher
+ROI|Souverain
+ROT|Renvoi bruyant
+RUA|Lança des coups de pied
+RUE|Voie urbaine
+RUS|Petits ruisseaux
+SAC|Cabas
+SAS|Petite chambre de passage
+SEL|Condiment marin
+SES|Possessif pluriel
+SIX|Moitié de douze
+SKI|Sport de glisse
+SOC|Lame de charrue
+SOI|Personnalité
+SOL|Terre ferme
+SON|Bruit
+SOT|Idiot
+SOU|Petite monnaie
+SPA|Bain bouillonnant
+SUD|Point cardinal
+SUE|Transpire
+SUR|Aigre
+TAC|Réplique sèche
+TAS|Amas
+TEL|Pareil
+THE|Infusion asiatique
+TIC|Manie
+TIR|Coup de feu
+TOI|Pronom de la deuxième personne
+TOM|Tambour de batterie
+TON|Hauteur de voix
+TOT|De bonne heure
+TRI|Sélection
+TUB|Grande baignoire
+TUE|Abat
+TUF|Roche poreuse
+UNE|Première page
+UNI|Sans motif
+UNS|Quelques-uns
+URE|Aurochs
+USA|Pays de l'oncle Sam
+USE|Abîme
+VAL|Vallée
+VAN|Fourgon à chevaux
+VER|Lombric
+VIA|En passant par
+VIE|Existence
+VIN|Boisson de la vigne
+VIS|Tige filetée
+VIT|Aperçoit
+VOL|Trajet aérien
+VUE|Panorama
+ZEN|Calme
+ZOO|Parc animalier
+ZUT|Juron poli
+ABS|Freins antiblocage
+AGI|Fait
+ALE|Bière anglaise
+ALU|Métal léger en bref
+AME|Esprit
+AMP|Ampère abrégé
+ANA|Recueil d'anecdotes
+ANI|Oiseau des Antilles
+ARE|Cent mètres carrés
+AXE|Pivot
+BAH|Indifférence
+BEE|Grande ouverte
+BIC|Stylo à bille
+BIP|Signal sonore
+BIT|Unité binaire
+BOB|Chapeau de soleil
+BRU|Belle-fille
+BUE|Avalée
+CAF|Coût, assurance, fret
+CHU|Tombé
+CIS|Du même côté
+COI|Muet de surprise
+DEA|Ancien diplôme
+DEO|Déodorant en bref
+DIS|Prononce
+DUS|Mérités
+DUT|Diplôme universitaire de technologie
+EDS|Éditions abrégées
+ELS|Lettres L
+EMS|Lettres M
+ENA|École de hauts fonctionnaires
+EPI|Tête de blé
+ERG|Désert de dunes
+ETA|Lettre grecque
+ETC|Et ainsi de suite
+EUS|Possédés
+EXO|Exercice de collégien
+FAC|Université en bref
+FEZ|Couvre-chef rouge
+FIS|Accomplis
+FUS|Existai
+GAL|Unité d'accélération
+GEO|Géographie en bref
+GIL|Prénom de Blas
+GOS|Gamins
+GUS|Type quelconque
+HUN|Barbare d'Attila
+IFS|Conifères de cimetière
+ILL|Rivière d'Alsace
+INA|Archives audiovisuelles
+ISO|Norme internationale
+IVE|Plante aromatique
+JAS|Bergerie provençale
+KID|Gosse
+LEK|Monnaie albanaise
+LIN|Plante textile
+LOB|Balle haute
+LYS|Fleur royale
+MAC|Ordinateur à la pomme
+MAO|Col chinois
+MAX|Maximum en bref
+MEC|Gars
+MIR|Village russe
+MOU|Pas ferme
+MUA|Changea de peau
+NEO|Préfixe de nouveauté
+NIB|Rien du tout
+NIL|Fleuve d'Égypte
+NUS|Dévêtus
+OBI|Ceinture de kimono
+OHM|Unité de résistance
+OIL|Langue du Nord
+ONC|Ancien oncle
+OSA|Tenta
+OUF|Soulagement
+OUD|Luth arabe
+PAF|Bruit de chute
+PEP|Dynamisme
+PHI|Lettre grecque
+PIF|Gros nez
+PLI|Lettre
+POP|Musique populaire
+PSI|Lettre grecque
+PUB|Réclame
+PUS|Liquide d'infection
+PUT|Eut la force
+RAM|Mémoire vive
+RAD|Unité de dose
+RHO|Lettre grecque
+RIO|Ville carioca
+ROM|Mémoire morte
+RUT|Saison des amours
+SAI|Singe d'Amazonie
+SAL|Arbre de l'Inde
+SAR|Poisson de Méditerranée
+SAX|Instrument de jazz
+SEC|Aride
+SEP|Pièce de charrue
+SET|Manche de tennis
+SIC|Ainsi dans le texte
+SIS|Situé
+SMS|Texto
+SOS|Appel au secours
+SPI|Grande voile
+SUS|Connus
+TAG|Graffiti
+TAN|Écorce broyée
+TAO|Voie chinoise
+TAU|Lettre grecque
+TEE|Support de balle de golf
+TEP|Unité d'énergie
+TER|Train régional
+TEX|Unité textile
+TIF|Cheveu familier
+TOC|Imitation
+TOP|Signal de départ
+TSE|Mouche africaine (tsé-tsé)
+TUA|Abattit
+TUS|Passés sous silence
+TUT|Garda le silence
+UVA|Rayons solaires
+VAS|Te rends
+VET|Habille
+VIE|Existence
+VII|Sept romain
+VIL|Bas, méprisable
+VIP|Personnalité importante
+VUS|Aperçus
+YAK|Bœuf du Tibet
+YEN|Monnaie japonaise
+YES|Oui anglais

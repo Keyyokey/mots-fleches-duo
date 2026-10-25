@@ -1,0 +1,734 @@
+COMME|De la même façon que
+FAIRE|Réaliser
+ETAIT|Existait
+AUSSI|Également
+AVAIT|Possédait
+AUTRE|Différent
+FRANCE|Hexagone
+TOUJOURS|Sans cesse
+CONTRE|Opposé à
+VOTRE|À vous
+DEPUIS|À partir de
+NOTRE|À nous
+LEURS|À eux
+TOUTE|Entière
+VRAIMENT|Réellement
+AINSI|De cette façon
+FRANCAIS|Langue de Molière
+BEAUCOUP|En grande quantité
+COMMENT|De quelle manière
+PREMIER|Initial
+PARCE|... que : car
+PERSONNE|Nul
+TROIS|Trio
+TOUTES|L'ensemble au féminin
+PREMIERE|Initiale
+PENDANT|Durant
+ELLES|Pronom féminin pluriel
+POURQUOI|Pour quelle raison
+JOURS|Journées
+NOUVEAU|Récent
+COMPTE|Calcule
+PRENDRE|Saisir
+COURS|Leçon
+CELUI|Démonstratif masculin
+CHAQUE|Tout
+GRANDE|Haute
+SELON|D'après
+SERAIT|Existerait
+PENSE|Réfléchit
+GROUPE|Ensemble de personnes
+AURAIT|Posséderait
+AVONS|Possédons
+ENFANTS|Bambins
+PARLER|Causer
+ASSEZ|Suffisamment
+DEMANDE|Requête
+SAVOIR|Connaître
+SOCIETE|Entreprise
+TROUVE|Découvre
+POUVOIR|Autorité
+AILLEURS|Autre part
+CERTAINS|Quelques-uns
+SOUVENT|Fréquemment
+SURTOUT|Principalement
+CHOSES|Objets
+DERNIER|Ultime
+ENFIN|Finalement
+PARLE|Cause
+ENSEMBLE|Collectivement
+HOMMES|Messieurs
+PETITE|Menue
+FEMMES|Dames
+AUCUN|Pas un
+RAPPORT|Compte rendu
+PEUVENT|Ont la possibilité
+TROUVER|Découvrir
+QUATRE|Carré numérique
+SERVICE|Prestation
+SEULE|Isolée
+ARTICLE|Papier de journal
+DONNE|Offre
+DONNER|Offrir
+VIENT|Arrive
+CROIS|Penses
+SYSTEME|Méthode
+AUCUNE|Pas une
+CENTRE|Milieu
+HEURES|Durées de soixante minutes
+POSSIBLE|Faisable
+PROJET|Plan
+DERNIERE|Ultime
+DESSUS|Partie supérieure
+MEILLEUR|Supérieur
+ENSUITE|Après
+PLUTOT|De préférence
+ARRIVE|Survient
+AVAIENT|Possédaient
+EUROPE|Vieux continent
+AYANT|Possédant
+MATIN|Début de journée
+CHOIX|Sélection
+MINUTES|Soixantaines de secondes
+RETOUR|Revenue
+SOMMES|Totaux
+JOURNEE|Jour entier
+MANIERE|Façon
+SEMBLE|Paraît
+MINISTRE|Membre du gouvernement
+PARFOIS|De temps en temps
+QUELLE|Interrogatif
+COMPRIS|Saisi
+JEUNES|Adolescents
+PERMET|Autorise
+SIMPLE|Facile
+VOILA|Le voici
+CHAMBRE|Pièce à coucher
+IMPORTE|N'... qui : n'importe qui
+LORSQUE|Quand
+SECURITE|Sûreté
+ANGLAIS|Langue de Shakespeare
+GRANDS|Hauts
+MEMBRES|Adhérents
+PRESQUE|Quasiment
+FORCE|Puissance
+POINTS|Score
+SANTE|Bonne forme
+SERONT|Existeront
+AFFAIRES|Commerce
+FAITES|Réalisées
+JUILLET|Mois de la fête nationale
+MILLIONS|Fortunes
+NOMBREUX|Multiples
+PARENTS|Père et mère
+RENDRE|Restituer
+DROITE|Côté opposé à gauche
+ENVIRON|À peu près
+POURTANT|Cependant
+ABORD|D'..., premièrement
+NOUVEAUX|Récents
+POUVEZ|Avez la possibilité
+SIECLE|Cent ans
+VIENS|Arrive !
+DROITS|Prérogatives
+JANVIER|Premier mois
+ACTION|Acte
+EXISTE|Est réel
+LAISSE|Abandonne
+MALGRE|En dépit de
+MILIEU|Centre
+PRODUIT|Article de vente
+PROPOS|Paroles
+DERRIERE|Postérieur
+DOIVENT|Sont redevables
+EMPLOI|Travail
+MEMES|Identiques
+PERIODE|Époque
+CROIRE|Penser
+DECEMBRE|Mois de Noël
+MANQUE|Carence
+NOVEMBRE|Mois de la Toussaint
+PETITS|Menus
+PLAISIR|Joie
+PRODUITS|Marchandises
+DEMAIN|Le jour suivant
+DEMANDER|Solliciter
+ESPERE|Souhaite
+INTERNET|Toile mondiale
+ORIGINE|Provenance
+PRESENTE|Montre
+REGARDE|Observe
+RISQUE|Danger
+SINON|Autrement
+TRAVAUX|Chantier
+VOICI|Le voilà
+APPELLE|Téléphone à
+CHANGER|Modifier
+GRANDES|Hautes
+PREMIERS|Initiaux
+SEMAINES|Périodes de sept jours
+CONNAIS|Sais
+FACILE|Aisé
+PHOTOS|Clichés
+DURANT|Pendant
+FAISAIT|Réalisait
+PARTOUT|En tous lieux
+PLUPART|Majorité
+CHACUN|Tout le monde
+DEVIENT|Se transforme en
+DONNEES|Informations
+LEQUEL|Pronom relatif
+NATIONAL|Du pays
+PENSER|Réfléchir
+PRESENT|Cadeau
+PUBLIQUE|Ouverte à tous
+VEULENT|Désirent
+CELLES|Démonstratif féminin pluriel
+CERTAIN|Sûr
+CONTROLE|Vérification
+SUCCES|Réussite
+ACTIVITE|Occupation
+CHERCHER|Rechercher
+CONNU|Célèbre
+CREATION|Invention
+DEVENIR|Futur
+FILLES|Demoiselles
+FONCTION|Rôle
+TRAVERS|Défaut
+BIENTOT|Sous peu
+PRESENCE|Assistance
+ECONOMIE|Épargne
+MOYENNE|Note médiane
+REALITE|Vérité
+SOCIAL|Collectif
+UTILISER|Employer
+OEUVRE|Création artistique
+ACCES|Entrée
+GENERALE|Globale
+MAUVAIS|Pas bon
+PUISQUE|Étant donné que
+REGARDER|Observer
+SOIENT|Existent (subjonctif)
+ACHETER|Acquérir
+AFRIQUE|Continent noir
+ATTENDRE|Patienter
+CHARGE|Fardeau
+HAUTE|Élevée
+MARQUE|Enseigne
+MOYENS|Ressources
+PIECES|Salles
+PRATIQUE|Commode
+SOCIALE|Collective
+CHERCHE|Recherche
+MONSIEUR|Homme poli
+PEUPLE|Nation
+PROCHE|Voisin
+PUBLIE|Édité
+QUANT|... à : pour ce qui est de
+REPONDRE|Réagir
+SUIVRE|Accompagner
+AUPRES|Près de
+ENTENDU|D'accord
+FAISANT|Réalisant
+HONNEUR|Gloire
+MATIERE|Substance
+OUEST|Couchant
+PERMIS|Licence de conduire
+RESULTAT|Bilan
+VERSION|Variante
+ARRIVER|Parvenir
+DOUBLE|Copie
+MISSION|Tâche
+MOITIE|Demi
+POURRA|Aura la possibilité
+EVITER|Esquiver
+ARTICLES|Papiers de journal
+COMBIEN|Quelle quantité
+CONTINUE|Poursuit
+COURANT|Flux
+DERNIERS|Ultimes
+DEVAIT|Était redevable
+ENTENDRE|Ouïr
+FAITS|Événements
+HEUREUX|Ravi
+LONGUE|Étendue
+PORTER|Transporter
+POUVAIT|Avait la possibilité
+SECOND|Deuxième
+STYLE|Manière d'écrire
+SERIEUX|Grave
+VILLES|Cités
+CREER|Inventer
+DECISION|Choix
+DEFENSE|Protection
+LIVRES|Bouquins
+MAJORITE|Âge adulte
+OBTENIR|Recevoir
+OUTRE|En plus de
+PUISSE|Ait la possibilité
+RAPPELLE|Remémore
+SOLUTION|Réponse
+TANDIS|... que : alors que
+COMMUNE|Municipalité
+COMPREND|Saisit
+GROUPES|Ensembles
+MORTS|Décédés
+SUFFIT|Est assez
+VOULU|Souhaité
+ELEMENTS|Composants
+CRITIQUE|Jugement
+DEVENU|Transformé en
+DISCOURS|Allocution
+EXPLIQUE|Éclaircit
+JOUEURS|Participants
+PETITES|Menues
+PREUVE|Pièce à conviction
+PROPOSE|Suggère
+VENDREDI|Avant-dernier jour de la semaine
+AVANCE|Progresse
+ENDROIT|Lieu
+ESSAYER|Tenter
+MEDIAS|Presse et télé
+RETROUVE|Récupère
+REGIME|Diète
+BONNES|Savoureuses
+FAITE|Réalisée
+FILMS|Longs métrages
+GROSSE|Épaisse
+MONTRER|Indiquer
+PHYSIQUE|Corporel
+RENDEZ|... -vous : rencontre
+TELLE|Pareille
+APPELE|Nommé
+LIEUX|Endroits
+PRINCIPE|Règle
+PROCHAIN|Suivant
+PROJETS|Plans
+REGLES|Lois
+EDITION|Publication
+ANALYSE|Étude
+ASSURER|Garantir
+CARRIERE|Parcours professionnel
+CHINE|Empire du Milieu
+COMMUN|Partagé
+DISENT|Racontent
+ERREUR|Faute
+ESPECE|Variété
+FAIBLE|Fragile
+MAUVAISE|Pas bonne
+MEMBRE|Adhérent
+OBJECTIF|But
+RELATION|Lien
+RENDU|Restitué
+RESPECT|Considération
+SECTEUR|Domaine
+SOUTIEN|Appui
+TOMBER|Chuter
+UTILISE|Employé
+ACTIONS|Titres boursiers
+ALLAIT|Se rendait
+CHANGE|Modifie
+COUPLE|Duo amoureux
+COURSE|Compétition de vitesse
+DECIDE|Résolu
+GESTION|Administration
+MESURES|Dimensions
+NORMAL|Habituel
+REUSSI|Accompli
+SOCIAUX|Collectifs
+SUIVANT|Prochain
+SUIVI|Accompagnement
+TAILLE|Hauteur
+VIENNENT|Arrivent
+VISITE|Inspection
+VOULAIT|Désirait
+VOULEZ|Désirez
+COMITE|Commission
+DIRAIT|Prononcerait
+FALLAIT|Était nécessaire
+REVENIR|Retourner
+TIENT|Garde
+TRUCS|Machins
+ANCIENNE|Vieille
+ATTEND|Patiente
+ESPAGNE|Pays ibérique
+GARDER|Conserver
+MALADIE|Affection
+MONDIALE|Planétaire
+PRENDS|Saisis
+RUSSIE|Grand pays de l'Est
+TIENS|Voici
+VALEURS|Principes
+VOULOIR|Désirer
+ECOUTE|Attention
+FINAL|Dernier
+PARTIES|Morceaux
+PLEINE|Remplie
+RAISONS|Motifs
+SEIGNEUR|Noble maître
+SORTI|Parti dehors
+ANCIENS|Aînés
+ENQUETE|Investigation
+ENVOYER|Expédier
+IMAGES|Illustrations
+ITALIE|Botte de l'Europe
+LIMITE|Frontière
+PARFAIT|Idéal
+SEULS|Isolés
+VITESSE|Rapidité
+DOSSIER|Chemise de documents
+LUTTE|Combat
+MARINE|Flotte
+OUVRIR|Déverrouiller
+PRESSION|Contrainte
+RELIGION|Croyance
+VOLONTE|Détermination
+VRAIE|Exacte
+ELEVES|Écoliers
+BELGIQUE|Pays voisin
+DEBAT|Discussion
+OUBLIER|Omettre
+PROPRES|Nettes
+REVIENT|Retourne
+SCIENCE|Savoir
+SOUHAITE|Désire
+VOULAIS|Désirais
+ABSENCE|Manque
+AMERIQUE|Nouveau Monde
+BLANCHE|Couleur de neige
+CAPABLE|Apte
+CLIENTS|Acheteurs
+COUPS|Chocs
+HABITUDE|Coutume
+PUBLICS|Ouverts à tous
+ROYAUME|Monarchie
+RUSSE|Langue de Tolstoï
+SCIENCES|Savoirs
+EMISSION|Programme télé
+BEAUX|Jolis
+CHINOIS|Langue mandarine
+COMPTES|Calculs
+CONCERNE|Touche
+CONTACT|Lien
+DIRECT|En ... : sans délai
+DIVERS|Variés
+EFFETS|Conséquences
+ENVERS|Revers
+FRERES|Frangins
+FUTUR|Avenir
+LIGNES|Traits
+NOUVEL|Récent
+PROCES|Affaire judiciaire
+RESEAUX|Maillages
+REUNION|Assemblée
+TENDANCE|Mode
+VINGT|Quatre fois cinq
+ATTEINT|Touché
+BOULOT|Job
+CHOISI|Élu
+FAMILLES|Lignées
+GAGNE|Remporté
+HUMAIN|Mortel
+LONDRES|Capitale anglaise
+MADAME|Dame polie
+OUBLIE|Omis
+SURFACE|Superficie
+VICTIME|Blessé
+ECOLES|Établissements scolaires
+ELECTION|Scrutin
+EPISODE|Partie de série
+EQUIPES|Formations
+ALLEMAND|Langue de Goethe
+ARRET|Halte
+BONHEUR|Félicité
+BUDGET|Prévision financière
+CERTAINE|Sûre
+CHOISIR|Élire
+COMPTER|Calculer
+DEDANS|À l'intérieur
+PROVINCE|Région
+REVENU|Salaire
+SOURCES|Origines
+CAPACITE|Aptitude
+CENTRALE|Usine électrique
+CONTEXTE|Environnement
+DESSOUS|Partie inférieure
+DISAIT|Racontait
+HAUTEUR|Altitude
+OUVRE|Déverrouille
+PAGES|Feuillets
+RECEVOIR|Accueillir
+REALISE|Accompli
+SECONDES|Instants
+VICTIMES|Blessés
+ACTUEL|Présent
+APPROCHE|Démarche
+CANDIDAT|Postulant
+CAPITALE|Ville principale
+CROIT|Pense
+DESOLE|Navré
+EUROPEEN|Du Vieux Continent
+FAVEUR|Bienfait
+MERITE|Valeur
+PORTES|Entrées
+PREVU|Programmé
+TRIBUNAL|Cour de justice
+ACCIDENT|Collision
+DITES|Prononcées
+ENVOYE|Expédié
+JEUDI|Jour de la semaine
+REGIONS|Contrées
+TERMES|Mots
+UNITE|Cohésion
+CHIFFRES|Nombres
+COULEURS|Teintes
+IDENTITE|État civil
+MOINDRE|Plus petit
+PARCOURS|Itinéraire
+PARTAGE|Répartition
+PROTEGER|Défendre
+PREFERE|Favori
+REMETTRE|Restituer
+SUJETS|Thèmes
+VIDEOS|Films courts
+VIOLENCE|Brutalité
+VOIRE|Et même
+APPELER|Téléphoner
+DEPUTE|Élu à l'Assemblée
+MAISONS|Demeures
+MOURIR|Décéder
+OBJETS|Choses
+OPINION|Avis
+PLACES|Endroits
+SAVENT|Connaissent
+SITUE|Placé
+THEORIE|Hypothèse
+ACTUELLE|Présente
+ARTISTES|Créateurs
+AUTORITE|Pouvoir
+CITOYENS|Habitants
+CONTENT|Satisfait
+CELEBRE|Fameux
+DISTANCE|Écart
+DETAILS|Précisions
+EXTREME|Excessif
+IMAGINE|Invente
+MASSE|Poids
+MODERNE|Actuel
+PRIVEE|Personnelle
+QUITTER|Abandonner
+SOLDATS|Militaires
+ECHANGE|Troc
+ENORME|Gigantesque
+BIZARRE|Étrange
+CONSEILS|Recommandations
+CONTENU|Intérieur
+DOMMAGE|Préjudice
+EMPIRE|Puissance impériale
+OFFRIR|Donner
+PRENNENT|Saisissent
+RESERVE|Stock
+SECTION|Partie
+SIGNIFIE|Veut dire
+CREDIT|Prêt bancaire
+EMPECHER|Interdire
+JEUNESSE|Adolescence
+LIENS|Attaches
+METHODE|Procédé
+NATUREL|Spontané
+REVUE|Magazine
+SYMPA|Agréable
+ACTEURS|Comédiens
+AUTEURS|Écrivains
+BRETAGNE|Région des crêpes
+ENTEND|Perçoit
+FORMES|Silhouettes
+RACONTE|Narre
+RAPPELER|Retéléphoner
+TEXTES|Écrits
+TIERS|Troisième partie
+VOITURES|Automobiles
+ECOUTER|Prêter l'oreille
+AJOUTER|Additionner
+AVANTAGE|Atout
+CERTES|Assurément
+DEFENDRE|Protéger
+EXERCICE|Entraînement
+INSTITUT|Établissement savant
+LOCAUX|Bureaux
+LOGIQUE|Raisonnement
+MILLIERS|Grand nombre
+MONTER|Grimper
+OUVERTE|Pas fermée
+PROCHES|Famille et amis
+REVOIR|Retrouver
+STATUT|Situation
+VIVANT|En vie
+ZONES|Secteurs
+BAISSE|Diminution
+BESOINS|Nécessités
+COLLEGE|Établissement de la sixième à la troisième
+DOMICILE|Logement
+EFFORTS|Peines
+EXAMEN|Épreuve
+HUMAINE|Mortelle
+OFFICIEL|Formel
+OUVRAGE|Livre
+PARTAGER|Diviser
+POSSEDE|Détient
+PREPARER|Apprêter
+REFORME|Changement
+ACHAT|Emplette
+BORDEAUX|Ville du vin
+BATIMENT|Construction
+CIVILE|Polie
+CONCEPT|Idée
+JAPON|Pays du Soleil-Levant
+MATERIEL|Équipement
+MONTANT|Somme
+NATIONS|Peuples
+NOMME|Désigné
+PARAIT|Semble
+REACTION|Réponse
+REDUIRE|Diminuer
+REPOND|Réplique
+TOURNER|Pivoter
+ALCOOL|Spiritueux
+INDIQUE|Montre
+MONDIAL|Planétaire
+OBLIGE|Contraint
+PHASE|Étape
+SOINS|Traitements
+SEANCE|Réunion
+SERIES|Feuilletons
+URGENCE|Nécessité pressante
+ACCEPTER|Admettre
+CANCER|Signe du zodiaque
+COMPLET|Entier
+COMPLEXE|Compliqué
+ESSAIE|Tente
+GERER|Administrer
+IMPACT|Choc
+INSCRIT|Enregistré
+OBTENU|Reçu
+OCCUPE|Pris
+PRISES|Captures
+PROFITER|Tirer parti
+REVANCHE|Seconde manche
+SCOLAIRE|De l'école
+SPECIAL|Particulier
+TOTALE|Complète
+TROUPES|Armées
+VIEILLE|Âgée
+AGENTS|Policiers
+DORMIR|Sommeiller
+DEPEND|Est lié à
+ESPECES|Liquide
+JOLIE|Mignonne
+LONGUEUR|Étendue
+MINIMUM|Plancher
+MOMENTS|Instants
+MORTE|Décédée
+PHRASE|Suite de mots
+POINTE|Bout effilé
+SECOURS|Aide
+ARABE|Langue du Maghreb
+ASSURE|Garantit
+CHUTE|Dégringolade
+CRIME|Délit grave
+DEPENSES|Frais
+EFFICACE|Performant
+INTERDIT|Prohibé
+PAROLES|Mots
+PLANS|Projets
+SOUTENIR|Appuyer
+TERMINE|Achevé
+AEROPORT|Lieu d'envol
+DEFAUT|Imperfection
+HOMMAGE|Tribut
+MAXIMUM|Plafond
+PRODUIRE|Fabriquer
+PRECISE|Exacte
+VOLUME|Tome
+EGALITE|Parité
+CHOMAGE|Inactivité forcée
+CLAIRE|Limpide
+CONGRES|Assemblée
+DEMEURE|Maison
+DIVISION|Partage
+LANGUES|Idiomes
+MANDAT|Pouvoir délégué
+MEDECINE|Art de soigner
+PORTANT|Tenant
+PRETE|Disposée
+REFUSE|Rejette
+REPRISE|Redémarrage
+TENUE|Uniforme
+TOULOUSE|Ville rose
+ANIMAL|Bête
+CLASSES|Catégories
+DEVENUE|Transformée en
+DISPARU|Évanoui
+DONNENT|Offrent
+DOULEUR|Souffrance
+EMPLOIS|Postes
+ESPAGNOL|Langue de Cervantès
+FORMULE|Recette
+OFFICE|Bureau
+PROFIT|Bénéfice
+VEHICULE|Engin roulant
+APPORTER|Fournir
+CLIMAT|Météo durable
+CONFLIT|Différend
+GRATUIT|Offert
+GENIE|Talent hors pair
+INVITE|Convive
+LOCALE|Du coin
+MENACE|Danger
+METTENT|Placent
+MOBILE|Portable
+OCCUPER|Habiter
+PAUVRES|Démunis
+QUANTITE|Nombre
+RECONNU|Identifié
+CENTRAL|Principal
+CONTIENT|Renferme
+DECLARE|Annoncé
+FINANCES|Argent
+MESSAGES|Communications
+MEDECINS|Docteurs
+METRO|Train souterrain
+RAPPORTS|Comptes rendus
+REPONSES|Solutions
+SALAIRE|Rémunération
+TOUCHER|Palper
+TRENTE|Trois dizaines
+VERIFIER|Contrôler
+ECRITURE|Graphie
+EPREUVE|Examen
+ACADEMIE|Institution savante
+BRESIL|Pays de la samba
+CHALEUR|Canicule
+COMMANDE|Ordre d'achat
+CONDUITE|Comportement
+DISCUTER|Bavarder
+DOIGTS|Phalanges
+FRUITS|Pommes et poires
+HEUREUSE|Ravie
+INTERNE|Intérieur
+PARFAITE|Idéale
+POSTES|Emplois
+RECOURS|Ressource
+VEILLE|Jour précédent
+EPOUSE|Femme mariée
+ALLIANCE|Bague de mariage
+ASPECT|Apparence
+ATTENDU|Prévu
+COMPOSE|Constitué
+IMPOT|Contribution
+INUTILE|Superflu
+MAROC|Royaume du Maghreb
+MODELES|Exemples
+PROPOSER|Suggérer
+RECORD|Meilleure performance
+ROYAL|Digne d'un roi

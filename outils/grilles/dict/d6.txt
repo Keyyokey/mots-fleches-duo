@@ -1,0 +1,323 @@
+ABATTU|Découragé
+ABONNE|Inscrit
+ABRITE|Protégé
+ACCENT|Prononciation régionale
+ACCORD|Entente
+ACHETE|Acquis
+ACTEUR|Comédien
+AGENCE|Bureau
+AGNEAU|Petit de la brebis
+AIGLES|Rapaces royaux
+ALERTE|Signal d'alarme
+ALLURE|Démarche
+AMENER|Conduire
+AMIRAL|Chef de flotte
+ANANAS|Fruit tropical
+ANCIEN|Vieux
+ANNEAU|Bague
+ANORAK|Veste à capuche
+APPRIS|Étudié
+ARDENT|Brûlant
+ARGENT|Métal précieux
+ARTERE|Grande voie
+AUTANT|Également
+AUTEUR|Écrivain
+AUTOUR|Aux alentours
+AVENIR|Futur
+AVOCAT|Défenseur
+BAGAGE|Valise
+BAISER|Bisou
+BALCON|Terrasse suspendue
+BANANE|Fruit jaune
+BANQUE|Établissement financier
+BARQUE|Petit bateau
+BATEAU|Navire
+BEAUTE|Charme
+BERGER|Gardien de moutons
+BESOIN|Nécessité
+BEURRE|Produit laitier
+BIDULE|Truc
+BIJOUX|Joyaux
+BILLET|Ticket
+BLAGUE|Plaisanterie
+BLESSE|Touché
+BOUCHE|Lèvres
+BOUGIE|Chandelle
+BOULET|Fardeau
+BOUTON|Interrupteur
+BRAISE|Charbons ardents
+BREBIS|Femelle du bélier
+BRIQUE|Pierre de construction
+BRONZE|Alliage
+BUREAU|Table de travail
+CABANE|Hutte
+CACHER|Dissimuler
+CADEAU|Présent
+CAHIER|Bloc de feuilles
+CALCUL|Opération
+CAMION|Poids lourd
+CANARD|Palmipède
+CANAPE|Sofa
+CARNET|Petit cahier
+CARTON|Boîte
+CASQUE|Protection de la tête
+CASTOR|Rongeur bâtisseur
+CERISE|Petit fruit rouge
+CHAINE|Suite de maillons
+CHAISE|Siège
+CHALET|Maison de montagne
+CHAMPS|Terres cultivées
+CHANCE|Veine
+CHARME|Attrait
+CHASSE|Traque
+CHATON|Petit chat
+CHEMIN|Sentier
+CHEVAL|Monture
+CHEVRE|Biquette
+CINEMA|Salle obscure
+CIRQUE|Chapiteau
+CITRON|Agrume acide
+CLASSE|Salle de cours
+CLIENT|Acheteur
+COLERE|Fureur
+COMBAT|Lutte
+CORDON|Lien
+COTEAU|Petite colline
+COUCHE|Strate
+COUSIN|Fils de l'oncle
+CRAYON|Mine de dessin
+DANGER|Péril
+DEBOUT|Sur ses pieds
+DEGRES|Unités de température
+DEHORS|À l'extérieur
+DEPART|Envol
+DESERT|Sahara
+DESSIN|Croquis
+DETAIL|Précision
+DEVANT|En face
+DEVOIR|Obligation
+DIABLE|Démon
+DINDON|Volaille de Noël
+DOCILE|Obéissant
+DOMINO|Jeu de pièces à points
+DOUANE|Contrôle aux frontières
+DOUCHE|Jet d'eau
+DRAGON|Monstre ailé
+ECLAIR|Lueur d'orage
+ECORCE|Peau de l'arbre
+EFFORT|Peine
+EGLISE|Lieu de culte
+ENCORE|De nouveau
+ENFANT|Gamin
+ENIGME|Mystère
+ENNEMI|Adversaire
+ENTIER|Complet
+ENTREE|Hors-d'œuvre
+EPAULE|Haut du bras
+EPICES|Condiments
+EPOQUE|Ère
+ESPACE|Cosmos
+ESPOIR|Espérance
+ESPRIT|Intellect
+ETOILE|Astre lumineux
+FAMEUX|Célèbre
+FARINE|Poudre de blé
+FAUCON|Rapace
+FERMER|Clore
+FIDELE|Loyal
+FIGURE|Visage
+FILTRE|Tamis
+FLACON|Petite bouteille
+FLECHE|Trait d'arc
+FLEUVE|Grand cours d'eau
+FOLIES|Extravagances
+FONDUE|Plat savoyard
+FORAIN|Homme de fête foraine
+FORCES|Énergies
+FOURMI|Insecte travailleur
+FRAISE|Fruit rouge
+FUSEAU|Pantalon étroit
+GAGNER|Remporter
+GARAGE|Abri de voiture
+GARCON|Fils
+GATEAU|Pâtisserie
+GAUCHE|Côté du cœur
+GENOUX|Rotules
+GIBIER|Animaux de chasse
+GIRAFE|Animal au long cou
+GOUTTE|Perle d'eau
+GRAINE|Semence
+GRANGE|Bâtiment de ferme
+GRAVIR|Escalader
+GRILLE|Barrière
+GRIPPE|Maladie d'hiver
+GUERRE|Conflit armé
+HAMEAU|Petit village
+HASARD|Fortune
+HERBES|Gazon
+HOMARD|Crustacé noble
+HUMEUR|Disposition d'esprit
+HUMOUR|Drôlerie
+ISOLER|Séparer
+JAMAIS|À aucun moment
+JARDIN|Potager
+JASMIN|Fleur parfumée
+JOUEUR|Participant
+JUMEAU|Double
+JUNGLE|Forêt tropicale
+LAITUE|Salade verte
+LANGUE|Idiome
+LAPINS|Rongeurs
+LEGUME|Carotte ou poireau
+LETTRE|Missive
+LEVURE|Ferment
+LIMACE|Gastéropode sans coquille
+LOUTRE|Mammifère aquatique
+LUTTER|Combattre
+MAISON|Demeure
+MALADE|Souffrant
+MANCHE|Partie de vêtement
+MANGER|Se nourrir
+MANOIR|Demeure seigneuriale
+MARAIS|Zone humide
+MARCHE|Foire
+MARIER|Unir
+MENTON|Bas du visage
+MESURE|Dimension
+METIER|Profession
+MINUTE|Soixante secondes
+MIROIR|Glace
+MODELE|Exemple
+MOMENT|Instant
+MONTRE|Bracelet horaire
+MOTEUR|Machine
+MOUCHE|Insecte volant
+MOULIN|Machine à moudre
+MOUTON|Ovin
+MUSCLE|Biceps
+NATURE|Environnement
+NAVIRE|Bateau
+NIVEAU|Étage
+NOMBRE|Chiffre
+NOTICE|Mode d'emploi
+NUANCE|Ton
+OCEANS|Grandes mers
+ORANGE|Agrume
+ORDRES|Commandements
+ORTEIL|Doigt de pied
+OUVERT|Pas fermé
+PALAIS|Château
+PANIER|Corbeille
+PAPIER|Feuille
+PAQUET|Colis
+PARENT|Père ou mère
+PAREIL|Semblable
+PAROLE|Mot
+PARTIE|Morceau
+PASSER|Traverser
+PATRON|Chef
+PAUVRE|Démuni
+PAYSAN|Cultivateur
+PECHER|Attraper du poisson
+PENSEE|Réflexion
+PERDRE|Égarer
+PERSIL|Herbe aromatique
+PETALE|Partie de fleur
+PIERRE|Caillou
+PILOTE|Aviateur
+PIMENT|Épice forte
+PIQUER|Percer
+PLAINE|Terrain plat
+PLANTE|Végétal
+PLATRE|Gypse
+PLUMES|Duvet
+POIRES|Fruits à pépins
+POISON|Venin
+POIVRE|Épice noire
+POLICE|Forces de l'ordre
+POMMES|Fruits d'Ève
+POTAGE|Soupe
+POULET|Volaille
+POUMON|Organe respiratoire
+POUPEE|Jouet de fillette
+PRENOM|Nom de baptême
+PRINCE|Fils de roi
+PRISON|Cachot
+PROFIL|Silhouette de côté
+PROPRE|Net
+PUBLIC|Audience
+PUZZLE|Jeu de pièces à assembler
+QUARTZ|Cristal
+RACINE|Partie souterraine
+RADEAU|Embarcation de fortune
+RAISIN|Fruit de la vigne
+RAISON|Motif
+RAMEAU|Petite branche
+RAPIDE|Véloce
+REFLET|Image renvoyée
+REGARD|Coup d'œil
+REGION|Contrée
+RELAIS|Course à quatre
+REMEDE|Médicament
+RENARD|Animal rusé
+RESEAU|Maillage
+RESUME|Abrégé
+RETARD|Délai
+REVEIL|Sonnerie du matin
+RICHES|Fortunés
+RIDEAU|Tenture
+RIVAGE|Côte
+ROCHER|Bloc de pierre
+ROSEAU|Plante des marais
+ROUTES|Chemins
+SAISON|Trimestre météo
+SALADE|Laitue
+SAMEDI|Jour du week-end
+SAPEUR|Pompier
+SAUMON|Poisson rose
+SAUTER|Bondir
+SAUVER|Secourir
+SAVANT|Érudit
+SECRET|Mystère
+SERVIR|Être utile
+SIESTE|Repos de midi
+SIGNAL|Indication
+SINGES|Primates
+SIRENE|Créature des mers
+SOLDAT|Militaire
+SOLEIL|Astre du jour
+SOMMET|Cime
+SOUPER|Repas tardif
+SOURCE|Origine
+SOURIS|Rongeur
+SPORTS|Activités physiques
+STATUE|Sculpture
+SUCRER|Adoucir
+SUISSE|Pays des cantons
+TALENT|Don
+TENNIS|Sport de raquette
+TIROIR|Partie de commode
+TOMATE|Fruit rouge du potager
+TORTUE|Reptile à carapace
+TOUCHE|Bouton de clavier
+TRAJET|Parcours
+TRESOR|Butin
+TRIBUS|Clans
+TROUPE|Bande
+TRUITE|Poisson de rivière
+TUNNEL|Souterrain
+UNIQUE|Seul
+VALEUR|Prix
+VALISE|Bagage
+VENDRE|Céder contre argent
+VERGER|Champ d'arbres fruitiers
+VERITE|Exactitude
+VIANDE|Chair
+VIOLET|Couleur de l'améthyste
+VIOLON|Instrument à archet
+VISAGE|Figure
+VOISIN|Habitant d'à côté
+VOLCAN|Montagne de feu
+VOLEUR|Pickpocket
+VOYAGE|Périple
+ZEPHYR|Vent doux

@@ -1,0 +1,128 @@
+AH|Cri de surprise
+AI|Paresseux d'Amérique
+AN|Douze mois
+AS|Carte maîtresse
+AU|Contraction de à le
+BA|Âme égyptienne
+BD|Album à bulles
+BU|Avalé
+CA|Calcium
+CD|Disque laser
+CE|Démonstratif
+CM|Petite mesure
+CO|Préfixe d'union
+DE|Préposition courante
+DO|Note de tête
+DU|Article partitif
+EH|Interpellation
+EN|Pronom adverbial
+ES|Tu y existes
+ET|Conjonction d'ajout
+EU|Possédé
+EX|Ancien conjoint
+FA|Note de la gamme
+FE|Fer du chimiste
+GO|Jeu de pions noirs et blancs
+HA|Symbole d'hectare
+HE|Appel familier
+HI|Rire étouffé
+IL|Pronom masculin
+IN|À la mode
+JE|Moi au début
+KG|Unité de masse
+KM|Mille mètres
+LA|Note du diapason
+LE|Article défini
+LI|Distance chinoise
+LU|Parcouru des yeux
+MA|Possessif féminin
+ME|Pronom réfléchi
+MI|Note entre ré et fa
+MM|Petit trait de règle
+MU|Lettre grecque
+NA|Sodium
+NE|Négation
+NI|Ni l'un...
+NO|Théâtre japonais
+NU|Sans vêtement
+OC|Langue du Sud
+OH|Cri d'étonnement
+OM|Club marseillais
+ON|Pronom indéfini
+OR|Métal précieux
+OS|Pièce du squelette
+OU|Choix
+PH|Mesure d'acidité
+PI|Constante du cercle
+PU|Été capable
+QI|Mesure d'intelligence
+RA|Coup de baguette
+RE|Note après do
+RU|Petit ruisseau
+SA|Possessif
+SE|Pronom réfléchi
+SI|Note avant do
+SO|Sud-ouest en bref
+SU|Connu
+TA|Possessif de toi
+TE|Pronom personnel
+TU|Tutoiement
+UN|Premier nombre
+UT|Ancien do
+VA|Bouge
+VU|Aperçu
+WC|Petit coin
+XI|Lettre grecque
+YO|Salut des jeunes
+ZO|Préfixe animal
+OT|Office du tourisme
+TV|Petit écran
+PC|Ordinateur
+GR|Gramme abrégé
+CI|Ici
+AR|Aller-retour
+RN|Route nationale
+SS|Sécu
+TA|Possessif familier
+MO|Mégaoctet
+RO|Code de la Roumanie
+NE|Venu au monde
+AA|Lave du volcan
+EE|Voyelles doublées
+OO|Voyelles d'oeuf
+RR|Consonnes de terre
+ST|Saint abrégé
+TS|Tous en texto
+RT|Retweet
+DS|Devoir surveillé
+TP|Travaux pratiques
+TD|Travaux dirigés
+UE|Union des 27
+US|Coutumes
+IE|C'est-à-dire en bref
+NT|Nouveau Testament
+AT|Arobase en anglais
+TT|Tout-terrain
+MT|Mont abrégé
+EM|Lettre M
+EL|Lettre L
+EF|Lettre F
+ET|Extraterrestre de cinéma
+LO|Regarde, vieux mot
+OM|Son sacré
+OI|Diphtongue
+UI|Diphtongue de huit
+AE|Voyelles liées
+SN|Étain du chimiste
+NI|Nickel du chimiste
+AG|Argent du chimiste
+AL|Aluminium
+AU|Or du chimiste
+CU|Cuivre
+PB|Plomb
+ZN|Zinc
+HG|Mercure
+LI|Lithium
+TI|Titane
+NE|Néon
+AR|Argon

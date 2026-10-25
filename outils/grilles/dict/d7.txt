@@ -1,0 +1,405 @@
+ABEILLE|Butineuse
+AIGUILLE|Elle a un chas
+ADRESSE|Habileté
+AMOUREUX|Épris
+ANIMAUX|Bêtes
+ARAIGNEE|Elle tisse sa toile
+ARBITRE|Homme au sifflet
+ARMOIRE|Penderie
+ASSIETTE|Plat individuel
+ATELIER|Lieu de travail d'artisan
+ATTAQUE|Offensive
+AVENTURE|Péripétie
+BAGARRE|Rixe
+BALEINE|Géant des mers
+BALLON|Ballon rond
+BANDEAU|Ruban de tête
+BARRAGE|Retenue d'eau
+BASSINE|Grand récipient
+BATAILLE|Combat
+BIBERON|Bouteille de bébé
+BISCUIT|Gâteau sec
+BOUCHER|Vendeur de viande
+BOUQUET|Gerbe de fleurs
+BOUTEILLE|Flacon de vin
+BRANCHE|Rameau
+BRIOCHE|Viennoiserie
+BROSSE|Peigne à poils
+CADENAS|Serrure mobile
+CAMPAGNE|Milieu rural
+CAMELIA|Fleur d'hiver
+CANTINE|Réfectoire
+CAPITAL|Somme investie
+CAPRICE|Lubie
+CARAMEL|Sucre fondu
+CAROTTE|Légume orange
+CARROSSE|Voiture de Cendrillon
+CASCADE|Chute d'eau
+CASTING|Sélection d'acteurs
+CERVEAU|Matière grise
+CHAPEAU|Couvre-chef
+CHARBON|Combustible noir
+CHATEAU|Demeure royale
+CHEMISE|Haut boutonné
+CHEVEUX|Chevelure
+CHIFFRE|Nombre
+CITROUILLE|Courge d'Halloween
+CLAVIER|Rangée de touches
+COLLINE|Butte
+COMEDIE|Pièce drôle
+COMPTOIR|Zinc de bistrot
+CONCERT|Récital
+COQUILLE|Enveloppe d'œuf
+CORBEAU|Oiseau noir
+COUCHER|Fin du jour
+COULEUR|Teinte
+COURAGE|Bravoure
+COUTEAU|Lame à manche
+CRAPAUD|Batracien pustuleux
+CRAVATE|Accessoire du costume
+CROCODILE|Reptile à grandes mâchoires
+CUISINE|Art culinaire
+CULTURE|Savoir
+CURIEUX|Indiscret
+DAUPHIN|Mammifère marin joueur
+DENTISTE|Soigneur de caries
+DESSERT|Fin du repas
+DIAMANT|Pierre précieuse
+DIMANCHE|Jour du Seigneur
+DOCTEUR|Médecin
+DRAPEAU|Bannière
+ECHARPE|Cache-nez
+ECHELLE|Escabeau
+ECUREUIL|Rongeur à queue touffue
+ELEPHANT|Pachyderme
+EMPEREUR|Souverain d'empire
+ENCLUME|Masse de forgeron
+ENFANCE|Jeune âge
+ENVELOPPE|Pli postal
+EPINARD|Légume de Popeye
+EPONGE|Elle absorbe
+ESCALIER|Suite de marches
+ESCARGOT|Gastéropode à coquille
+ETRANGE|Bizarre
+ETRANGER|Pays lointain
+FANTOME|Spectre
+FAUTEUIL|Siège à bras
+FENETRE|Baie vitrée
+FESTIVAL|Grande fête artistique
+FICELLE|Petite corde
+FONTAINE|Source aménagée
+FORTUNE|Richesse
+FOURCHETTE|
+FROMAGE|Camembert ou comté
+GALETTE|Crêpe de sarrasin
+GENERAL|Officier étoilé
+GIRAFES|
+GORILLE|Grand singe
+GRENIER|Combles
+GRENOUILLE|Batracien sauteur
+GUITARE|Instrument à six cordes
+HARICOT|Légume vert
+HERISSON|Animal piquant
+HISTOIRE|Récit
+HOPITAL|Lieu de soins
+HORLOGE|Pendule
+INSECTE|Petite bête à six pattes
+JOURNAL|Quotidien
+JUSTICE|Équité
+LANTERNE|Lampe portative
+LAVANDE|Plante de Provence
+LECTURE|Action de lire
+LEOPARD|Félin tacheté
+LIBERTE|Indépendance
+LICORNE|Cheval à corne
+LUMIERE|Clarté
+MACHINE|Appareil
+MAGASIN|Boutique
+MANTEAU|Pardessus
+MARCHAND|Commerçant
+MARIAGE|Union
+MATELAS|Couchette
+MEDECIN|Docteur
+MEMOIRE|Souvenir
+MENSONGE|Contre-vérité
+MERCREDI|Jour des enfants
+MIRACLE|Prodige
+MONTAGNE|Relief élevé
+MORCEAU|Bout
+MOUCHOIR|Carré de tissu pour le nez
+MOUSTIQUE|Insecte piqueur
+MUSIQUE|Art des sons
+NATATION|Sport de piscine
+NUAGEUX|Couvert
+OISEAUX|Volatiles
+OMELETTE|Plat d'œufs battus
+ORAGEUX|Électrique
+ORCHESTRE|Ensemble de musiciens
+OREILLE|Organe de l'ouïe
+OREILLER|Coussin de lit
+PAPILLON|Insecte aux ailes colorées
+PARAPLUIE|Il protège de l'averse
+PARFUM|Senteur
+PATIENCE|Calme
+PECHEUR|Homme à la canne
+PEINTURE|Toile
+PELOUSE|Gazon
+PERROQUET|Oiseau qui parle
+PINCEAU|Brosse d'artiste
+PIRATES|Écumeurs des mers
+PLACARD|Armoire murale
+PLANCHE|Latte
+PLANETE|Mars ou Vénus
+POISSON|Il vit dans l'eau
+POMPIER|Soldat du feu
+PORTAIL|Grande porte
+PRAIRIE|Pré
+PRINTEMPS|Saison des fleurs
+PRISONNIER|Détenu
+PROMENADE|Balade
+QUARTIER|District
+RAQUETTE|Instrument de tennis
+RECETTE|Mode de préparation
+RECOLTE|Moisson
+RENCONTRE|Rendez-vous
+REQUIN|Squale
+RIVIERE|Cours d'eau
+ROMANCE|Chanson d'amour
+SAUCISSE|Charcuterie
+SAUTERELLE|Insecte sauteur
+SEMAINE|Sept jours
+SENTIER|Petit chemin
+SERPENT|Reptile rampant
+SERVIETTE|Linge de table
+SILENCE|Absence de bruit
+SORCIER|Magicien
+SOURIRE|Expression joyeuse
+SPECTACLE|Représentation
+SURPRISE|Étonnement
+TABLEAU|Peinture
+TAMBOUR|Instrument à peau
+TARTINE|Pain beurré
+TAUREAU|Bovin de corrida
+TELEPHONE|Combiné
+TEMPETE|Ouragan
+TERRAIN|Parcelle
+THEATRE|Scène
+TONNEAU|Barrique
+TONNERRE|Grondement d'orage
+TORTUES|
+TRAINEAU|Luge tirée
+TRESORS|
+TROMPETTE|Cuivre
+TROPHEE|Coupe
+VACANCES|Congés
+VAISSEAU|Navire
+VAMPIRE|Suceur de sang
+VILLAGE|Petite commune
+VOITURE|Automobile
+VOLANT|Roue de conduite
+ABANDON|Renoncement
+ACCUEIL|Réception
+ACTRICE|Comédienne
+ADMIRER|Contempler
+AFFAIRE|Transaction
+AFFICHE|Placard publicitaire
+AGRICOLE|Rural
+ALLEGRE|Joyeux
+ALPHABET|Abécédaire
+AMANDES|Fruits secs
+AMBIANCE|Atmosphère
+ANCETRE|Aïeul
+ANGOISSE|Anxiété
+ANNONCE|Avis
+ANTENNE|Récepteur
+APPAREIL|Instrument
+APPETIT|Faim
+ARGENTE|Couleur de la lune
+ARRIVEE|Ligne finale
+ARTISTE|Créateur
+ASTUCE|Truc
+ATHLETE|Sportif
+ATTENTE|Patience
+AUTOMNE|Saison des feuilles mortes
+AVALANCHE|Coulée de neige
+BAGUETTE|Pain long
+BALANCE|Instrument de pesée
+BANQUET|Festin
+BARBECUE|Grill de plein air
+BERCEAU|Lit de bébé
+BIBLIOTHEQUE|
+BOUSSOLE|Elle indique le nord
+BRACELET|Bijou du poignet
+BROUILLARD|Brume épaisse
+CABINET|Petit bureau
+CAILLOU|Petite pierre
+CALENDRIER|
+CAMARADE|Copain
+CAMPING|Vacances sous la tente
+CANICULE|Forte chaleur
+CAPITAINE|Chef d'équipe
+CARNAVAL|Fête masquée
+CATALOGUE|Liste illustrée
+CEINTURE|Lanière de taille
+CHAMPION|Vainqueur
+CHANSON|Air chanté
+CHANTEUR|Interprète
+CHARIOT|Caddie
+CHASSEUR|Nemrod
+CHAUSSURE|Soulier
+CHEMINEE|Âtre
+CHENILLE|Future papillon
+CHOCOLAT|Douceur au cacao
+CLAIRIERE|Trouée en forêt
+COLLIER|Bijou du cou
+COMMERCE|Négoce
+CONCOURS|Compétition
+CONSEIL|Avis
+CONTRAT|Accord écrit
+COPAINS|Amis
+COSTUME|Complet
+COUSSIN|Oreiller de canapé
+CRATERE|Bouche de volcan
+CREPUSCULE|Tombée du jour
+CRISTAL|Verre fin
+DANSEUR|Ballerin
+DECOUVERTE|
+DEFAITE|Revers
+DELICAT|Raffiné
+DESTIN|Sort
+DIALOGUE|Échange de paroles
+DICTEE|Exercice d'orthographe
+DOMAINE|Propriété
+EMOTION|Trouble
+ENERGIE|Vitalité
+ENTRAINEUR|Coach
+EQUIPE|Formation
+ESCRIME|Sport d'épée
+ETUDIANT|Élève de fac
+EXEMPLE|Modèle
+FAMILLE|Parenté
+FAUCILLE|Petite lame courbe
+FIGURINE|Statuette
+FINALE|Dernier match
+FLOCONS|Neige
+FOOTBALL|Sport du ballon rond
+FORTERESSE|Citadelle
+FRAMBOISE|Fruit rouge
+GALAXIE|Voie lactée
+GAZELLE|Antilope gracieuse
+GOURMAND|Amateur de bonnes choses
+HAMSTER|Petit rongeur domestique
+HELICE|Pale tournante
+HIRONDELLE|Oiseau migrateur
+HORIZON|Ligne lointaine
+IMPRIMANTE|
+JONGLEUR|Artiste de cirque
+KANGOUROU|Marsupial sauteur
+LABYRINTHE|Dédale
+LAMPADAIRE|Réverbère
+LEGENDE|Mythe
+LOCOMOTIVE|
+MAILLOT|Tenue de sport
+MARMITE|Cocotte
+MARTEAU|Outil à clous
+MEDAILLE|Récompense
+MELODIE|Air
+MESSAGE|Communication
+MINUIT|Douze coups du soir
+MIROIRS|
+MOUETTE|Oiseau de mer
+NAVIGATEUR|Marin
+NOUVELLE|Information
+OCTOBRE|Mois des feuilles mortes
+OLIVIER|Arbre méditerranéen
+ORANGER|Agrumier
+OUVRIER|Travailleur
+PANTALON|Culotte longue
+PAPIERS|Documents
+PARADIS|Éden
+PASSAGE|Couloir
+PASSION|Ferveur
+PATINAGE|Glisse sur glace
+PAYSAGE|Panorama
+PELERIN|Marcheur de Compostelle
+PENDULE|Horloge
+PIQUENIQUE|
+PISCINE|Bassin de natation
+PLONGEON|Saut dans l'eau
+POIGNET|Articulation de la main
+PORTRAIT|Effigie
+POUSSIN|Petit de la poule
+PROBLEME|Difficulté
+PROFESSEUR|Enseignant
+QUESTION|Interrogation
+RECREATION|Pause à l'école
+REPONSE|Solution
+REQUINS|Squales
+RESTAURANT|
+RIVIERES|
+ROSSIGNOL|Oiseau chanteur
+SABLIER|Mesure du temps
+SANDALE|Chaussure ouverte
+SAPINS|
+SARDINE|Petit poisson en boîte
+SCULPTURE|Statue
+SECONDE|Instant
+SERRURE|Mécanisme de porte
+SIGNATURE|Paraphe
+SOLITUDE|Isolement
+SOMMEIL|Repos de la nuit
+SOUVENIR|Réminiscence
+STATION|Arrêt
+SYMPHONIE|Œuvre orchestrale
+TAPISSERIE|
+TELESCOPE|Lunette astronomique
+TEMPLE|Lieu de culte
+TISSAGE|Art de la toile
+TOMATES|
+TOURNOI|Compétition
+TRACTEUR|Engin agricole
+TRAVAIL|Labeur
+TRICOT|Pull
+TROTTOIR|Bord de rue
+TULIPES|
+UNIVERS|Cosmos
+VAISSELLE|Assiettes et couverts
+VENDANGE|Récolte du raisin
+VICTOIRE|Succès
+VIOLETTE|Petite fleur mauve
+VITRAIL|Verrière colorée
+VOLAILLE|Basse-cour
+ABRICOT|Fruit orangé
+AMBULANCE|Véhicule de secours
+ARCHIVES|Documents anciens
+BALAYER|Nettoyer le sol
+BOULANGER|Fabricant de pain
+BRUYANT|Tapageur
+CANETON|Petit canard
+CARREFOUR|Croisement
+CHARPENTE|Ossature de toit
+CORRIDA|Course de taureaux
+COUVERCLE|Dessus de casserole
+CYCLISTE|Coureur à vélo
+DEMENAGEMENT|
+EPICERIE|Petit commerce
+ESCALADE|Grimpe
+FERMIER|Agriculteur
+FLAMANT|Échassier rose
+GAUFRE|Pâtisserie quadrillée
+GRAVURE|Estampe
+INVENTEUR|Créateur
+JAGUAR|Félin d'Amérique
+LAITERIE|Crémerie
+MAQUILLAGE|Fard
+MOISSON|Récolte des blés
+MOTARD|Pilote de moto
+NOISETTE|Fruit du coudrier
+PARACHUTE|Voile de descente
+PERDRIX|Gibier à plumes
+PISTACHE|Fruit sec vert
+POTIRON|Grosse courge
+RAMONEUR|Nettoyeur de cheminée
+SAPHIR|Pierre bleue
+TOURNESOL|Fleur du soleil
+VERNISSAGE|Inauguration d'exposition
