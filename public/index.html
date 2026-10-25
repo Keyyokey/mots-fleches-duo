@@ -16,7 +16,7 @@
   --bg:#121214; --card:#1E1E24; --card2:#26262e; --line:#2f2f39; --ink:#ECEDF2; --muted:#8B8C99;
   --accent:#00ADB5; --accent-soft:rgba(0,173,181,.16); --accent-glow:rgba(0,173,181,.55); --violet:#A26BFF;
   --clue:#1a2a33; --clue-ink:#bfe9ec; --good:#3ddc97; --bad:#ff4d6d; --warn:#ffc857;
-  --p0:#5ad8ff; --p1:#ffa45c; --p2:#7cf0a9; --p3:#c49bff; --paperpen:#9aa0ad; --reveal:#5b5d6b; --pic:#191920;
+  --p0:#5ad8ff; --p1:#ffa45c; --p2:#7cf0a9; --p3:#c49bff; --paperpen:#C9CDD6; --reveal:#5b5d6b; --revealInk:#B9BECA; --filledInk:#F7F8FB; --fillMix:34%; --pic:#191920;
   --r-lg:16px; --r-md:12px; --r-sm:9px;
   --f-ui:"Inter","Poppins",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
   --f-hand:var(--f-ui);
@@ -29,7 +29,7 @@ body.light{
   --bg:#F2F4F7; --card:#FFFFFF; --card2:#E9EDF2; --line:#D6DCE4; --ink:#14181F; --muted:#5E6573;
   --accent:#00858C; --accent-soft:rgba(0,133,140,.12); --accent-glow:rgba(0,133,140,.35); --violet:#6D3FD8;
   --clue:#DDEFF1; --clue-ink:#0E3A3F; --good:#11905A; --bad:#D92D4A; --warn:#B97800;
-  --p0:#0B6FB8; --p1:#D24A0B; --p2:#1E8A3E; --p3:#6B3FE0; --paperpen:#737A87; --reveal:#AAB1BC; --pic:#E9EDF2;
+  --p0:#0B6FB8; --p1:#D24A0B; --p2:#1E8A3E; --p3:#6B3FE0; --paperpen:#3F4653; --reveal:#AAB1BC; --revealInk:#6B7280; --filledInk:#0F131A; --fillMix:24%; --pic:#E9EDF2;
   --cellbg:#FFFFFF; --btn2:#EEF1F5; --btnsh:#C7CED8; --glass:rgba(255,255,255,.95); --hair:rgba(15,25,40,.10);
   --shadow:rgba(20,30,50,.16); --scrim:rgba(20,25,35,.35); --wordbg:rgba(0,133,140,.16); --wordline:rgba(0,133,140,.40);
   color-scheme:light;
@@ -154,7 +154,11 @@ details.rules[open] summary{margin-bottom:6px}
 .cluebar .nav{width:40px;min-width:40px;height:38px;min-height:38px;padding:0;font-size:1.5rem;line-height:1;border-radius:10px;box-shadow:none;background:transparent;border-color:transparent;color:var(--accent)}
 .cluebar .nav:active{background:var(--accent-soft)}
 #bartxt{flex:1;cursor:pointer;text-align:left}
-.c.f{background:color-mix(in srgb,var(--fc) 13%,var(--cellbg))}
+.c.f{background:color-mix(in srgb,var(--fc) var(--fillMix),var(--cellbg));box-shadow:inset 0 -3px 0 var(--fc)}
+.c.f .L{text-shadow:0 1px 1px rgba(0,0,0,.35)}
+body.light .c.f .L{text-shadow:none}
+.c.rv{background:repeating-linear-gradient(135deg,var(--cellbg) 0 6px,color-mix(in srgb,var(--revealInk) 12%,var(--cellbg)) 6px 9px)}
+.c.pp{background:color-mix(in srgb,var(--paperpen) 10%,var(--cellbg))}
 .chip.on b{padding-right:10px}
 .chip.on::after{content:"";position:absolute;right:5px;top:50%;margin-top:-3px;width:6px;height:6px;border-radius:50%;background:var(--pc);box-shadow:0 0 8px var(--pc);animation:pulse 1.2s infinite}
 .q > div > span{display:inline-block;white-space:pre-line;max-width:none}
@@ -185,7 +189,7 @@ details.rules[open] summary{margin-bottom:6px}
 .q > div{flex:1;min-height:0;display:flex;align-items:center;justify-content:center;text-align:center;font-size:calc(var(--s)*.21);line-height:1.04;color:var(--clue-ink);font-weight:400;font-family:"Roboto Condensed","Arial Narrow","Helvetica Neue",sans-serif;letter-spacing:0;padding:1px 2px;word-break:normal;overflow-wrap:normal;hyphens:none;white-space:pre-line;overflow:hidden;transition:background .14s,color .14s}
 .q > div + div{border-top:1px solid var(--hair)}
 .q > div.hl{background:var(--violet);color:#fff}
-.q > div.done{opacity:.35;text-decoration:line-through}
+.q > div.done{opacity:.55;text-decoration:line-through;text-decoration-thickness:1.5px}
 .pic{background:var(--pic);border-radius:var(--r-md);display:grid;place-items:center;text-align:center;font-size:calc(var(--s)*.32);color:var(--muted);padding:8px}
 .ar{position:absolute;z-index:2;pointer-events:none;color:var(--accent);font-size:calc(var(--s)*.26);line-height:1;filter:drop-shadow(0 0 3px var(--accent-glow))}
 
@@ -943,9 +947,9 @@ function render(){
   const nf=ALL.filter(k=>G.filled[k]!==undefined).length;$("progPct").textContent=(ALL.length?Math.round(100*nf/ALL.length):0)+" %";
   $("barwho").textContent=peerWho&&!canPlay()?peerWho+" écrit…":"";$("prog").firstChild.style.width=(ALL.length?Math.round(100*nf/ALL.length):0)+"%";$("prog").title="Grille remplie à "+(ALL.length?Math.round(100*nf/ALL.length):0)+" %";
   for(const k of ALL){const L=els[k].querySelector(".L");const f=G.filled[k];
-    els[k].classList.remove("livecell");els[k].style.color="";els[k].classList.toggle("f",f!==undefined&&f>=0);if(f!==undefined&&f>=0)els[k].style.setProperty("--fc",PCOL[f]);
-    if(f!==undefined){L.textContent=G.letters?.[k]||SOL[k];L.className="L";L.style.color=f===-2?"var(--reveal)":f<0?"var(--paperpen)":PCOL[f]}
-    else if(G.done){L.textContent=SOL[k];L.className="L";L.style.color="var(--reveal)"}
+    els[k].classList.remove("livecell");els[k].style.color="";els[k].classList.toggle("f",f!==undefined&&f>=0);els[k].classList.toggle("rv",f===-2||(f===undefined&&G.done));els[k].classList.toggle("pp",f===-1);if(f!==undefined&&f>=0)els[k].style.setProperty("--fc",PCOL[f]);
+    if(f!==undefined){L.textContent=G.letters?.[k]||SOL[k];L.className="L";L.style.color=f===-2?"var(--revealInk)":f<0?"var(--paperpen)":"var(--filledInk)"}
+    else if(G.done){L.textContent=SOL[k];L.className="L";L.style.color="var(--revealInk)"}
     else if(pend[k]){L.textContent=pend[k];L.className="L pend";L.style.color=""}
     else if(peerPend[k]){L.textContent=peerPend[k].l;L.className="L live";L.style.color=PCOL[peerPend[k].seat];els[k].classList.add("livecell");els[k].style.color=PCOL[peerPend[k].seat]}
     else{L.textContent="";L.className="L";L.style.color=""}}
