@@ -134,8 +134,7 @@ body.light .k.go{color:#fff}
 @keyframes fl{0%{opacity:0;transform:translate(-50%,-50%) scale(.6)}15%{opacity:1;transform:translate(-50%,-50%) scale(1.05)}75%{opacity:1}100%{opacity:0}}
 #confetti{position:fixed;inset:0;z-index:44;pointer-events:none}
 /* ---------- Tourniquet ---------- */
-.rond{--R:40px;--B:calc(var(--R)*.62);--C:calc(var(--R)*1.58);display:flex;flex-wrap:wrap;justify-content:center;gap:8px 6px;padding:8px 2px;margin:0 auto}
-.rcol{position:relative;width:calc(var(--R)*1.732 + var(--B) + 6px);height:calc(var(--R)*6 + var(--B) + 4px);flex:none}
+.rond{--R:40px;--B:calc(var(--R)*.62);--C:calc(var(--R)*1.3);position:relative;margin:4px auto;width:calc(var(--R)*10.392 + var(--B) + 6px);height:calc(var(--R)*6 + var(--B) + 6px);flex:none}
 .rc{z-index:1;position:absolute;width:var(--C);height:var(--C);border-radius:50%;transform:translate(-50%,-50%);background:var(--clue);color:var(--clue-ink);display:grid;place-items:center;text-align:center;padding:6px;cursor:pointer;font-family:"Roboto Condensed","Arial Narrow",sans-serif;font-size:calc(var(--C)*.15);line-height:1.08;border:2px solid transparent;transition:border-color .15s,box-shadow .15s,background .15s;overflow:hidden;word-break:normal}
 .rc span{display:block;max-width:100%}
 .rc:active{transform:translate(-50%,-50%) scale(.96)}
@@ -184,7 +183,6 @@ body.light .k.go{color:#fff}
   .acts{display:flex;flex-direction:column-reverse;justify-content:flex-start;align-self:end}
   .acts .k.go{min-height:64px;font-size:1.2rem}
   .k .long{display:inline}
-  .rond{gap:14px 10px}
 }
 @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 </style>
@@ -285,8 +283,8 @@ let CODE=(m[1]||"").toUpperCase(),GAME=m[2]||"rond";
 if(!CODE){const s=LS.get("fl-salons",{});CODE=Object.keys(s).sort((a,b)=>s[b]-s[a])[0]||Array.from({length:5},()=>CH[Math.floor(Math.random()*CH.length)]).join("");try{history.replaceState(null,"","/"+CODE+"/"+GAME)}catch(e){}}
 const DOC=GAME;                 // une partie partagée par table et par salon
 const INFO={
- rond:{title:"Le Tourniquet",hero:"Six lettres autour de chaque rond, dans le sens des aiguilles d'une montre, en partant du triangle. La 4ᵉ lettre d'un mot est la 1ʳᵉ du mot du dessous : chaque colonne est une chaîne.",pick:"3. Grille",timer:"Chrono par tour",
-   rules:"<p><b>But :</b> trouver les mots de 6 lettres. La première lettre est sous le triangle, puis on tourne dans le sens des aiguilles d'une montre.</p><p><b>Chaîne :</b> la bulle du bas d'un rond est aussi la bulle du haut du rond suivant.</p><p><b>En duel :</b> chacun son tour. Mot juste : +10 points et tu rejoues. Mot faux : la main passe. Finir la grille : +20.</p>"},
+ rond:{title:"Le Tourniquet",hero:"Six lettres autour de chaque rond, dans le sens des aiguilles d'une montre, en partant du triangle. Les ronds voisins partagent leurs bulles, en haut, en bas et sur les côtés : chaque mot trouvé aide à trouver les autres.",pick:"3. Grille",timer:"Chrono par tour",
+   rules:"<p><b>But :</b> trouver les mots de 6 lettres. La première lettre est sous le triangle, puis on tourne dans le sens des aiguilles d'une montre.</p><p><b>Lettres partagées :</b> la bulle du bas d'un rond est aussi la bulle du haut du rond du dessous, et les deux bulles de droite sont aussi les deux bulles de gauche du rond voisin. Chaque mot trouvé donne donc des lettres aux mots autour.</p><p><b>En duel :</b> chacun son tour. Mot juste : +10 points et tu rejoues. Mot faux : la main passe. Finir la grille : +20.</p>"},
  meles:{title:"Mots mêlés",hero:"Retrouve les mots cachés dans la grille : en ligne, en colonne ou en diagonale, parfois à l'envers. En duel, c'est une course : le premier qui trouve un mot le prend à sa couleur.",pick:"3. Thème",timer:"Durée de la partie",
    rules:"<p><b>Trouver un mot :</b> glisse le doigt (ou la souris) de la première à la dernière lettre, ou touche la première puis la dernière.</p><p><b>En duel :</b> tout le monde joue en même temps. Le premier qui trouve un mot marque autant de points que de lettres.</p><p><b>Fin :</b> quand tous les mots sont trouvés ou que le temps est écoulé.</p>"}
 };
@@ -462,23 +460,26 @@ $("mSeat").onclick=()=>{try{localStorage.removeItem(seatKey())}catch(e){}render(
 // ---------- Tourniquet ----------
 const ANG=[0,60,120,180,240,300];
 function puzzle(){return ROND.find(p=>p.id===G.pid)||ROND[0]}
-function vid(c,k){return "rv-"+c+"-"+k}                     // bulles verticales partagées (k = 0..3)
-function bubblesOf(c,r){return [vid(c,r),"rs-"+c+"-"+r+"-1","rs-"+c+"-"+r+"-2",vid(c,r+1),"rs-"+c+"-"+r+"-4","rs-"+c+"-"+r+"-5"]}
+// bulles partagées : en haut/bas avec le rond du dessus/dessous, sur les côtés avec le rond voisin
+function vid(c,k){return "rv-"+c+"-"+k}                       // verticale : k = 0..3
+function sid(c,r,h){return "rs-"+c+"-"+r+"-"+h}               // latérale entre la colonne c et c+1 (h = u haut, d bas)
+function bubblesOf(c,r){return [vid(c,r),sid(c,r,"u"),sid(c,r,"d"),vid(c,r+1),sid(c-1,r,"d"),sid(c-1,r,"u")]}
 function buildBoard(){const b=$("board");b.innerHTML="";$("under").innerHTML="";
   if(GAME==="meles")return buildMeles();
   const wrap=document.createElement("div");wrap.className="rond";b.appendChild(wrap);
-  puzzle().cols.forEach((col,c)=>{const d=document.createElement("div");d.className="rcol";wrap.appendChild(d);
-    col.forEach((w,r)=>{const cx="50%";const cy="calc(var(--B)/2 + 2px + var(--R) + var(--R)*2*"+r+")";
-      const q=document.createElement("button");q.type="button";q.className="rc";q.id="rc-"+c+"-"+r;q.style.left=cx;q.style.top=cy;q.innerHTML="<span></span>";q.firstChild.textContent=w.c.toUpperCase();q.setAttribute("aria-label","Définition : "+w.c);
-      q.onclick=()=>{selectWord(c,r)};d.appendChild(q);
-      ANG.forEach((a,i)=>{if((i===0&&r>0))return;const id=i===0?vid(c,r):i===3?vid(c,r+1):"rs-"+c+"-"+r+"-"+i;const e=document.createElement("div");e.className="rb"+(i===0?" first":"");e.id=id;
-        const sx=Math.sin(a*Math.PI/180).toFixed(4),sy=(-Math.cos(a*Math.PI/180)).toFixed(4);e.style.left="calc(50% + var(--R)*"+sx+")";e.style.top="calc("+cy+" + var(--R)*"+sy+")";d.appendChild(e)})})});
+  const pad="(var(--B)/2 + 3px)";const X=c=>"calc("+pad+" + var(--R)*"+(0.866+1.732*c).toFixed(3)+")",Y=r=>"calc("+pad+" + var(--R)*"+(1+2*r)+")";
+  const made=new Set();
+  puzzle().cols.forEach((col,c)=>col.forEach((w,r)=>{
+    const q=document.createElement("button");q.type="button";q.className="rc";q.id="rc-"+c+"-"+r;q.style.left=X(c);q.style.top=Y(r);q.innerHTML="<span></span>";q.firstChild.textContent=w.c.toUpperCase();q.setAttribute("aria-label","Définition : "+w.c);
+    q.onclick=()=>selectWord(c,r);wrap.appendChild(q);
+    bubblesOf(c,r).forEach((id,i)=>{if(made.has(id))return;made.add(id);const a=ANG[i]*Math.PI/180;const e=document.createElement("div");e.className="rb";e.id=id;
+      e.style.left="calc("+X(c).slice(5,-1)+" + var(--R)*"+Math.sin(a).toFixed(4)+")";e.style.top="calc("+Y(r).slice(5,-1)+" + var(--R)*"+(-Math.cos(a)).toFixed(4)+")";wrap.appendChild(e)})}));
   const ans=document.createElement("div");ans.className="answer";ans.innerHTML='<span class="clue" id="clue">Touche une définition</span><input type="text" id="ans" maxlength="6" autocomplete="off" autocapitalize="characters" spellcheck="false" placeholder="RÉPONSE" aria-label="Ta réponse">';$("under").appendChild(ans);
   $("ans").addEventListener("input",()=>{typed=norm($("ans").value).slice(0,6);$("ans").value=typed;if(typed)sfx("type");renderRond();announce()});
   $("ans").addEventListener("keydown",e=>{if(e.key==="Enter"){e.preventDefault();validRond()}});
   fitRond()}
 function fitRond(){requestAnimationFrame(()=>{const b=$("board"),wrap=b.querySelector(".rond");if(!wrap)return;const W=b.clientWidth-8,H=b.clientHeight-8,wide=innerWidth>=900,g=wide?10:6;
-    const per=W>=700?6:3;let R=(W-6*per-(per-1)*g)/(2.352*per);if(wide)R=Math.min(R,(H-20)/6.62);R=Math.max(26,Math.min(64,Math.floor(R)));wrap.style.setProperty("--R",R+"px");wrap.style.maxWidth=(per*(2.352*R+6)+(per-1)*g+8)+"px";
+    let R=(W-8)/11.02;if(wide)R=Math.min(R,(H-12)/6.62);R=Math.max(wide?30:31,Math.min(70,Math.floor(R)));wrap.style.setProperty("--R",R+"px");
     requestAnimationFrame(()=>document.querySelectorAll(".rc").forEach(q=>{const sp=q.firstChild;let fs=parseFloat(getComputedStyle(q).fontSize);q.style.fontSize="";fs=parseFloat(getComputedStyle(q).fontSize);let n=0;while((sp.scrollHeight>q.clientHeight-8||sp.scrollWidth>q.clientWidth-6)&&n<30&&fs>6){fs-=.5;q.style.fontSize=fs+"px";n++}}))})}
 window.addEventListener("resize",()=>{if(G&&GAME==="rond")fitRond()});
 function wordAt(c,r){return norm(puzzle().cols[c][r].w)}

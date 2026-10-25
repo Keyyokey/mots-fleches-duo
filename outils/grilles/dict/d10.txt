@@ -1,0 +1,351 @@
+ABSOLU|Total, sans réserve
+ACACIA|Arbre à fleurs en grappes
+ACCRUE|Augmentée
+ACHETA|Fit une emplette
+ACHEVE|Termine
+ADULTE|Majeur
+AERIEN|Léger comme l'air
+AIDERA|Prêtera main-forte
+AIKIDO|Art martial japonais
+AILIER|Joueur de couloir
+AIMERA|Chérira
+ALARME|Signal de danger
+ALIENE|Fou
+ALIGNE|Mis en rang
+AMIDON|Il raidit le linge
+AMUSEE|Divertie
+ANIMEE|Vivante
+ANIMER|Présenter une émission
+ANODIN|Sans importance
+APPARU|Surgi
+APPELA|Téléphona
+APPRET|Préparation du tissu
+ASCESE|Vie austère
+ASSAUT|Attaque
+ASSISE|Base solide
+ASTRAL|Des étoiles
+ATONIE|Manque d'énergie
+AUDACE|Hardiesse
+AUTRUI|Les autres
+BAIGNE|Plonge dans l'eau
+BAISSA|Diminua
+BAOBAB|Arbre africain géant
+BARREE|Rayée d'un trait
+BATTRA|Vaincra
+BEIGNE|Gifle familière
+BETAIL|Bestiaux
+BICEPS|Muscle du bras
+BISTRO|Petit café
+BLANCS|Couleur de neige, au pluriel
+BLASON|Armoiries
+BOREAL|Du Nord
+BORGNE|Qui n'a qu'un œil
+BRILLE|Étincelle
+BRUTAL|Violent
+CABANA|Hutte de plage
+CALMAR|Encornet
+CANARI|Serin jaune
+CASINO|Maison de jeux
+CELERI|Légume à côtes
+CERCLE|Rond
+CESSER|Arrêter
+CHANTA|Fredonna
+CHELEM|Toutes les levées au bridge
+CHRONO|Montre de course
+CIGARE|Il se fume roulé
+CLERCS|Employés de notaire
+CLERGE|Ensemble des prêtres
+CONFIA|Remit en garde
+CONFIE|Remet en garde
+CONNUE|Célèbre
+CREUSE|Vide à l'intérieur
+CRISPE|Tendu
+CRYPTE|Caveau d'église
+DECIDA|Trancha
+DECOTE|Baisse de valeur
+DEESSE|Divinité féminine
+DEGAGE|Libéré
+DELICE|Régal
+DEMOLI|Détruit
+DEPECE|Découpe en morceaux
+DEPOSA|Posa
+DEPOSE|Pose
+DERIVE|Écart de route
+DEROBE|Vole
+DETENU|Prisonnier
+DEVOLU|Jeter son ... : choisir
+DIURNE|Du jour
+DOLLAR|Billet vert
+DOMINA|Régna sur
+DRESSE|Dompte
+DROGUE|Stupéfiant
+DURERA|Se prolongera
+DYNAMO|Génératrice de vélo
+ECARTS|Différences
+ECHECS|Jeu des rois
+ECOUTA|Prêta l'oreille
+ECURIE|Logis du cheval
+ELANCE|Svelte
+ELARGI|Agrandi
+ELEVER|Éduquer
+ELIXIR|Philtre
+EMEUTE|Révolte
+EMIRAT|État arabe
+ENCLOS|Parc à bêtes
+ENERVE|Agacé
+EOLIEN|Du vent
+ERIGER|Bâtir
+ERRONE|Faux
+ERUDIT|Savant
+ESCAPE|Touche d'échappement
+ESCROC|Arnaqueur
+ESSAIM|Colonie d'abeilles
+ESSIEU|Axe de roues
+ETABLE|Abri des vaches
+ETABLI|Table de menuisier
+ETENDU|Vaste
+ETIAGE|Basses eaux
+ETIRER|Allonger
+ETONNE|Surpris
+ETUDIA|Apprit
+FEODAL|Du Moyen Âge
+FERRER|Garnir de fers
+FIASCO|Échec total
+FIESTA|Fête espagnole
+FILETS|Mailles de pêche
+FISCAL|Relatif à l'impôt
+FLAMME|Feu
+FLIPPE|A peur, familier
+FORETS|Bois étendus
+FORMAT|Dimensions
+FORMEL|Catégorique
+FRAPPA|Cogna
+FREROT|Petit frère
+GARNIR|Remplir
+GENDRE|Beau-fils
+GENERE|Produit
+GENESE|Origine
+GENIAL|Formidable
+GENTIL|Aimable
+GERBER|Vomir, familier
+GILETS|Vestes sans manches
+GLAISE|Argile
+GLAIVE|Épée courte
+GLISSE|Dérape
+GLOBAL|D'ensemble
+GREFFE|Transplantation
+GRENAT|Rouge sombre
+GREVES|Arrêts de travail
+GRINCE|Crisse
+GUERIR|Soigner
+GUETTA|Épia
+HANTER|Obséder
+HARENG|Poisson saur
+HARGNE|Mauvaise humeur
+HERAUT|Messager
+HEURTA|Percuta
+HEURTE|Choque
+IGNAME|Tubercule tropical
+IGNARE|Ignorant
+IGNORE|Méconnaît
+IMITER|Copier
+IMPAIR|Gaffe
+IMPALA|Antilope d'Afrique
+IMPOLI|Mal élevé
+IMPOTS|Contributions
+INAPTE|Incapable
+INCLUT|Contient
+INEDIT|Nouveau
+INEGAL|Irrégulier
+INFINI|Sans limites
+INIQUE|Injuste
+INITIE|Connaisseur
+INNOVE|Invente
+INONDE|Submerge
+INOUIE|Extraordinaire
+INSTAR|À l'... de : comme
+IODURE|Sel d'iode
+IRONIE|Moquerie
+IRREEL|Imaginaire
+ISOLEE|Seule
+ISOLES|Seuls
+ISTHME|Bande de terre
+LAMBDA|Quelconque
+LAMINE|Écrase
+LATINE|Langue de Rome
+LAVAGE|Nettoyage
+LAVOIR|Lieu des lavandières
+LEVRES|Bord de la bouche
+LIEVRE|Cousin du lapin
+LIONNE|Femelle du lion
+MANIOC|Racine à tapioca
+MAXIMA|Plafonds
+MECENE|Protecteur des arts
+MEDINA|Vieille ville arabe
+MENTAL|Psychique
+MENTIR|Tromper
+MENTOR|Guide
+METROS|Rames souterraines
+MEUBLE|Armoire ou table
+MOUSSA|Écuma
+NARGUE|Provoque
+NAVALE|De la marine
+NECTAR|Boisson des dieux
+NETTES|Propres
+NEUTRE|Impartial
+NEUVES|Récentes
+NICHER|Faire son nid
+NOEUDS|Liens serrés
+NOIRCI|Assombri
+NOIRES|Notes de musique
+NOURRI|Alimenté
+NUMERO|Chiffre
+OMNIUM|Course cycliste
+OPERER|Faire une intervention
+ORBITE|Trajectoire autour d'un astre
+ORGANE|Cœur ou foie
+ORIENT|Levant
+ORIGAN|Herbe à pizza
+OUBLIA|Omit
+OURLET|Bord cousu
+PAIERA|Réglera
+PASTEL|Couleur douce
+PEDALO|Barque à pédales
+PEIGNE|Démêle
+PEINTS|Colorés
+PELAGE|Fourrure
+PENDUS|Suspendus
+PENSAI|Réfléchis
+PERCUE|Ressentie
+PERDUE|Égarée
+PERRON|Escalier extérieur
+PLACEE|Mise
+PLAIRA|Séduira
+PLASMA|Partie du sang
+POINTU|Effilé
+POSTAL|De la poste
+POURVU|Muni
+PRELAT|Haut dignitaire religieux
+PRETER|Avancer de l'argent
+PREVOT|Ancien magistrat
+PREVUE|Attendue
+PRIMAT|Archevêque
+PRISME|Il décompose la lumière
+PROMOS|Soldes
+PROMUS|Élevés en grade
+PSEUDO|Surnom en ligne
+PUBLIA|Édita
+PYJAMA|Tenue de nuit
+QUARTO|Quatrième point
+RACHAT|Reprise
+RADIOS|Stations
+RAMENA|Reconduisit
+RAMENE|Reconduit
+RASOIR|Coupe-poils
+REAGIR|Répondre
+REBUTS|Déchets
+RECITS|Histoires
+RECOIN|Coin caché
+RECRUE|Nouvelle venue
+RECULA|Fit marche arrière
+RECUSE|Rejette
+REFUSA|Déclina
+REGGAE|Musique jamaïcaine
+RELAXE|Détendu
+RELEVA|Redressa
+RELEVE|Redresse
+REMPLI|Plein
+RENDUE|Restituée
+RENOUE|Rattache
+RENOVE|Remis à neuf
+RENTRA|Revint
+RENVOI|Licenciement
+REPETE|Redit
+REPORT|Ajournement
+REPRIT|Recommença
+RESIDU|Reste
+RESSAC|Retour de vague
+RETAPE|Rafistole
+RETINE|Fond de l'œil
+RETIRA|Ôta
+REVELA|Dévoila
+REVELE|Dévoile
+REVETU|Habillé
+RIGOLO|Drôle
+ROMPRE|Casser
+ROUGIR|Avoir honte
+SALAMI|Saucisson italien
+SALAUD|Vilain individu
+SAVANE|Plaine africaine
+SAVEUR|Goût
+SECHER|Essorer
+SEISME|Tremblement de terre
+SEMBLA|Parut
+SEPARA|Divisa
+SEPARE|Divise
+SERAIL|Palais du sultan
+SEREIN|Calme
+SERVIS|Accueillis à table
+SESAME|Mot de passe magique
+SEVERE|Strict
+SEVRER|Priver du lait
+SIERRA|Chaîne de montagnes
+SILICE|Composant du sable
+SIMILI|Imitation
+SOIGNE|Guérit
+STAGNE|Ne bouge pas
+STEREO|Son en relief
+STERNE|Oiseau de mer
+STOPPE|Arrête
+STRESS|Tension
+STRING|Petite culotte
+STUDIO|Petit appartement
+SUIVRA|Accompagnera
+SULTAN|Souverain ottoman
+TEIGNE|Personne méchante
+TEMOIN|Il a tout vu
+TENDON|Il relie muscle et os
+TENDRE|Doux
+TENDUE|Raide
+TENEUR|Contenu
+THORAX|Poitrine
+TIMBRE|Vignette postale
+TINTIN|Rien du tout (faire ...)
+TISANE|Infusion
+TOLERE|Admet
+TORERO|Combattant de l'arène
+TOURNA|Pivota
+TOURNE|Pivote
+TOUSSA|Eut une quinte
+TRAINE|Queue de robe
+TRAITA|Soigna
+TRAPPE|Ouverture au sol
+TREFLE|Porte-bonheur à quatre feuilles
+TREMPE|Mouillé
+TRIADE|Trio
+TRIBAL|De la tribu
+TRIBUT|Contribution forcée
+TRIPLE|Trois fois
+TRITON|Batracien à queue
+TROMPE|Nez de l'éléphant
+TRONCS|Fûts d'arbres
+TROUVA|Découvrit
+TRUFFE|Champignon précieux
+TULIPE|Fleur de Hollande
+UNITES|Mesures étalons
+URINER|Faire pipi
+URINES|Pipis
+USAGES|Coutumes
+USINES|Fabriques
+USURPE|Volé
+UTILES|Pratiques
+VAINCU|Battu
+VEGETA|Vivota
+VELOCE|Rapide
+VENDRA|Cédera contre argent
+VENTRE|Abdomen
+VERBAL|Oral
+VERRUE|Excroissance de peau
+VIADUC|Pont géant
+VIKING|Guerrier du Nord
+VISUEL|De la vue
