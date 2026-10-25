@@ -8,8 +8,9 @@ Le même jeu que dans Claude, en vrai site web : **n'importe qui ouvre le lien e
 
 ## Contenu
 - `server.js` : le serveur (sert la page et partage les parties de chaque salon en direct ; sauvegarde sur disque, et dans Upstash Redis si configuré).
-- `public/index.html` : la page du jeu (200 grilles originales en 3 niveaux + 17 grilles du magazine, grille du jour, sons, animations, design clair/sombre, solo/multi).
+- `public/index.html` : la page du jeu (300 grilles originales en 3 niveaux + 17 grilles du magazine, grille du jour, sons, animations, design clair/sombre, solo/multi).
 - `public/mot.html` : « Le mot du jour » (jeu complémentaire, adresse `/mot`).
+- `public/jeux.html` : les tables « Le Tourniquet » (`/CODE/rond`) et « Mots mêlés » (`/CODE/meles`), en solo ou en duel dans le même salon.
 - `SAUVEGARDE.md` : comment les parties sont gardées, et les options de stockage durable (Upstash…).
 - `IDEES.md` : idées reprises des autres jeux et pistes de nouveaux jeux.
 - `outils/grilles/` : le générateur de grilles et le dictionnaire de définitions.

@@ -113,6 +113,24 @@ async function handle(ws, m) {
     if (changed) { s.touched = Date.now(); scheduleSave(ws.room); const msg = { t: "snap", docs: snapshot(s) }; for (const w of s.sockets) send(w, msg); }
     return;
   }
+  if (m.t === "patch") {
+    // écriture atomique d'un champ : sert aux courses (mots mêlés), le premier qui trouve un mot le garde
+    const id = String(m.id || ""), field = String(m.field || ""), key = String(m.key || "");
+    const d = s.docs[id];
+    if (!d || !/^[a-zA-Z]{1,20}$/.test(field) || !/^[A-Za-z0-9_-]{1,40}$/.test(key)) return send(ws, { t: "ack", req: m.req, ok: false, code: "invalid_argument" });
+    if (m.gid && d.gid !== m.gid) return send(ws, { t: "ack", req: m.req, ok: false, code: "stale" });
+    d[field] = d[field] && typeof d[field] === "object" ? d[field] : {};
+    if (m.ifAbsent && d[field][key] !== undefined) return send(ws, { t: "ack", req: m.req, ok: false, code: "taken" });
+    const val = JSON.parse(JSON.stringify(m.value === undefined ? null : m.value));
+    if (JSON.stringify(val).length > 2000) return send(ws, { t: "ack", req: m.req, ok: false, code: "invalid_argument" });
+    d[field][key] = val;
+    if (m.extra && typeof m.extra === "object") for (const [k, v] of Object.entries(m.extra)) if (/^[a-zA-Z]{1,20}$/.test(k) && !["players", "gid", "_v"].includes(k)) d[k] = v;
+    if (m.score && Number.isInteger(m.score.i) && d.players && d.players[m.score.i]) d.players[m.score.i].score = (d.players[m.score.i].score || 0) + (Number(m.score.add) || 0);
+    d._v = (d._v || 0) + 1; s.touched = Date.now(); scheduleSave(ws.room);
+    send(ws, { t: "ack", req: m.req, ok: true });
+    const msg = { t: "snap", docs: snapshot(s) }; for (const w of s.sockets) send(w, msg);
+    return;
+  }
   if (m.t === "presence") {
     const p = m.presence && typeof m.presence === "object" ? m.presence : {};
     if (JSON.stringify(p).length > 4000) return;
@@ -139,6 +157,7 @@ const server = http.createServer((req, res) => {
   const url = new URL(req.url, "http://x");
   if (url.pathname === "/healthz") { res.writeHead(200, { "content-type": "text/plain" }); return res.end("ok " + salons.size + (REDIS ? " redis" : "")); }
   if (url.pathname === "/mot" || url.pathname === "/mot/") return sendPage(req, res, path.join(__dirname, "public", "mot.html"));
+  if (/^\/[A-Za-z0-9]{5}\/(rond|meles)\/?$/.test(url.pathname) || /^\/(rond|meles)\/?$/.test(url.pathname)) return sendPage(req, res, path.join(__dirname, "public", "jeux.html"));
   if (url.pathname === "/" || /^\/[A-Za-z0-9]{5}\/?$/.test(url.pathname)) return sendPage(req, res, PAGE);
   res.writeHead(404, { "content-type": "text/plain; charset=utf-8" }); res.end("Introuvable");
 });
