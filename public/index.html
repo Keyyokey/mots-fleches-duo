@@ -234,6 +234,63 @@ input#kb{position:absolute;left:8px;bottom:6px;width:2px;height:2px;opacity:0;fo
 .daily{display:flex;align-items:center;gap:10px;justify-content:space-between;background:linear-gradient(135deg,var(--accent-soft),transparent);border:1px solid var(--line);border-radius:var(--r-lg);padding:10px 12px}
 .daily .t{font-weight:700}.daily .s{font-size:.84rem;color:var(--muted)}
 .daily button{white-space:nowrap}
+/* ===== agencement de la partie : joueurs + temps à gauche, menu à droite, Retour / Valider à part ===== */
+#timer{display:none!important}
+body.playing #game{display:grid!important;grid-template-columns:minmax(0,1fr) auto;grid-template-rows:auto minmax(0,1fr) auto;grid-template-areas:"left tools" "grid grid" "win win";gap:8px 8px;min-height:0}
+.gleft{grid-area:left;display:flex;flex-direction:column;gap:6px;min-width:0}
+.gtools{grid-area:tools;position:relative;align-self:start}
+#gridbox{grid-area:grid}
+#winbox{grid-area:win}
+.gname{display:none;font-size:1.25rem;font-weight:800;letter-spacing:-.02em}
+.gname b{background:linear-gradient(90deg,var(--accent),var(--violet));-webkit-background-clip:text;background-clip:text;color:transparent}
+.gsalon{display:none;font-size:.82rem;color:var(--muted);align-items:center;gap:2px}
+.menubtn{height:44px;min-height:44px;display:flex;align-items:center;gap:8px;padding:0 14px;font-weight:700;font-size:1rem}
+.menubtn .chev{color:var(--accent)}
+#menu{right:0;top:52px;min-width:250px}
+#menu button{display:flex;justify-content:space-between;align-items:center;gap:8px}
+#menu small{font-size:.75rem;color:var(--muted);font-weight:500}
+#menu .sep{height:1px;background:var(--line);margin:2px 4px}
+/* cartes joueurs : pseudo, score, chrono */
+.scores{display:flex!important;flex-direction:column;gap:5px}
+.chip{display:grid!important;grid-template-columns:minmax(0,1fr) auto auto;align-items:center;gap:8px;padding:6px 8px 6px 12px}
+.chip .clk{font-size:.86rem;font-weight:800;font-variant-numeric:tabular-nums;border-radius:8px;padding:3px 8px;background:var(--card2);color:var(--muted);min-width:3.4em;text-align:center}
+.chip.on .clk{background:var(--pc);color:#041b1d}
+.chip.on .clk.low{background:var(--bad);color:#fff;animation:pulse 1s infinite}
+.chip .clk:empty{display:none}
+.chip.on::after{display:none}
+.chip.on b{padding-right:0}
+.acts{grid-template-columns:1fr 2fr!important}
+.k.ret{font-size:1rem;background:var(--btn2);color:var(--ink)}
+/* grand écran : trois colonnes */
+@media (min-width:900px){
+  body.playing .wrap{max-width:1400px;padding-bottom:16px;padding-top:16px}
+  body.playing #game{grid-template-columns:270px minmax(0,1fr) 270px;grid-template-rows:auto minmax(0,1fr) auto;
+    grid-template-areas:"left clue tools" "left grid tools" "left win acts";gap:12px 24px}
+  .gname,.gsalon{display:flex}
+  .gname{display:block}
+  .gleft{gap:12px}
+  .scores{gap:10px}
+  .chip{grid-template-columns:minmax(0,1fr) auto;grid-template-areas:"nm sc" "ck ck";padding:12px 14px;border-radius:var(--r-lg);row-gap:10px}
+  .chip .nm{grid-area:nm;font-size:1.05rem}
+  .chip b{grid-area:sc;font-size:1.6rem}
+  .chip .clk{grid-area:ck;font-size:1.7rem;padding:6px 0;border-radius:10px;min-width:0}
+  .chip::before{width:4px}
+  .statusrow{min-height:0}.status{white-space:normal;font-size:.95rem}
+  .progress{height:6px}
+  .gtools{display:flex;flex-direction:column;gap:8px;align-self:stretch;min-height:0;overflow:auto;padding-bottom:4px}
+  #menu{flex:none}
+  .menubtn{width:100%;justify-content:space-between;height:52px;font-size:1.05rem}
+  #menu{position:static;min-width:0;width:100%;animation:none}
+  .dock{position:static;display:contents;padding:0;background:none}
+  .dock .in{display:contents}
+  .cluebar{grid-area:clue;max-width:none}
+  .acts{grid-area:acts;display:flex!important;flex-direction:column-reverse;gap:10px}
+  .acts .k{height:auto}
+  .acts .k.go{min-height:64px;font-size:1.25rem}
+  .acts .k.ret{min-height:48px}
+  .kbhint{grid-area:acts;align-self:end;display:none}
+  #gridbox{display:flex;align-items:flex-start;justify-content:center}
+}
 @media (prefers-reduced-motion:reduce){.c,.c.ok,.c.wrong,.timer.low,.overlay,.dropdown,.c .L.pend,.turnflash,.react,.chip b.bump{animation:none;transition:none}}
 </style>
 <style>
@@ -329,27 +386,33 @@ html,body{margin:0}img{max-width:100%}[hidden]{display:none!important}
     </details>
   </section>
 
-  <section id="game" hidden style="flex-direction:column;gap:6px">
-    <div class="gbar">
+  <section id="game" hidden>
+    <aside class="gleft">
+      <div class="gname" id="gname"></div>
       <div class="scores" id="scores"></div>
-      <div class="tools">
-        <button class="ico multiOnly" id="reactBtn" type="button" title="Réagir" aria-label="Envoyer une réaction">😀</button>
-        <button class="ico" id="zoomBtn" type="button" title="Taille du plateau" aria-label="Taille du plateau">🔍</button>
-        <button class="ico" id="mystOpen" type="button" title="Mot mystère" aria-label="Mot mystère">🔤</button>
-        <button class="ico" id="menuBtn" type="button" title="Menu" aria-label="Menu" aria-expanded="false">☰</button>
-        <div class="dropdown" id="menu" hidden>
-          <button type="button" id="back">← Autres grilles</button>
-          <button type="button" id="chSeat">👤 Changer de joueur</button>
-          <button type="button" id="themeBtn2">☀️ Mode clair</button>
-          <button type="button" id="soundBtn2">🔊 Son activé</button>
-          <div class="keys" id="menuInfo"></div>
-          <div class="foot" style="justify-content:flex-start"><span><span class="dot" id="gdot"></span><span id="gsync"></span></span></div>
-          <div class="keys" id="diag"></div>
-        </div>
+      <div class="statusrow"><div class="status" id="status"></div><div class="timer" id="timer" hidden></div></div>
+      <div class="progress" id="prog" title="Grille remplie"><i></i></div>
+      <div class="gsalon" id="gsalon"><span class="dot" id="gdot"></span><span id="gsync"></span></div>
+    </aside>
+    <div class="gtools tools">
+      <button class="menubtn" id="menuBtn" type="button" aria-label="Menu" aria-expanded="false"><span>Menu</span><span class="chev" id="menuChev">▾</span></button>
+      <div class="dropdown" id="menu" hidden>
+        <button type="button" id="flip">⇄ Changer de sens <small>Espace</small></button>
+        <button type="button" id="clear">🧹 Effacer mon essai</button>
+        <button type="button" id="pass">⏭ Passer mon tour</button>
+        <button type="button" id="solBtn">💡 Solution / aide</button>
+        <button type="button" id="mystOpen">🔤 Mot mystère <small>+20</small></button>
+        <div class="sep"></div>
+        <button type="button" id="zoomBtn">🔍 Taille du plateau</button>
+        <button type="button" class="multiOnly" id="reactBtn">😀 Envoyer une réaction</button>
+        <button type="button" id="themeBtn2">☀️ Mode clair</button>
+        <button type="button" id="soundBtn2">🔊 Son activé</button>
+        <button type="button" id="chSeat">👤 Changer de joueur</button>
+        <button type="button" id="back" hidden>← Autres grilles</button>
+        <div class="keys" id="menuInfo"></div>
+        <div class="keys" id="diag"></div>
       </div>
     </div>
-    <div class="statusrow"><div class="status" id="status"></div><div class="timer" id="timer" hidden></div></div>
-    <div class="progress" id="prog" title="Grille remplie"><i></i></div>
     <div class="gridbox" id="gridbox"><div class="grid" id="g"></div></div>
     <div id="winbox" hidden class="win"></div>
     <div class="overlay" id="seatBox" hidden>
@@ -360,24 +423,18 @@ html,body{margin:0}img{max-width:100%}[hidden]{display:none!important}
         <button type="button" id="seatBack">← Revenir aux grilles</button>
       </div>
     </div>
-  </section>
-  <div class="dock" id="dock" hidden>
-    <div class="in">
-      <div class="cluebar"><button type="button" class="nav" id="prevW" aria-label="Mot précédent">‹</button><span class="dir" id="bardir">→</span><span id="bartxt">Touche une case ou une définition</span><button type="button" class="nav" id="nextW" aria-label="Mot suivant">›</button></div>
-      <div class="acts">
-        <div class="actwrap">
-          <button class="k act" id="actBtn" type="button" aria-haspopup="true" aria-expanded="false">Actions ▴</button>
-          <div class="actmenu" id="actMenu" hidden>
-            <button type="button" id="flip">⇄ Changer de sens</button>
-            <button type="button" id="clear">🧹 Effacer mon essai</button>
-            <button type="button" id="pass">⏭ Passer mon tour</button>
-            <button type="button" id="solBtn">💡 Solution</button>
-          </div>
+    <div class="dock" id="dock" hidden>
+      <div class="in">
+        <div class="cluebar"><button type="button" class="nav" id="prevW" aria-label="Mot précédent">‹</button><span class="dir" id="bardir">→</span><span id="bartxt">Touche une case ou une définition</span><button type="button" class="nav" id="nextW" aria-label="Mot suivant">›</button></div>
+        <div class="acts">
+          <button class="k ret" id="retour" type="button">← Retour</button>
+          <button class="k go" id="valid" type="button">✓ Valider</button>
+          <button id="actBtn" type="button" hidden></button><div id="actMenu" hidden></div>
         </div>
-        <button class="k go" id="valid" type="button">✓ Valider</button>
+        <div class="kbhint">Entrée = valider · Espace = changer de sens · flèches = se déplacer</div>
       </div>
     </div>
-  </div>
+  </section>
   <div class="overlay" id="solBox" hidden>
     <div class="sheet">
       <h2>Besoin d'aide ?</h2>
@@ -615,6 +672,7 @@ function prep(def){
   $("hint").textContent=def.hint||"";$("hint").hidden=!def.hint;
   $("mystOpen").hidden=!def.myst;
   $("htitle").textContent=def.name?def.name.toLowerCase():"grille "+def.page;
+  $("gname").innerHTML="<b>MOTS FLÉCHÉS</b> ";$("gname").append(def.name||("Page "+def.page));
   sel=null;pend={};
 }
 function drawArrows(){g.querySelectorAll(".ar").forEach(e=>e.remove());const f=g.querySelector(".q");if(!f)return;const cw=f.offsetWidth;if(cw<5)return;
@@ -658,7 +716,10 @@ function playerCard(i){const s=mySeat();
   return `<div class="pl ${G.turn===i&&!G.done?"active":""}" style="border-color:${PCOL[i]}"><span style="min-width:0;display:flex;flex-direction:column"><span class="nm" style="color:${PCOL[i]}"></span>${s===i?'<span class="me">c\'est toi</span>':''}</span><span class="tag">À son tour</span><span class="sc">${G.players[i].score}</span></div>`}
 function renderScores(){const el=$("scores");el.innerHTML="";const s=mySeat();
   G.players.forEach((p,i)=>{const d=document.createElement("div");d.className="chip"+(G.turn===i&&!G.done?" on":"")+(s===i?" me":"");d.style.setProperty("--pc",PCOL[i]);
-    d.innerHTML='<span class="nm"></span><b></b>';d.firstChild.textContent=p.name;d.lastChild.textContent=p.score;d.title=p.name+" : "+p.score+" points";el.appendChild(d)})}
+    d.innerHTML='<span class="nm"></span><b></b><span class="clk"></span>';d.firstChild.textContent=p.name;d.children[1].textContent=p.score;d.title=p.name+" : "+p.score+" points";
+    if(!G.solo&&G.timer)d.lastChild.textContent=Math.floor(G.timer/60)+":"+String(G.timer%60).padStart(2,"0");el.appendChild(d)});clockMirror()}
+function clockMirror(){const t=$("timer");if(!G)return;const i=G.solo?0:G.turn;const c=$("scores").children[i]?.querySelector(".clk");if(!c)return;
+  if(t.hidden&&!G.solo)return;c.textContent=t.hidden?"":t.textContent.replace("⏱ ","");c.classList.toggle("low",t.classList.contains("low"))}
 function fillBand(el,idx){el.innerHTML=idx.map(playerCard).join("");[...el.children].forEach((d,j)=>d.querySelector(".nm").textContent=G.players[idx[j]].name)}
 let prevScores=null,prevTurnKey=null,recorded=null;
 function render(){
@@ -811,7 +872,7 @@ $("prevW").onclick=()=>gotoWord(-1);$("nextW").onclick=()=>gotoWord(1);
 $("bartxt").addEventListener("pointerdown",e=>e.preventDefault());
 $("bartxt").onclick=()=>{if(sel)$("flip").click();else gotoWord(1)};
 document.addEventListener("pointerdown",e=>{if($("game").hidden)return;if(e.target.closest("#solBox,#mystBox,#menu,#menuBtn,#seatBox,.tools"))return;},true);
-["pass","clear","flip","solBtn","valid","actBtn"].forEach(id=>$(id).addEventListener("pointerdown",e=>e.preventDefault()));
+["pass","clear","flip","solBtn","valid","actBtn","menuBtn"].forEach(id=>$(id).addEventListener("pointerdown",e=>e.preventDefault()));
 function closeAct(){$("actMenu").hidden=true;$("actBtn").setAttribute("aria-expanded","false");$("actBtn").textContent="Actions ▴"}
 $("actBtn").onclick=e=>{e.stopPropagation();const m=$("actMenu");m.hidden=!m.hidden;$("actBtn").setAttribute("aria-expanded",String(!m.hidden));$("actBtn").textContent=m.hidden?"Actions ▴":"Fermer ▾"};
 $("actMenu").addEventListener("click",()=>setTimeout(closeAct,0));
@@ -824,8 +885,11 @@ document.addEventListener("keydown",e=>{if($("game").hidden||!G||e.target===kb)r
   if(e.key.startsWith("Arrow")&&sel){e.preventDefault();const [r,c]=sel.split(",").map(Number);const d={ArrowUp:[-1,0],ArrowDown:[1,0],ArrowLeft:[0,-1],ArrowRight:[0,1]}[e.key];
     let rr=r+d[0],cc=c+d[1];while(rr>=0&&rr<NR&&cc>=0&&cc<NC&&isQ(rr,cc)){rr+=d[0];cc+=d[1]}
     if(rr>=0&&rr<NR&&cc>=0&&cc<NC&&els[rr+","+cc]&&!els[rr+","+cc].classList.contains("q")){sel=rr+","+cc;dir=d[1]?"h":"v";if(!cellWords[sel]?.[dir])dir=dir==="h"?"v":"h";highlight()}}});
-$("menuBtn").onclick=e=>{e.stopPropagation();const m=$("menu");m.hidden=!m.hidden;$("menuBtn").setAttribute("aria-expanded",String(!m.hidden))};
-document.addEventListener("click",e=>{if(!$("menu").hidden&&!$("menu").contains(e.target)&&e.target!==$("menuBtn"))$("menu").hidden=true});
+function setMenu(open){$("menu").hidden=!open;$("menuBtn").setAttribute("aria-expanded",String(open));$("menuChev").textContent=open?"▴":"▾"}
+$("menuBtn").onclick=e=>{e.stopPropagation();setMenu($("menu").hidden)};
+$("menu").addEventListener("click",e=>{if(e.target.closest("button"))setTimeout(()=>setMenu(false),0)});
+$("retour").onclick=()=>goLobby();$("retour").addEventListener("pointerdown",e=>e.preventDefault());
+document.addEventListener("click",e=>{if(!$("menu").hidden&&!$("menu").contains(e.target)&&!$("menuBtn").contains(e.target))setMenu(false)});
 $("mystOpen").onclick=()=>{$("mystBox").hidden=false;if(canPlay()&&G.mystery==null)setTimeout(()=>$("mystIn").focus(),30)};
 $("mystClose").onclick=()=>{$("mystBox").hidden=true};
 $("mystIn").addEventListener("keydown",e=>{if(e.key==="Enter"){e.preventDefault();$("mystBtn").click()}});
@@ -861,7 +925,7 @@ function tick(){const el=$("timer");
   if(left<=0&&(canPlay()||left<=-4)&&col!==undefined){const p=G.players[G.turn];const stamp=G.turnStart;
     if(window.__toFor===stamp)return;window.__toFor=stamp;pend={};
     G.turn=nextTurn();G.turnStart=Date.now();G.msg=`Temps écoulé pour ${p.name} ! Au tour de ${G.players[G.turn].name}.`;G.msgKind="bad";save();render()}}
-setInterval(()=>{if(!$("game").hidden&&G)tick()},500);
+setInterval(()=>{if(!$("game").hidden&&G){tick();clockMirror()}},500);
 function closeSol(){$("solBox").hidden=true;revArmed=false;$("revAll").textContent="Voir toute la solution (fin de partie)"}
 $("solBtn").onclick=()=>{if(!canPlay())return;const w=sel&&cellWords[sel]?.[dir];const lvl=G.level||"normal";
   $("revLetter").hidden=lvl!=="facile";$("revLetter").disabled=!sel||G.filled[sel]!==undefined;
@@ -935,7 +999,7 @@ $("reactBtn").onclick=()=>{$("reactBox").hidden=false};$("reactClose").onclick=(
 function floatEmoji(e,mine,seat){const d=document.createElement("div");d.className="react";d.textContent=e;const chip=seat!=null?$("scores").children[seat]:null;const r=chip?chip.getBoundingClientRect():{left:innerWidth/2-20,top:innerHeight*.45};
   d.style.left=(r.left+(chip?r.width/2-20:0))+"px";d.style.top=(r.top+(chip?30:0))+"px";document.body.appendChild(d);setTimeout(()=>d.remove(),2300);if(!mine)sfx("pop")}
 const seenReact={};
-$("soundBtn").onclick=()=>setSound(!SOUND);$("soundBtn2").onclick=()=>{setSound(!SOUND);$("menu").hidden=true};
+$("soundBtn").onclick=()=>setSound(!SOUND);$("soundBtn2").onclick=()=>{setSound(!SOUND);setMenu(false)};
 setTimeout(()=>setSound(SOUND),0);
 function soloKey(id){return "fl-solo-"+id}
 function soloGame(id){try{const v=localStorage.getItem(soloKey(id));return v?JSON.parse(v):null}catch(e){return window.__solo?.[id]||null}}
@@ -965,7 +1029,7 @@ function openGame(fromHistory){prep(GRIDS.find(d=>d.id===pickId));const src=game
   $("lobby").hidden=true;$("game").hidden=false;$("game").style.display="flex";document.body.classList.add("playing");document.body.classList.toggle("mode-solo",!!(G&&G.solo));$("dock").hidden=false;
   if(!fromHistory){try{history.pushState({v:"game"},"")}catch(e){}}
   render();announce();requestAnimationFrame(vv);try{window.scrollTo(0,0)}catch(e){}}
-function goLobby(){$("htitle").textContent="entre amis";document.body.classList.toggle("mode-solo",MODE==="solo");$("game").hidden=true;$("game").style.display="";document.body.classList.remove("playing");$("menu").hidden=true;$("dock").hidden=true;$("lobby").hidden=false;G=null;pend={};announce();renderPicks();refreshResume();try{window.scrollTo(0,0)}catch(e){}}
+function goLobby(){$("htitle").textContent="entre amis";document.body.classList.toggle("mode-solo",MODE==="solo");$("game").hidden=true;$("game").style.display="";document.body.classList.remove("playing");setMenu(false);$("dock").hidden=true;$("lobby").hidden=false;G=null;pend={};announce();renderPicks();refreshResume();try{window.scrollTo(0,0)}catch(e){}}
 window.addEventListener("popstate",()=>{if(!$("game").hidden)goLobby()});
 $("start").onclick=()=>{
   const solo=MODE==="solo";
@@ -1003,7 +1067,7 @@ function applyTheme(m){document.body.classList.toggle("light",m==="light");const
 let THEME="dark";try{THEME=localStorage.getItem("fl-theme")||"dark"}catch(e){}
 applyTheme(THEME);
 $("themeBtn").onclick=()=>{THEME=THEME==="light"?"dark":"light";applyTheme(THEME)};
-$("themeBtn2").onclick=()=>{THEME=THEME==="light"?"dark":"light";applyTheme(THEME);$("menu").hidden=true};
+$("themeBtn2").onclick=()=>{THEME=THEME==="light"?"dark":"light";applyTheme(THEME);setMenu(false)};
 lobbyMode();
 (async()=>{
   const D={claude:"non",db:"non",ecriture:"?",synchro:"…"};const showDiag=()=>{const s="Diagnostic : navigateur "+D.claude+" · partie partagée "+D.db+" · droit de jouer "+D.ecriture+" · synchro "+D.synchro;$("diag").textContent=s;$("sync").title=s};
