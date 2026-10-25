@@ -278,7 +278,7 @@ body.playing #game{display:grid!important;grid-template-columns:minmax(0,1fr) au
 @media (min-width:900px){
   body.playing .wrap{max-width:1400px;padding-bottom:16px;padding-top:16px}
   body.playing #game{grid-template-columns:270px minmax(0,1fr) 270px;grid-template-rows:auto minmax(0,1fr) auto;
-    grid-template-areas:"left clue tools" "left grid tools" "left win acts";gap:12px 24px}
+    grid-template-areas:"left clue tools" "left grid acts" "left win acts";gap:12px 24px}
   .gname,.gsalon{display:flex}
   .gsalon{flex-wrap:wrap;margin-top:auto}
   .ginfo{display:flex;flex-direction:column;gap:8px;background:var(--card);border:1px solid var(--line);border-radius:var(--r-lg);padding:12px 14px}
@@ -307,14 +307,14 @@ body.playing #game{display:grid!important;grid-template-columns:minmax(0,1fr) au
   .chip::before{width:4px}
   .statusrow{min-height:0}.status{white-space:normal;font-size:.95rem}
   .progress{height:6px}
-  .gtools{display:flex;flex-direction:column;gap:8px;align-self:stretch;min-height:0;overflow:auto;padding-bottom:4px}
-  #menu{flex:none}
+  .gtools{display:block;align-self:start;z-index:20}
+  #menu{position:absolute;left:0;right:0;top:60px;max-height:calc(var(--vvh,100vh) - 110px);overflow:auto}
   .menubtn{width:100%;justify-content:space-between;height:52px;font-size:1.05rem}
-  #menu{position:static;min-width:0;width:100%;animation:none}
+  #menu{min-width:0;width:auto}
   .dock{position:static;display:contents;padding:0;background:none}
   .dock .in{display:contents}
   .cluebar{grid-area:clue;max-width:none}
-  .acts{grid-area:acts;display:flex!important;flex-direction:column-reverse;gap:10px}
+  .acts{grid-area:acts;display:flex!important;flex-direction:column-reverse;gap:10px;align-self:end}
   .acts .k{height:auto}
   .acts .k.go{min-height:64px;font-size:1.25rem}
   .acts .k.ret{min-height:48px}
