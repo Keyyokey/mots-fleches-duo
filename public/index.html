@@ -251,7 +251,7 @@ body.playing #game{display:grid!important;grid-template-columns:minmax(0,1fr) au
 #menu small{font-size:.75rem;color:var(--muted);font-weight:500}
 #menu .sep{height:1px;background:var(--line);margin:2px 4px}
 /* cartes joueurs : pseudo, score, chrono */
-.scores{display:flex!important;flex-direction:column;gap:5px}
+.scores{display:flex!important;flex-direction:column;gap:5px;flex:none!important}
 .chip{display:grid!important;grid-template-columns:minmax(0,1fr) auto auto;align-items:center;gap:8px;padding:6px 8px 6px 12px}
 .chip .clk{font-size:.86rem;font-weight:800;font-variant-numeric:tabular-nums;border-radius:8px;padding:3px 8px;background:var(--card2);color:var(--muted);min-width:3.4em;text-align:center}
 .chip.on .clk{background:var(--pc);color:#041b1d}
@@ -260,6 +260,19 @@ body.playing #game{display:grid!important;grid-template-columns:minmax(0,1fr) au
 .chip.on::after{display:none}
 .chip.on b{padding-right:0}
 .acts{grid-template-columns:1fr 2fr!important}
+.acts .kbhint{display:none}
+.k.ret .long{display:none}
+.chip .av{width:9px;height:9px;border-radius:50%;background:var(--line);font-size:0;flex:none}
+.chip.on .av{background:var(--pc);box-shadow:0 0 8px var(--pc)}
+.chip .who{display:flex;flex-direction:column;min-width:0}
+.chip .sub{display:none}
+.chip{grid-template-columns:auto minmax(0,1fr) auto auto!important}
+.ginfo{display:contents}
+.gi-row,.gi-myst{display:none!important}
+#barwho{font-size:.8rem;color:var(--warn);font-weight:600;white-space:nowrap}
+#barwho:empty{display:none}
+.minimyst{display:flex;gap:5px;flex-wrap:wrap;padding:0;background:none;border:none;box-shadow:none;min-height:0}
+.minimyst span{width:28px;height:28px;border-radius:50%;display:grid;place-items:center;font-size:.82rem;font-weight:800;background:var(--card2);border:1px solid var(--line);color:var(--muted)}
 .k.ret{font-size:1rem;background:var(--btn2);color:var(--ink)}
 /* grand écran : trois colonnes */
 @media (min-width:900px){
@@ -267,11 +280,28 @@ body.playing #game{display:grid!important;grid-template-columns:minmax(0,1fr) au
   body.playing #game{grid-template-columns:270px minmax(0,1fr) 270px;grid-template-rows:auto minmax(0,1fr) auto;
     grid-template-areas:"left clue tools" "left grid tools" "left win acts";gap:12px 24px}
   .gname,.gsalon{display:flex}
+  .gsalon{flex-wrap:wrap;margin-top:auto}
+  .ginfo{display:flex;flex-direction:column;gap:8px;background:var(--card);border:1px solid var(--line);border-radius:var(--r-lg);padding:12px 14px}
+  .gi-row{display:flex!important;justify-content:space-between;font-size:.84rem;color:var(--muted)}
+  .gi-row b{color:var(--ink)}
+  .gi-myst{display:flex!important}
+  .gi-myst[hidden]{display:none!important}
+  .gi-myst.gi-row{margin-top:4px}
+  .chip{grid-template-columns:auto minmax(0,1fr) auto!important;grid-template-areas:"av who sc" "ck ck ck"!important;column-gap:12px}
+  .chip .av{grid-area:av;width:42px;height:42px;font-size:1.05rem;font-weight:800;display:grid;place-items:center;color:#041b1d;background:var(--pc);box-shadow:none}
+  .chip:not(.on) .av{opacity:.75}
+  .chip .who{grid-area:who}
+  .chip .sub{display:block;font-size:.78rem;color:var(--muted);font-weight:500}
+  .chip.me .nm::after{content:""}
+  .acts .kbhint{display:block;font-size:.78rem;color:var(--muted);text-align:center}
+  .k.ret .long{display:inline}
+  .cluebar{width:clamp(min(100%,440px),var(--gw,100%),100%);justify-self:center;box-sizing:border-box}
+  #gpeers{flex-basis:100%;padding-left:13px}
   .gname{display:block}
   .gleft{gap:12px}
   .scores{gap:10px}
   .chip{grid-template-columns:minmax(0,1fr) auto;grid-template-areas:"nm sc" "ck ck";padding:12px 14px;border-radius:var(--r-lg);row-gap:10px}
-  .chip .nm{grid-area:nm;font-size:1.05rem}
+  .chip .nm{font-size:1.05rem}
   .chip b{grid-area:sc;font-size:1.6rem}
   .chip .clk{grid-area:ck;font-size:1.7rem;padding:6px 0;border-radius:10px;min-width:0}
   .chip::before{width:4px}
@@ -391,8 +421,13 @@ html,body{margin:0}img{max-width:100%}[hidden]{display:none!important}
       <div class="gname" id="gname"></div>
       <div class="scores" id="scores"></div>
       <div class="statusrow"><div class="status" id="status"></div><div class="timer" id="timer" hidden></div></div>
-      <div class="progress" id="prog" title="Grille remplie"><i></i></div>
-      <div class="gsalon" id="gsalon"><span class="dot" id="gdot"></span><span id="gsync"></span></div>
+      <div class="ginfo">
+        <div class="gi-row"><span>Grille remplie</span><b id="progPct">0 %</b></div>
+        <div class="progress" id="prog" title="Grille remplie"><i></i></div>
+        <div class="gi-row gi-myst" id="miniMystRow"><span>Mot mystère</span><span id="miniMystLen"></span></div>
+        <button type="button" class="minimyst gi-myst" id="miniMyst" aria-label="Proposer le mot mystère"></button>
+      </div>
+      <div class="gsalon" id="gsalon"><span class="dot" id="gdot"></span><span id="gsync"></span><span id="gpeers"></span></div>
     </aside>
     <div class="gtools tools">
       <button class="menubtn" id="menuBtn" type="button" aria-label="Menu" aria-expanded="false"><span>Menu</span><span class="chev" id="menuChev">▾</span></button>
@@ -425,13 +460,13 @@ html,body{margin:0}img{max-width:100%}[hidden]{display:none!important}
     </div>
     <div class="dock" id="dock" hidden>
       <div class="in">
-        <div class="cluebar"><button type="button" class="nav" id="prevW" aria-label="Mot précédent">‹</button><span class="dir" id="bardir">→</span><span id="bartxt">Touche une case ou une définition</span><button type="button" class="nav" id="nextW" aria-label="Mot suivant">›</button></div>
+        <div class="cluebar"><button type="button" class="nav" id="prevW" aria-label="Mot précédent">‹</button><span class="dir" id="bardir">→</span><span id="bartxt">Touche une case ou une définition</span><span id="barwho"></span><button type="button" class="nav" id="nextW" aria-label="Mot suivant">›</button></div>
         <div class="acts">
-          <button class="k ret" id="retour" type="button">← Retour</button>
+          <div class="kbhint">Entrée = valider · Espace = changer de sens</div>
+          <button class="k ret" id="retour" type="button">← Retour<span class="long"> aux grilles</span></button>
           <button class="k go" id="valid" type="button">✓ Valider</button>
           <button id="actBtn" type="button" hidden></button><div id="actMenu" hidden></div>
         </div>
-        <div class="kbhint">Entrée = valider · Espace = changer de sens · flèches = se déplacer</div>
       </div>
     </div>
   </section>
@@ -706,6 +741,7 @@ function takePeers(peers){peerPend={};peerWho=null;if(!G)return;
     if(any)peerWho=G.players[seat].name}}
 function showPeers(peers){const el=$("online");if(!peers){el.textContent="";return}
   const others=peers.filter(p=>!p.isMe&&p.kind==="viewer");
+  $("gpeers").textContent=(window.SALON?"Salon "+window.SALON+" · ":"")+(others.length+1)+" connecté"+(others.length?"s":"");
   if(!others.length){el.innerHTML="Personne d'autre n'a la page ouverte en ce moment.";return}
   const names=others.map(p=>{const n=p.presence&&p.presence.name;return n?String(n).slice(0,20):"un joueur (pas encore choisi)"});
   el.innerHTML="<b>●</b> Connecté"+(others.length>1?"s":"")+" en ce moment : ";el.append(names.join(", "))}
@@ -716,7 +752,10 @@ function playerCard(i){const s=mySeat();
   return `<div class="pl ${G.turn===i&&!G.done?"active":""}" style="border-color:${PCOL[i]}"><span style="min-width:0;display:flex;flex-direction:column"><span class="nm" style="color:${PCOL[i]}"></span>${s===i?'<span class="me">c\'est toi</span>':''}</span><span class="tag">À son tour</span><span class="sc">${G.players[i].score}</span></div>`}
 function renderScores(){const el=$("scores");el.innerHTML="";const s=mySeat();
   G.players.forEach((p,i)=>{const d=document.createElement("div");d.className="chip"+(G.turn===i&&!G.done?" on":"")+(s===i?" me":"");d.style.setProperty("--pc",PCOL[i]);
-    d.innerHTML='<span class="nm"></span><b></b><span class="clk"></span>';d.firstChild.textContent=p.name;d.children[1].textContent=p.score;d.title=p.name+" : "+p.score+" points";
+    d.innerHTML='<span class="av"></span><span class="who"><span class="nm"></span><span class="sub"></span></span><b></b><span class="clk"></span>';
+    d.querySelector(".av").textContent=(p.name||"?").trim().charAt(0).toUpperCase();d.querySelector(".nm").textContent=p.name;
+    d.querySelector(".sub").textContent=G.done?"":G.solo?"en solo":G.turn===i?(s===i||s==="all"?"à toi de jouer":"en train de jouer"):(s===i?"c'est toi · en attente":"en attente");
+    d.querySelector("b").textContent=p.score;d.title=p.name+" : "+p.score+" points";
     if(!G.solo&&G.timer)d.lastChild.textContent=Math.floor(G.timer/60)+":"+String(G.timer%60).padStart(2,"0");el.appendChild(d)});clockMirror()}
 function clockMirror(){const t=$("timer");if(!G)return;const i=G.solo?0:G.turn;const c=$("scores").children[i]?.querySelector(".clk");if(!c)return;
   if(t.hidden&&!G.solo)return;c.textContent=t.hidden?"":t.textContent.replace("⏱ ","");c.classList.toggle("low",t.classList.contains("low"))}
@@ -736,7 +775,8 @@ function render(){
     const b=document.createElement("button");b.type="button";b.textContent="Tout le monde (un seul appareil)";b.onclick=()=>{setSeat("all");render()};o.appendChild(b)}
   renderScores();
   const sc=G.players.map(p=>p.score);if(prevScores&&prevScores.gid===G.gid)sc.forEach((v,i)=>{if(v>(prevScores.v[i]??v)){const b=$("scores").children[i]?.querySelector("b");if(b){b.classList.remove("bump");void b.offsetWidth;b.classList.add("bump")}}});prevScores={gid:G.gid,v:sc};
-  const nf=ALL.filter(k=>G.filled[k]!==undefined).length;$("prog").firstChild.style.width=(ALL.length?Math.round(100*nf/ALL.length):0)+"%";$("prog").title="Grille remplie à "+(ALL.length?Math.round(100*nf/ALL.length):0)+" %";
+  const nf=ALL.filter(k=>G.filled[k]!==undefined).length;$("progPct").textContent=(ALL.length?Math.round(100*nf/ALL.length):0)+" %";
+  $("barwho").textContent=peerWho&&!canPlay()?peerWho+" écrit…":"";$("prog").firstChild.style.width=(ALL.length?Math.round(100*nf/ALL.length):0)+"%";$("prog").title="Grille remplie à "+(ALL.length?Math.round(100*nf/ALL.length):0)+" %";
   for(const k of ALL){const L=els[k].querySelector(".L");const f=G.filled[k];
     els[k].classList.remove("livecell");els[k].style.color="";els[k].classList.toggle("f",f!==undefined&&f>=0);if(f!==undefined&&f>=0)els[k].style.setProperty("--fc",PCOL[f]);
     if(f!==undefined){L.textContent=G.letters?.[k]||SOL[k];L.className="L";L.style.color=f===-2?"var(--reveal)":f<0?"var(--paperpen)":PCOL[f]}
@@ -751,6 +791,8 @@ function render(){
       else if(G.done){d.lastChild.textContent=cur.myst[n-1];d.lastChild.style.color=f!==undefined&&f>=0?PCOL[f]:"var(--reveal)"}
       else if(f!==undefined){d.lastChild.textContent=G.letters?.[k]||SOL[k];d.lastChild.style.color=f<0?"var(--paperpen)":PCOL[f]}
       m.appendChild(d)}}
+  {const mm=$("miniMyst");$("miniMystRow").hidden=mm.hidden=!cur.myst;if(cur.myst){$("miniMystLen").textContent=cur.myst.length+" lettres";mm.innerHTML="";
+    [...$("mys").children].forEach(c=>{const sp=document.createElement("span");const t=c.lastChild;sp.textContent=t.textContent;if(t.style.color)sp.style.color=t.style.color;mm.appendChild(sp)})}}
   const play=canPlay();
   const st=$("status");
   if(!G.done&&s!==null&&!play){st.className="status wait";st.textContent=peerWho?"✍️ "+peerWho+" est en train d'écrire…":(G.msg?G.msg+" ":"")+"En attente de "+G.players[G.turn].name+"…"}
@@ -890,6 +932,7 @@ $("menuBtn").onclick=e=>{e.stopPropagation();setMenu($("menu").hidden)};
 $("menu").addEventListener("click",e=>{if(e.target.closest("button"))setTimeout(()=>setMenu(false),0)});
 $("retour").onclick=()=>goLobby();$("retour").addEventListener("pointerdown",e=>e.preventDefault());
 document.addEventListener("click",e=>{if(!$("menu").hidden&&!$("menu").contains(e.target)&&!$("menuBtn").contains(e.target))setMenu(false)});
+$("miniMyst").onclick=()=>$("mystOpen").click();
 $("mystOpen").onclick=()=>{$("mystBox").hidden=false;if(canPlay()&&G.mystery==null)setTimeout(()=>$("mystIn").focus(),30)};
 $("mystClose").onclick=()=>{$("mystBox").hidden=true};
 $("mystIn").addEventListener("keydown",e=>{if(e.key==="Enter"){e.preventDefault();$("mystBtn").click()}});
@@ -901,8 +944,8 @@ function fit(){if($("game").hidden||!cur)return;const box=$("gridbox");const w=b
   // « ajusté » : toute la grille visible ; « grand » : au moins 46 px (lisible sur téléphone), sans dépasser la largeur sur grand écran
   const base=Math.min(fitW,fitH);const wide=window.innerWidth>=700;
   // ordinateur / tablette : la grille entière tient à l'écran ; téléphone : cases d'au moins 46 px pour lire les définitions (défilement si besoin)
-  const s=Math.max(24,Math.min(72,zoomI===0?base:wide?(zoomI===1?Math.max(base,34):Math.max(base,min)):Math.max(base,min)));
-  g.style.setProperty("--s",s+"px");requestAnimationFrame(()=>{drawArrows();fitClues();if(sel&&els[sel])els[sel].scrollIntoView({block:"nearest",inline:"nearest"})})}
+  const s=Math.max(24,Math.min(72,zoomI===0?base:wide?(zoomI===1?Math.max(base,26):Math.max(base,min)):Math.max(base,min)));
+  g.style.setProperty("--s",s+"px");$("game").style.setProperty("--gw",(s*NC+2*(NC-1)+10)+"px");requestAnimationFrame(()=>{drawArrows();fitClues();if(sel&&els[sel])els[sel].scrollIntoView({block:"nearest",inline:"nearest"})})}
 function fitClues(){g.querySelectorAll(".q > div").forEach(d=>{const sp=d.firstElementChild;if(!sp)return;d.style.fontSize="";sp.style.wordBreak="";sp.style.whiteSpace="";sp.style.maxWidth="";
   const base=parseFloat(getComputedStyle(d).fontSize);const W=d.clientWidth-2,H=d.clientHeight-1;
   // scrollWidth : un mot trop long dépasse même quand la boîte est limitée en largeur
