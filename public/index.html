@@ -120,7 +120,7 @@ body.playing > .wrap > header,body.playing .online,body.playing .net:not([hidden
 .dropdown button{text-align:left;min-height:44px;box-shadow:none}
 .dropdown .keys{font-size:.8rem;color:var(--muted);padding:2px 4px}
 .statusrow{display:flex;gap:8px;align-items:center;min-height:26px}
-.status{flex:1;min-width:0;text-align:left;font-size:.88rem;font-weight:500;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.status{flex:1;min-width:0;text-align:left;font-size:.88rem;font-weight:500;color:var(--muted);overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;line-height:1.3}
 .status.good{color:var(--good)} .status.bad{color:var(--bad)} .status.wait{color:var(--warn)}
 .timer{font-size:.95rem;font-weight:700;font-variant-numeric:tabular-nums;border-radius:999px;padding:3px 10px;background:var(--card);border:1px solid var(--line)}
 .timer.low{border-color:var(--bad);color:var(--bad);box-shadow:0 0 12px rgba(255,77,109,.35);animation:pulse 1s infinite}
@@ -219,7 +219,7 @@ input#kb{position:absolute;left:8px;bottom:6px;width:2px;height:2px;opacity:0;fo
 .turnflash{position:fixed;left:50%;top:38%;transform:translate(-50%,-50%) scale(.6);z-index:40;pointer-events:none;background:var(--glass);border:1px solid var(--accent);color:var(--ink);font-weight:800;font-size:1.35rem;padding:14px 24px;border-radius:var(--r-lg);box-shadow:0 0 40px var(--accent-glow);opacity:0;animation:tf 1.5s ease forwards}
 @keyframes tf{12%{opacity:1;transform:translate(-50%,-50%) scale(1.05)}25%{transform:translate(-50%,-50%) scale(1)}75%{opacity:1}100%{opacity:0;transform:translate(-50%,-60%) scale(1)}}
 #confetti{position:fixed;inset:0;z-index:45;pointer-events:none}
-.toast{position:fixed;left:50%;bottom:calc(var(--dockh,24px) + 12px);transform:translateX(-50%);z-index:60;background:var(--glass);border:1px solid var(--hair);color:var(--ink);padding:10px 16px;border-radius:999px;font-weight:600;font-size:.92rem;box-shadow:0 10px 30px var(--shadow);animation:fade .2s;transition:opacity .5s;max-width:92vw;text-align:center}
+.toast{position:fixed;left:50%;top:14px;transform:translateX(-50%);z-index:60;background:var(--glass);border:1px solid var(--hair);color:var(--ink);padding:10px 16px;border-radius:999px;font-weight:600;font-size:.92rem;box-shadow:0 10px 30px var(--shadow);animation:fade .2s;transition:opacity .5s;max-width:92vw;text-align:center}
 .toast.out{opacity:0}
 .react{position:fixed;z-index:46;pointer-events:none;font-size:2.4rem;animation:floatup 2.2s ease-out forwards}
 @keyframes floatup{0%{transform:translateY(0) scale(.5);opacity:0}15%{transform:translateY(-10px) scale(1.2);opacity:1}100%{transform:translateY(-140px) scale(1);opacity:0}}
@@ -278,7 +278,7 @@ body.playing #game{display:grid!important;grid-template-columns:minmax(0,1fr) au
 @media (min-width:900px){
   body.playing .wrap{max-width:1400px;padding-bottom:16px;padding-top:16px}
   body.playing #game{grid-template-columns:270px minmax(0,1fr) 270px;grid-template-rows:auto minmax(0,1fr) auto;
-    grid-template-areas:"left clue tools" "left grid acts" "left win acts";gap:12px 24px}
+    grid-template-areas:"left grid tools" "left grid clue" "left grid win" "left grid acts";grid-template-rows:auto auto minmax(0,1fr) auto;gap:12px 24px}
   .gname,.gsalon{display:flex}
   .gsalon{flex-wrap:wrap;margin-top:auto}
   .ginfo{display:flex;flex-direction:column;gap:8px;background:var(--card);border:1px solid var(--line);border-radius:var(--r-lg);padding:12px 14px}
@@ -295,7 +295,13 @@ body.playing #game{display:grid!important;grid-template-columns:minmax(0,1fr) au
   .chip.me .nm::after{content:""}
   .acts .kbhint{display:block;font-size:.78rem;color:var(--muted);text-align:center}
   .k.ret .long{display:inline}
-  .cluebar{width:clamp(min(100%,440px),var(--gw,100%),100%);justify-self:center;box-sizing:border-box}
+  .cluebar{grid-area:clue;flex-wrap:wrap;align-items:flex-start;padding:12px!important;gap:8px!important}
+  .cluebar .dir{order:-2}
+  .cluebar .nav{order:-1;margin-left:auto}
+  .cluebar #nextW{order:-1;margin-left:0}
+  #bartxt{flex-basis:100%;white-space:normal!important;font-size:1.25rem;line-height:1.3;overflow:visible}
+  #barwho{flex-basis:100%}
+  #winbox{align-self:start}
   #gpeers{flex-basis:100%;padding-left:13px}
   .gname{display:block}
   .gleft{gap:12px}
@@ -313,7 +319,7 @@ body.playing #game{display:grid!important;grid-template-columns:minmax(0,1fr) au
   #menu{min-width:0;width:auto}
   .dock{position:static;display:contents;padding:0;background:none}
   .dock .in{display:contents}
-  .cluebar{grid-area:clue;max-width:none}
+  .cluebar{max-width:none}
   .acts{grid-area:acts;display:flex!important;flex-direction:column-reverse;gap:10px;align-self:end}
   .acts .k{height:auto}
   .acts .k.go{min-height:64px;font-size:1.25rem}
@@ -321,6 +327,10 @@ body.playing #game{display:grid!important;grid-template-columns:minmax(0,1fr) au
   .kbhint{grid-area:acts;align-self:end;display:none}
   #gridbox{display:flex;align-items:flex-start;justify-content:center}
 }
+.livecard{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;border:1px solid var(--good);background:rgba(61,220,151,.08);border-radius:var(--r-lg);padding:12px 14px;box-shadow:0 0 22px rgba(61,220,151,.15)}
+.livecard .lt{font-weight:800}.livecard .ls{font-size:.86rem;color:var(--muted)}
+.gridbox.more{-webkit-mask-image:linear-gradient(90deg,#000 calc(100% - 26px),transparent);mask-image:linear-gradient(90deg,#000 calc(100% - 26px),transparent)}
+.gridbox.more.atend{-webkit-mask-image:none;mask-image:none}
 /* accueil sur grand écran : deux colonnes */
 .lcol{display:flex;flex-direction:column;gap:14px;min-width:0}
 @media (min-width:900px){
@@ -369,6 +379,7 @@ html,body{margin:0}img{max-width:100%}[hidden]{display:none!important}
 .tbl.on{border-color:var(--accent);box-shadow:0 0 0 1px var(--accent),0 0 18px var(--accent-soft);background:linear-gradient(135deg,var(--accent-soft),transparent)}
 .tbl .live{position:absolute;top:8px;right:9px;width:8px;height:8px;border-radius:50%;background:var(--good);box-shadow:0 0 8px var(--good)}
 @media (max-width:560px){.tables{grid-template-columns:repeat(2,minmax(0,1fr))}}
+body:not(.playing) #online{display:none}
 .offline{position:fixed;left:50%;top:10px;transform:translateX(-50%);z-index:50;background:var(--bad);color:#fff;padding:6px 14px;border-radius:999px;font-weight:600;font-size:.9rem}
 </style>
 </head>
@@ -377,12 +388,13 @@ html,body{margin:0}img{max-width:100%}[hidden]{display:none!important}
 
 
 <div class="wrap">
-  <header><h1><b>MOTS FLÉCHÉS</b> <span id="htitle">entre amis</span></h1><button class="ico themebtn" id="themeBtn" type="button" aria-label="Changer de thème" title="Mode clair / sombre">☀️</button><button class="ico themebtn" id="soundBtn" type="button" aria-label="Son" title="Activer / couper le son" style="right:max(62px,calc(env(safe-area-inset-right,0px) + 62px))">🔊</button></header>
+  <header><h1><b>MOTS FLÉCHÉS</b> <span id="htitle">duo</span></h1><button class="ico themebtn" id="themeBtn" type="button" aria-label="Changer de thème" title="Mode clair / sombre">☀️</button><button class="ico themebtn" id="soundBtn" type="button" aria-label="Son" title="Activer / couper le son" style="right:max(62px,calc(env(safe-area-inset-right,0px) + 62px))">🔊</button></header>
   <div class="net" id="net" hidden></div>
   <div class="online" id="online"></div>
 
   <section id="lobby" class="lobby">
    <div class="lcol lcol-a">
+    <div class="livecard" id="liveCard" hidden><div><div class="lt">⚔️ Partie en cours dans le salon</div><div class="ls" id="liveS"></div></div><button type="button" class="primary" id="liveBtn">▶ Rejoindre</button></div>
     <div class="pill"><span class="dot" id="ldot"></span><span id="sync">Connexion au salon…</span></div>
     <div class="daily" id="daily"><div><div class="t">🗓 Grille du jour</div><div class="s" id="dailyInfo"></div></div><button type="button" class="primary" id="dailyBtn">Jouer</button></div>
     <div class="stats soloOnly" id="stats"></div>
@@ -446,7 +458,7 @@ html,body{margin:0}img{max-width:100%}[hidden]{display:none!important}
     <aside class="gleft">
       <div class="gname" id="gname"></div>
       <div class="scores" id="scores"></div>
-      <div class="statusrow"><div class="status" id="status"></div><div class="timer" id="timer" hidden></div></div>
+      <div class="statusrow"><div class="status" id="status" role="status" aria-live="polite"></div><div class="timer" id="timer" hidden></div></div>
       <div class="ginfo">
         <div class="gi-row"><span>Grille remplie</span><b id="progPct">0 %</b></div>
         <div class="progress" id="prog" title="Grille remplie"><i></i></div>
@@ -471,7 +483,7 @@ html,body{margin:0}img{max-width:100%}[hidden]{display:none!important}
         <button type="button" id="chSeat">👤 Changer de joueur</button>
         <button type="button" id="back" hidden>← Autres grilles</button>
         <div class="keys" id="menuInfo"></div>
-        <div class="keys" id="diag"></div>
+        <div class="keys" id="diag" hidden></div>
       </div>
     </div>
     <div class="gridbox" id="gridbox"><div class="grid" id="g"></div></div>
@@ -644,9 +656,13 @@ html,body{margin:0}img{max-width:100%}[hidden]{display:none!important}
         +'<input id="joinCode" maxlength="5" autocomplete="off" autocapitalize="characters" spellcheck="false" aria-label="Code du salon"><div class="muted" id="joinCount">Connexion…</div>'
         +'<button type="submit" class="primary">Rejoindre</button><button type="button" id="joinOwn">Créer mon propre salon</button></form>';
       document.body.appendChild(ov);const inp=ov.querySelector("#joinCode");inp.value=code;
-      ov.querySelector("form").onsubmit=e=>{e.preventDefault();if(goSalon(inp.value))ov.remove();else{inp.classList.add("err");inp.focus()}};
+      ov.querySelector("form").onsubmit=e=>{e.preventDefault();if(goSalon(inp.value)){ov.remove();
+        // une partie est en cours : on y entre directement (il ne reste qu'à choisir sa place)
+        const lb=document.getElementById("liveBtn");if(lb&&!document.getElementById("liveCard").hidden)lb.click()}else{inp.classList.add("err");inp.focus()}};
       ov.querySelector("#joinOwn").onclick=()=>{location.href="/"};
-      showCount();setTimeout(()=>{try{inp.focus();inp.select()}catch(e){}},50);
+      showCount();if(!matchMedia("(pointer:coarse)").matches)setTimeout(()=>{try{inp.focus();inp.select()}catch(e){}},50);
+      const upd=()=>{const L=window.__liveGame&&window.__liveGame();const b=ov.querySelector("button[type=submit]");if(L){b.textContent="▶ Rejoindre la partie de "+L.g.players.map(p=>p.name).join(" et ");}};
+      upd();const t=setInterval(()=>{if(!ov.isConnected)return clearInterval(t);upd()},600);
     }else LS.set("fl-ok-"+code,"1");
     hashLoad.then(()=>{if(window.__restoredFromLink)note(window.__restoredFromLink+" partie(s) récupérée(s) depuis le lien ✓")});
 
@@ -799,7 +815,8 @@ function render(){
   prevTurnKey=turnKey;
   if(!G.solo&&!G.done&&s!==null&&s!=="all"&&s===G.turn)document.title="✍️ À toi ! — Mots Fléchés";else document.title="Mots Fléchés Duo";
   $("seatBox").hidden=s!==null;
-  if(s===null){const o=$("seatOpts");o.innerHTML="";G.players.forEach((p,i)=>{const b=document.createElement("button");b.type="button";b.textContent=p.name;b.style.borderColor=PCOL[i];b.style.color=PCOL[i];b.onclick=()=>{setSeat(i);render()};o.appendChild(b)});
+  if(s===null){const o=$("seatOpts");o.innerHTML="";const taken=new Set((window.__peersAll||[]).filter(p=>!p.isMe&&p.presence&&p.presence.gid===G.gid&&p.presence.seat!=null&&p.presence.seat!=="all").map(p=>Number(p.presence.seat)));
+    G.players.forEach((p,i)=>{const b=document.createElement("button");b.type="button";b.textContent=p.name+(taken.has(i)?" (déjà connecté)":"");b.disabled=taken.has(i);b.style.borderColor=PCOL[i];b.style.color=PCOL[i];b.onclick=()=>{setSeat(i);render()};o.appendChild(b)});
     const b=document.createElement("button");b.type="button";b.textContent="Tout le monde (un seul appareil)";b.onclick=()=>{setSeat("all");render()};o.appendChild(b)}
   renderScores();
   const sc=G.players.map(p=>p.score);if(prevScores&&prevScores.gid===G.gid)sc.forEach((v,i)=>{if(v>(prevScores.v[i]??v)){const b=$("scores").children[i]?.querySelector("b");if(b){b.classList.remove("bump");void b.offsetWidth;b.classList.add("bump")}}});prevScores={gid:G.gid,v:sc};
@@ -823,8 +840,9 @@ function render(){
     [...$("mys").children].forEach(c=>{const sp=document.createElement("span");const t=c.lastChild;sp.textContent=t.textContent;if(t.style.color)sp.style.color=t.style.color;mm.appendChild(sp)})}}
   const play=canPlay();
   const st=$("status");
-  if(!G.done&&s!==null&&!play){st.className="status wait";st.textContent=peerWho?"✍️ "+peerWho+" est en train d'écrire…":(G.msg?G.msg+" ":"")+"En attente de "+G.players[G.turn].name+"…"}
-  else{st.className="status "+(G.msgKind||"");st.textContent=G.msg||(play?"À toi de jouer !":"")}
+  const again=G.again&&!G.done&&!G.solo?(s===G.turn||s==="all"?" Tu rejoues.":" "+G.players[G.turn].name+" rejoue."):"";
+  if(!G.done&&s!==null&&!play){st.className="status wait";st.textContent=peerWho?"✍️ "+peerWho+" est en train d'écrire…":(G.msg?G.msg+again+" ":"")+(again?"":"En attente de "+G.players[G.turn].name+"…")}
+  else{st.className="status "+(G.msgKind||"");st.textContent=G.msg?G.msg+again:(play?"À toi de jouer !":"")}
   ["valid","clear","pass","flip","solBtn","actBtn"].forEach(id=>$(id).disabled=!play);if(!play)closeAct();
   $("pass").hidden=!!G.solo;
   if(!play&&document.activeElement===kb)kb.blur();
@@ -853,7 +871,8 @@ function highlight(){
   if(w){w.cells.forEach(x=>els[x].classList.add("word"));els[w.q].children[w.qi].classList.add("hl");
     $("bartxt").textContent=w.text+" ("+w.cells.length+" lettre"+(w.cells.length>1?"s":"")+")";$("bardir").textContent=w.dir==="h"?"→ horizontal":"↓ vertical"}
   els[sel].classList.add("sel");
-  try{els[sel].scrollIntoView({block:"nearest",inline:"nearest"})}catch(e){}
+  try{if(w&&els[w.q])els[w.q].scrollIntoView({block:"nearest",inline:"nearest"});els[sel].scrollIntoView({block:"nearest",inline:"nearest"})}catch(e){}
+  scrollHint()
 }
 function buzz(ms){try{navigator.vibrate&&navigator.vibrate(ms)}catch(e){}}
 function animateLast(){
@@ -906,6 +925,7 @@ function validate(){
     pend={};
     if(G.solo){G.msg=`Raté${pen} ! ${bad.length} lettre${bad.length>1?"s":""} fausse${bad.length>1?"s":""}. Réessaie.`}
     else{G.turn=nextTurn();G.turnStart=Date.now();G.msg=`Raté pour ${p.name}${pen} ! Au tour de ${G.players[G.turn].name}.`}
+    if(lvl==="normal")G.msg+=" (au niveau Normal, une faute efface tout l'essai)";
     G.msgKind="bad";
     bump(bad,false,wrong);save();render();
     bad.forEach(k=>{els[k].classList.add("wrong");els[k].querySelector(".L").textContent=wrong[k]});
@@ -914,7 +934,7 @@ function validate(){
   let pts=0;ks.forEach(k=>{G.filled[k]=G.turn;G.letters[k]=pend[k];pts+=1+(cur.nums[k]?2:0)});
   let done=0;words.forEach(w=>{if(!w.cells.length)return;const full=w.cells.every(x=>G.filled[x]!==undefined);const was=w.cells.every(x=>before.has(x));if(full&&!was)done++});
   pts+=3*done;p.score+=pts;pend={};
-  G.msg=`Bravo ${p.name} ! +${pts} point${pts>1?"s":""}${done?` (${done} mot${done>1?"s":""} terminé${done>1?"s":""})`:""}.`+(G.solo?"":" Tu rejoues.");G.msgKind="good";
+  G.msg=`Bravo ${p.name} ! +${pts} point${pts>1?"s":""}${done?` (${done} mot${done>1?"s":""} terminé${done>1?"s":""})`:""}.`;G.again=!G.solo;G.msgKind="good";
   G.turnStart=Date.now();
   if(ALL.every(k=>G.filled[k]!==undefined)){p.score+=20;G.done=true;G.msg=`${p.name} termine la grille : +${pts} et +20 points de bonus !`;G.msgKind="good"}
   const ord=[...ks].sort((a,b)=>{const [r1,c1]=a.split(",").map(Number),[r2,c2]=b.split(",").map(Number);return r1-r2||c1-c2});
@@ -973,7 +993,9 @@ function fit(){if($("game").hidden||!cur)return;const box=$("gridbox");const w=b
   const base=Math.min(fitW,fitH);const wide=window.innerWidth>=700;
   // ordinateur / tablette : la grille entière tient à l'écran ; téléphone : cases d'au moins 46 px pour lire les définitions (défilement si besoin)
   const s=Math.max(24,Math.min(72,zoomI===0?base:wide?(zoomI===1?Math.max(base,26):Math.max(base,min)):Math.max(base,min)));
-  g.style.setProperty("--s",s+"px");$("game").style.setProperty("--gw",(s*NC+2*(NC-1)+10)+"px");requestAnimationFrame(()=>{drawArrows();fitClues();if(sel&&els[sel])els[sel].scrollIntoView({block:"nearest",inline:"nearest"})})}
+  g.style.setProperty("--s",s+"px");$("game").style.setProperty("--gw",(s*NC+2*(NC-1)+10)+"px");requestAnimationFrame(()=>{drawArrows();fitClues();scrollHint();if(sel&&els[sel])els[sel].scrollIntoView({block:"nearest",inline:"nearest"})})}
+function scrollHint(){const b=$("gridbox");if(!b)return;const more=b.scrollWidth>b.clientWidth+4;b.classList.toggle("more",more);b.classList.toggle("atend",b.scrollLeft+b.clientWidth>=b.scrollWidth-4)}
+$("gridbox").addEventListener("scroll",scrollHint,{passive:true});
 function fitClues(){g.querySelectorAll(".q > div").forEach(d=>{const sp=d.firstElementChild;if(!sp)return;d.style.fontSize="";sp.style.wordBreak="";sp.style.whiteSpace="";sp.style.maxWidth="";
   const base=parseFloat(getComputedStyle(d).fontSize);const W=d.clientWidth-2,H=d.clientHeight-1;
   // scrollWidth : un mot trop long dépasse même quand la boîte est limitée en largeur
@@ -1022,7 +1044,7 @@ $("pass").onclick=()=>{if(!canPlay())return;const p=G.players[G.turn];pend={};G.
 $("mystBtn").onclick=()=>{if(!canPlay()||G.mystery!=null)return;$("mystBox").hidden=true;
   const v=norm($("mystIn").value).replace(/[^A-Z]/g,"");if(!v)return;
   const p=G.players[G.turn];$("mystIn").value="";
-  if(v===cur.myst){sfx("myst");confetti();p.score+=20;G.mystery=G.turn;G.turnStart=Date.now();G.msg=`${p.name} trouve le mot mystère ! +20 points. Tu rejoues.`;G.msgKind="good"}
+  if(v===cur.myst){sfx("myst");confetti();p.score+=20;G.mystery=G.turn;G.turnStart=Date.now();G.msg=`${p.name} trouve le mot mystère ! +20 points.`;G.again=!G.solo;G.msgKind="good"}
   else if(G.solo){sfx("bad");if((G.level||"normal")==="difficile")p.score-=5;G.msg=`« ${v} » n'est pas le mot mystère.`+((G.level||"normal")==="difficile"?" (−5 points)":"");G.msgKind="bad"}
   else{G.turn=nextTurn();G.turnStart=Date.now();G.msg=`« ${v} » n'est pas le mot mystère. Au tour de ${G.players[G.turn].name}.`;G.msgKind="bad"}
   save();render()};
@@ -1093,19 +1115,24 @@ function renderPicks(){const sel_=$("gsel");sel_.innerHTML="";
   h.textContent=(d.lvl?({facile:"Grille facile, mots courants. ",moyen:"Grille moyenne. ",difficile:"Grille difficile, mots plus longs. "}[d.lvl]):"")+(d.myst?d.hint:(d.pic?"Grande grille illustrée, sans mot mystère.":"Sans mot mystère."))+" "+(d.nr)+" lignes.";
   if(gm&&!gm.done){const b=document.createElement("b");b.textContent=" Partie en cours : "+gm.players.map(p=>p.name).join(", ");h.appendChild(b)}}
 $("gsel").addEventListener("change",()=>{pickId=$("gsel").value;$("start").dataset.confirm="";$("start").textContent="▶ Lancer la partie";$("lerr").textContent="";renderPicks();refreshResume()});
-function refreshResume(){const gm=gameFor(pickId);const r=$("resume");
+function liveGame(){let best=null;for(const id in games){const g=games[id];if(g&&g.players&&!g.done&&!g.solo&&GRIDS.find(d=>d.id===id)&&(!best||(g.turnStart||0)>(best.g.turnStart||0)))best={id,g}}return best}
+function renderLive(){const L=liveGame();const c=$("liveCard");c.hidden=!L;if(!L)return;const d=GRIDS.find(x=>x.id===L.id);
+  $("liveS").textContent=L.g.players.map(p=>p.name+" ("+p.score+")").join(" contre ")+" · "+gLabel(d);
+  $("liveBtn").onclick=()=>{MODE="multi";try{localStorage.setItem("fl-mode",MODE)}catch(e){}pickId=L.id;openGame()}}
+window.__liveGame=liveGame;
+function refreshResume(){renderLive();const gm=gameFor(pickId);const r=$("resume");
   if(gm&&!gm.done){r.hidden=false;$("resumeInfo").textContent=gm.players.map(p=>p.name+" : "+p.score+" pts").join(" · ")+" · "+({facile:"Facile",normal:"Normal",difficile:"Difficile"}[gm.level||"normal"]);gm.players.forEach((p,i)=>$("n"+i).value=p.name);syncExtra()}
   else r.hidden=true}
 function openGame(fromHistory){prep(GRIDS.find(d=>d.id===pickId));const src=gameFor(pickId);G=src?JSON.parse(JSON.stringify(src)):G;seenLast=G?.last?.n??null;
   $("lobby").hidden=true;$("game").hidden=false;$("game").style.display="flex";document.body.classList.add("playing");document.body.classList.toggle("mode-solo",!!(G&&G.solo));$("dock").hidden=false;
   if(!fromHistory){try{history.pushState({v:"game"},"")}catch(e){}}
   render();announce();requestAnimationFrame(vv);try{window.scrollTo(0,0)}catch(e){}}
-function goLobby(){$("htitle").textContent="entre amis";document.body.classList.toggle("mode-solo",MODE==="solo");$("game").hidden=true;$("game").style.display="";document.body.classList.remove("playing");setMenu(false);$("dock").hidden=true;$("lobby").hidden=false;G=null;pend={};announce();renderPicks();refreshResume();try{window.scrollTo(0,0)}catch(e){}}
+function goLobby(){$("htitle").textContent="duo";document.body.classList.toggle("mode-solo",MODE==="solo");$("game").hidden=true;$("game").style.display="";document.body.classList.remove("playing");setMenu(false);$("dock").hidden=true;$("lobby").hidden=false;G=null;pend={};announce();renderPicks();refreshResume();try{window.scrollTo(0,0)}catch(e){}}
 window.addEventListener("popstate",()=>{if(!$("game").hidden)goLobby()});
 $("start").onclick=()=>{
   const solo=MODE==="solo";
   const names=(solo?[0]:[0,1,2,3]).map(i=>$("n"+i).value.trim()).filter(Boolean);
-  if(solo&&!names.length){$("lerr").textContent="Écris ton pseudo pour jouer.";return}
+  if(solo&&!names.length)names.push("Moi");
   if(!solo&&names.length<2){$("lerr").textContent="Il faut au moins 2 pseudos pour jouer.";return}
   const ex=gameFor(pickId);
   if(ex&&!ex.done&&$("start").dataset.confirm!=="1"){$("start").dataset.confirm="1";$("start").textContent="Confirmer : effacer la partie en cours";
@@ -1126,7 +1153,7 @@ $("chSeat").onclick=()=>{try{localStorage.removeItem(seatKey())}catch(e){if(wind
 function setSync(on,t){$("ldot").classList.toggle("on",on);$("gdot").classList.toggle("on",on);$("sync").textContent=t;$("gsync").textContent=t}
 function net(html){const n=$("net");if(!html){n.hidden=true;return}n.hidden=false;n.innerHTML=html}
 const NOACCESS="<b>Tu peux regarder la partie, mais pas jouer.</b> Recharge la page ; si le problème continue, crée un nouveau salon.";
-async function save(){if(G&&G.solo){if(G.done&&!G.ended)G.ended=Date.now();try{localStorage.setItem(soloKey(G.grid),JSON.stringify(G))}catch(e){(window.__solo=window.__solo||{})[G.grid]=JSON.parse(JSON.stringify(G))}return}
+async function save(){if(G&&G.msgKind!=="good")G.again=false;if(G&&G.solo){if(G.done&&!G.ended)G.ended=Date.now();try{localStorage.setItem(soloKey(G.grid),JSON.stringify(G))}catch(e){(window.__solo=window.__solo||{})[G.grid]=JSON.parse(JSON.stringify(G))}return}
   if(!col||!G)return;try{await col.doc(G.grid).set(JSON.parse(JSON.stringify(G)));net(null);window.__diag&&window.__diag("ecriture","oui")}
   catch(e){const c=e&&e.code;window.__diag&&window.__diag("ecriture","REFUSÉ ("+(c||"erreur")+")");setSync(false,"Coup non enregistré ("+(c||"erreur")+")");
     net(c==="not_granted"||c==="revoked"||c==="invalid_argument"?NOACCESS:"<b>Ton coup n'a pas été enregistré.</b> Vérifie ta connexion internet puis recharge la page ("+(c||"erreur")+").")}}
@@ -1139,6 +1166,7 @@ let THEME="dark";try{THEME=localStorage.getItem("fl-theme")||"dark"}catch(e){}
 applyTheme(THEME);
 $("themeBtn").onclick=()=>{THEME=THEME==="light"?"dark":"light";applyTheme(THEME)};
 $("themeBtn2").onclick=()=>{THEME=THEME==="light"?"dark":"light";applyTheme(THEME);setMenu(false)};
+if(/[?&]debug/.test(location.search))$("diag").hidden=false;
 lobbyMode();
 (async()=>{
   const D={claude:"non",db:"non",ecriture:"?",synchro:"…"};const showDiag=()=>{const s="Diagnostic : navigateur "+D.claude+" · partie partagée "+D.db+" · droit de jouer "+D.ecriture+" · synchro "+D.synchro;$("diag").textContent=s;$("sync").title=s};
@@ -1149,7 +1177,7 @@ lobbyMode();
   if(!db){setSync(false,"Mode local : la partie reste sur cet appareil.");
     net("<b>Cet appareil n'est pas relié à la partie partagée.</b> Les coups ne partent pas chez l'autre joueur. Vérifie ta connexion internet puis recharge la page.");return}
   try{const user=await window.claude.use("user");const w=user?await user.can("data.write"):null;window.__diag("ecriture",w===true?"oui":w===false?"NON":"inconnu");if(w===false)net(NOACCESS)}catch(e){}
-  try{room=await window.claude.use("room");if(room){room.onPeers(ch=>{showPeers(ch.peers);takePeers(ch.peers);if(!$("game").hidden&&G)render()},()=>showPeers(null));announce()}}catch(e){}
+  try{room=await window.claude.use("room");if(room){room.onPeers(ch=>{window.__peersAll=ch.peers;showPeers(ch.peers);takePeers(ch.peers);if(!$("game").hidden&&G)render()},()=>showPeers(null));announce()}}catch(e){}
   col=db.collection("games");
   setSync(true,"Salon partagé en direct");
   col.onSnapshot(snap=>{const m={};snap.docs.forEach(d=>{const v=d.data();if(v&&v.players)m[d.id]=JSON.parse(JSON.stringify(v))});games=m;

@@ -128,13 +128,14 @@ body.light .k.go{color:#fff}
 .sheet{background:var(--glass);border:1px solid var(--hair);border-radius:var(--r-lg);padding:18px;display:flex;flex-direction:column;gap:10px;max-width:420px;width:100%;text-align:center;box-shadow:0 20px 60px var(--shadow)}
 .sheet h3{margin:0}
 .opts{display:flex;flex-wrap:wrap;gap:8px;justify-content:center}.opts button{flex:1 1 140px}
-.toast{position:fixed;left:50%;bottom:90px;transform:translateX(-50%);z-index:60;background:var(--glass);border:1px solid var(--hair);padding:10px 16px;border-radius:999px;font-weight:600;box-shadow:0 10px 30px var(--shadow);transition:opacity .5s;max-width:92vw;text-align:center}
+.toast{position:fixed;left:50%;top:14px;transform:translateX(-50%);z-index:60;background:var(--glass);border:1px solid var(--hair);padding:10px 16px;border-radius:999px;font-weight:600;box-shadow:0 10px 30px var(--shadow);transition:opacity .5s;max-width:92vw;text-align:center}
 .toast.out{opacity:0}
 .flash{position:fixed;left:50%;top:38%;transform:translate(-50%,-50%);z-index:45;pointer-events:none;background:var(--glass);border:1px solid var(--accent);font-weight:800;font-size:1.3rem;padding:14px 24px;border-radius:var(--r-lg);box-shadow:0 0 40px rgba(0,173,181,.5);animation:fl 1.5s forwards}
 @keyframes fl{0%{opacity:0;transform:translate(-50%,-50%) scale(.6)}15%{opacity:1;transform:translate(-50%,-50%) scale(1.05)}75%{opacity:1}100%{opacity:0}}
 #confetti{position:fixed;inset:0;z-index:44;pointer-events:none}
 /* ---------- Tourniquet ---------- */
-.rond{--R:40px;--B:calc(var(--R)*.62);--C:calc(var(--R)*1.3);position:relative;margin:4px auto;width:calc(var(--R)*10.392 + var(--B) + 6px);height:calc(var(--R)*6 + var(--B) + 6px);flex:none}
+.rholder{display:flex;flex-direction:column;align-items:center;gap:6px;--R:40px}
+.rond{--nc:6;--B:calc(var(--R)*.62);--C:calc(var(--R)*1.3);position:relative;margin:0 auto;width:calc(var(--R)*1.732*var(--nc) + var(--B) + 6px);height:calc(var(--R)*6 + var(--B) + 6px);flex:none}
 .rc{z-index:1;position:absolute;width:var(--C);height:var(--C);border-radius:50%;transform:translate(-50%,-50%);background:var(--clue);color:var(--clue-ink);display:grid;place-items:center;text-align:center;padding:6px;cursor:pointer;font-family:"Roboto Condensed","Arial Narrow",sans-serif;font-size:calc(var(--C)*.15);line-height:1.08;border:2px solid transparent;transition:border-color .15s,box-shadow .15s,background .15s;overflow:hidden;word-break:normal}
 .rc span{display:block;max-width:100%}
 .rc:active{transform:translate(-50%,-50%) scale(.96)}
@@ -142,6 +143,7 @@ body.light .k.go{color:#fff}
 .rc.done{background:color-mix(in srgb,var(--fc) 18%,var(--card));color:var(--muted)}
 .rc.done span{text-decoration:line-through;opacity:.7}
 .rb{z-index:2;pointer-events:none;position:absolute;width:var(--B);height:var(--B);border-radius:50%;transform:translate(-50%,-50%);background:var(--cellbg);border:1px solid var(--line);display:grid;place-items:center;font-weight:800;font-size:calc(var(--B)*.55);color:var(--ink);transition:background .15s,transform .15s}
+.rholder .rond + .rond .rb[data-b^="rs-2-"],.rholder .rond:first-child:not(:only-child) .rb[data-b^="rs-2-"]{outline:2px dashed var(--accent);outline-offset:1px}
 .rb.first::after{content:"";position:absolute;bottom:-7px;left:50%;transform:translateX(-50%);border:5px solid transparent;border-top:6px solid var(--accent);border-bottom:0}
 .rb.hint{color:var(--muted);background:var(--card2)}
 .rb.pend{color:var(--ink);background:color-mix(in srgb,var(--accent) 30%,var(--cellbg))}
@@ -204,13 +206,14 @@ body.light .k.go{color:#fff}
           <div style="display:flex;gap:8px"><a class="wa" id="wa" target="_blank" rel="noopener">WhatsApp</a><button type="button" id="copy">Copier le lien</button></div></div>
         <div class="count" id="count">Connexion…</div>
       </div>
+      <div class="card invite" id="liveCard" hidden><div style="font-weight:800" id="liveT"></div><div class="muted" style="font-size:.86rem" id="liveS"></div><button type="button" class="primary" id="liveBtn">▶ Rejoindre la partie</button></div>
       <div class="card" id="dailyCard" hidden><div style="display:flex;justify-content:space-between;align-items:center;gap:10px"><div><div style="font-weight:800" id="dailyT"></div><div class="muted" style="font-size:.85rem" id="dailyS"></div></div><button type="button" class="primary" id="dailyBtn">Jouer</button></div></div>
     </div>
     <div class="lcol lcol-b panel">
       <h2>1. Mode de jeu</h2>
-      <div class="seg" id="modeSeg" role="radiogroup"><button type="button" data-v="solo" role="radio">👤 Solo</button><button type="button" data-v="multi" role="radio">⚔️ En duel</button></div>
+      <div class="seg" id="modeSeg" role="radiogroup"><button type="button" data-v="solo" role="radio">👤 Solo</button><button type="button" data-v="multi" role="radio">👥 À plusieurs</button></div>
       <h2>2. Difficulté</h2>
-      <div class="seg" id="lvlSeg" role="radiogroup"><button type="button" data-v="facile" role="radio">🌱 Facile</button><button type="button" data-v="moyen" role="radio">⚖️ Moyen</button><button type="button" data-v="difficile" role="radio">🔥 Difficile</button></div>
+      <div class="seg" id="lvlSeg" role="radiogroup"><button type="button" data-v="facile" role="radio">🌱 Facile</button><button type="button" data-v="moyen" role="radio">⚖️ Normal</button><button type="button" data-v="difficile" role="radio">🔥 Difficile</button></div>
       <h2 id="pickT">3. Grille</h2>
       <div class="pickrow"><select id="pick" aria-label="Choix de la grille"></select></div>
       <div class="muted" id="pickInfo" style="font-size:.86rem"></div>
@@ -229,7 +232,7 @@ body.light .k.go{color:#fff}
     <aside class="gleft">
       <div class="gname" id="gname"></div>
       <div class="scores" id="scores"></div>
-      <div class="status" id="status"></div>
+      <div class="status" id="status" role="status" aria-live="polite"></div>
       <div class="progress"><i id="prog"></i></div>
       <div class="gsalon" id="gsalon"></div>
     </aside>
@@ -328,7 +331,7 @@ function onPeers(){const n=peers.length;const c=$("count");c.textContent=n<=1?"T
   $("gsalon").textContent="Salon "+CODE+" · "+n+" connecté"+(n>1?"s":"");if(G&&!$("game").hidden)render()}
 
 // ---------- état ----------
-let G=null,MODE=LS.get("fl-j-mode","multi"),LEVEL=LS.get("fl-j-lvl","facile"),sel=null,typed="",prevTurnKey=null,seenLast=null,prevScores=null;
+let SPLIT=false,G=null,MODE=LS.get("fl-j-mode","multi"),LEVEL=LS.get("fl-j-lvl","facile"),sel=null,typed="",prevTurnKey=null,seenLast=null,prevScores=null;
 function seatKey(){return "fleches-seat:"+(G&&G.gid)}
 function mySeat(){if(!G)return null;if(G.solo)return 0;try{const v=localStorage.getItem(seatKey());return v===null?null:(v==="all"?"all":Number(v))}catch(e){return null}}
 function setSeat(v){try{localStorage.setItem(seatKey(),String(v))}catch(e){}announce()}
@@ -363,6 +366,7 @@ function renderLobby(){
   $("timerRow").hidden=GAME==="rond"&&MODE==="solo";
   const box=$("players");const names=LS.get("fl-names",["",""]);if(!box.children.length){for(let i=0;i<4;i++){const l=document.createElement("label");l.innerHTML='<span class="sw" style="background:'+PCOL[i]+';color:'+PCOL[i]+'"></span><input type="text" maxlength="14">';l.lastChild.id="n"+i;l.lastChild.value=names[i]||"";l.lastChild.placeholder=i<2?"Pseudo du joueur "+(i+1):"Joueur "+(i+1)+" (facultatif)";if(i>=2&&!names[i])l.hidden=true;box.appendChild(l)}}
   [...box.children].forEach((l,i)=>{if(i>0)l.classList.toggle("multiHide",MODE==="solo");l.style.display=MODE==="solo"&&i>0?"none":"";if(i===0)l.lastChild.placeholder=MODE==="solo"?"Ton pseudo":"Pseudo du joueur 1"});
+  {const live=currentShared();const on=live&&!live.done;$("liveCard").hidden=!on;if(on){$("liveT").textContent="⚔️ Partie en cours dans le salon";$("liveS").textContent=live.players.map(p=>p.name+" ("+p.score+")").join(" contre ")+" · "+(live.title||"");$("liveBtn").onclick=()=>{MODE="multi";LS.set("fl-j-mode",MODE);openGame(live)}}}
   const gm=gameFor();$("resume").hidden=!(gm&&!gm.done);if(gm&&!gm.done)$("resumeInfo").textContent=gm.players.map(p=>p.name+" : "+p.score).join(" · ")+" · "+(gm.title||"");
   // grille du jour
   if(GAME==="rond"){const all=ROND;const d=all[dayIdx(all.length)];$("dailyCard").hidden=false;$("dailyT").textContent="🗓 Tourniquet du jour";$("dailyS").textContent=d.name;$("dailyBtn").onclick=()=>{LEVEL=d.lvl;PICK=d.id;renderLobby();$("start").scrollIntoView({block:"center",behavior:"smooth"});toast("Tourniquet du jour sélectionné ✓")}}
@@ -376,7 +380,7 @@ $("copy").onclick=e=>{const link=location.origin+"/"+CODE+"/"+GAME;(navigator.cl
 $("resumeBtn").onclick=()=>openGame(gameFor());
 $("start").onclick=()=>{
   const solo=MODE==="solo";const names=(solo?[0]:[0,1,2,3]).map(i=>$("n"+i).value.trim()).filter(Boolean);
-  if(solo&&!names.length){$("lerr").textContent="Écris ton pseudo pour jouer.";return}
+  if(solo&&!names.length){names.push("Moi")}
   if(!solo&&names.length<2){$("lerr").textContent="Il faut au moins 2 pseudos pour un duel.";return}
   const ex=gameFor();if(ex&&!ex.done&&$("start").dataset.c!=="1"){$("start").dataset.c="1";$("start").textContent="Confirmer : remplacer la partie en cours";$("lerr").textContent="Une partie est en cours sur cette table. « Reprendre » pour la rejoindre.";return}
   $("start").dataset.c="";$("start").textContent="▶ Lancer la partie";$("lerr").textContent="";
@@ -415,20 +419,23 @@ function tick(){if(!G)return;const chips=$("scores").children;[...chips].forEach
   if(!G.timer){[...chips].forEach(x=>x.querySelector(".clk").textContent="");return}
   [...chips].forEach((x,i)=>{if(i!==G.turn)x.querySelector(".clk").textContent=fmt(G.timer)});
   const left=Math.ceil((G.turnStart+G.timer*1000-Date.now())/1000);k.textContent=fmt(Math.max(0,left));k.classList.toggle("low",left<=10);
-  if(left<=0&&(canPlay()||left<=-4)&&window.__to!==G.turnStart){window.__to=G.turnStart;const p=G.players[G.turn];typed="";G.turn=(G.turn+1)%G.players.length;G.turnStart=Date.now();G.msg="Temps écoulé pour "+p.name+" ! Au tour de "+G.players[G.turn].name+".";G.msgKind="bad";save();render()}}
+  if(left<=0&&(canPlay()||left<=-4)&&window.__to!==G.turnStart){window.__to=G.turnStart;const p=G.players[G.turn];typed="";G.turn=(G.turn+1)%G.players.length;G.turnStart=Date.now();G.msg="Temps écoulé pour "+p.name+" ! Au tour de "+G.players[G.turn].name+".";G.again=false;G.msgKind="bad";save();render()}}
 setInterval(()=>{if(G&&!$("game").hidden)tick()},500);
 function render(){if(!G)return;const s=mySeat();
   $("seatBox").hidden=!(s===null&&!G.solo);
-  if(s===null&&!G.solo){const o=$("seatOpts");o.innerHTML="";G.players.forEach((p,i)=>{const b=document.createElement("button");b.textContent=p.name;b.style.color=PCOL[i];b.style.borderColor=PCOL[i];b.onclick=()=>{setSeat(i);render()};o.appendChild(b)});const b=document.createElement("button");b.textContent="Tout le monde (un seul appareil)";b.onclick=()=>{setSeat("all");render()};o.appendChild(b)}
+  if(s===null&&!G.solo){const o=$("seatOpts");o.innerHTML="";const taken=new Set(peers.filter(p=>p.id!==myId&&p.presence&&p.presence.gid===G.gid&&p.presence.seat!=null&&p.presence.seat!=="all").map(p=>Number(p.presence.seat)));
+    G.players.forEach((p,i)=>{const b=document.createElement("button");b.textContent=p.name+(taken.has(i)?" (déjà connecté)":"");b.disabled=taken.has(i);b.style.color=PCOL[i];b.style.borderColor=PCOL[i];b.onclick=()=>{setSeat(i);render()};o.appendChild(b)});
+    const free=G.players.map((p,i)=>i).filter(i=>!taken.has(i));if(free.length===1&&taken.size){o.firstChild&&o.insertBefore(Object.assign(document.createElement("div"),{className:"muted",textContent:"Ta place est prête : touche ton pseudo."}),o.firstChild)}
+    const b=document.createElement("button");b.textContent="Tout le monde (un seul appareil)";b.onclick=()=>{setSeat("all");render()};o.appendChild(b)}
   if(GAME==="rond"){const tk=G.gid+":"+G.turn;if(prevTurnKey&&prevTurnKey!==tk&&!G.solo&&!G.done&&s!==null){const nm=G.players[G.turn].name;if(s==="all"||s===G.turn){flash(s==="all"?"À "+nm+" !":"À toi, "+nm+" !");sfx("turn");buzz([30,60,30])}else flash("Au tour de "+nm)}prevTurnKey=tk;
     document.title=!G.solo&&!G.done&&s===G.turn?"✍️ À toi ! — Tourniquet":"Le Tourniquet — Mots Fléchés Duo"}
   else document.title="Mots mêlés — Mots Fléchés Duo";
   renderScores();
   const st=$("status");const play=canPlay();
-  if(GAME==="rond"&&!G.done&&!G.solo&&s!==null&&!play){const pw=peerTyping();st.className="status wait";st.textContent=pw?"✍️ "+pw+" écrit…":(G.msg?G.msg+" ":"")+"En attente de "+G.players[G.turn].name+"…"}
-  else{st.className="status "+(G.msgKind||"");st.textContent=G.msg||""}
+  if(GAME==="rond"&&!G.done&&!G.solo&&s!==null&&!play){const pw=peerTyping();st.className="status wait";st.textContent=pw?"✍️ "+pw+" écrit…":(G.msg?G.msg+" ":"")+(G.again?G.players[G.turn].name+" rejoue.":"Au tour de "+G.players[G.turn].name+".")}
+  else{st.className="status "+(G.msgKind||"");st.textContent=(G.msg||"")+(G.again&&!G.done&&GAME==="rond"?(s===G.turn||s==="all"?" Tu rejoues.":" "+G.players[G.turn].name+" rejoue."):"")}
   $("mPass").hidden=GAME!=="rond"||G.solo;$("mReveal").hidden=GAME!=="rond";$("mSeat").hidden=!!G.solo;
-  $("mInfo").textContent=(G.solo?"Solo":"Duel")+" · "+({facile:"Facile",moyen:"Moyen",difficile:"Difficile"}[G.level])+(G.timer?" · "+(GAME==="rond"?fmt(G.timer)+" par tour":fmt(G.timer)+" au total"):"");
+  $("mInfo").textContent=(G.solo?"Solo":"À plusieurs")+" · "+({facile:"Facile",moyen:"Normal",difficile:"Difficile"}[G.level])+(G.timer?" · "+(GAME==="rond"?fmt(G.timer)+" par tour":fmt(G.timer)+" au total"):"");
   ["mPass","mReveal","mAll"].forEach(id=>$(id).disabled=!play&&!(id==="mAll"&&GAME==="meles"&&!G.done));
   $("valid").disabled=!play;$("valid").hidden=GAME==="meles";$("acts").style.gridTemplateColumns=GAME==="meles"?"1fr":"";
   if(GAME==="rond")renderRond();else renderMeles();
@@ -447,7 +454,7 @@ function render(){if(!G)return;const s=mySeat();
 function peerTyping(){if(!G)return null;for(const p of peers){if(p.id===myId)continue;const pr=p.presence||{};if(pr.gid===G.gid&&pr.pend)return pr.name||G.players[G.turn]?.name}return null}
 function bump(o){G.last={n:(G.last?.n||0)+1,...o};seenLast=G.last.n}
 function animateLast(){const L=G&&G.last;if(!L||L.n===seenLast)return;const first=seenLast===null;seenLast=L.n;if(first)return;sfx(L.ok?"ok":"bad");buzz(L.ok?20:[40,40,40]);
-  if(GAME==="rond"&&L.key){const [c,r]=L.key.split("-").map(Number);bubblesOf(c,r).forEach((id,i)=>{const e=$(id);if(!e)return;if(L.ok){e.style.setProperty("--d",(i*.05)+"s");e.classList.remove("ok");void e.offsetWidth;e.classList.add("ok")}else{e.classList.add("wrong");e.textContent=(L.word||"")[i]||"";setTimeout(()=>{e.classList.remove("wrong");render()},1200)}})}
+  if(GAME==="rond"&&L.key){const [c,r]=L.key.split("-").map(Number);bubblesOf(c,r).forEach((id,i)=>{const e=B(id);if(!e.length)return;if(L.ok){e.style.setProperty("--d",(i*.05)+"s");e.classList.remove("ok");void e.offsetWidth;e.classList.add("ok")}else{e.classList.add("wrong");e.textContent=(L.word||"")[i]||"";setTimeout(()=>{e.classList.remove("wrong");render()},1200)}})}
   if(GAME==="meles"&&L.word&&L.ok){const w=G.words.find(x=>x.w===L.word);if(w)cellsOf(w).forEach((k,i)=>{const e=$("m"+k);if(e){e.style.setProperty("--d",(i*.04)+"s");e.classList.remove("ok");void e.offsetWidth;e.classList.add("ok")}});const by=G.players[L.by]?.name;if(by&&L.by!==mySeat())toast(by+" a trouvé "+L.word)}}
 function setMenu(o){$("menu").hidden=!o;$("menuBtn").setAttribute("aria-expanded",String(o));$("chev").textContent=o?"▴":"▾"}
 $("menuBtn").onclick=e=>{e.stopPropagation();setMenu($("menu").hidden)};
@@ -463,23 +470,30 @@ function puzzle(){return ROND.find(p=>p.id===G.pid)||ROND[0]}
 // bulles partagées : en haut/bas avec le rond du dessus/dessous, sur les côtés avec le rond voisin
 function vid(c,k){return "rv-"+c+"-"+k}                       // verticale : k = 0..3
 function sid(c,r,h){return "rs-"+c+"-"+r+"-"+h}               // latérale entre la colonne c et c+1 (h = u haut, d bas)
+// une bulle peut apparaître deux fois (plateau coupé en deux sur téléphone) : B() agit sur tous ses exemplaires
+function B(id){const ns=document.querySelectorAll('[data-b="'+id+'"]');return{
+  get textContent(){return ns[0]?ns[0].textContent:""},set textContent(v){ns.forEach(n=>n.textContent=v)},
+  classList:{add:(...c)=>ns.forEach(n=>n.classList.add(...c)),remove:(...c)=>ns.forEach(n=>n.classList.remove(...c)),contains:c=>!!ns[0]&&ns[0].classList.contains(c)},
+  style:{setProperty:(k,v)=>ns.forEach(n=>n.style.setProperty(k,v)),set color(v){ns.forEach(n=>n.style.color=v)}},get offsetWidth(){return ns[0]?ns[0].offsetWidth:0},get length(){return ns.length}}}
 function bubblesOf(c,r){return [vid(c,r),sid(c,r,"u"),sid(c,r,"d"),vid(c,r+1),sid(c-1,r,"d"),sid(c-1,r,"u")]}
 function buildBoard(){const b=$("board");b.innerHTML="";$("under").innerHTML="";
   if(GAME==="meles")return buildMeles();
-  const wrap=document.createElement("div");wrap.className="rond";b.appendChild(wrap);
-  const pad="(var(--B)/2 + 3px)";const X=c=>"calc("+pad+" + var(--R)*"+(0.866+1.732*c).toFixed(3)+")",Y=r=>"calc("+pad+" + var(--R)*"+(1+2*r)+")";
-  const made=new Set();
-  puzzle().cols.forEach((col,c)=>col.forEach((w,r)=>{
-    const q=document.createElement("button");q.type="button";q.className="rc";q.id="rc-"+c+"-"+r;q.style.left=X(c);q.style.top=Y(r);q.innerHTML="<span></span>";q.firstChild.textContent=w.c.toUpperCase();q.setAttribute("aria-label","Définition : "+w.c);
-    q.onclick=()=>selectWord(c,r);wrap.appendChild(q);
-    bubblesOf(c,r).forEach((id,i)=>{if(made.has(id))return;made.add(id);const a=ANG[i]*Math.PI/180;const e=document.createElement("div");e.className="rb";e.id=id;
-      e.style.left="calc("+X(c).slice(5,-1)+" + var(--R)*"+Math.sin(a).toFixed(4)+")";e.style.top="calc("+Y(r).slice(5,-1)+" + var(--R)*"+(-Math.cos(a)).toFixed(4)+")";wrap.appendChild(e)})}));
+  SPLIT=innerWidth<700;const blocks=SPLIT?[[0,1,2],[3,4,5]]:[[0,1,2,3,4,5]];
+  const holder=document.createElement("div");holder.className="rholder";b.appendChild(holder);
+  blocks.forEach(cols=>{const wrap=document.createElement("div");wrap.className="rond";wrap.style.setProperty("--nc",cols.length);holder.appendChild(wrap);
+    const pad="(var(--B)/2 + 3px)";const X=c=>"calc("+pad+" + var(--R)*"+(0.866+1.732*(c-cols[0])).toFixed(3)+")",Y=r=>"calc("+pad+" + var(--R)*"+(1+2*r)+")";
+    const made=new Set();
+    cols.forEach(c=>puzzle().cols[c].forEach((w,r)=>{
+      const q=document.createElement("button");q.type="button";q.className="rc";q.id="rc-"+c+"-"+r;q.style.left=X(c);q.style.top=Y(r);q.innerHTML="<span></span>";q.firstChild.textContent=w.c.toUpperCase();q.setAttribute("aria-label","Définition : "+w.c);
+      q.onclick=()=>selectWord(c,r);wrap.appendChild(q);
+      bubblesOf(c,r).forEach((id,i)=>{if(made.has(id))return;made.add(id);const a=ANG[i]*Math.PI/180;const e=document.createElement("div");e.className="rb";e.dataset.b=id;
+        e.style.left="calc("+X(c).slice(5,-1)+" + var(--R)*"+Math.sin(a).toFixed(4)+")";e.style.top="calc("+Y(r).slice(5,-1)+" + var(--R)*"+(-Math.cos(a)).toFixed(4)+")";wrap.appendChild(e)})}))});
   const ans=document.createElement("div");ans.className="answer";ans.innerHTML='<span class="clue" id="clue">Touche une définition</span><input type="text" id="ans" maxlength="6" autocomplete="off" autocapitalize="characters" spellcheck="false" placeholder="RÉPONSE" aria-label="Ta réponse">';$("under").appendChild(ans);
   $("ans").addEventListener("input",()=>{typed=norm($("ans").value).slice(0,6);$("ans").value=typed;if(typed)sfx("type");renderRond();announce()});
   $("ans").addEventListener("keydown",e=>{if(e.key==="Enter"){e.preventDefault();validRond()}});
   fitRond()}
-function fitRond(){requestAnimationFrame(()=>{const b=$("board"),wrap=b.querySelector(".rond");if(!wrap)return;const W=b.clientWidth-8,H=b.clientHeight-8,wide=innerWidth>=900,g=wide?10:6;
-    let R=(W-8)/11.02;if(wide)R=Math.min(R,(H-12)/6.62);R=Math.max(wide?30:31,Math.min(70,Math.floor(R)));wrap.style.setProperty("--R",R+"px");
+function fitRond(){requestAnimationFrame(()=>{const b=$("board"),wrap=b.querySelector(".rholder");if(!wrap)return;if((innerWidth<700)!==SPLIT){buildBoard();render();return}const W=b.clientWidth-8,H=b.clientHeight-8,wide=innerWidth>=900,g=wide?10:6;
+    const nc=SPLIT?3:6;let R=(W-10)/(1.732*nc+0.62+0.1);if(wide)R=Math.min(R,(H-12)/6.62);R=Math.max(28,Math.min(SPLIT?62:70,Math.floor(R)));wrap.style.setProperty("--R",R+"px");
     requestAnimationFrame(()=>document.querySelectorAll(".rc").forEach(q=>{const sp=q.firstChild;let fs=parseFloat(getComputedStyle(q).fontSize);q.style.fontSize="";fs=parseFloat(getComputedStyle(q).fontSize);let n=0;while((sp.scrollHeight>q.clientHeight-8||sp.scrollWidth>q.clientWidth-6)&&n<30&&fs>6){fs-=.5;q.style.fontSize=fs+"px";n++}}))})}
 window.addEventListener("resize",()=>{if(G&&GAME==="rond")fitRond()});
 function wordAt(c,r){return norm(puzzle().cols[c][r].w)}
@@ -489,15 +503,14 @@ function letterOf(id){// renvoie {l,f,cls} pour une bulle
 function renderRond(){if(!G||GAME!=="rond")return;const P=puzzle();const found=G.found||{};const peerSel={};
   for(const p of peers){if(p.id===myId)continue;const pr=p.presence||{};if(pr.gid===G.gid&&pr.sel&&pr.pend)peerSel[pr.sel]={pend:pr.pend,seat:pr.seat==="all"?G.turn:Number(pr.seat)}}
   // tout remettre
-  document.querySelectorAll(".rb").forEach(e=>{e.className="rb"+(/^rv-\d+-\d+$/.test(e.id)&&!e.id.endsWith("-3")&&e.classList.contains("first")?" first":"");e.style.removeProperty("--fc");e.textContent=""});
-  document.querySelectorAll(".rb").forEach(e=>{if(/^rv-\d+-[012]$/.test(e.id))e.classList.add("first")});
+  document.querySelectorAll(".rb").forEach(e=>{e.className="rb"+(/^rv-\d+-[012]$/.test(e.dataset.b)?" first":"");e.style.removeProperty("--fc");e.style.color="";e.textContent=""});
   let nfound=0;
   P.cols.forEach((col,c)=>col.forEach((w,r)=>{const k=c+"-"+r;const q=$("rc-"+k);const f=found[k];q.classList.toggle("sel",sel===k&&!G.done);q.classList.toggle("done",f!==undefined);if(f!==undefined){nfound++;q.style.setProperty("--fc",f>=0?PCOL[f]:"var(--reveal)")}
-    if(f!==undefined||G.done){const W=wordAt(c,r);bubblesOf(c,r).forEach((id,i)=>{const e=$(id);e.textContent=W[i];if(f!==undefined&&f>=0){e.classList.add("f");e.style.setProperty("--fc",PCOL[f])}else e.classList.add("rev")})}}));
+    if(f!==undefined||G.done){const W=wordAt(c,r);bubblesOf(c,r).forEach((id,i)=>{const e=B(id);e.textContent=W[i];if(f!==undefined&&f>=0){e.classList.add("f");e.style.setProperty("--fc",PCOL[f])}else e.classList.add("rev")})}}));
   // indices : haut de la 1ʳᵉ rangée et bas de la dernière
-  P.cols.forEach((col,c)=>{[[0,wordAt(c,0)[0]],[3,wordAt(c,2)[3]]].forEach(([k,l])=>{const e=$(vid(c,k));if(!e.textContent){e.textContent=l;e.classList.add("hint")}})});
+  P.cols.forEach((col,c)=>{[[0,wordAt(c,0)[0]],[3,wordAt(c,2)[3]]].forEach(([k,l])=>{const e=B(vid(c,k));if(!e.textContent){e.textContent=l;e.classList.add("hint")}})});
   // saisie en cours (moi) ou d'un adversaire en direct
-  const draw=(k,txt,live,seat)=>{const [c,r]=k.split("-").map(Number);bubblesOf(c,r).forEach((id,i)=>{const e=$(id);if(!txt[i])return;if(e.classList.contains("f"))return;e.textContent=txt[i];e.classList.add(live?"live":"pend");if(live){e.style.color=PCOL[seat]}})};
+  const draw=(k,txt,live,seat)=>{const [c,r]=k.split("-").map(Number);bubblesOf(c,r).forEach((id,i)=>{const e=B(id);if(!txt[i])return;if(e.classList.contains("f"))return;e.textContent=txt[i];e.classList.add(live?"live":"pend");if(live){e.style.color=PCOL[seat]}})};
   if(sel&&typed&&canPlay())draw(sel,typed,false);
   for(const k in peerSel)if(found[k]===undefined)draw(k,peerSel[k].pend,true,peerSel[k].seat);
   const total=P.cols.length*3;$("prog").style.width=Math.round(100*nfound/total)+"%";
@@ -508,20 +521,20 @@ function validRond(){if(!canPlay())return;if(!sel){toast("Choisis d'abord une d�
   const [c,r]=sel.split("-").map(Number);const W=wordAt(c,r);const p=G.players[G.turn];
   if(t===W){G.found[sel]=G.turn;p.score+=10;const key=sel;sel=null;typed="";$("ans").value="";
     const total=puzzle().cols.length*3;if(Object.keys(G.found).length>=total){p.score+=20;G.done=true;G.ended=Date.now();G.msg=p.name+" termine la grille : +20 points de bonus !";G.msgKind="good";window.__won=null}
-    else{G.msg="Bravo "+p.name+" ! +10 points."+(G.solo?"":" Tu rejoues.");G.msgKind="good"}
+    else{G.msg="Bravo "+p.name+" ! +10 points.";G.again=!G.solo;G.msgKind="good"}
     G.turnStart=Date.now();bump({key,ok:true});save();render();sfx(G.done?"win":"ok");buzz(20);
-    bubblesOf(c,r).forEach((id,i)=>{const e=$(id);e.style.setProperty("--d",(i*.05)+"s");e.classList.add("ok")});if(G.done)confetti()}
+    bubblesOf(c,r).forEach((id,i)=>{const e=B(id);e.style.setProperty("--d",(i*.05)+"s");e.classList.add("ok")});if(G.done)confetti()}
   else{const key=sel;typed="";$("ans").value="";sfx("bad");buzz([40,40,40]);
     if(G.solo){G.msg="Raté ! Ce n'est pas « "+t+" ».";}else{G.turn=(G.turn+1)%G.players.length;G.turnStart=Date.now();G.msg="Raté pour "+p.name+" ! Au tour de "+G.players[G.turn].name+".";sel=null}
-    G.msgKind="bad";bump({key,ok:false,word:t});save();render();
-    bubblesOf(c,r).forEach((id,i)=>{const e=$(id);if(e.classList.contains("f"))return;e.classList.add("wrong");e.textContent=t[i]});setTimeout(()=>render(),1200)}}
+    G.again=false;G.msgKind="bad";bump({key,ok:false,word:t});save();render();
+    bubblesOf(c,r).forEach((id,i)=>{const e=B(id);if(e.classList.contains("f"))return;e.classList.add("wrong");e.textContent=t[i]});setTimeout(()=>render(),1200)}}
 $("valid").onclick=()=>{if(GAME==="rond")validRond()};
 $("valid").addEventListener("pointerdown",e=>e.preventDefault());
-$("mPass").onclick=()=>{if(!canPlay()||G.solo)return;const p=G.players[G.turn];typed="";sel=null;G.turn=(G.turn+1)%G.players.length;G.turnStart=Date.now();G.msg=p.name+" passe. Au tour de "+G.players[G.turn].name+".";G.msgKind="";save();render()};
+$("mPass").onclick=()=>{if(!canPlay()||G.solo)return;const p=G.players[G.turn];typed="";sel=null;G.turn=(G.turn+1)%G.players.length;G.turnStart=Date.now();G.msg=p.name+" passe. Au tour de "+G.players[G.turn].name+".";G.again=false;G.msgKind="";save();render()};
 $("mReveal").onclick=()=>{if(!canPlay()||!sel){toast("Choisis d'abord une définition.");return}const p=G.players[G.turn];G.found[sel]=-2;const W=wordAt(...sel.split("-").map(Number));sel=null;typed="";
   const total=puzzle().cols.length*3;if(Object.keys(G.found).length>=total){G.done=true;G.ended=Date.now();G.msg="Grille terminée."}
   else if(G.solo)G.msg="« "+W+" » révélé (sans points).";else{G.turn=(G.turn+1)%G.players.length;G.turnStart=Date.now();G.msg=p.name+" a révélé « "+W+" ». Au tour de "+G.players[G.turn].name+"."}
-  G.msgKind="";save();render()};
+  G.again=false;G.msgKind="";save();render()};
 $("mAll").onclick=()=>{if(!G||G.done)return;if($("mAll").dataset.c!=="1"){$("mAll").dataset.c="1";$("mAll").textContent="Confirmer : tout afficher";setTimeout(()=>{$("mAll").dataset.c="";$("mAll").textContent="🏳️ Tout afficher (fin)"},4000);setTimeout(()=>setMenu(true),10);return}
   $("mAll").dataset.c="";$("mAll").textContent="🏳️ Tout afficher (fin)";
   if(GAME==="meles"){endMeles("giveup");return}

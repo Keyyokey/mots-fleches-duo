@@ -20,7 +20,7 @@ h1 b{background:linear-gradient(90deg,var(--accent),var(--violet));-webkit-backg
 a.back,button{font-family:inherit;font-weight:600;font-size:.95rem;border:1px solid var(--line);background:var(--card);color:var(--ink);border-radius:12px;padding:9px 12px;cursor:pointer;text-decoration:none}
 .hint{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:10px 12px;font-size:.95rem;display:flex;gap:10px;align-items:center;justify-content:space-between}
 .hint span{color:var(--muted)}.hint b{color:var(--ink)}
-.board{display:grid;grid-template-rows:repeat(6,1fr);gap:6px;margin:4px auto;width:min(100%,330px);aspect-ratio:5/6}
+.board{display:grid;grid-template-rows:repeat(6,1fr);gap:6px;margin:4px auto;width:min(100%,330px,calc((100dvh - 420px)*5/6));min-width:200px;aspect-ratio:5/6}
 .row{display:grid;grid-template-columns:repeat(5,1fr);gap:6px}
 .t{border:2px solid var(--line);border-radius:10px;display:grid;place-items:center;font-size:clamp(1.4rem,8vw,2rem);font-weight:800;text-transform:uppercase;transition:transform .1s}
 .t.f{border-color:var(--muted);animation:pop .12s}
@@ -33,22 +33,28 @@ a.back,button{font-family:inherit;font-weight:600;font-size:.95rem;border:1px so
 .msg{min-height:1.4em;text-align:center;font-weight:700}
 .kb{display:flex;flex-direction:column;gap:6px;margin-top:auto;user-select:none}
 .kr{display:flex;gap:5px;justify-content:center}
-.k{flex:1;min-width:0;height:52px;border-radius:9px;border:none;background:var(--key);color:var(--ink);font-size:1.1rem;font-weight:700;padding:0}
+.k{flex:1;min-width:0;height:min(52px,7dvh);min-height:40px;border-radius:9px;border:none;background:var(--key);color:var(--ink);font-size:1.1rem;font-weight:700;padding:0}
 .k.w{flex:1.6;font-size:.85rem}
-.k.ok{background:var(--ok);color:#fff}.k.mid{background:var(--mid);color:#fff}.k.no{background:var(--no);color:#fff;opacity:.7}
+.k.ok{background:var(--ok);color:#fff}.k.mid{background:var(--mid);color:#fff}.k.no{background:#0c0c0f;color:rgba(255,255,255,.3)}body.light .k.no{background:#b9bec8;color:rgba(0,0,0,.35)}
 .end{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:12px;text-align:center;display:flex;flex-direction:column;gap:8px}
 .end .w{font-size:1.4rem;font-weight:800;letter-spacing:.15em;color:var(--accent)}
 .stats{display:flex;gap:6px}.stats div{flex:1}.stats b{display:block;font-size:1.3rem}.stats span{font-size:.72rem;color:var(--muted)}
+.tables{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px}
+.tbl{display:flex;flex-direction:column;padding:7px 10px;border:1px solid var(--line);border-radius:12px;background:var(--card);text-decoration:none;color:var(--ink);font-size:.82rem;font-weight:800}
+.tbl.on{border-color:var(--accent);box-shadow:0 0 0 1px var(--accent)}
+@media (max-width:560px){.tables{grid-template-columns:repeat(2,minmax(0,1fr))}}
 .primary{background:linear-gradient(135deg,var(--accent),#0a8f96);color:#041b1d;border-color:transparent}
 [hidden]{display:none!important}
 </style>
 </head>
 <body>
 <div class="wrap">
-  <header><a class="back" href="/" id="back">← Mots fléchés</a><h1><b>LE MOT</b> du jour</h1><button id="theme" type="button" aria-label="Thème">☀️</button></header>
+  <header><h1><b>LE MOT</b> du jour</h1><button id="theme" type="button" aria-label="Thème">☀️</button></header>
+  <nav class="tables" id="tables" aria-label="Tables de jeu"><a class="tbl" id="t1" href="/">Mots fléchés</a><a class="tbl" id="t2" href="/rond">Le Tourniquet</a><a class="tbl" id="t3" href="/meles">Mots mêlés</a><a class="tbl on" href="/mot">Le mot du jour</a></nav>
+  <a id="back" href="/" hidden></a>
   <div class="hint"><div><span>Indice :</span> <b id="clue">touche « Voir » après 3 essais</b></div><button type="button" id="showClue">Voir</button></div>
   <div class="board" id="board"></div>
-  <div class="msg" id="msg"></div>
+  <div class="msg" id="msg" role="status" aria-live="polite"></div>
   <div class="end" id="end" hidden></div>
   <div class="kb" id="kb"></div>
 </div>
@@ -63,7 +69,7 @@ const LS={get(k,d){try{return JSON.parse(localStorage.getItem(k))??d}catch(e){re
 let st=LS.get("mot-"+today,{rows:[],done:false,clue:false});
 let cur="";const $=id=>document.getElementById(id);
 // salon d'origine : le bouton retour y ramène
-try{const s=JSON.parse(localStorage.getItem("fl-salons")||"{}");const k=Object.keys(s).sort((a,b)=>s[b]-s[a])[0];if(k)$("back").href="/"+k}catch(e){}
+try{const s=JSON.parse(localStorage.getItem("fl-salons")||"{}");const k=Object.keys(s).sort((a,b)=>s[b]-s[a])[0];if(k){$("back").href="/"+k;$("t1").href="/"+k;$("t2").href="/"+k+"/rond";$("t3").href="/"+k+"/meles"}}catch(e){}
 const b=$("board");for(let r=0;r<6;r++){const row=document.createElement("div");row.className="row";for(let c=0;c<5;c++){const t=document.createElement("div");t.className="t";row.appendChild(t)}b.appendChild(row)}
 const ROWS=["AZERTYUIOP","QSDFGHJKLM","↵WXCVBN⌫"];const keys={};
 ROWS.forEach(r=>{const d=document.createElement("div");d.className="kr";[...r].forEach(ch=>{const k=document.createElement("button");k.type="button";k.className="k"+(ch==="↵"||ch==="⌫"?" w":"");k.textContent=ch==="↵"?"Entrée":ch==="⌫"?"⌫":ch;k.onclick=()=>press(ch);d.appendChild(k);keys[ch]=k});$("kb").appendChild(d)});
