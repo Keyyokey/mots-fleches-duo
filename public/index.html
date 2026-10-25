@@ -321,6 +321,22 @@ body.playing #game{display:grid!important;grid-template-columns:minmax(0,1fr) au
   .kbhint{grid-area:acts;align-self:end;display:none}
   #gridbox{display:flex;align-items:flex-start;justify-content:center}
 }
+/* accueil sur grand écran : deux colonnes */
+.lcol{display:flex;flex-direction:column;gap:14px;min-width:0}
+@media (min-width:900px){
+  body:not(.playing) .wrap{max-width:1180px;padding-top:24px}
+  body:not(.playing) header{display:flex;align-items:center;gap:16px;padding-bottom:4px}
+  body:not(.playing) header h1{font-size:2rem}
+  .lobby{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.25fr);gap:28px;align-items:start}
+  .lcol-a{position:sticky;top:16px}
+  .lcol-b{background:var(--card);border:1px solid var(--line);border-radius:20px;padding:22px 24px;box-shadow:0 18px 50px var(--shadow)}
+  .lcol-b .seg,.lcol-b #gsel,.lcol-b .form{background:var(--bg)}
+  .lcol-b .form{border-color:var(--line)}
+  .lcol-b .startbar{position:static;background:none;padding-top:4px}
+  .lcol-b details.rules{background:var(--bg)}
+  .invite .inv-code{font-size:2.2rem}
+  #online{text-align:left}
+}
 @media (prefers-reduced-motion:reduce){.c,.c.ok,.c.wrong,.timer.low,.overlay,.dropdown,.c .L.pend,.turnflash,.react,.chip b.bump{animation:none;transition:none}}
 </style>
 <style>
@@ -360,9 +376,12 @@ html,body{margin:0}img{max-width:100%}[hidden]{display:none!important}
   <div class="online" id="online"></div>
 
   <section id="lobby" class="lobby">
+   <div class="lcol lcol-a">
     <div class="pill"><span class="dot" id="ldot"></span><span id="sync">Connexion au salon…</span></div>
     <div class="daily" id="daily"><div><div class="t">🗓 Grille du jour</div><div class="s" id="dailyInfo"></div></div><button type="button" class="primary" id="dailyBtn">Jouer</button></div>
     <div class="stats soloOnly" id="stats"></div>
+   </div>
+   <div class="lcol lcol-b">
     <h2>1. Mode de jeu</h2>
     <div class="seg" id="modeSeg" role="radiogroup" aria-label="Mode de jeu">
       <button type="button" data-v="solo" role="radio">👤 Solo</button>
@@ -414,6 +433,7 @@ html,body{margin:0}img{max-width:100%}[hidden]{display:none!important}
       <p><b>Chrono :</b> si le temps est écoulé, la main passe au joueur suivant.</p>
       <p><b>Astuce :</b> les flèches ‹ › de la barre de définition passent au mot suivant non résolu ; touche la définition pour changer de sens.</p>
     </details>
+   </div>
   </section>
 
   <section id="game" hidden>
@@ -601,7 +621,7 @@ html,body{margin:0}img{max-width:100%}[hidden]{display:none!important}
       if(!Object.keys(open).length){note("Aucune partie en cours à sauvegarder.");return}
       const s=await jsonToB64(open);if(!s){note("Ton navigateur ne permet pas ce lien.");return}copy(link+"#r="+s,b,"💾 Lien de sauvegarde");
       note("Lien copié : il recrée tes parties en cours, même sur un autre appareil.")};
-    const pill=lobby.querySelector(".pill");lobby.insertBefore(card,pill?pill.nextSibling:lobby.firstChild);
+    const pill=lobby.querySelector(".pill");(pill?pill.parentNode:lobby).insertBefore(card,pill?pill.nextSibling:lobby.firstChild);
     showCount();
     // ---------- jeu complémentaire : le mot du jour ----------
     const daily=document.getElementById("daily");
@@ -629,7 +649,7 @@ html,body{margin:0}img{max-width:100%}[hidden]{display:none!important}
       const box=document.createElement("div");box.className="support";
       box.innerHTML='<div class="sup-txt"><b>Gratuit et sans pub.</b> Le site coûte environ <span class="sup-cost"></span> par mois à héberger. Si tu t\'amuses, un petit geste aide à le garder en ligne.</div>';
       box.querySelector(".sup-cost").textContent=S.cost;box.appendChild(mk("sup-btn",S.label));
-      const rules=lobby.querySelector("details.rules");lobby.insertBefore(box,rules||null);
+      const rules=lobby.querySelector("details.rules");if(rules)rules.parentNode.insertBefore(box,rules);else lobby.appendChild(box);
       const menu=document.getElementById("menu");if(menu){const a=mk("sup-menu",S.label);menu.insertBefore(a,document.getElementById("menuInfo"))}
       const win=document.getElementById("winbox");
       if(win)new MutationObserver(()=>{if(!win.hidden&&!win.querySelector(".sup-win")){const d=document.createElement("div");d.className="sup-win";d.append("Tu as aimé la partie ? ");d.appendChild(mk("",S.label));win.appendChild(d)}}).observe(win,{attributes:true,childList:true});
