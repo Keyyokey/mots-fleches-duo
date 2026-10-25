@@ -232,9 +232,9 @@ body.mode-solo .qreact,body.mode-solo .salonboard{display:none!important}
       <h2 id="pickT">3. Grille</h2>
       <div class="pickrow"><select id="pick" aria-label="Choix de la grille"></select></div>
       <div class="muted" id="pickInfo" style="font-size:.86rem"></div>
-      <h2 id="playersT">4. Joueurs</h2>
+      <h2 id="playersT" class="multiOnly">4. Joueurs</h2>
       <div id="resume" hidden><button class="primary" id="resumeBtn" type="button" style="width:100%">Reprendre la partie en cours</button><div class="muted" id="resumeInfo" style="text-align:center;font-size:.85rem;margin-top:4px"></div></div>
-      <div class="players" id="players"></div>
+      <div class="players multiOnly" id="players"></div>
       <button type="button" id="addP" class="multiOnly" style="border-style:dashed;background:transparent;color:var(--muted)">＋ Ajouter un joueur</button>
       <label style="display:flex;align-items:center;gap:10px;color:var(--muted);font-weight:600" id="timerRow">⏱ <span id="timerLbl">Chrono</span> <select id="tsel"></select></label>
       <div class="err" id="lerr"></div>
@@ -406,8 +406,7 @@ $("copy").onclick=e=>{const link=location.origin+"/"+CODE+"/"+GAME;(navigator.cl
 $("tutoBtn").onclick=()=>showTuto(GAME,true);
 $("resumeBtn").onclick=()=>openGame(gameFor());
 $("start").onclick=()=>{
-  const solo=MODE==="solo";const names=(solo?[0]:[0,1,2,3]).map(i=>$("n"+i).value.trim()).filter(Boolean);
-  if(solo&&!names.length){names.push("Moi")}
+  const solo=MODE==="solo";const names=solo?["Toi"]:[0,1,2,3].map(i=>$("n"+i).value.trim()).filter(Boolean);
   if(!solo&&names.length<2){$("lerr").textContent="Il faut au moins 2 pseudos pour un duel.";return}
   const ex=gameFor();if(ex&&!ex.done&&$("start").dataset.c!=="1"){$("start").dataset.c="1";$("start").textContent="Confirmer : remplacer la partie en cours";$("lerr").textContent="Une partie est en cours sur cette table. « Reprendre » pour la rejoindre.";return}
   $("start").dataset.c="";$("start").textContent="▶ Lancer la partie";$("lerr").textContent="";

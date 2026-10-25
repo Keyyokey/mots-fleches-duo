@@ -431,13 +431,13 @@ body:not(.playing) #online{display:none}
       <select id="gsel" aria-label="Choisir la grille"></select>
       <div class="ghint" id="ghint"></div>
     </div>
-    <h2 id="step4">4. Joueurs</h2>
+    <h2 id="step4" class="multiOnly">4. Joueurs</h2>
     <div id="resume" hidden>
       <button class="primary" id="resumeBtn" type="button" style="width:100%">Reprendre la partie en cours</button>
       <div class="muted" id="resumeInfo" style="text-align:center;margin-top:4px"></div>
     </div>
     <div class="form">
-      <label><span class="sw" style="background:var(--p0)"></span><input type="text" id="n0" maxlength="14" placeholder="Pseudo du joueur 1"></label>
+      <label class="multiOnly"><span class="sw" style="background:var(--p0)"></span><input type="text" id="n0" maxlength="14" placeholder="Pseudo du joueur 1"></label>
       <label class="multiOnly"><span class="sw" style="background:var(--p1)"></span><input type="text" id="n1" maxlength="14" placeholder="Pseudo du joueur 2"></label>
       <button type="button" class="addp multiOnly" id="addP">＋ Ajouter un joueur</button>
       <label class="multiOnly extra" id="row2" hidden><span class="sw" style="background:var(--p2)"></span><input type="text" id="n2" maxlength="14" placeholder="Joueur 3 (facultatif)"></label>
@@ -915,7 +915,7 @@ function canPlay(){if(!G||G.done)return false;if(G.solo)return true;const s=mySe
 function playerCard(i){const s=mySeat();
   return `<div class="pl ${G.turn===i&&!G.done?"active":""}" style="border-color:${PCOL[i]}"><span style="min-width:0;display:flex;flex-direction:column"><span class="nm" style="color:${PCOL[i]}"></span>${s===i?'<span class="me">c\'est toi</span>':''}</span><span class="tag">À son tour</span><span class="sc">${G.players[i].score}</span></div>`}
 function renderScores(){const el=$("scores");el.innerHTML="";const s=mySeat();
-  G.players.forEach((p,i)=>{const d=document.createElement("div");d.className="chip"+(G.turn===i&&!G.done?" on":"")+(s===i?" me":"");d.style.setProperty("--pc",PCOL[i]);
+  G.players.forEach((p,i)=>{const d=document.createElement("div");d.className="chip"+(G.turn===i&&!G.done?" on":"")+(s===i&&!G.solo?" me":"");d.style.setProperty("--pc",PCOL[i]);
     d.innerHTML='<span class="av"></span><span class="who"><span class="nm"></span><span class="sub"></span></span><b></b><span class="clk"></span>';
     d.querySelector(".av").textContent=(p.name||"?").trim().charAt(0).toUpperCase();d.querySelector(".nm").textContent=p.name;
     d.querySelector(".sub").textContent=G.done?"":G.solo?"en solo":G.turn===i?(s===i||s==="all"?"à toi de jouer":"en train de jouer"):(s===i?"c'est toi · en attente":"en attente");
@@ -1261,8 +1261,7 @@ function goLobby(){$("htitle").textContent="duo";document.body.classList.toggle(
 window.addEventListener("popstate",()=>{if(!$("game").hidden)goLobby()});
 $("start").onclick=()=>{
   const solo=MODE==="solo";
-  const names=(solo?[0]:[0,1,2,3]).map(i=>$("n"+i).value.trim()).filter(Boolean);
-  if(solo&&!names.length)names.push("Moi");
+  const names=solo?["Toi"]:[0,1,2,3].map(i=>$("n"+i).value.trim()).filter(Boolean);
   if(!solo&&names.length<2){$("lerr").textContent="Il faut au moins 2 pseudos pour jouer.";return}
   const ex=gameFor(pickId);
   if(ex&&!ex.done&&$("start").dataset.confirm!=="1"){$("start").dataset.confirm="1";$("start").textContent="Confirmer : effacer la partie en cours";
