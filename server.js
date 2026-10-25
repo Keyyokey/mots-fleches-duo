@@ -131,6 +131,28 @@ async function handle(ws, m) {
     const msg = { t: "snap", docs: snapshot(s) }; for (const w of s.sockets) send(w, msg);
     return;
   }
+  if (m.t === "tally") {
+    // tableau des scores du salon : chaque partie terminée n'est comptée qu'une fois
+    const gid = String(m.gid || ""), game = String(m.game || "");
+    if (!/^[a-z0-9]{4,12}$/.test(gid) || !Array.isArray(m.results) || m.results.length < 2 || m.results.length > 4) return;
+    const st = s.docs.stats && typeof s.docs.stats === "object" ? s.docs.stats : { players: {}, seen: [], players_: 0 };
+    st.players = st.players || {}; st.seen = Array.isArray(st.seen) ? st.seen : [];
+    if (st.seen.includes(gid)) return;
+    st.seen = st.seen.slice(-300).concat(gid);
+    const best = Math.max(...m.results.map(r => Number(r.score) || 0));
+    for (const r of m.results) {
+      const name = String(r.name || "").trim().slice(0, 14); if (!name) continue;
+      const key = name.toLowerCase();
+      const p = st.players[key] || { name, wins: 0, games: 0, points: 0, best: 0, byGame: {} };
+      p.name = name; p.games++; p.points += Number(r.score) || 0; p.best = Math.max(p.best, Number(r.score) || 0);
+      const win = (Number(r.score) || 0) === best; if (win) p.wins++;
+      p.byGame = p.byGame || {}; const bg = p.byGame[game] || { w: 0, g: 0 }; bg.g++; if (win) bg.w++; p.byGame[game] = bg;
+      p.last = Date.now(); st.players[key] = p;
+    }
+    st.updated = Date.now(); st._v = (st._v || 0) + 1; s.docs.stats = st; s.touched = Date.now(); scheduleSave(ws.room);
+    const msg = { t: "snap", docs: snapshot(s) }; for (const w of s.sockets) send(w, msg);
+    return;
+  }
   if (m.t === "presence") {
     const p = m.presence && typeof m.presence === "object" ? m.presence : {};
     if (JSON.stringify(p).length > 4000) return;
