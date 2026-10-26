@@ -178,6 +178,10 @@ body.mode-solo .qreact,body.mode-solo .salonboard{display:none!important}
 .ml.wrong{background:var(--bad);color:#fff}
 .ml.ok{animation:mpop .45s both;animation-delay:var(--d,0s)}
 @keyframes mpop{40%{transform:scale(1.25)}}
+.rc.rico{animation:rico .9s ease 2}@keyframes rico{50%{box-shadow:0 0 0 6px var(--good,#3ddc97);transform:translate(-50%,-50%) scale(1.12)}}
+.invbanner{position:fixed;left:50%;top:12px;transform:translateX(-50%);z-index:80;display:flex;align-items:center;gap:8px;flex-wrap:wrap;justify-content:center;max-width:min(560px,94vw);background:var(--glass,var(--card));border:1px solid var(--good,#3ddc97);border-radius:16px;padding:10px 12px;box-shadow:0 14px 40px rgba(0,0,0,.35);transition:opacity .5s}
+.invbanner .ib-t{font-weight:700;flex:1 1 200px}.invbanner button{min-height:40px}.invbanner.out{opacity:0}
+.mcount{width:100%;text-align:center;font-weight:800;margin-bottom:2px}.mcount b{color:var(--good,#3ddc97)}
 .mwords{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;max-width:720px}
 .mw{padding:5px 10px;border-radius:999px;border:1px solid var(--line);background:var(--card);font-weight:700;font-size:.86rem;letter-spacing:.04em}
 .mw.f{border-color:var(--fc);color:var(--fc);text-decoration:line-through;background:color-mix(in srgb,var(--fc) 12%,var(--card))}
@@ -419,6 +423,16 @@ try{SOUND=localStorage.getItem("fl-sound")!=="off"}catch(e){}
 function setTheme(t){document.body.classList.toggle("light",t==="light");try{localStorage.setItem("fl-theme",t)}catch(e){}$("themeBtn").textContent=t==="light"?"🌙":"☀️";$("mTheme").textContent=t==="light"?"🌙 Mode sombre":"☀️ Mode clair"}
 let THEME="dark";try{THEME=localStorage.getItem("fl-theme")||"dark"}catch(e){}
 function toast(t){const n=document.createElement("div");n.className="toast";n.textContent=t;document.body.appendChild(n);setTimeout(()=>n.classList.add("out"),2400);setTimeout(()=>n.remove(),3000)}
+let DEV="";try{DEV=localStorage.getItem("fl-dev")||"";if(!DEV){DEV=Math.random().toString(36).slice(2,12);localStorage.setItem("fl-dev",DEV)}}catch(e){DEV=Math.random().toString(36).slice(2,12)}
+function inviteBanner(text,onJoin){const old=document.getElementById("invBanner");if(old)old.remove();const d=document.createElement("div");d.id="invBanner";d.className="invbanner";d.setAttribute("role","status");
+  d.innerHTML='<span class="ib-t"></span><button type="button" class="primary" data-a="go">▶ Rejoindre</button><button type="button" data-a="no">Plus tard</button>';d.querySelector(".ib-t").textContent=text;
+  d.addEventListener("click",e=>{const a=e.target.closest("button")?.dataset.a;if(!a)return;d.remove();if(a==="go")onJoin()});document.body.appendChild(d);sfx("turn");setTimeout(()=>{if(d.isConnected)d.classList.add("out")},20000);setTimeout(()=>d.remove(),20600)}
+function seenInv(gid){try{const s=JSON.parse(sessionStorage.getItem("fl-inv")||"[]");if(s.includes(gid))return true;s.push(gid);sessionStorage.setItem("fl-inv",JSON.stringify(s.slice(-50)));return false}catch(e){return false}}
+function checkInvites(){for(const id in docs){const g=docs[id];if(!g||g.solo||g.done||!g.players||!g.host||g.host===DEV||(G&&G.gid===g.gid)||Date.now()-(g.started||0)>180000||g.prev)continue;if(seenInv(g.gid))continue;
+    const kind=id==="rond"?"Tourniquet":id==="meles"?"mots mêlés":"mots fléchés";const who=g.players.map(p=>p.name).join(" et ");
+    inviteBanner("Nouvelle partie de "+kind+" : "+who+". Tu viens ?",()=>{if(id===DOC){MODE="multi";openGame(g);return}location.href="/"+CODE+(id==="rond"||id==="meles"?"/"+id+"?join=1":"?join="+id)})}}
+function drawAnim(names,first){const d=document.createElement("div");d.className="flash";d.style.animation="none";document.body.appendChild(d);let n=0;
+  const t=setInterval(()=>{d.textContent="🎲 "+names[n++%names.length];sfx("type");if(n>12){clearInterval(t);d.textContent="🎲 "+names[first]+" commence !";sfx("turn");setTimeout(()=>d.remove(),1300)}},90)}
 function flash(t){const d=document.createElement("div");d.className="flash";d.textContent=t;document.body.appendChild(d);setTimeout(()=>d.remove(),1600)}
 function buzz(p){try{navigator.vibrate&&navigator.vibrate(p)}catch(e){}}
 function confetti(){const cv=$("confetti");cv.hidden=false;const W=cv.width=innerWidth,H=cv.height=innerHeight,x=cv.getContext("2d");const cols=["#00ADB5","#A26BFF","#ffc857","#3ddc97","#ff4d6d","#5ad8ff"];
@@ -510,22 +524,31 @@ $("start").onclick=()=>{
   const ex=gameFor();if(ex&&!ex.done&&$("start").dataset.c!=="1"){$("start").dataset.c="1";$("start").textContent="Confirmer : remplacer la partie en cours";$("lerr").textContent="Une partie est en cours sur cette table. « Reprendre » pour la rejoindre.";return}
   $("start").dataset.c="";$("start").textContent="▶ Lancer la partie";$("lerr").textContent="";
   LS.set("fl-names",[0,1,2,3].map(i=>$("n"+i).value.trim()));
-  const base={gid:Math.random().toString(36).slice(2,10),game:GAME,solo,level:LEVEL,started:Date.now(),players:names.map(n=>({name:n,score:0})),turn:0,turnStart:Date.now(),timer:Number($("tsel").value)||0,found:{},done:false,msg:solo?"À toi de jouer, "+names[0]+" !":names[0]+" commence !",msgKind:"",last:null};
-  if(GAME==="rond"){const p=ROND.find(x=>x.id===PICK)||ROND[0];Object.assign(base,{pid:p.id,title:"Tourniquet · "+p.name,race:!solo&&RULE==="course"});if(base.race)base.msg="Partez ! Le premier qui trouve un mot le prend."}
-  else Object.assign(base,makeMeles(PICK,LEVEL),{title:"Mots mêlés · "+PICK});
-  G=base;if(solo){LS.set("fleches-seat:"+G.gid,0);G.timer=GAME==="meles"?G.timer:0}
+  G=newBase(names,solo,PICK,LEVEL,Number($("tsel").value)||0,!solo&&RULE==="course");if(solo){LS.set("fleches-seat:"+G.gid,0);G.timer=GAME==="meles"?G.timer:0}
   save();openGame(G);
 };
+function newBase(names,solo,pick,level,timer,isRace){const first=solo?0:Math.floor(Math.random()*names.length);
+  const base={gid:Math.random().toString(36).slice(2,10),game:GAME,solo,level,host:DEV,started:Date.now(),players:names.map(n=>({name:n,score:0})),turn:first,turnStart:Date.now(),timer,found:{},done:false,msg:solo?"À toi de jouer !":"🎲 Tirage au sort : "+names[first]+" commence !",msgKind:"",last:null};
+  if(GAME==="rond"){const p=ROND.find(x=>x.id===pick)||ROND[0];Object.assign(base,{pid:p.id,title:"Tourniquet · "+p.name,race:!!isRace});if(base.race)base.msg="Partez ! Le premier qui trouve un mot le prend."}
+  else{Object.assign(base,makeMeles(pick,level),{title:"Mots mêlés · "+pick});base.msg=base.words.length+" mots à trouver"+(solo?" !":" : le premier qui en trouve un le prend !")}
+  return base}
+function replay(){// même joueurs, même niveau, grille suivante : tout le salon suit
+  const old=G,s=mySeat();const ps=GAME==="rond"?ROND.filter(p=>p.lvl===old.level).map(p=>p.id):Object.keys(THEMES);const cur=GAME==="rond"?old.pid:old.theme;const nx=ps[(Math.max(0,ps.indexOf(cur))+1)%ps.length];
+  if(GAME==="meles")PICK=nx;
+  const ng=newBase(old.players.map(p=>p.name),false,nx,old.level,old.timer||0,!!old.race);ng.prev=old.gid;if(s!==null)LS.set("fleches-seat:"+ng.gid,s);G=ng;save();openGame(G)}
 
 // ---------- partie : commun ----------
 function openGame(src){G=JSON.parse(JSON.stringify(src));sel=null;typed="";seenLast=G.last?.n??null;prevTurnKey=null;prevScores=null;
   $("lobby").hidden=true;$("game").hidden=false;document.body.classList.add("playing");
   $("gname").innerHTML="<b>"+(GAME==="rond"?"TOURNIQUET":"MOTS MÊLÉS")+"</b> ";$("gname").append(GAME==="rond"?(ROND.find(p=>p.id===G.pid)||{}).name||"":G.theme);
-  buildBoard();render();announce();try{history.pushState({g:1},"")}catch(e){}setTimeout(()=>showTuto(GAME),500)}
+  buildBoard();render();announce();try{history.pushState({g:1},"")}catch(e){}setTimeout(()=>showTuto(GAME),500);
+  if(!G.solo&&!G.race&&GAME==="rond"&&!G.done&&!Object.keys(G.found||{}).length&&Date.now()-(G.started||0)<20000&&window.__drawn!==G.gid){window.__drawn=G.gid;setTimeout(()=>drawAnim(G.players.map(p=>p.name),G.turn),700)}}
 function goLobby(){G=null;sel=null;typed="";$("game").hidden=true;$("lobby").hidden=false;document.body.classList.remove("playing");setMenu(false);announce();renderLobby();document.title="Mots Fléchés Duo — tables de jeu"}
 window.addEventListener("popstate",()=>{if(!$("game").hidden)goLobby()});
 $("back").onclick=goLobby;
-function onDocs(){if(G&&!G.solo){const d=currentShared();if(d&&d.gid===G.gid){const turnChanged=d.turn!==G.turn;G=JSON.parse(JSON.stringify(d));if(turnChanged&&!canPlay()){typed="";if($("ans"))$("ans").value=""}render();animateLast()}else if(d&&d.gid!==G.gid){G=JSON.parse(JSON.stringify(d));buildBoard();render()}}
+function onDocs(){if(G&&!G.solo){const d=currentShared();if(d&&d.gid===G.gid){const turnChanged=d.turn!==G.turn;G=JSON.parse(JSON.stringify(d));if(turnChanged&&!canPlay()){typed="";if($("ans"))$("ans").value=""}render();animateLast()}else if(d&&d.gid!==G.gid){const s=mySeat();if(d.prev===G.gid&&s!==null&&LS.get("fleches-seat:"+d.gid,null)===null)LS.set("fleches-seat:"+d.gid,s);const follow=d.prev===G.gid;G=JSON.parse(JSON.stringify(d));if(follow){toast("Nouvelle partie !");openGame(G);return}buildBoard();render()}}
+  if(!window.__joinDone&&Object.keys(docs).length){window.__joinDone=true;if(/[?&]join=1/.test(location.search)){const d=currentShared();if(d&&!d.done){MODE="multi";openGame(d);try{history.replaceState(null,"",location.pathname)}catch(e){}return}}}
+  checkInvites();
   if($("game").hidden)renderLobby();else tablesNav()}
 function renderScores(){const el=$("scores");el.innerHTML="";const s=mySeat();
   G.players.forEach((p,i)=>{const d=document.createElement("div");d.className="chip"+(G.turn===i&&!G.done&&!race()?" on":"")+(race()&&s===i?" on":"");d.style.setProperty("--pc",PCOL[i]);
@@ -569,10 +592,10 @@ function render(){if(!G)return;const s=mySeat();
   let wb=$("winbox");if(G.done){if(!wb){wb=document.createElement("div");wb.id="winbox";wb.className="win";$("under").prepend(wb)}
     const best=Math.max(...G.players.map(p=>p.score)),ws=G.players.filter(p=>p.score===best).map(p=>p.name);
     const tm=Math.round(((G.ended||Date.now())-G.started)/1000);
-    wb.innerHTML="<div></div><div class='row'><button type='button' id='wShare'>📤 Partager</button><button type='button' class='primary' id='wAgain'>🔁 Rejouer</button></div>";
+    wb.innerHTML="<div></div><div class='row'><button type='button' id='wShare'>📤 Partager</button><button type='button' class='primary' id='wAgain'>🔁 Rejouer"+(G.solo?"":" ("+({facile:"Facile",moyen:"Normal",difficile:"Difficile"}[G.level]||"")+")")+"</button></div>";
     wb.firstChild.textContent=G.revealed&&G.solo?"Solution affichée.":G.solo?"🎉 Terminé ! "+G.players[0].score+" points en "+fmt(tm)+".":(ws.length>1?"Égalité : "+ws.join(" et "):"🏆 "+ws[0]+" gagne")+" avec "+best+" points !";
     $("wShare").onclick=()=>openShare(shareOpts(tm,ws,best));
-    $("wAgain").onclick=()=>{const names=G.players.map(p=>p.name);goLobby();names.forEach((n,i)=>{if($("n"+i)){$("n"+i).value=n;$("n"+i).parentNode.hidden=false}});
+    $("wAgain").onclick=()=>{if(!G.solo){replay();return}const names=G.players.map(p=>p.name);goLobby();names.forEach((n,i)=>{if($("n"+i)){$("n"+i).value=n;$("n"+i).parentNode.hidden=false}});
       const ps=picks();const i=ps.findIndex(p=>p.id===(GAME==="rond"?G?.pid:PICK));PICK=ps[(Math.max(0,ps.findIndex(p=>p.id===PICK))+1)%ps.length].id;renderLobby();$("start").scrollIntoView({block:"center",behavior:"smooth"})};
     if(!G.solo&&!G.revealed&&window.__tallied!==G.gid){window.__tallied=G.gid;sendRaw({t:"tally",gid:G.gid,game:GAME,results:G.players.map(p=>({name:p.name,score:p.score}))})}
     if(window.__won!==G.gid){window.__won=G.gid;if(Date.now()-(G.ended||0)<15000&&!G.revealed){confetti();sfx("win")}}}
@@ -650,23 +673,33 @@ function renderRond(){if(!G||GAME!=="rond")return;const P=puzzle();const found=G
   const total=P.cols.length*3;$("prog").style.width=Math.round(100*nfound/total)+"%";if(race()&&!G.solo&&!G.done&&nfound>=total)endRace("all");
   const a=$("ans");if(a){a.disabled=!canPlay();a.placeholder=canPlay()?"RÉPONSE":"ATTENDS"}
   const cl=$("clue");if(cl){if(sel){const [c,r]=sel.split("-").map(Number);cl.textContent=P.cols[c][r].c+" (6 lettres)"}else cl.textContent=canPlay()?"Touche une définition":"…"}}
+// ricochet : cercles dont les 6 lettres sont déjà toutes connues après un mot trouvé
+function ricochets(found){const P=puzzle(),known=new Set();
+  for(const k in found){const [c,r]=k.split("-").map(Number);bubblesOf(c,r).forEach(id=>known.add(id))}
+  P.cols.forEach((col,c)=>{known.add(vid(c,0));known.add(vid(c,3))});
+  const out=[];P.cols.forEach((col,c)=>col.forEach((w,r)=>{const k=c+"-"+r;if(found[k]===undefined&&bubblesOf(c,r).every(id=>known.has(id)))out.push(k)}));return out}
 function validRond(){if(!canPlay())return;if(!sel){toast("Choisis d'abord une définition.");return}
   if(race()&&!G.solo){const t=norm($("ans").value);if(t.length!==6){toast("Il faut 6 lettres.");return}const [c,r]=sel.split("-").map(Number);const W=wordAt(c,r);const by=mySeat()==="all"?0:mySeat();const key=sel;
     if(t!==W){sfx("bad");buzz([40,40,40]);window.__cool=Date.now()+2500;typed="";$("ans").value="";toast("Raté ! 2 secondes de pénalité.");render();bubblesOf(c,r).forEach((id,i)=>{const e=B(id);if(e.classList.contains("f"))return;e.classList.add("wrong");e.textContent=t[i]});setTimeout(()=>render(),1300);setTimeout(()=>render(),2600);return}
-    const last=Object.keys(G.found).length+1>=puzzle().cols.length*3;sel=null;typed="";$("ans").value="";
-    req({t:"patch",id:DOC,gid:G.gid,field:"found",key,value:by,ifAbsent:true,score:{i:by,add:10},extra:Object.assign({last:{n:(G.last?.n||0)+1,key,ok:true,by},msg:G.players[by].name+" trouve « "+W+" » (+10)",msgKind:"good"},last?{done:true,ended:Date.now()}:{})})
-      .then(()=>{seenLast=(G.last?.n||0)+1;sfx(last?"win":"ok");buzz(20);if(last)confetti()}).catch(c2=>{if(c2==="taken")toast("Trop tard ! Ce mot vient d'être pris.");else toast("Pas enregistré ("+c2+")")});return}
+    const total=puzzle().cols.length*3;const ric=ricochets(Object.assign({},G.found,{[key]:by}));const last=Object.keys(G.found).length+1+ric.length>=total;sel=null;typed="";$("ans").value="";
+    const nm=G.players[by].name;const extraMsg=ric.length?" + ricochet ("+ric.length*10+")":"";
+    req({t:"patch",id:DOC,gid:G.gid,field:"found",key,value:by,ifAbsent:true,score:{i:by,add:10},extra:Object.assign({last:{n:(G.last?.n||0)+1,key,ok:true,by},msg:nm+" trouve « "+W+" » (+10)"+extraMsg,msgKind:"good"},last&&!ric.length?{done:true,ended:Date.now()}:{})})
+      .then(async()=>{seenLast=(G.last?.n||0)+1;sfx(last?"win":"ok");buzz(20);
+        for(let i=0;i<ric.length;i++){const k=ric[i];const fin=last&&i===ric.length-1;try{await req({t:"patch",id:DOC,gid:G.gid,field:"found",key:k,value:by,ifAbsent:true,score:{i:by,add:10},extra:fin?{done:true,ended:Date.now()}:{}})}catch(e){}}
+        if(ric.length)ricoFx(ric);if(last)confetti()}).catch(c2=>{if(c2==="taken")toast("Trop tard ! Ce mot vient d'être pris.");else toast("Pas enregistré ("+c2+")")});return}
   const t=norm($("ans").value);if(t.length!==6){toast("Il faut 6 lettres.");return}
   const [c,r]=sel.split("-").map(Number);const W=wordAt(c,r);const p=G.players[G.turn];
   if(t===W){G.found[sel]=G.turn;p.score+=10;const key=sel;sel=null;typed="";$("ans").value="";
-    const total=puzzle().cols.length*3;if(Object.keys(G.found).length>=total){p.score+=20;G.done=true;G.ended=Date.now();G.msg=p.name+" termine la grille : +20 points de bonus !";G.msgKind="good";window.__won=null}
-    else{G.msg="Bravo "+p.name+" ! +10 points.";G.again=!G.solo;G.msgKind="good"}
+    const ric=ricochets(G.found);ric.forEach(k=>{G.found[k]=G.turn;p.score+=10});
+    const total=puzzle().cols.length*3;if(Object.keys(G.found).length>=total){p.score+=20;G.done=true;G.ended=Date.now();G.msg=p.name+" termine la grille"+(ric.length?" (ricochet +"+ric.length*10+")":"")+" : +20 points de bonus !";G.msgKind="good";window.__won=null}
+    else{G.msg="Bravo "+p.name+" ! +10 points."+(ric.length?" Ricochet : "+ric.length+" cercle"+(ric.length>1?"s":"")+" complété"+(ric.length>1?"s":"")+" (+"+ric.length*10+") !":"");G.again=!G.solo;G.msgKind="good"}
     G.turnStart=Date.now();bump({key,ok:true});save();render();sfx(G.done?"win":"ok");buzz(20);
-    bubblesOf(c,r).forEach((id,i)=>{const e=B(id);e.style.setProperty("--d",(i*.05)+"s");e.classList.add("ok")});if(G.done)confetti()}
+    bubblesOf(c,r).forEach((id,i)=>{const e=B(id);e.style.setProperty("--d",(i*.05)+"s");e.classList.add("ok")});if(ric.length)ricoFx(ric);if(G.done)confetti()}
   else{const key=sel;typed="";$("ans").value="";sfx("bad");buzz([40,40,40]);
     if(G.solo){G.msg="Raté ! Ce n'est pas « "+t+" ».";}else{G.turn=(G.turn+1)%G.players.length;G.turnStart=Date.now();G.msg="Raté pour "+p.name+" ! Au tour de "+G.players[G.turn].name+".";sel=null}
     G.again=false;G.msgKind="bad";bump({key,ok:false,word:t});save();render();
     bubblesOf(c,r).forEach((id,i)=>{const e=B(id);if(e.classList.contains("f"))return;e.classList.add("wrong");e.textContent=t[i]});setTimeout(()=>render(),1200)}}
+function ricoFx(ric){flash("🎯 Ricochet ! +"+ric.length*10);setTimeout(()=>ric.forEach(k=>{const q=$("rc-"+k);if(q){q.classList.remove("rico");void q.offsetWidth;q.classList.add("rico")}}),60)}
 $("valid").onclick=()=>{if(GAME==="rond")validRond()};
 $("valid").addEventListener("pointerdown",e=>e.preventDefault());
 $("mPass").onclick=()=>{if(!canPlay()||G.solo)return;const p=G.players[G.turn];typed="";sel=null;G.turn=(G.turn+1)%G.players.length;G.turnStart=Date.now();G.msg=p.name+" passe. Au tour de "+G.players[G.turn].name+".";G.again=false;G.msgKind="";save();render()};
@@ -726,11 +759,12 @@ function endRace(why){if(!G||G.done)return;if(G.solo){G.done=true;G.ended=Date.n
   req({t:"patch",id:DOC,gid:G.gid,field:"meta",key:"end",value:why,ifAbsent:true,extra:{done:true,ended:Date.now(),revealed:why==="giveup",msg:why==="time"?"Temps écoulé !":"Solution affichée.",msgKind:""}}).catch(()=>{})}
 function renderMeles(){if(!G||GAME!=="meles"||!$("mgrid"))return;
   document.querySelectorAll(".ml").forEach(e=>{e.classList.remove("f","f2","rev");e.style.removeProperty("--fc");e.style.removeProperty("--fc2")});
-  const list=$("mwords");list.innerHTML="";let n=0;
+  const list=$("mwords");list.innerHTML="";let n=0;const hd=document.createElement("div");hd.className="mcount";list.appendChild(hd);
   G.words.forEach(w=>{const f=G.found[w.w];const chip=document.createElement("span");chip.className="mw";chip.textContent=w.w;
     if(f){n++;chip.classList.add("f");chip.style.setProperty("--fc",PCOL[f.by]);cellsOf(w).forEach(k=>{const e=$("m"+k);if(e.classList.contains("f")){e.classList.add("f2");e.style.setProperty("--fc2",PCOL[f.by])}else{e.classList.add("f");e.style.setProperty("--fc",PCOL[f.by])}})}
     else if(G.done){chip.classList.add("rev");cellsOf(w).forEach(k=>$("m"+k).classList.add("rev"))}
     list.appendChild(chip)});
+  hd.innerHTML="";hd.append(G.words.length+" mots à trouver · ");const bb=document.createElement("b");bb.textContent=n+"/"+G.words.length+" trouvés";hd.appendChild(bb);
   $("prog").style.width=Math.round(100*n/G.words.length)+"%";
   if(!G.done&&n>=G.words.length)endRace("all")}
 function fitMeles(){const g=$("mgrid");if(!g)return;const b=$("board");const w=b.clientWidth-20,h=b.clientHeight-20;const s=Math.max(22,Math.min(46,Math.floor((Math.min(w,h>120?h:w)-10-2*(G.size-1))/G.size)));g.style.setProperty("--s",s+"px")}

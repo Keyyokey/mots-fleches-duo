@@ -348,6 +348,8 @@ body.playing #game{display:grid!important;grid-template-columns:minmax(0,1fr) au
 .sb-t>span:nth-child(-n+5){font-size:.74rem;color:var(--muted);font-weight:700}.sb-t>span{text-align:right}.sb-t>span:nth-child(2){text-align:left}.sb-t>span:nth-child(5n+1),.sb-t .sb-name{text-align:left}
 .sb-name{display:flex;flex-direction:column;min-width:0}.sb-name b{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.sb-name small{color:var(--muted);font-size:.72rem}.sb-name.me b{color:var(--accent)}
 @media (min-width:900px){body:not(.mode-solo) .qreact{display:flex}}
+.invbanner{position:fixed;left:50%;top:12px;transform:translateX(-50%);z-index:80;display:flex;align-items:center;gap:8px;flex-wrap:wrap;justify-content:center;max-width:min(560px,94vw);background:var(--glass);border:1px solid var(--good);border-radius:var(--r-lg);padding:10px 12px;box-shadow:0 14px 40px var(--shadow);animation:fade .25s;transition:opacity .5s}
+.invbanner .ib-t{font-weight:700;flex:1 1 200px}.invbanner button{min-height:40px}.invbanner.out{opacity:0}
 /* accueil sur grand écran : deux colonnes */
 .lcol{display:flex;flex-direction:column;gap:14px;min-width:0}
 @media (min-width:900px){
@@ -839,6 +841,14 @@ function confetti(){const cv=document.getElementById("confetti");if(!cv||matchMe
   const cols=["#00ADB5","#A26BFF","#ffc857","#3ddc97","#ff4d6d","#5ad8ff"];const P=Array.from({length:160},()=>({x:W/2+(Math.random()-.5)*W*.3,y:H*.35,vx:(Math.random()-.5)*12,vy:-Math.random()*13-4,r:4+Math.random()*5,c:cols[Math.floor(Math.random()*cols.length)],a:Math.random()*6,va:(Math.random()-.5)*.3}));
   const t0=performance.now();(function f(t){x.clearRect(0,0,W,H);P.forEach(p=>{p.vy+=.35;p.vx*=.99;p.x+=p.vx;p.y+=p.vy;p.a+=p.va;x.save();x.translate(p.x,p.y);x.rotate(p.a);x.fillStyle=p.c;x.fillRect(-p.r,-p.r/2,p.r*2,p.r);x.restore()});
     if(t-t0<3200)requestAnimationFrame(f);else{x.clearRect(0,0,W,H);cv.hidden=true}})(t0)}
+let DEV="";try{DEV=localStorage.getItem("fl-dev")||"";if(!DEV){DEV=Math.random().toString(36).slice(2,12);localStorage.setItem("fl-dev",DEV)}}catch(e){DEV=Math.random().toString(36).slice(2,12)}
+const TABLES={rond:"Tourniquet",meles:"mots mêlés"};
+function inviteBanner(text,onJoin){const old=document.getElementById("invBanner");if(old)old.remove();const d=document.createElement("div");d.id="invBanner";d.className="invbanner";d.setAttribute("role","status");
+  d.innerHTML='<span class="ib-t"></span><button type="button" class="primary" data-a="go">▶ Rejoindre</button><button type="button" data-a="no">Plus tard</button>';d.querySelector(".ib-t").textContent=text;
+  d.addEventListener("click",e=>{const a=e.target.closest("button")?.dataset.a;if(!a)return;d.remove();if(a==="go")onJoin()});document.body.appendChild(d);sfx("turn");setTimeout(()=>{if(d.isConnected)d.classList.add("out")},20000);setTimeout(()=>d.remove(),20600)}
+function seenInv(gid){try{const s=JSON.parse(sessionStorage.getItem("fl-inv")||"[]");if(s.includes(gid))return true;s.push(gid);sessionStorage.setItem("fl-inv",JSON.stringify(s.slice(-50)));return false}catch(e){return false}}
+function drawAnim(names,first,done){const d=document.createElement("div");d.className="turnflash";d.style.animation="none";d.style.opacity="1";d.style.transform="translate(-50%,-50%)";document.body.appendChild(d);let n=0;
+  const t=setInterval(()=>{d.textContent="🎲 "+names[n++%names.length];sfx("type");if(n>12){clearInterval(t);d.textContent="🎲 "+names[first]+" commence !";sfx("turn");setTimeout(()=>{d.remove();done&&done()},1300)}},90)}
 const DAY=()=>{const d=new Date();return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0")};
 
 let cur=null,SOL={},ALL=[],words=[],cellWords={},isQ=()=>false,NR=13;
@@ -1211,8 +1221,8 @@ function shareOpts(tm){const d=cur;const rows=[];for(let r=0;r<NR;r++){const row
     players:G.players.map(p=>({name:p.name,score:p.score})),rows,link:location.origin+(G.solo?"/":"/"+(window.SALON||"")),extra:G.solo&&st.streak?"🔥 Série : "+st.streak+" jour"+(st.streak>1?"s":"")+" de suite":""}}
 function winActions(wb,tm){const box=document.createElement("div");box.className="winacts";
   const sh=document.createElement("button");sh.type="button";sh.textContent="📤 Partager";sh.onclick=()=>openShare(shareOpts(tm||Math.round(((G.ended||Date.now())-(G.started||Date.now()))/1000)));box.appendChild(sh);
-  const nx=document.createElement("button");nx.type="button";nx.className="primary";nx.textContent=G.solo?"➡️ Grille suivante":"🔁 Revanche";
-  nx.onclick=()=>{const list=GRIDS.filter(d=>(d.lvl||"mag")===(cur.lvl||"mag"));const i=list.indexOf(cur);const nxt=list.slice(i+1).concat(list.slice(0,i)).find(d=>!gameFor(d.id))||list[(i+1)%list.length];
+  const nx=document.createElement("button");nx.type="button";nx.className="primary";nx.textContent=G.solo?"➡️ Grille suivante":"🔁 Rejouer ("+({facile:"Facile",moyen:"Moyenne",difficile:"Difficile"}[cur.lvl]||"même niveau")+")";
+  nx.onclick=()=>{if(!G.solo){replay();return}const list=GRIDS.filter(d=>(d.lvl||"mag")===(cur.lvl||"mag"));const i=list.indexOf(cur);const nxt=list.slice(i+1).concat(list.slice(0,i)).find(d=>!gameFor(d.id))||list[(i+1)%list.length];
     const names=G.players.map(p=>p.name);goLobby();pickId=nxt.id;names.forEach((n,j)=>{if($("n"+j))$("n"+j).value=n});syncExtra();renderPicks();refreshResume();$("start").scrollIntoView({block:"center",behavior:"smooth"});toast(gLabel(nxt)+" sélectionnée : appuie sur « Lancer la partie ».")};
   box.appendChild(nx);const bk=document.createElement("button");bk.type="button";bk.textContent="← Grilles";bk.onclick=()=>goLobby();box.appendChild(bk);wb.appendChild(box)}
 $("dailyBtn").onclick=()=>{pickId=dailyGrid().id;renderPicks();refreshResume();const gm=gameFor(pickId);if(gm&&!gm.done){openGame();return}$("step4").scrollIntoView({block:"start",behavior:"smooth"});const n=$("n0");if(!n.value.trim())setTimeout(()=>n.focus(),400);toast("Grille du jour sélectionnée ✓")};
@@ -1257,7 +1267,7 @@ function refreshResume(){renderLive();const gm=gameFor(pickId);const r=$("resume
   if(gm&&!gm.done){r.hidden=false;$("resumeInfo").textContent=gm.players.map(p=>p.name+" : "+p.score+" pts").join(" · ")+" · "+({facile:"Facile",normal:"Normal",difficile:"Difficile"}[gm.level||"normal"]);gm.players.forEach((p,i)=>$("n"+i).value=p.name);syncExtra()}
   else r.hidden=true}
 $("tutoBtn").onclick=()=>showTuto("fleches",true);
-function openGame(fromHistory){setTimeout(()=>{if(typeof showTuto==="function")showTuto("fleches")},500);prep(GRIDS.find(d=>d.id===pickId));const src=gameFor(pickId);G=src?JSON.parse(JSON.stringify(src)):G;seenLast=G?.last?.n??null;
+function openGame(fromHistory){setTimeout(()=>{if(G&&!G.solo&&!G.done&&Date.now()-(G.started||0)<20000&&window.__drawn!==G.gid&&!G.filledAny){window.__drawn=G.gid;if(!Object.keys(G.filled).some(k=>G.filled[k]>=0))drawAnim(G.players.map(p=>p.name),G.turn)}},650);setTimeout(()=>{if(typeof showTuto==="function")showTuto("fleches")},500);prep(GRIDS.find(d=>d.id===pickId));const src=gameFor(pickId);G=src?JSON.parse(JSON.stringify(src)):G;seenLast=G?.last?.n??null;
   $("lobby").hidden=true;$("game").hidden=false;$("game").style.display="flex";document.body.classList.add("playing");document.body.classList.toggle("mode-solo",!!(G&&G.solo));$("dock").hidden=false;
   if(!fromHistory){try{history.pushState({v:"game"},"")}catch(e){}}
   render();announce();requestAnimationFrame(vv);try{window.scrollTo(0,0)}catch(e){}}
@@ -1274,10 +1284,24 @@ $("start").onclick=()=>{
   $("lerr").textContent="";
   const def=GRIDS.find(d=>d.id===pickId);
   const filled={};if(LEVEL==="facile")(def.paper||[]).forEach(k=>filled[k]=-1);
-  G={gid:Math.random().toString(36).slice(2,10),grid:def.id,solo,level:LEVEL,started:Date.now(),players:names.map(n=>({name:n,score:0})),turn:0,turnStart:Date.now(),timer:solo?0:(Number($("tsel").value)||0),filled,letters:{},mystery:null,done:false,msg:solo?`À toi de jouer, ${names[0]} !`:`${names[0]} commence !`,msgKind:"",last:null};
+  G=newGame(def,names,solo,LEVEL,solo?0:(Number($("tsel").value)||0));
   if(solo){try{localStorage.setItem("fleches-seat:"+G.gid,"0")}catch(e){}}else games[pickId]=G;
   save();openGame();
 };
+function newGame(def,names,solo,level,timer){const filled={};if(level==="facile")(def.paper||[]).forEach(k=>filled[k]=-1);const first=solo?0:Math.floor(Math.random()*names.length);
+  return{gid:Math.random().toString(36).slice(2,10),grid:def.id,solo,level,host:DEV,started:Date.now(),players:names.map(n=>({name:n,score:0})),turn:first,turnStart:Date.now(),timer,filled,letters:{},mystery:null,done:false,
+    msg:solo?"À toi de jouer !":"🎲 Tirage au sort : "+names[first]+" commence !",msgKind:"",last:null}}
+// rejouer à plusieurs : nouvelle grille du même niveau, mêmes joueurs, tout le salon suit
+function replay(){const old=G;const list=GRIDS.filter(d=>(d.lvl||"mag")===(cur.lvl||"mag"));const i=list.indexOf(cur);
+  const nxt=list.slice(i+1).concat(list.slice(0,i)).find(d=>{const g=games[d.id];return !g||g.done})||list[(i+1)%list.length];
+  const s=mySeat();const ng=newGame(nxt,old.players.map(p=>p.name),false,old.level||"normal",old.timer||0);ng.prev=old.gid;
+  games[nxt.id]=ng;col.doc(nxt.id).set(JSON.parse(JSON.stringify(ng))).catch(()=>{});
+  old.next=nxt.id;games[old.grid]=old;col.doc(old.grid).set(JSON.parse(JSON.stringify(old))).catch(()=>{});
+  try{if(s!==null)localStorage.setItem("fleches-seat:"+ng.gid,String(s))}catch(e){}
+  pickId=nxt.id;openGame()}
+function followNext(ng){// un autre joueur a relancé : on le suit en gardant sa place
+  const s=mySeat();const n=games[ng.next];if(!n||n.done)return false;try{if(s!==null)localStorage.setItem("fleches-seat:"+n.gid,String(s))}catch(e){}
+  pickId=ng.next;openGame();toast("Nouvelle partie : "+gLabel(GRIDS.find(d=>d.id===ng.next)));return true}
 $("resumeBtn").onclick=()=>openGame();
 $("back").onclick=goLobby;$("seatBack").onclick=goLobby;
 $("chSeat").onclick=()=>{try{localStorage.removeItem(seatKey())}catch(e){if(window.__seat)delete window.__seat[seatKey()]}render()};
@@ -1316,10 +1340,16 @@ lobbyMode();
   col.onSnapshot(snap=>{const m={};snap.docs.forEach(d=>{const v=d.data();if(v&&v.players)m[d.id]=JSON.parse(JSON.stringify(v))});games=m;
       if(!$("game").hidden&&cur&&G&&G.solo){}
       else if(!$("game").hidden&&cur){const ng=games[cur.id];
+        if(ng&&G&&ng.gid===G.gid&&ng.done&&ng.next&&ng.next!==cur.id&&window.__followed!==G.gid){window.__followed=G.gid;if(followNext(ng))return}
         if(ng&&(!G||ng.gid!==G.gid)){G=ng;seenLast=G.last?.n??null;pend={};announce()}
         else if(ng){const turnChanged=G.turn!==ng.turn;G=ng;if(turnChanged&&!canPlay())pend={};animateLast()}
         render()}
       else{renderPicks();refreshResume()}
+      // invitations : une partie vient d'être lancée dans le salon par un autre appareil
+      for(const id in games){const g=games[id];if(!g||g.solo||g.done||!g.players||g.host===DEV||(G&&G.gid===g.gid)||Date.now()-(g.started||0)>180000||g.prev)continue;if(seenInv(g.gid))continue;
+        const label=TABLES[id]||gLabel(GRIDS.find(d=>d.id===id)||{page:id});const who=g.players.map(p=>p.name).join(" et ");
+        inviteBanner("Nouvelle partie de "+(TABLES[id]?label:"mots fléchés ("+label+")")+" : "+who+". Tu viens ?",()=>{if(TABLES[id]){location.href="/"+(window.SALON||"")+"/"+id+"?join=1";return}MODE="multi";try{localStorage.setItem("fl-mode",MODE)}catch(e){}pickId=id;openGame()})}
+      if(!window.__joinDone){window.__joinDone=true;const jm=location.search.match(/[?&]join=([A-Za-z0-9]+)/);if(jm){const L=jm[1]==="1"?liveGame():(games[jm[1]]&&!games[jm[1]].done?{id:jm[1]}:null);if(L){MODE="multi";pickId=L.id;openGame()}try{history.replaceState(null,"",location.pathname)}catch(e){}}}
       setSync(true,"Salon partagé en direct");window.__diag("synchro","OK")},
     e=>{window.__diag("synchro","coupée ("+(e.code||"erreur")+")");setSync(false,"Synchro coupée ("+(e.code||"erreur")+")");net(e&&(e.code==="not_granted"||e.code==="revoked")?"<b>Tu n'as pas accès à la partie partagée.</b> Demande au propriétaire de partager la page avec toi, avec un accès qui permet de l'utiliser.":"<b>La synchronisation est coupée.</b> Recharge la page ("+(e.code||"erreur")+").")});
 })();
