@@ -172,7 +172,7 @@ const sha = t => crypto.createHash("sha256").update(t).digest("hex");
 const hashPin = (pin, salt) => crypto.scryptSync(String(pin), salt, 32).toString("hex");
 async function getPlayer(name) {
   if (players.has(name)) return players.get(name);
-  if (REDIS) { try { const v = await redis(["GET", "pl:" + name]); if (v) { const p = JSON.parse(v); players.set(name, p); return p; } } catch (e) { console.error("Lecture Redis (pseudo) :", e.message); throw e; } }
+  if (REDIS) { try { const v = await redis(["GET", "pl:" + name]); if (v) { const p = JSON.parse(v); players.set(name, p); return p; } } catch (e) { console.error("Lecture Redis (pseudo) :", e.message); } }
   return null;
 }
 let plTimer = null;
