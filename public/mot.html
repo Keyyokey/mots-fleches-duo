@@ -98,5 +98,140 @@ function theme(m){document.body.classList.toggle("light",m==="light");$("theme")
 theme(th||"dark");$("theme").onclick=()=>theme(document.body.classList.contains("light")?"dark":"light");
 paint();
 </script>
+<script id="theme-snip">// ---------- décor de saison + mascotte « M » ----------
+(function(){
+  const L={get(k){try{return localStorage.getItem(k)}catch(e){return null}},set(k,v){try{localStorage.setItem(k,v)}catch(e){}}};
+  const RM=matchMedia("(prefers-reduced-motion: reduce)").matches;
+  function easter(y){const a=y%19,b=Math.floor(y/100),c=y%100,d=Math.floor(b/4),e=b%4,f=Math.floor((b+8)/25),g=Math.floor((b-f+1)/3),h=(19*a+b-d-g+15)%30,i=Math.floor(c/4),k=c%4,l=(32+2*e+2*i-h-k)%7,m=Math.floor((a+11*h+22*l)/451),mo=Math.floor((h+l-7*m+114)/31),da=((h+l-7*m+114)%31)+1;return new Date(y,mo-1,da)}
+  function season(d){d=d||new Date();const m=d.getMonth()+1,j=d.getDate(),md=m*100+j;
+    const q=new URLSearchParams(location.search).get("saison");if(q)return q;
+    if(md>=1010&&md<=1102)return"halloween";
+    if(md>=1201&&md<=1226)return"noel";
+    if(md>=1227||md<=106)return"nouvelan";
+    if(md>=207&&md<=215)return"valentin";
+    const e=easter(d.getFullYear()),diff=(d-e)/864e5;if(diff>=-10&&diff<=2)return"paques";
+    if(md>=621&&md<=831)return"ete";
+    return"neutre"}
+  const S=season();
+  const INFO={halloween:{e:"🎃",hi:"Joyeux Halloween !"},noel:{e:"🎄",hi:"Joyeux Noël !"},nouvelan:{e:"🥂",hi:"Bonne année !"},valentin:{e:"💘",hi:"Bonne Saint-Valentin !"},paques:{e:"🐣",hi:"Joyeuses Pâques !"},ete:{e:"☀️",hi:"Bel été !"},neutre:{e:"▦",hi:"Une petite grille ?"}}[S]||{e:"▦",hi:"Une petite grille ?"};
+  window.__season=S;
+
+  // ---------- décor discret (coins de l'écran, derrière le contenu) ----------
+  const bat='<svg viewBox="0 0 64 32"><path d="M32 10c2-4 6-4 8 0 4-6 14-8 24-2-6 2-9 6-10 12-3-3-7-3-9 1-2-3-5-3-7 0-1 2-2 4-6 4s-5-2-6-4c-2-3-5-3-7 0-2-4-6-4-9-1C9 14 6 10 0 8c10-6 20-4 24 2 2-4 6-4 8 0z" fill="currentColor"/></svg>';
+  const pumpkin='<svg viewBox="0 0 120 100"><path d="M60 22c-6-14 2-20 10-20-6 4-6 10-4 20" fill="#5d7a2e"/><ellipse cx="38" cy="60" rx="30" ry="34" fill="#e8742a"/><ellipse cx="82" cy="60" rx="30" ry="34" fill="#e8742a"/><ellipse cx="60" cy="60" rx="30" ry="38" fill="#f08a35"/><path d="M40 52l10-10 8 12zM80 52l-10-10-8 12zM38 72q22 18 44 0l-6 8-6-6-6 8-6-8-6 8-6-8z" fill="#3a1d05"/></svg>';
+  const web='<svg viewBox="0 0 120 120" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M120 0L20 100M120 0L60 120M120 0L0 60M120 0L0 10M120 0L110 120"/><path d="M96 0q2 12-4 18q8-2 14 8q-2-12 14-12M72 0q4 22-10 36q18-6 28 16q-4-22 30-26M46 0q6 34-20 56q30-10 44 26q-6-34 50-40"/></svg>';
+  const flake='<svg viewBox="0 0 40 40" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M20 3v34M5 11.5l30 17M5 28.5l30-17M20 3l-4 4M20 3l4 4M20 37l-4-4M20 37l4-4"/></svg>';
+  const heart='<svg viewBox="0 0 40 36"><path d="M20 34S2 22 2 11C2 5 6 2 11 2c4 0 7 3 9 6 2-3 5-6 9-6 5 0 9 3 9 9 0 11-18 23-18 23z" fill="currentColor"/></svg>';
+  const star='<svg viewBox="0 0 40 40"><path d="M20 2l4 14 14 4-14 4-4 14-4-14-14-4 14-4z" fill="currentColor"/></svg>';
+  const egg=c=>'<svg viewBox="0 0 40 50"><ellipse cx="20" cy="28" rx="17" ry="21" fill="'+c+'"/><path d="M4 26q8-6 16 0t16 0M5 36q7 5 15 0t15 0" stroke="#fff" stroke-width="2.6" fill="none" opacity=".75"/></svg>';
+  const sun='<svg viewBox="0 0 120 120"><circle cx="120" cy="0" r="38" fill="#ffc857"/><g stroke="#ffc857" stroke-width="5" stroke-linecap="round"><path d="M70 6h-16M78 34l-12 9M100 52l-5 15M128 56v16"/></g></svg>';
+  const holly='<svg viewBox="0 0 120 80"><path d="M10 40q20-30 50-8-10 4-12 14 10-2 16 6-30 14-54-12z" fill="#2f8a4f"/><path d="M110 40q-20-30-50-8 10 4 12 14-10-2-16 6 30 14 54-12z" fill="#2f8a4f"/><circle cx="54" cy="44" r="7" fill="#d63a4a"/><circle cx="66" cy="44" r="7" fill="#d63a4a"/><circle cx="60" cy="34" r="7" fill="#d63a4a"/></svg>';
+  function decor(){if(L.get("fl-deco")==="off"||S==="neutre"){document.body.classList.add("deco-carreaux");return}
+    const d=document.createElement("div");d.id="deco";d.className="deco deco-"+S;d.setAttribute("aria-hidden","true");let h="";
+    const rnd=(a,b)=>a+Math.random()*(b-a);
+    if(S==="halloween"){h+='<div class="dc tl web">'+web+'</div><div class="dc bl pk">'+pumpkin+'</div>';for(let i=0;i<4;i++)h+='<div class="fly bat" style="left:'+rnd(4,90)+'%;top:'+rnd(6,40)+'%;--t:'+rnd(14,24)+'s;--dl:-'+rnd(0,20)+'s;--s:'+rnd(.6,1.1)+'">'+bat+'</div>'}
+    else if(S==="noel"){h+='<div class="dc br holly">'+holly+'</div>';for(let i=0;i<14;i++)h+='<div class="fall flake" style="left:'+rnd(0,100)+'%;--t:'+rnd(12,26)+'s;--dl:-'+rnd(0,26)+'s;--s:'+rnd(.35,.9)+'">'+flake+'</div>'}
+    else if(S==="nouvelan"){for(let i=0;i<12;i++)h+='<div class="tw star" style="left:'+rnd(2,98)+'%;top:'+rnd(2,96)+'%;--t:'+rnd(2.5,5)+'s;--dl:-'+rnd(0,5)+'s;--s:'+rnd(.3,.8)+';color:'+["#ffc857","#5ad8ff","#c49bff","#ff8fab"][i%4]+'">'+star+'</div>'}
+    else if(S==="valentin"){for(let i=0;i<9;i++)h+='<div class="rise heart" style="left:'+rnd(0,100)+'%;--t:'+rnd(14,26)+'s;--dl:-'+rnd(0,26)+'s;--s:'+rnd(.4,.9)+'">'+heart+'</div>'}
+    else if(S==="paques"){h+='<div class="dc bl eggs">'+egg("#ff9ec7")+egg("#7cd3ff")+egg("#ffd36e")+'</div><div class="dc br eggs">'+egg("#9be38a")+egg("#c49bff")+'</div>'}
+    else if(S==="ete"){h+='<div class="dc tr sun">'+sun+'</div><div class="wave"></div>'}
+    d.innerHTML=h;document.body.prepend(d)}
+
+  // ---------- mascotte ----------
+  const HAT={
+    halloween:'<path d="M20 22L50 -14 58 2 78 22z" fill="#2a1a3a"/><path d="M8 24q42-10 84 0-42 8-84 0z" fill="#3d2754"/><path d="M28 18h44l-3-6H31z" fill="#ff8a1f"/>',
+    noel:'<path d="M18 24q30-40 66-6l-8 6z" fill="#d63a4a"/><circle cx="84" cy="16" r="7" fill="#fff"/><path d="M14 22q36-10 72 0v8q-36-9-72 0z" fill="#fff"/>',
+    nouvelan:'<path d="M36 24l16-40 16 40z" fill="#c49bff"/><path d="M40 14l24-6M44 4l16-4" stroke="#ffc857" stroke-width="3"/><circle cx="52" cy="-17" r="5" fill="#ffc857"/>',
+    valentin:'<path d="M78 2c-6-8-18-2-12 8l12 12 12-12c6-10-6-16-12-8z" fill="#ff4d6d"/>',
+    paques:'<ellipse cx="36" cy="0" rx="8" ry="22" fill="#fff" transform="rotate(-12 36 0)"/><ellipse cx="64" cy="0" rx="8" ry="22" fill="#fff" transform="rotate(12 64 0)"/><ellipse cx="36" cy="2" rx="4" ry="15" fill="#ffb3cf" transform="rotate(-12 36 2)"/><ellipse cx="64" cy="2" rx="4" ry="15" fill="#ffb3cf" transform="rotate(12 64 2)"/>',
+    ete:'',neutre:''};
+  const GLASS='<g class="m-glass"><rect x="22" y="46" width="22" height="13" rx="5" fill="#1b1b22"/><rect x="56" y="46" width="22" height="13" rx="5" fill="#1b1b22"/><path d="M44 51h12" stroke="#1b1b22" stroke-width="3"/></g>';
+  function mascotSVG(id){return '<svg class="mascot-svg" viewBox="-6 -24 112 132" aria-hidden="true"><defs><linearGradient id="mg'+id+'" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#00ADB5"/><stop offset="1" stop-color="#A26BFF"/></linearGradient></defs>'
+    +'<g class="m-body"><path d="M10 96V30q0-10 10-10 7 0 11 7l19 30 19-30q4-7 11-7 10 0 10 10v66q0 6-6 6h-8q-6 0-6-6V58L56 78q-6 8-12 0L32 58v38q0 6-6 6h-10q-6 0-6-6z" fill="url(#mg'+id+')"/>'
+    +'<g class="m-arm m-arml"><path d="M10 64q-12 2-14 14" stroke="#7a5ad6" stroke-width="7" stroke-linecap="round" fill="none"/></g><g class="m-arm m-armr"><path d="M90 64q12 2 14 14" stroke="#7a5ad6" stroke-width="7" stroke-linecap="round" fill="none"/></g>'
+    +'<g class="m-face"><g class="m-eyes"><ellipse cx="33" cy="52" rx="7.5" ry="8.5" fill="#fff"/><ellipse cx="67" cy="52" rx="7.5" ry="8.5" fill="#fff"/><circle class="m-pupil" cx="34" cy="53" r="4" fill="#15151b"/><circle class="m-pupil" cx="68" cy="53" r="4" fill="#15151b"/><circle cx="35.5" cy="51" r="1.4" fill="#fff"/><circle cx="69.5" cy="51" r="1.4" fill="#fff"/></g>'
+    +'<ellipse cx="22" cy="66" rx="5" ry="3" fill="#ff8fab" opacity=".55"/><ellipse cx="78" cy="66" rx="5" ry="3" fill="#ff8fab" opacity=".55"/>'
+    +'<path class="m-mouth m-smile" d="M42 68q8 8 16 0" stroke="#15151b" stroke-width="3" fill="none" stroke-linecap="round"/><path class="m-mouth m-open" d="M41 67q9 14 18 0z" fill="#15151b"/><path class="m-mouth m-sad" d="M42 73q8-7 16 0" stroke="#15151b" stroke-width="3" fill="none" stroke-linecap="round"/></g>'
+    +(S==="ete"?GLASS:'')+'<g class="m-hat">'+(HAT[S]||"")+'</g></g></svg>'}
+  const SAY={ok:["Bravo !","Bien vu !","Joli !","Et un de plus !","Champion !"],bad:["Oups…","Presque !","Pas grave !","Essaie encore !"],win:["Victoire !","Quelle partie !","Génial !"],turn:["À toi !","Ton tour !"],hi:[INFO.hi,"Une petite grille ?","On joue ?","Je compte les points !"]};
+  const pick=a=>a[Math.floor(Math.random()*a.length)];
+  let mid=0;
+  function makeMascot(cls){const w=document.createElement("div");w.className="mascot "+(cls||"");w.innerHTML=mascotSVG(++mid)+'<span class="m-say" role="status"></span>';return w}
+  function react(w,kind,text){if(!w||!w.isConnected)return;const cls={ok:"m-happy",win:"m-win",bad:"m-oops",turn:"m-wave",hi:"m-wave"}[kind]||"m-happy";
+    w.classList.remove("m-happy","m-win","m-oops","m-wave");void w.offsetWidth;w.classList.add(cls,"m-show");
+    const say=w.querySelector(".m-say");if(say&&(text||SAY[kind])){say.textContent=text||pick(SAY[kind]);say.classList.add("on")}
+    clearTimeout(w._t);w._t=setTimeout(()=>{w.classList.remove(cls,"m-show");if(say)say.classList.remove("on")},kind==="win"?3600:2000)}
+  let headM=null,gameM=null;
+  function blink(){document.querySelectorAll(".mascot .m-eyes").forEach(e=>{e.classList.remove("blink");void e.getBoundingClientRect();e.classList.add("blink")});setTimeout(blink,2500+Math.random()*4000)}
+  function place(){const h=document.querySelector("header");
+    if(h&&!h.querySelector(".mascot")){headM=makeMascot("m-head");const first=h.querySelector("h1,.brand");if(first)first.insertBefore(headM,first.firstChild);else h.insertBefore(headM,h.firstChild);headM.title=INFO.hi;
+      headM.addEventListener("click",e=>{e.preventDefault();e.stopPropagation();react(headM,Math.random()<.5?"hi":"ok",Math.random()<.35?INFO.hi:null)})}
+    gameM=makeMascot("m-game");document.body.appendChild(gameM);
+    // décor : petit interrupteur
+    const pg=document.getElementById("pgBar");if(pg&&!document.getElementById("decoBtn")&&S!=="neutre"){const b=document.createElement("button");b.type="button";b.id="decoBtn";b.className="pg-chip deco-btn";b.title="Décor de saison";b.textContent=INFO.e+(L.get("fl-deco")==="off"?" décor coupé":"");
+      b.onclick=()=>{L.set("fl-deco",L.get("fl-deco")==="off"?"on":"off");location.reload()};pg.insertBefore(b,pg.firstChild)}
+    // le logo « M » des fenêtres de pseudo devient la mascotte
+    new MutationObserver(()=>{document.querySelectorAll(".pg-m:not(.done)").forEach(m=>{m.classList.add("done");m.innerHTML=mascotSVG(++mid);m.classList.add("pg-mascot")})}).observe(document.body,{childList:true});
+    document.querySelectorAll(".pg-m:not(.done)").forEach(m=>{m.classList.add("done");m.innerHTML=mascotSVG(++mid);m.classList.add("pg-mascot")});
+    setTimeout(()=>react(headM,"hi",INFO.hi),900);if(!RM)setTimeout(blink,1800)}
+  window.__mascot=n=>{const k={ok:"ok",win:"win",bad:"bad",turn:"turn"}[n];if(!k)return;const inGame=document.body.classList.contains("playing");react(inGame?gameM:headM,k)};
+
+  const css=`
+.deco{position:fixed;inset:0;z-index:-1;pointer-events:none;overflow:hidden;opacity:.2}
+body.light .deco{opacity:.28}
+.deco .dc{position:absolute}.deco .tl{top:0;left:0}.deco .tr{top:0;right:0}.deco .bl{bottom:0;left:0}.deco .br{bottom:0;right:0}
+.deco .web{width:min(22vw,170px);color:#cfd3e6;transform:scaleX(-1)}.deco .pk{width:min(18vw,130px);left:10px;bottom:6px;opacity:.9}
+.deco .bat{position:absolute;width:42px;color:#b9a3ff;transform:scale(var(--s));animation:batfly var(--t) ease-in-out var(--dl) infinite}
+@keyframes batfly{0%,100%{translate:0 0}25%{translate:6vw -3vh}50%{translate:-4vw 4vh}75%{translate:5vw 2vh}}
+.deco .fall{position:absolute;top:-40px;width:26px;color:#dff3ff;scale:var(--s);animation:fall var(--t) linear var(--dl) infinite}
+@keyframes fall{to{transform:translate(4vw,110vh) rotate(240deg)}}
+.deco .holly{width:min(24vw,150px);right:8px;bottom:8px}
+.deco .rise{position:absolute;bottom:-40px;width:26px;color:#ff6f91;scale:var(--s);animation:rise var(--t) ease-in var(--dl) infinite}
+@keyframes rise{to{transform:translate(-3vw,-110vh) rotate(-20deg)}}
+.deco .tw{position:absolute;width:22px;scale:var(--s);animation:tw var(--t) ease-in-out var(--dl) infinite}
+@keyframes tw{0%,100%{opacity:.15;transform:scale(.6)}50%{opacity:1;transform:scale(1.1)}}
+.deco .eggs{display:flex;gap:4px;align-items:flex-end;padding:8px}.deco .eggs svg{width:min(7vw,44px)}
+.deco .sun{width:min(26vw,170px)}.deco .wave{position:absolute;left:0;right:0;bottom:0;height:40px;background:radial-gradient(30px 20px at 30px 40px,#5ad8ff 98%,transparent) 0 0/60px 40px repeat-x;opacity:.7}
+body.deco-carreaux{background-image:linear-gradient(rgba(140,140,160,.07) 1px,transparent 1px),linear-gradient(90deg,rgba(140,140,160,.07) 1px,transparent 1px);background-size:28px 28px;background-attachment:fixed;background-blend-mode:normal}
+body.deco-carreaux{--carreaux:1}
+@media (prefers-reduced-motion:reduce){.deco *{animation:none!important}}
+.mascot{position:relative;display:inline-flex;align-items:center;flex:none;cursor:pointer;-webkit-tap-highlight-color:transparent}
+.mascot-svg{width:100%;height:100%;overflow:visible}
+.m-head{width:34px;height:40px;margin:-8px 6px -8px 0;vertical-align:middle}
+@media (max-width:520px){.m-head{width:28px;height:33px;margin-right:4px}header h1:has(.m-head){font-size:clamp(1.1rem,5.1vw,1.7rem);white-space:nowrap}}
+header .m-head{align-self:center}
+.m-game{position:fixed;left:8px;bottom:calc(120px + env(safe-area-inset-bottom));width:52px;height:60px;z-index:46;pointer-events:none;transform:translateY(140%);transition:transform .35s cubic-bezier(.3,1.5,.5,1)}
+.m-game.m-show{transform:none}
+body:not(.playing) .m-game{display:none}
+.m-game:not(.m-show){transform:translateX(-140%)}
+@media (min-width:1000px){.m-game{bottom:90px}}
+.m-say{position:absolute;left:100%;top:-6px;margin-left:4px;white-space:nowrap;background:var(--glass,var(--card));border:1px solid var(--accent);color:var(--ink);font-weight:800;font-size:.82rem;padding:4px 9px;border-radius:12px 12px 12px 3px;opacity:0;transform:scale(.6);transform-origin:left bottom;transition:.2s;pointer-events:none;z-index:2}
+.m-say.on{opacity:1;transform:none}
+.m-head .m-say{top:50%;transform:translateY(-50%) scale(.6)}.m-head .m-say.on{transform:translateY(-50%)}
+.m-body{transform-origin:50px 100px;animation:mbreathe 3.2s ease-in-out infinite}
+@keyframes mbreathe{50%{transform:scale(1.03,.97)}}
+.m-mouth{display:none}.m-smile{display:inline}
+.mascot.m-happy .m-smile,.mascot.m-win .m-smile,.mascot.m-oops .m-smile{display:none}
+.mascot.m-happy .m-open,.mascot.m-win .m-open{display:inline}.mascot.m-oops .m-sad{display:inline}
+.mascot.m-happy .m-body{animation:mhop .5s ease 2}
+.mascot.m-win .m-body{animation:mjump .55s ease 4}
+.mascot.m-oops .m-body{animation:mshake .45s ease 1}
+.mascot.m-wave .m-armr{animation:mwave .4s ease-in-out 3;transform-origin:90px 64px}
+.mascot.m-win .m-arml,.mascot.m-win .m-armr{animation:mwave .3s ease-in-out 6}.mascot.m-win .m-arml{transform-origin:10px 64px}.mascot.m-win .m-armr{transform-origin:90px 64px}
+@keyframes mhop{40%{transform:translateY(-14px) scale(1.04,.96)}}
+@keyframes mjump{40%{transform:translateY(-22px) rotate(-6deg)}70%{transform:translateY(-6px) rotate(5deg)}}
+@keyframes mshake{20%{transform:translateX(-6px) rotate(-5deg)}50%{transform:translateX(6px) rotate(5deg)}80%{transform:translateX(-3px)}}
+@keyframes mwave{50%{transform:rotate(-28deg)}}
+.m-eyes{transform-origin:50px 52px}.m-eyes.blink{animation:mblink .18s ease}
+@keyframes mblink{50%{transform:scaleY(.1)}}
+.pg-m.pg-mascot{background:none;width:34px;height:40px;border-radius:0}
+.deco-btn{padding:0 10px;min-width:40px;justify-content:center}
+@media (prefers-reduced-motion:reduce){.mascot *{animation:none!important}}
+`;
+  const st=document.createElement("style");st.textContent=css;document.head.appendChild(st);
+  function boot(){decor();place()}
+  if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",()=>setTimeout(boot,30));else setTimeout(boot,30);
+})();
+</script>
 </body>
 </html>
