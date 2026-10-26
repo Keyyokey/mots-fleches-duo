@@ -563,6 +563,121 @@ body:not(.playing) #online{display:none}
 <input id="kb" autocomplete="off" autocapitalize="characters" spellcheck="false" aria-label="Saisie">
 
 <script>
+// ---------- pseudo : accueil, « Ma page », salons rattachés ----------
+(function(){
+  const RE=/^[A-Z0-9@#_]{2,7}$/;
+  const L={get(k){try{return localStorage.getItem(k)}catch(e){return null}},set(k,v){try{localStorage.setItem(k,v)}catch(e){}},del(k){try{localStorage.removeItem(k)}catch(e){}}};
+  const pm=location.pathname.match(/^\/([A-Za-z0-9]{5})(\/|$)/);const LINK=pm?pm[1].toUpperCase():null;
+  let ME=null;try{ME=JSON.parse(L.get("fl-me")||"null")}catch(e){}
+  if(ME&&!RE.test(ME.name||""))ME=null;
+  const GUEST=()=>!ME&&L.get("fl-guest")==="1";
+  window.__meName=ME?ME.name:null;
+  // salon déjà rattaché au pseudo : pas besoin de reconfirmer le code
+  if(ME&&LINK&&(ME.salons||[]).some(s=>s.code===LINK))L.set("fl-ok-"+LINK,"1");
+  if(ME){try{const n=JSON.parse(L.get("fl-names")||"[]");if(n[0]!==ME.name){n[0]=ME.name;L.set("fl-names",JSON.stringify(n))}}catch(e){}}
+  function clean(v){return String(v||"").normalize("NFD").replace(/[̀-ͯ]/g,"").toUpperCase().replace(/[^A-Z0-9@#_]/g,"").slice(0,7)}
+  async function call(route,body){try{const r=await fetch("/api/p/"+route,{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify(body)});let j={};try{j=await r.json()}catch(e){}return{status:r.status,...j}}catch(e){return{status:0,msg:"Pas de connexion au serveur. Réessaie dans un instant."}}}
+  function store(){if(ME)L.set("fl-me",JSON.stringify(ME));else L.del("fl-me");window.__meName=ME?ME.name:null}
+  function localSalons(){try{const o=JSON.parse(L.get("fl-salons")||"{}");return Object.keys(o).filter(k=>/^[A-Z0-9]{5}$/.test(k))}catch(e){return[]}}
+  async function link(code,remove){if(!ME||!/^[A-Z0-9]{5}$/.test(code||""))return;const r=await call("link",{name:ME.name,token:ME.token,salon:code,remove:!!remove});
+    if(r.status===200){ME.salons=r.salons;store()}else if(r.status===401){ME.stale=true;store()}return r}
+  window.__linkSalon=c=>{if(ME&&c&&!(ME.salons||[]).some(s=>s.code===c&&Date.now()-s.t<6e5))link(c)};
+  const esc=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+  function ago(t){const m=Math.round((Date.now()-t)/6e4);if(m<2)return"à l'instant";if(m<60)return"il y a "+m+" min";const h=Math.round(m/60);if(h<24)return"il y a "+h+" h";const d=Math.round(h/24);return"il y a "+d+" jour"+(d>1?"s":"")}
+  function newCode(){const CH="ABCDEFGHJKMNPQRSTUVWXYZ23456789";return Array.from({length:5},()=>CH[Math.floor(Math.random()*CH.length)]).join("")}
+  function close(){const o=document.getElementById("pgBox");if(o)o.remove();document.body.classList.remove("pg-open")}
+  function shell(html,dismiss){close();const ov=document.createElement("div");ov.id="pgBox";ov.className="overlay pgbox";ov.setAttribute("role","dialog");ov.setAttribute("aria-modal","true");
+    ov.innerHTML='<div class="sheet pgsheet"><div class="pg-brand"><span class="pg-m" aria-hidden="true">M</span><span><b>MOTS FLÉCHÉS</b> duo</span></div>'+html+'</div>';
+    document.body.appendChild(ov);document.body.classList.add("pg-open");if(dismiss)ov.addEventListener("click",e=>{if(e.target===ov)close()});return ov}
+
+  // ---------- écran pseudo (créer ou se reconnecter) ----------
+  function gate(opts){opts=opts||{};
+    const ov=shell('<h2>'+(opts.title||"Ton pseudo")+'</h2>'
+      +(opts.why?'<p class="muted pg-why">'+esc(opts.why)+'</p>':'')
+      +'<form class="pg-form" autocomplete="off"><label for="pgName">Pseudo</label><input id="pgName" class="pg-name" maxlength="7" autocapitalize="characters" spellcheck="false" placeholder="EX : JULIE_7" inputmode="text">'
+      +'<div class="pg-rule muted">2 à 7 caractères : lettres, chiffres, @ # _</div>'
+      +'<div class="pg-state" aria-live="polite"></div>'
+      +'<div class="pg-pinrow" hidden><label for="pgPin" class="pg-pinlbl">Code secret (4 chiffres)</label><input id="pgPin" class="pg-pin" type="password" inputmode="numeric" pattern="[0-9]*" maxlength="4" autocomplete="off" placeholder="••••"></div>'
+      +'<div class="pg-warn" hidden>⚠️ Ce pseudo sera <b>ta marque dans le jeu</b> : il s\'affiche dans les parties et rattache tes salons, sur tous tes appareils. Il ne pourra pas être changé.</div>'
+      +'<div class="pg-err" role="alert"></div>'
+      +'<button type="submit" class="primary pg-go" disabled>Continuer</button></form>'
+      +(opts.noGuest?'':'<button type="button" class="pg-guest">Jouer sans pseudo <span class="muted">(solo uniquement, pas de salons)</span></button>')
+      +(opts.cancel?'<button type="button" class="pg-cancel">Annuler</button>':''),!!opts.cancel);
+    const $=s=>ov.querySelector(s),nm=$("#pgName"),pin=$("#pgPin"),st=$(".pg-state"),go=$(".pg-go"),err=$(".pg-err");let exists=null,seq=0,tmr=null;
+    const upd=()=>{const v=nm.value;const ok=RE.test(v);$(".pg-pinrow").hidden=!ok||exists===null;$(".pg-warn").hidden=!(ok&&exists===false);
+      go.disabled=!(ok&&exists!==null&&/^\d{4}$/.test(pin.value));go.textContent=exists?"Me reconnecter":exists===false?"Créer mon pseudo":"Continuer"};
+    nm.addEventListener("input",()=>{const c=clean(nm.value);if(c!==nm.value)nm.value=c;exists=null;err.textContent="";st.textContent="";st.className="pg-state";upd();clearTimeout(tmr);
+      if(!RE.test(c)){if(c.length===1)st.textContent="Encore un caractère au moins.";return}
+      const my=++seq;st.textContent="Vérification…";tmr=setTimeout(async()=>{const r=await call("check",{name:c});if(my!==seq)return;
+        if(r.status!==200){st.textContent=r.msg||"Serveur injoignable.";st.className="pg-state bad";return}
+        exists=!!r.exists;st.className="pg-state "+(exists?"old":"ok");
+        st.textContent=exists?"Ce pseudo existe déjà. C'est toi ? Entre ton code secret.":"✓ Ce pseudo est libre. Choisis un code secret à 4 chiffres : il ne sera demandé que sur un nouvel appareil.";
+        $(".pg-pinlbl").textContent=exists?"Ton code secret":"Choisis ton code secret (4 chiffres)";upd()},350)});
+    pin.addEventListener("input",()=>{pin.value=pin.value.replace(/\D/g,"").slice(0,4);err.textContent="";upd()});
+    $(".pg-form").onsubmit=async e=>{e.preventDefault();if(go.disabled)return;go.disabled=true;const name=nm.value;
+      const r=await call(exists?"login":"create",{name,pin:pin.value});
+      if(r.status!==200){err.textContent=r.msg||"Erreur ("+r.status+")";if(r.status===401){pin.value="";pin.focus()}if(r.status===409){exists=true}upd();return}
+      ME={name,token:r.token,salons:r.salons||[]};L.del("fl-guest");store();
+      // les salons déjà visités sur cet appareil sont rattachés au pseudo
+      const loc=localSalons();if(LINK&&!loc.includes(LINK))loc.unshift(LINK);for(const c of loc.slice(0,8))await link(c);
+      if(LINK)L.set("fl-ok-"+LINK,"1");
+      if(opts.then)opts.then();else if(opts.home||isGen())location.href="/";else location.reload()};
+    const g=$(".pg-guest");if(g)g.onclick=()=>{L.set("fl-guest","1");if(LINK&&!opts.home){location.href=location.pathname.includes("/rond")?"/rond":location.pathname.includes("/meles")?"/meles":"/";return}close();applyGuest()};
+    const c=$(".pg-cancel");if(c)c.onclick=close;
+    if(!matchMedia("(pointer:coarse)").matches)setTimeout(()=>nm.focus(),60)}
+
+  // ---------- « Ma page » ----------
+  function myPage(){if(!ME)return gate({home:true});
+    const ov=shell('<h2 class="pg-hello">Bonjour <span class="pg-me"></span> 👋</h2>'
+      +'<div class="pg-sec"><div class="pg-sectitle">Mes salons</div><div class="pg-list"><div class="muted">Chargement…</div></div></div>'
+      +'<div class="pg-acts"><button type="button" class="primary pg-new">＋ Créer un salon</button>'
+      +'<form class="pg-join"><input maxlength="5" autocapitalize="characters" spellcheck="false" placeholder="CODE" aria-label="Code d\'un salon"><button type="submit">Rejoindre</button></form>'
+      +'<button type="button" class="pg-solo">🎯 Jouer en solo</button><a class="pg-mot" href="/mot">📅 Le mot du jour</a></div>'
+      +'<details class="pg-more"><summary>Mon compte</summary><div class="pg-morein"><form class="pg-chpin"><label>Nouveau code secret <input type="password" inputmode="numeric" maxlength="4" placeholder="••••"></label><button type="submit">Changer</button></form>'
+      +'<button type="button" class="pg-out">Se déconnecter de cet appareil</button></div></details>',true);
+    const $=s=>ov.querySelector(s);$(".pg-me").textContent=ME.name;
+    const draw=list=>{const box=$(".pg-list");box.innerHTML="";if(!list.length){box.innerHTML='<div class="muted">Pas encore de salon. Crée-en un et envoie le code à tes amis, ou rejoins celui d\'un ami.</div>';return}
+      list.forEach(s=>{const a=document.createElement("a");a.className="pg-salon"+(s.code===(window.SALON||LINK)?" here":"");a.href="/"+s.code;
+        a.innerHTML='<span class="pg-code"></span><span class="pg-info"></span><span class="pg-go2">›</span>';a.querySelector(".pg-code").textContent=s.code;
+        a.querySelector(".pg-info").textContent=(s.open?"● partie en cours · ":"")+(s.live?s.live+" connecté"+(s.live>1?"s":"")+" · ":"")+ago(s.t);if(s.open)a.classList.add("live");
+        a.onclick=e=>{L.set("fl-ok-"+s.code,"1");if(s.code===window.SALON&&!LINK){e.preventDefault();close()}};box.appendChild(a)})};
+    draw(ME.salons||[]);
+    call("me",{name:ME.name,token:ME.token}).then(r=>{if(r.status===200){ME.salons=r.salons;store();if(ov.isConnected)draw(r.salons)}else if(r.status===401){ME=null;store();gate({home:true,title:"Reconnecte-toi",why:"Ton appareil a été déconnecté. Entre ton pseudo et ton code secret."})}});
+    $(".pg-new").onclick=async()=>{const c=newCode();L.set("fl-ok-"+c,"1");await link(c);location.href="/"+c};
+    $(".pg-join").onsubmit=e=>{e.preventDefault();const i=e.target.querySelector("input");const c=clean(i.value).replace(/[@#_]/g,"");if(!/^[A-Z0-9]{5}$/.test(c)){i.classList.add("err");i.focus();return}L.set("fl-ok-"+c,"1");link(c);location.href="/"+c};
+    $(".pg-join input").addEventListener("input",e=>{e.target.value=clean(e.target.value).replace(/[@#_]/g,"").slice(0,5);e.target.classList.remove("err")});
+    $(".pg-solo").onclick=()=>{close();const b=document.querySelector('#modeSeg [data-v="solo"]');if(b)b.click()};
+    $(".pg-chpin").onsubmit=async e=>{e.preventDefault();const i=e.target.querySelector("input");if(!/^\d{4}$/.test(i.value)){i.focus();return}const r=await call("pin",{name:ME.name,token:ME.token,pin:i.value});i.value="";e.target.querySelector("button").textContent=r.status===200?"Changé ✓":"Erreur"};
+    $(".pg-out").onclick=async()=>{await call("logout",{name:ME.name,token:ME.token});ME=null;store();location.href="/"}}
+  window.__myPage=myPage;window.__pseudoGate=gate;
+
+  // ---------- mode invité : solo uniquement ----------
+  function applyGuest(){document.body.classList.add("guest");const solo=document.querySelector('#modeSeg [data-v="solo"]');const multi=document.querySelector('#modeSeg [data-v="multi"]');
+    if(multi&&multi.getAttribute("aria-checked")==="true"&&solo)solo.click();
+    document.querySelectorAll("nav.tables a").forEach(a=>{const m=a.getAttribute("href").match(/\/(rond|meles)$/);if(m)a.href="/"+m[1];else if(/^\/[A-Z0-9]{5}$/.test(a.getAttribute("href")))a.href="/"});
+    bar()}
+  document.addEventListener("click",e=>{const a=!ME&&e.target.closest&&e.target.closest("nav.tables a");if(a){const m=(a.getAttribute("href")||"").match(/^\/[A-Za-z0-9]{5}(\/(rond|meles))?$/);if(m){e.preventDefault();L.set("fl-guest","1");location.href=m[1]||"/";return}}
+  const b=e.target.closest&&e.target.closest('#modeSeg [data-v="multi"]');if(b&&!ME){e.preventDefault();e.stopImmediatePropagation();gate({cancel:true,noGuest:true,home:true,title:"Crée ton pseudo pour jouer à plusieurs",why:"Les salons à plusieurs sont rattachés à un pseudo."})}},true);
+
+  // ---------- barre « Ma page » dans l'accueil ----------
+  function bar(){const lobby=document.getElementById("lobby");if(!lobby)return;let b=document.getElementById("pgBar");if(!b){b=document.createElement("div");b.id="pgBar";b.className="pgbar";lobby.insertBefore(b,lobby.firstChild)}
+    b.innerHTML="";if(ME){const x=document.createElement("button");x.type="button";x.className="pg-chip";x.innerHTML='<span class="pg-av"></span><span class="pg-nm"></span><span class="muted">· Ma page</span>';x.querySelector(".pg-av").textContent=ME.name[0];x.querySelector(".pg-nm").textContent=ME.name;x.onclick=myPage;b.appendChild(x)}
+    else{const t=document.createElement("span");t.className="muted";t.textContent="Mode solo, sans pseudo.";const x=document.createElement("button");x.type="button";x.className="pg-chip";x.textContent="Créer mon pseudo";x.onclick=()=>gate({cancel:true,noGuest:true,home:true});b.append(t,x)}}
+
+  function isGen(){try{return !!(LINK&&sessionStorage.getItem("fl-gen-"+LINK))}catch(e){return false}}
+  function boot(){const HOME=!LINK||isGen();
+    if(ME){bar();if(!HOME)link(LINK);
+      if(!LINK)myPage();
+      // nom du joueur prérempli
+      const n0=document.getElementById("n0");if(n0&&!n0.value.trim())n0.value=ME.name;
+      return}
+    if(GUEST()&&HOME){applyGuest();return}
+    if(!HOME)gate({title:"Rejoindre le salon "+LINK,why:"Pour jouer dans un salon, il faut un pseudo : il te suit sur tous tes appareils et retrouve tes salons."});
+    else gate({home:true,title:"Bienvenue !",why:"Choisis ton pseudo pour jouer avec tes amis et retrouver tes salons. Déjà un pseudo ? Tape-le et entre ton code."})}
+  const st=document.createElement("style");st.textContent='.pgbox{z-index:90;align-items:center}.pgsheet{max-width:420px;width:100%;display:flex;flex-direction:column;gap:10px;max-height:92vh;overflow:auto}\n.pg-brand{display:flex;align-items:center;gap:8px;font-size:.9rem;color:var(--muted)}.pg-brand b{color:var(--ink);letter-spacing:.04em}\n.pg-m{display:inline-grid;place-items:center;width:30px;height:30px;border-radius:9px;background:linear-gradient(135deg,var(--accent),#A26BFF);color:#fff;font-weight:900}\n.pgsheet h2{margin:2px 0 0}.pg-why{margin:0}.pg-form{display:flex;flex-direction:column;gap:6px}.pg-form label{font-weight:700;font-size:.9rem}\n.pg-name{font-size:1.6rem;font-weight:800;letter-spacing:.14em;text-transform:uppercase;text-align:center;padding:10px;border-radius:12px;border:1px solid var(--line);background:var(--card);color:var(--ink);min-width:0}\n.pg-pin{font-size:1.6rem;font-weight:800;letter-spacing:.5em;text-align:center;padding:10px;border-radius:12px;border:1px solid var(--line);background:var(--card);color:var(--ink);width:100%;box-sizing:border-box}\n.pg-pinrow{display:flex;flex-direction:column;gap:6px}.pg-rule{font-size:.8rem;text-align:center}\n.pg-state{font-size:.9rem;min-height:1.2em}.pg-state.ok{color:var(--good,#3ddc97)}.pg-state.old{color:var(--accent)}.pg-state.bad,.pg-err{color:var(--bad,#ff4d6d)}.pg-err{font-weight:700;min-height:1.2em}\n.pg-warn{font-size:.86rem;line-height:1.4;padding:8px 10px;border-radius:10px;border:1px solid #ffc857;background:rgba(255,200,87,.1)}\n.pg-guest,.pg-cancel{background:none;border:none;box-shadow:none;color:var(--ink);text-decoration:underline;min-height:40px}\n.pg-sec{display:flex;flex-direction:column;gap:6px}.pg-sectitle{font-size:.78rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--muted)}\n.pg-list{display:flex;flex-direction:column;gap:6px;max-height:38vh;overflow:auto}\n.pg-salon{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:12px;border:1px solid var(--line);background:var(--card);color:var(--ink);text-decoration:none}\n.pg-salon.here{border-color:var(--accent)}.pg-salon.live .pg-info{color:var(--good,#3ddc97)}.pg-code{font-weight:800;letter-spacing:.16em;font-size:1.15rem;color:var(--accent)}.pg-info{flex:1;font-size:.84rem;color:var(--muted);text-align:left}.pg-go2{font-size:1.4rem;color:var(--muted)}\n.pg-acts{display:flex;flex-direction:column;gap:8px}.pg-join{display:flex;gap:8px}.pg-join input{flex:1;min-width:0;text-align:center;font-weight:800;letter-spacing:.2em;font-size:1.1rem;border-radius:12px;border:1px solid var(--line);background:var(--card);color:var(--ink);padding:8px}.pg-join input.err{border-color:var(--bad,#ff4d6d)}\n.pg-mot{display:flex;align-items:center;justify-content:center;min-height:44px;border-radius:12px;border:1px solid var(--line);color:var(--ink);text-decoration:none;font-weight:600}\n.pg-more summary{cursor:pointer;color:var(--muted);font-size:.9rem}.pg-morein{display:flex;flex-direction:column;gap:8px;padding-top:8px}.pg-chpin{display:flex;gap:8px;align-items:end}.pg-chpin label{flex:1;display:flex;flex-direction:column;gap:4px;font-size:.85rem}.pg-chpin input{padding:8px;border-radius:10px;border:1px solid var(--line);background:var(--card);color:var(--ink);letter-spacing:.4em}\n.pgbar{display:flex;align-items:center;justify-content:flex-end;gap:8px;flex-wrap:wrap;grid-column:1/-1}\n.pg-chip{display:inline-flex;align-items:center;gap:6px;min-height:40px;border-radius:999px;padding:0 14px 0 6px}.pg-av{display:inline-grid;place-items:center;width:28px;height:28px;border-radius:50%;background:var(--accent);color:#041b1d;font-weight:900}.pg-nm{font-weight:800;letter-spacing:.06em}\nbody.guest .multiOnly,body.guest .invite,body.guest #liveCard,body.guest #invBanner{display:none!important}\nbody.guest #modeSeg [data-v="multi"]{opacity:.55}';document.head.appendChild(st);
+  if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",()=>setTimeout(boot,0));else setTimeout(boot,0);
+})();
+
 // Branche la page du jeu sur le serveur du site : parties partagées par salon.
 (function(){
   const CH="ABCDEFGHJKMNPQRSTUVWXYZ23456789";
@@ -571,6 +686,7 @@ body:not(.playing) #online{display:none}
   if(!code){code=Array.from({length:5},()=>CH[Math.floor(Math.random()*CH.length)]).join("");try{history.replaceState(null,"","/"+code+location.hash)}catch(e){}}
   code=code.toUpperCase();
   window.SALON=code;
+  if(!fromLink){try{sessionStorage.setItem("fl-gen-"+code,"1")}catch(e){}}
   const LS={get(k){try{return localStorage.getItem(k)}catch(e){return null}},set(k,v){try{localStorage.setItem(k,v)}catch(e){}}};
 
   // ---------- copie de secours dans le navigateur ----------
@@ -581,6 +697,8 @@ body:not(.playing) #online{display:none}
   function writeBackup(docs){const keep={};const now=Date.now();
     for(const id in docs){const d=docs[id];if(d&&d.players&&(!d.done||now-(d.ended||d.started||now)<7*864e5))keep[id]=d}
     LS.set(BK,JSON.stringify({t:now,docs:keep}));
+    // un salon créé au hasard à l'accueil n'entre dans « Mes salons » qu'une fois une partie à plusieurs lancée
+    if(!fromLink&&!Object.values(keep).some(d=>!d.solo))return;
     // liste des salons visités (pour « Mes salons »)
     try{const all=JSON.parse(LS.get("fl-salons")||"{}");all[code]=now;const ks=Object.keys(all).sort((a,b)=>all[b]-all[a]).slice(0,8);const o={};ks.forEach(k=>o[k]=all[k]);LS.set("fl-salons",JSON.stringify(o))}catch(e){}}
   // lien de sauvegarde (#r=...) : on fusionne son contenu dans la copie locale
@@ -626,6 +744,7 @@ body:not(.playing) #online{display:none}
     onSnapshot(next,err){const s={next,err};snapSubs.push(s);if(lastDocs)setTimeout(()=>next({docs:lastDocs.map(d=>({id:d.id,data:()=>d.data}))}),0);return()=>{const i=snapSubs.indexOf(s);if(i>=0)snapSubs.splice(i,1)}},
     doc(id){return{set(data){
       // copie locale immédiate : même hors ligne, le coup n'est pas perdu
+      if(data&&data.players&&!data.solo&&window.__linkSalon)window.__linkSalon(code);
       const bk=readBackup();bk[id]=Object.assign({},data,{_v:Math.max((bk[id]&&bk[id]._v)||0,data._v||0)+1});writeBackup(bk);
       return new Promise((res,rej)=>{const req=++reqN;pending[req]={res,rej};if(!sendRaw({t:"set",id,data,req})){delete pending[req];rej({code:"unavailable"})}})}}}
   };
@@ -843,7 +962,7 @@ function confetti(){const cv=document.getElementById("confetti");if(!cv||matchMe
     if(t-t0<3200)requestAnimationFrame(f);else{x.clearRect(0,0,W,H);cv.hidden=true}})(t0)}
 let DEV="";try{DEV=localStorage.getItem("fl-dev")||"";if(!DEV){DEV=Math.random().toString(36).slice(2,12);localStorage.setItem("fl-dev",DEV)}}catch(e){DEV=Math.random().toString(36).slice(2,12)}
 const TABLES={rond:"Tourniquet",meles:"mots mêlés"};
-function inviteBanner(text,onJoin){const old=document.getElementById("invBanner");if(old)old.remove();const d=document.createElement("div");d.id="invBanner";d.className="invbanner";d.setAttribute("role","status");
+function inviteBanner(text,onJoin){if(document.body.classList.contains("guest"))return;const old=document.getElementById("invBanner");if(old)old.remove();const d=document.createElement("div");d.id="invBanner";d.className="invbanner";d.setAttribute("role","status");
   d.innerHTML='<span class="ib-t"></span><button type="button" class="primary" data-a="go">▶ Rejoindre</button><button type="button" data-a="no">Plus tard</button>';d.querySelector(".ib-t").textContent=text;
   d.addEventListener("click",e=>{const a=e.target.closest("button")?.dataset.a;if(!a)return;d.remove();if(a==="go")onJoin()});document.body.appendChild(d);sfx("turn");setTimeout(()=>{if(d.isConnected)d.classList.add("out")},20000);setTimeout(()=>d.remove(),20600)}
 function seenInv(gid){try{const s=JSON.parse(sessionStorage.getItem("fl-inv")||"[]");if(s.includes(gid))return true;s.push(gid);sessionStorage.setItem("fl-inv",JSON.stringify(s.slice(-50)));return false}catch(e){return false}}
@@ -939,8 +1058,10 @@ function clockMirror(){const t=$("timer");if(!G)return;const i=G.solo?0:G.turn;c
   if(t.hidden&&!G.solo)return;c.textContent=t.hidden?"":t.textContent.replace("⏱ ","");c.classList.toggle("low",t.classList.contains("low"))}
 function fillBand(el,idx){el.innerHTML=idx.map(playerCard).join("");[...el.children].forEach((d,j)=>d.querySelector(".nm").textContent=G.players[idx[j]].name)}
 let prevScores=null,prevTurnKey=null,recorded=null;
+function autoSeat(){if(!G||G.solo||mySeat()!==null||!window.__meName)return;const i=G.players.findIndex(p=>p.name.toUpperCase()===window.__meName);if(i<0)return;
+  const taken=(window.__peersAll||[]).some(p=>!p.isMe&&p.presence&&p.presence.gid===G.gid&&String(p.presence.seat)===String(i));if(!taken)setSeat(i)}
 function render(){
-  if(!G)return;
+  if(!G)return;autoSeat();
   const s=mySeat();
   // changement de main : bandeau + son
   const tk=G.gid+":"+G.turn+":"+(G.turnStart||0);const turnKey=G.gid+":"+G.turn;

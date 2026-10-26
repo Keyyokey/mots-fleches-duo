@@ -160,6 +160,78 @@ async function handle(ws, m) {
   }
 }
 
+// ---------- pseudos (registre unique, code secret à 4 chiffres) ----------
+// Un pseudo = 2 à 7 caractères A-Z 0-9 @ # _. Le code secret n'est jamais stocké en clair (scrypt + sel).
+// Chaque appareil reçoit un jeton : le code n'est redemandé que sur un nouvel appareil.
+const PSEUDO_RE = /^[A-Z0-9@#_]{2,7}$/;
+const PLAYERS_FILE = path.join(DATA_DIR, "players.json");
+const players = new Map();           // pseudo -> { h, salt, toks:[sha256], salons:{CODE:ts}, c }
+let playersLoaded = false;
+try { const o = JSON.parse(fs.readFileSync(PLAYERS_FILE, "utf8")); for (const k in o) players.set(k, o[k]); } catch {}
+const sha = t => crypto.createHash("sha256").update(t).digest("hex");
+const hashPin = (pin, salt) => crypto.scryptSync(String(pin), salt, 32).toString("hex");
+async function getPlayer(name) {
+  if (players.has(name)) return players.get(name);
+  if (REDIS) { try { const v = await redis(["GET", "pl:" + name]); if (v) { const p = JSON.parse(v); players.set(name, p); return p; } } catch (e) { console.error("Lecture Redis (pseudo) :", e.message); throw e; } }
+  return null;
+}
+let plTimer = null;
+function savePlayer(name) {
+  const p = players.get(name);
+  if (REDIS && p) redis(["SET", "pl:" + name, JSON.stringify(p)]).catch(e => console.error("Écriture Redis (pseudo) :", e.message));
+  clearTimeout(plTimer); plTimer = setTimeout(() => { try { fs.mkdirSync(DATA_DIR, { recursive: true }); fs.writeFileSync(PLAYERS_FILE, JSON.stringify(Object.fromEntries(players))); } catch {} }, 1500);
+}
+const fails = new Map();             // pseudo ou ip -> { n, until }
+function locked(k) { const f = fails.get(k); return f && f.until > Date.now(); }
+function fail(k, max, ms) { const f = fails.get(k) || { n: 0, until: 0 }; f.n++; if (f.n >= max) { f.until = Date.now() + ms; f.n = 0; } fails.set(k, f); }
+function newToken(p) { const t = crypto.randomBytes(24).toString("base64url"); p.toks = [sha(t)].concat(p.toks || []).slice(0, 12); return t; }
+function salonList(p) {
+  return Object.entries(p.salons || {}).sort((a, b) => b[1] - a[1]).slice(0, 30).map(([code, t]) => {
+    const s = salons.get(code); let live = 0, open = 0;
+    if (s) { live = s.sockets.size; for (const id in s.docs) { const d = s.docs[id]; if (d && d.players && !d.solo && !d.done) open++; } }
+    return { code, t, live, open };
+  });
+}
+async function api(req, res, route) {
+  const out = (code, o) => { res.writeHead(code, { "content-type": "application/json", "cache-control": "no-store" }); res.end(JSON.stringify(o)); };
+  if (req.method !== "POST") return out(405, { error: "méthode" });
+  let body = ""; for await (const ch of req) { body += ch; if (body.length > 4096) return out(413, { error: "trop long" }); }
+  let b; try { b = JSON.parse(body || "{}"); } catch { return out(400, { error: "json" }); }
+  const ip = String(req.headers["x-forwarded-for"] || req.socket.remoteAddress || "").split(",")[0].trim();
+  const name = String(b.name || "").toUpperCase();
+  if (!PSEUDO_RE.test(name)) return out(400, { error: "pseudo", msg: "Pseudo invalide : 2 à 7 caractères (A-Z, 0-9, @ # _)." });
+  let p; try { p = await getPlayer(name); } catch { return out(503, { error: "indispo", msg: "Serveur occupé, réessaie dans un instant." }); }
+  const authed = () => p && b.token && (p.toks || []).includes(sha(String(b.token)));
+  const pinOk = /^\d{4}$/.test(String(b.pin || ""));
+  if (route === "check") return out(200, { exists: !!p });
+  if (route === "create") {
+    if (locked("ip:" + ip)) return out(429, { error: "trop", msg: "Trop d'essais. Patiente quelques minutes." });
+    if (!pinOk) return out(400, { error: "pin", msg: "Le code secret fait 4 chiffres." });
+    if (p) return out(409, { error: "pris", msg: "Ce pseudo est déjà pris." });
+    fail("ip:" + ip, 20, 10 * 60e3);
+    const salt = crypto.randomBytes(12).toString("hex");
+    p = { h: hashPin(b.pin, salt), salt, toks: [], salons: {}, c: Date.now() }; players.set(name, p);
+    const token = newToken(p); savePlayer(name); return out(200, { token, salons: [] });
+  }
+  if (route === "login") {
+    if (!p) return out(404, { error: "inconnu", msg: "Ce pseudo n'existe pas encore." });
+    if (locked("pl:" + name) || locked("ip:" + ip)) return out(429, { error: "trop", msg: "Trop d'essais. Réessaie dans 10 minutes." });
+    if (!pinOk || hashPin(b.pin, p.salt) !== p.h) { fail("pl:" + name, 5, 10 * 60e3); fail("ip:" + ip, 30, 10 * 60e3); return out(401, { error: "pin", msg: "Code secret incorrect." }); }
+    fails.delete("pl:" + name); const token = newToken(p); savePlayer(name); return out(200, { token, salons: salonList(p) });
+  }
+  if (!authed()) return out(401, { error: "jeton", msg: "Reconnecte-toi avec ton code secret." });
+  if (route === "me") return out(200, { salons: salonList(p) });
+  if (route === "link") {
+    const code = String(b.salon || "").toUpperCase(); if (!CODE_RE.test(code)) return out(400, { error: "salon" });
+    p.salons = p.salons || {}; if (b.remove) delete p.salons[code]; else p.salons[code] = Date.now();
+    const keys = Object.keys(p.salons); if (keys.length > 60) keys.sort((a, c) => p.salons[a] - p.salons[c]).slice(0, keys.length - 60).forEach(k => delete p.salons[k]);
+    savePlayer(name); return out(200, { salons: salonList(p) });
+  }
+  if (route === "pin") { if (!pinOk) return out(400, { error: "pin", msg: "Le code secret fait 4 chiffres." }); p.salt = crypto.randomBytes(12).toString("hex"); p.h = hashPin(b.pin, p.salt); savePlayer(name); return out(200, { ok: true }); }
+  if (route === "logout") { p.toks = (p.toks || []).filter(t => t !== sha(String(b.token))); savePlayer(name); return out(200, { ok: true }); }
+  return out(404, { error: "route" });
+}
+
 // ---------- serveur web ----------
 const pages = {};                      // fichier -> { raw, gz, mtime }
 function page(file) {
@@ -178,6 +250,8 @@ function sendPage(req, res, file) {
 const server = http.createServer((req, res) => {
   const url = new URL(req.url, "http://x");
   if (url.pathname === "/healthz") { res.writeHead(200, { "content-type": "text/plain" }); return res.end("ok " + salons.size + (REDIS ? " redis" : "")); }
+  const am = url.pathname.match(/^\/api\/p\/(check|create|login|me|link|pin|logout)$/);
+  if (am) return void api(req, res, am[1]).catch(e => { console.error(e); try { res.writeHead(500); res.end("{}"); } catch {} });
   if (url.pathname === "/mot" || url.pathname === "/mot/") return sendPage(req, res, path.join(__dirname, "public", "mot.html"));
   if (/^\/[A-Za-z0-9]{5}\/(rond|meles)\/?$/.test(url.pathname) || /^\/(rond|meles)\/?$/.test(url.pathname)) return sendPage(req, res, path.join(__dirname, "public", "jeux.html"));
   if (url.pathname === "/" || /^\/[A-Za-z0-9]{5}\/?$/.test(url.pathname)) return sendPage(req, res, PAGE);
