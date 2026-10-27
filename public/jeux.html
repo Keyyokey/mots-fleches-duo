@@ -666,8 +666,8 @@ const INFO={
 // ---------- sons ----------
 let SOUND=LS.get("fl-sound-v","on")!=="off";let AC=null;
 function tone(f,t0,d,type,vol,f2){try{if(!AC)AC=new(window.AudioContext||window.webkitAudioContext)();if(AC.state==="suspended")AC.resume();const o=AC.createOscillator(),g=AC.createGain(),t=AC.currentTime+t0;o.type=type||"sine";o.frequency.setValueAtTime(f,t);if(f2)o.frequency.exponentialRampToValueAtTime(f2,t+d);g.gain.setValueAtTime(.0001,t);g.gain.exponentialRampToValueAtTime(vol||.15,t+.012);g.gain.exponentialRampToValueAtTime(.0001,t+d);o.connect(g).connect(AC.destination);o.start(t);o.stop(t+d+.05)}catch(e){}}
-const SFX={type:()=>tone(880,0,.05,"triangle",.06,660),ok:()=>{tone(523,0,.1);tone(659,.08,.1);tone(784,.16,.22)},bad:()=>{tone(180,0,.22,"square",.06,120)},turn:()=>{tone(740,0,.12);tone(1108,.11,.2)},win:()=>{[523,659,784,1046].forEach((f,i)=>tone(f,i*.12,.3,"triangle"))},pop:()=>tone(520,0,.12,"sine",.12,900)};
-function sfx(n){window.__mascot&&window.__mascot(n);if(SOUND&&SFX[n])SFX[n]()}
+const SFX={slide:n=>tone(380+n*70,0,.07,"triangle",.06),rico:()=>{[880,1175,1568].forEach((f,i)=>tone(f,i*.07,.18,"sine",.12))},warn:()=>{tone(784,0,.22,"sine",.09);tone(1046,.24,.32,"sine",.08)},timeout:()=>{tone(1046,0,.2,"sine",.09);tone(784,.2,.2,"sine",.09);tone(523,.4,.4,"sine",.09)},type:()=>tone(880,0,.05,"triangle",.06,660),ok:()=>{tone(523,0,.1);tone(659,.08,.1);tone(784,.16,.22)},bad:()=>{tone(180,0,.22,"square",.06,120)},turn:()=>{tone(740,0,.12);tone(1108,.11,.2)},win:()=>{[523,659,784,1046].forEach((f,i)=>tone(f,i*.12,.3,"triangle"))},pop:()=>tone(520,0,.12,"sine",.12,900)};
+function sfx(n,a){if(n==="slide"){if(SOUND)SFX.slide(a||0);return}window.__mascot&&window.__mascot(n);if(SOUND&&SFX[n])SFX[n]()}
 function setSound(on){SOUND=on;try{localStorage.setItem("fl-sound",on?"on":"off")}catch(e){}$("soundBtn").textContent=on?"🔊":"🔇";$("mSound").textContent=on?"🔊 Son activé":"🔇 Son coupé"}
 try{SOUND=localStorage.getItem("fl-sound")!=="off"}catch(e){}
 function setTheme(t){document.body.classList.toggle("light",t==="light");try{localStorage.setItem("fl-theme",t)}catch(e){}$("themeBtn").textContent=t==="light"?"🌙":"☀️";$("mTheme").textContent=t==="light"?"🌙 Mode sombre":"☀️ Mode clair"}
@@ -810,14 +810,14 @@ function renderScores(){const el=$("scores");el.innerHTML="";const s=mySeat();
   tick()}
 function tick(){if(!G)return;const chips=$("scores").children;[...chips].forEach(c=>{const k=c.querySelector(".clk");if(k)k.textContent=""});
   if(G.done)return;
-  if(race()){if(G.timer){const left=Math.max(0,Math.ceil((G.started+G.timer*1000-Date.now())/1000));[...chips].forEach(c=>{const k=c.querySelector(".clk");k.textContent=fmt(left);k.classList.toggle("low",left<=15)});if(left<=0)endRace("time")}
+  if(race()){if(G.timer){const left=Math.max(0,Math.ceil((G.started+G.timer*1000-Date.now())/1000));[...chips].forEach(c=>{const k=c.querySelector(".clk");k.textContent=fmt(left);k.classList.toggle("low",left<=15)});if(left===15&&window.__warnFor!==G.gid){window.__warnFor=G.gid;sfx("warn")}if(left<=0)endRace("time")}
     else{const el=Math.floor((Date.now()-G.started)/1000);[...chips].forEach(c=>c.querySelector(".clk").textContent=fmt(el))}return}
   const c=chips[G.solo?0:G.turn];if(!c)return;const k=c.querySelector(".clk");
   if(G.solo){k.textContent=fmt(Math.floor((Date.now()-G.started)/1000));return}
   if(!G.timer){[...chips].forEach(x=>x.querySelector(".clk").textContent="");return}
   [...chips].forEach((x,i)=>{if(i!==G.turn)x.querySelector(".clk").textContent=fmt(G.timer)});
-  const left=Math.ceil((G.turnStart+G.timer*1000-Date.now())/1000);k.textContent=fmt(Math.max(0,left));k.classList.toggle("low",left<=10);
-  if(left<=0&&(canPlay()||left<=-4)&&window.__to!==G.turnStart){window.__to=G.turnStart;const p=G.players[G.turn];typed="";G.turn=(G.turn+1)%G.players.length;G.turnStart=Date.now();G.msg="Temps écoulé pour "+p.name+" ! Au tour de "+G.players[G.turn].name+".";G.again=false;G.msgKind="bad";save();render()}}
+  const left=Math.ceil((G.turnStart+G.timer*1000-Date.now())/1000);k.textContent=fmt(Math.max(0,left));k.classList.toggle("low",left<=10);if(left<=10&&left>0&&window.__warnFor!==G.turnStart&&mySeat()!==null){window.__warnFor=G.turnStart;sfx("warn")}
+  if(left<=0&&(canPlay()||left<=-4)&&window.__to!==G.turnStart){window.__to=G.turnStart;sfx("timeout");const p=G.players[G.turn];typed="";G.turn=(G.turn+1)%G.players.length;G.turnStart=Date.now();G.msg="Temps écoulé pour "+p.name+" ! Au tour de "+G.players[G.turn].name+".";G.again=false;G.msgKind="bad";save();render()}}
 setInterval(()=>{if(G&&!$("game").hidden)tick()},500);
 function autoSeat(){if(!G||G.solo||mySeat()!==null||!window.__meName)return;const i=G.players.findIndex(p=>p.name.toUpperCase()===window.__meName);if(i<0)return;
   const taken=peers.some(p=>p.id!==myId&&p.presence&&p.presence.gid===G.gid&&String(p.presence.seat)===String(i));if(!taken)setSeat(i)}
@@ -951,7 +951,7 @@ function validRond(){if(!canPlay())return;if(!sel){toast("Choisis d'abord une d�
     if(G.solo){G.msg="Raté ! Ce n'est pas « "+t+" ».";}else{G.turn=(G.turn+1)%G.players.length;G.turnStart=Date.now();G.msg="Raté pour "+p.name+" ! Au tour de "+G.players[G.turn].name+".";sel=null}
     G.again=false;G.msgKind="bad";bump({key,ok:false,word:t});save();render();
     bubblesOf(c,r).forEach((id,i)=>{const e=B(id);if(e.classList.contains("f"))return;e.classList.add("wrong");e.textContent=t[i]});setTimeout(()=>render(),1200)}}
-function ricoFx(ric){flash("🎯 Ricochet ! +"+ric.length*10);setTimeout(()=>ric.forEach(k=>{const q=$("rc-"+k);if(q){q.classList.remove("rico");void q.offsetWidth;q.classList.add("rico")}}),60)}
+function ricoFx(ric){sfx("rico");flash("🎯 Ricochet ! +"+ric.length*10);setTimeout(()=>ric.forEach(k=>{const q=$("rc-"+k);if(q){q.classList.remove("rico");void q.offsetWidth;q.classList.add("rico")}}),60)}
 $("valid").onclick=()=>{if(GAME==="rond")validRond()};
 $("valid").addEventListener("pointerdown",e=>e.preventDefault());
 $("mPass").onclick=()=>{if(!canPlay()||G.solo)return;const p=G.players[G.turn];typed="";sel=null;G.turn=(G.turn+1)%G.players.length;G.turnStart=Date.now();G.msg=p.name+" passe. Au tour de "+G.players[G.turn].name+".";G.again=false;G.msgKind="";save();render()};
@@ -991,7 +991,7 @@ function buildMeles(){const b=$("board");const box=document.createElement("div")
   fitMeles()}
 function lineCells(a,b){const dr=Math.sign(b[0]-a[0]),dc=Math.sign(b[1]-a[1]);const lr=Math.abs(b[0]-a[0]),lc=Math.abs(b[1]-a[1]);if(lr&&lc&&lr!==lc)return null;const n=Math.max(lr,lc)+1;return Array.from({length:n},(_,i)=>[a[0]+dr*i,a[1]+dc*i])}
 function clearDrag(){document.querySelectorAll(".ml.dragging").forEach(e=>e.classList.remove("dragging"))}
-function paintDrag(){clearDrag();if(!drag)return;const L=lineCells(drag.a,drag.b)||[drag.a];L.forEach(([r,c])=>$("m"+r+"-"+c).classList.add("dragging"))}
+function paintDrag(){clearDrag();if(!drag)return;const L=lineCells(drag.a,drag.b)||[drag.a];if(L.length!==window.__dragN){window.__dragN=L.length;if(L.length>1)sfx("slide",L.length)}L.forEach(([r,c])=>$("m"+r+"-"+c).classList.add("dragging"))}
 function finishSel(a,b){const L=lineCells(a,b);if(!L||L.length<2)return;const s=L.map(([r,c])=>G.grid[r][c]).join("");const rev=[...s].reverse().join("");
   const w=G.words.find(x=>(x.w===s||x.w===rev)&&cellsOf(x).join()===(x.w===s?L:[...L].reverse()).map(p=>p.join("-")).join());
   if(!w){sfx("bad");L.forEach(([r,c])=>{const e=$("m"+r+"-"+c);e.classList.add("wrong");setTimeout(()=>e.classList.remove("wrong"),450)});return}
