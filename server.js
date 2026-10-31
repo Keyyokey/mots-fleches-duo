@@ -8,6 +8,7 @@ const path = require("path");
 const crypto = require("crypto");
 const zlib = require("zlib");
 const { WebSocketServer } = require("ws");
+const makePoker = require("./poker");
 
 const PORT = process.env.PORT || 3000;
 const DATA_DIR = process.env.DATA_DIR || path.join(__dirname, "data");
@@ -154,6 +155,11 @@ async function handle(ws, m) {
     const msg = { t: "snap", docs: snapshot(s) }; for (const w of s.sockets) send(w, msg);
     return;
   }
+  if (m.t === "pk") {
+    let who = null; const nm = String(m.name || "").toUpperCase();
+    if (PSEUDO_RE.test(nm) && m.token) { const p = await getPlayer(nm); if (p && (p.toks || []).includes(sha(String(m.token)))) { who = nm; ensureWallet(p); } }
+    return poker.handle(ws, m, who);
+  }
   if (m.t === "presence") {
     const p = m.presence && typeof m.presence === "object" ? m.presence : {};
     if (JSON.stringify(p).length > 4000) return;
@@ -223,6 +229,22 @@ async function topRank(me) {
 }
 for (const [k, p] of players) if (p.pts) rankMem.set(k, p.pts.tot);
 
+// ---------- jetons du Poker Lettres (monnaie virtuelle) ----------
+function isoWeek(d = new Date()) { const t = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate())); const day = t.getUTCDay() || 7; t.setUTCDate(t.getUTCDate() + 4 - day); const y = new Date(Date.UTC(t.getUTCFullYear(), 0, 1)); return t.getUTCFullYear() + "-" + Math.ceil(((t - y) / 864e5 + 1) / 7); }
+const ALLOW = bet => bet >= 50 ? 70 : bet >= 20 ? 50 : bet >= 1 ? 35 : 20;
+function ensureWallet(p) {
+  const wk = isoWeek();
+  if (typeof p.coins !== "number") { p.coins = 70; p.wk = wk; p.wkBet = 0; return p; }
+  if (p.wk !== wk) { const add = ALLOW(p.wkBet || 0); p.coins = Math.min(300, p.coins + add); p.lastAllow = add; p.wk = wk; p.wkBet = 0; }
+  return p;
+}
+const poker = makePoker({
+  send,
+  wallet: name => { const p = players.get(name); return p ? ensureWallet(p) : null; },
+  pay: (name, delta) => { const p = players.get(name); if (!p) return; ensureWallet(p); p.coins = Math.max(0, Math.round(p.coins + delta)); if (delta < 0) p.wkBet = (p.wkBet || 0) - delta; savePlayer(name); },
+  points: (name, pts) => { const p = players.get(name); if (p && pts > 0) { addPoints(name, p, "poker", pts); savePlayer(name); } }
+});
+
 async function api(req, res, route) {
   const out = (code, o) => { res.writeHead(code, { "content-type": "application/json", "cache-control": "no-store" }); res.end(JSON.stringify(o)); };
   if (req.method !== "POST") return out(405, { error: "méthode" });
@@ -253,6 +275,22 @@ async function api(req, res, route) {
   }
   if (!authed()) return out(401, { error: "jeton", msg: "Reconnecte-toi avec ton code secret." });
   if (route === "me") return out(200, { salons: salonList(p), pts: p.pts || { tot: 0, g: {}, d: {} } });
+  if (route === "wallet" || route === "conv") {
+    ensureWallet(p); p.cv = (p.cv || []).filter(x => Date.now() - x.t < 2 * 3600e3);
+    const used = p.cv.reduce((a, x) => a + x.n, 0);
+    if (route === "conv") {
+      const n = Math.floor((Number(b.pts) || 0) / 4) * 4; const tot = (p.pts && p.pts.tot) || 0;
+      if (n <= 0) return out(400, { error: "pts", msg: "Choisis un nombre de points." });
+      if (n > 500 - used) return out(400, { error: "limite", msg: "Limite de 500 points toutes les 2 heures." });
+      if (n > tot) return out(400, { error: "pts", msg: "Tu n'as pas assez de points." });
+      p.pts.tot -= n; p.coins += n / 4; p.cv.push({ t: Date.now(), n });
+      rankMem.set(name, p.pts.tot); if (REDIS) redis(["ZADD", "rank", String(p.pts.tot), name]).catch(() => {});
+      savePlayer(name);
+    }
+    const left = 500 - p.cv.reduce((a, x) => a + x.n, 0);
+    const next = p.cv.length ? Math.max(0, 2 * 3600e3 - (Date.now() - p.cv[0].t)) : 0;
+    return out(200, { coins: p.coins, pts: (p.pts && p.pts.tot) || 0, left, next, allow: ALLOW(p.wkBet || 0), wkBet: p.wkBet || 0 });
+  }
   if (route === "score") {
     // points d'une partie terminée, envoyés par le joueur lui-même (une seule fois par partie)
     const game = String(b.game || ""), gid = String(b.gid || "");
@@ -311,7 +349,7 @@ function sendStatic(req, res, name) {
 const server = http.createServer((req, res) => {
   const url = new URL(req.url, "http://x");
   if (url.pathname === "/healthz") { res.writeHead(200, { "content-type": "text/plain" }); return res.end("ok " + salons.size + (REDIS ? " redis" : "")); }
-  const am = url.pathname.match(/^\/api\/p\/(check|create|login|me|link|pin|logout|rank|score)$/);
+  const am = url.pathname.match(/^\/api\/p\/(check|create|login|me|link|pin|logout|rank|score|wallet|conv)$/);
   if (am) return void api(req, res, am[1]).catch(e => { console.error(e); try { res.writeHead(500); res.end("{}"); } catch {} });
   if (url.pathname.startsWith("/d/")) return sendStatic(req, res, url.pathname.slice(3));
   if (url.pathname === "/mot" || url.pathname === "/mot/") return sendPage(req, res, path.join(__dirname, "public", "mot.html"));
@@ -331,7 +369,7 @@ wss.on("connection", ws => {
   ws.pid = crypto.randomUUID(); ws.isAlive = true;
   ws.on("pong", () => (ws.isAlive = true));
   ws.on("message", raw => { let m; try { m = JSON.parse(raw); } catch { return; } ws.q = (ws.q || Promise.resolve()).then(() => handle(ws, m)).catch(e => console.error(e)); });
-  ws.on("close", () => { const s = ws.room && salons.get(ws.room); if (s) { s.sockets.delete(ws); broadcastPeers(s); } });
+  ws.on("close", () => { poker.gone(ws); const s = ws.room && salons.get(ws.room); if (s) { s.sockets.delete(ws); broadcastPeers(s); } });
   send(ws, { t: "hello", id: ws.pid });
 });
 setInterval(() => {
