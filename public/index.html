@@ -612,6 +612,40 @@ body.sk .overlay .muted,body.sk .overlay p{color:#a9b3c7}
 body.sk.light .overlay .muted,body.sk.light .overlay p{color:#4f5d6e}
 /* l'ancien écran de choix des grilles n'apparaît plus jamais */
 body.sk #lobby{display:none!important}
+
+/* ---------- grille des mots fléchés : rendu de la maquette ---------- */
+body.sk-fleches .grid{gap:2px!important;padding:0!important;background:rgba(255,255,255,.18)!important;border:2px solid rgba(255,255,255,.18)!important;border-radius:14px!important;box-shadow:0 10px 40px rgba(0,0,0,.3)}
+body.sk-fleches #gridbox{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.18);border-radius:20px;padding:12px;backdrop-filter:blur(18px) saturate(140%);-webkit-backdrop-filter:blur(18px) saturate(140%)}
+body.sk-fleches .c{border-radius:0!important;background:rgba(10,20,40,.62)!important;color:#f2f5fb}
+body.sk-fleches .c .L{color:#f2f5fb}
+body.sk-fleches .grid>:first-child{border-top-left-radius:12px!important}
+body.sk-fleches .q{border-radius:0!important;background:linear-gradient(160deg,#0f4c5c,#0b3a47)!important}
+body.sk-fleches .q>div{color:#e8fbff!important;font-family:Inter,system-ui,sans-serif!important;font-weight:700!important;text-transform:uppercase;letter-spacing:.01em}
+body.sk-fleches .q>div+div{border-top:1px solid rgba(255,255,255,.35)!important}
+body.sk-fleches .q>div.hl{background:linear-gradient(135deg,#00ADB5,#A26BFF)!important;color:#fff!important}
+body.sk-fleches .ar{color:#ffc857!important;text-shadow:0 0 3px rgba(0,0,0,.6);z-index:4}
+body.sk-fleches .c .n{right:2px!important;top:auto!important;bottom:2px;width:1.35em;height:1.35em;border-radius:50%;display:grid;place-items:center;background:#ffc857;color:#1b1300!important;font-weight:800!important}
+body.sk-fleches .c.f{background:color-mix(in srgb,var(--fc) 32%,rgba(10,20,40,.62))!important;box-shadow:none!important}
+body.sk-fleches .c.f .L{color:#fff!important}
+body.sk-fleches .c.pp .L{color:#9aa3b5!important}
+body.sk-fleches .c.word{background:color-mix(in srgb,#34d399 14%,rgba(10,20,40,.62))!important;box-shadow:inset 0 0 0 2px #34d399!important}
+body.sk-fleches .c.sel{background:color-mix(in srgb,#34d399 30%,rgba(10,20,40,.62))!important;box-shadow:inset 0 0 0 2px #34d399,0 0 14px rgba(52,211,153,.5)!important;transform:none!important}
+body.sk-fleches .c.sel .L{color:#fff!important}
+body.sk-fleches #g .lastp{box-shadow:inset 0 0 0 2px var(--fc),0 0 12px var(--fc)!important}
+body.sk-fleches .c.db{box-shadow:inset 0 -3px 0 #ffc857!important}body.sk-fleches .c.dr{box-shadow:inset -3px 0 0 #ffc857!important}
+/* mode clair */
+body.sk-fleches.light .grid{background:#b9c4d2!important;border-color:#b9c4d2!important}
+body.sk-fleches.light #gridbox{background:rgba(255,255,255,.55);border-color:rgba(255,255,255,.9)}
+body.sk-fleches.light .c{background:#d5deea!important}
+body.sk-fleches.light .c .L{color:#0f131a}
+body.sk-fleches.light .q{background:#0b5a6b!important}
+body.sk-fleches.light .q>div{color:#fff!important}
+body.sk-fleches.light .c.f{background:color-mix(in srgb,var(--fc) 24%,#fff)!important}
+body.sk-fleches.light .c.f .L{color:#0f131a!important}
+body.sk-fleches.light .c.word{background:color-mix(in srgb,#059669 12%,#fff)!important;box-shadow:inset 0 0 0 2px #059669!important}
+body.sk-fleches.light .c.sel{background:color-mix(in srgb,#059669 25%,#fff)!important;box-shadow:inset 0 0 0 2px #059669!important}
+body.sk-fleches.light .c.sel .L{color:#0f131a!important}
+body.sk-fleches.light .c.pp .L{color:#8a93a3!important}
 </style></head>
 <body>
 
