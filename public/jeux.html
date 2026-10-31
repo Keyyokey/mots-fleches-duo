@@ -576,7 +576,8 @@ body:not(.playing) .m-game{display:none}
         if(o){sel.value=o.value;sel.dispatchEvent(new Event("change"))}}
       const t=q.get("t");const ts=$("tsel");if(t!==null&&ts&&[...ts.options].some(o=>o.value===t))ts.value=t;
       let me=null;try{me=JSON.parse(localStorage.getItem("fl-me")||"null")}catch(e){}
-      if(go==="solo"){if(me&&$("n0"))$("n0").value=me.name;clean();$("start").click();return}
+      const rb=$("resumeBtn");const inProgress=rb&&!rb.closest("[hidden]");
+      if(go==="solo"){if(me&&$("n0"))$("n0").value=me.name;clean();if(inProgress&&!n){rb.click();return}$("start").click();return}
       // multijoueur : on prépare la table, il ne reste qu'à indiquer l'adversaire
       const ins=isJeux?[...document.querySelectorAll("#players input")]:[$("n0"),$("n1")];
       if(me&&ins[0])ins[0].value=me.name;const opp=q.get("opp");if(opp&&ins[1])ins[1].value=opp;
@@ -594,6 +595,20 @@ window.__scorePts=function(game,G){try{
   const i=G.solo?0:G.players.findIndex(p=>String(p.name||"").toUpperCase()===me.name);if(i<0)return;
   const pts=Number(G.players[i].score)||0;localStorage.setItem(key,"1");
   fetch("/api/p/score",{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({name:me.name,token:me.token,game,gid:String(G.gid),pts,solo:!!G.solo,level:G.level||""})}).catch(()=>{})}catch(e){}};
+
+// ---------- accueil = point d'entrée : plus d'ancien écran de choix des grilles ----------
+(function(){
+  const $=id=>document.getElementById(id);
+  const home=()=>{const m=location.pathname.match(/^\/([A-Za-z0-9]{5})\//);return m?"/"+m[1]:"/"};
+  const q=new URLSearchParams(location.search);
+  // bouton de retour du jeu → accueil (la partie reste en cours et se reprend depuis la tuile)
+  const wire=()=>{["retour","back"].forEach(id=>{const b=$(id);if(!b||b.dataset.home)return;if(!b.closest("#game"))return;b.dataset.home="1";
+      b.innerHTML="🏠<span class=\"long\"> Accueil</span>";b.title="Retour à l'accueil";b.onclick=e=>{e.preventDefault();location.href=home()}})};
+  // arrivée directe sur une page de jeu sans partie ouverte → accueil
+  const bounce=()=>{if(q.get("go")||q.get("join")||q.get("g")||q.get("lobby"))return;const L=$("lobby"),G=$("game");if(L&&G&&!L.hidden&&G.hidden)location.replace(home())};
+  const go=()=>{wire();setTimeout(bounce,1800)};
+  if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",go);else go();
+})();
 </script>
 <script src="/d/rond-d3a2909c93.js"></script>
 <script>
