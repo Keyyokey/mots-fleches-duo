@@ -1,0 +1,376 @@
+AURAIS|Posséderais
+FAUDRA|Sera nécessaire
+SERAIS|Existerais
+PARTIS|Envolés
+AVIONS|Appareils volants
+MATCHS|Rencontres sportives
+FURENT|Existèrent
+AURONT|Posséderont
+ALLONS|Partons
+DISANT|Prononçant
+QUITTE|Abandonne
+ENVOIE|Expédie
+PARLES|Bavardes
+PENSEZ|Réfléchissez
+SAVAIS|Connaissais
+FERAIT|Réaliserait
+AJOUTE|Rajoute
+ESSAYE|Tente
+TELLES|Pareilles
+PORTEE|Petits d'une même mère
+PENSES|Réfléchis
+AUQUEL|À qui
+SAVAIT|Connaissait
+PROMIS|Juré
+DEVONS|Sommes obligés
+SITUEE|Placée
+REDUIT|Diminué
+REMISE|Rabais ou garage
+VENAIT|Arrivait
+RUSSES|De Moscou
+DIRAIS|Prononcerais
+SIGNES|Gestes
+ARABES|Du Maghreb
+MAIRIE|Hôtel de ville
+RECOIT|Accueille
+PASSEE|Révolue
+MANUEL|Livre scolaire
+EXCUSE|Pardon
+FORMER|Entraîner
+CHIENS|Toutous
+JUSQUE|... là : à ce point
+FRAPPE|Tape
+REPRIS|Recommencé
+VENTES|Soldes
+DECRIT|Dépeint
+ROUGES|Coquelicots
+PRENEZ|Saisissez
+DONNEE|Information
+VIERGE|Toute neuve
+VIVENT|Existent
+COPINE|Amie
+COMMIS|Employé
+IMPOSE|Oblige
+ACQUIS|Obtenu
+SEJOUR|Pièce à vivre
+SOUMIS|Docile
+REELLE|Véritable
+VALLEE|Creux entre les monts
+MORALE|Leçon de la fable
+ALLANT|Dynamisme
+DISQUE|Vinyle
+DECRET|Arrêté officiel
+SOUCIS|Tracas
+OFFERT|Donné
+TRAFIC|Circulation
+SEULES|Isolées
+DEBATS|Discussions
+VENANT|Arrivant
+MAJEUR|Grand doigt
+POUSSE|Bourgeon
+TRACES|Empreintes
+SALLES|Pièces
+REPOSE|Détendu
+LEADER|Meneur
+CHARTE|Règlement
+ROYALE|Du roi
+ACTIVE|Dynamique
+CONNUS|Célèbres
+FORTES|Robustes
+LIBRES|Délivrés
+CRIMES|Meurtres
+TONNES|Mille kilos chacune
+OFFRES|Propositions
+BOURSE|Porte-monnaie
+CAMERA|Appareil de tournage
+HABITE|Loge
+FERONT|Réaliseront
+ARMEES|Troupes
+VOYONS|Allons donc !
+ENGAGE|Embauche
+CROYEZ|Pensez
+MONTEE|Ascension
+DISONS|Prononçons
+APPELS|Coups de fil
+POESIE|Art des vers
+ACCUSE|Inculpé
+ADOPTE|Accueilli dans une famille
+GRAVES|Sérieux
+NORMES|Règles
+CAUSES|Raisons
+EVEQUE|Prélat
+ACTIFS|Dynamiques
+ROMAIN|De Rome
+JOUENT|S'amusent
+FUTURE|Prochaine
+AVENUE|Large rue
+INDICE|Piste
+PLAQUE|Lame de métal
+EXPERT|Spécialiste
+PRIVES|Particuliers
+PLACER|Installer
+VOYANT|Extralucide
+SCENES|Planches de théâtre
+VISANT|Ciblant
+ELEVEE|Haute
+BASSIN|Piscine
+OPPOSE|Contraire
+COPAIN|Ami
+ETIONS|Existions
+ALLIES|Partenaires
+PASSES|Transmissions de balle
+CADRES|Encadrements
+PROUVE|Démontre
+HAUTES|Élevées
+FRANCS|Sincères
+FERAIS|Réaliserais
+MARINS|Matelots
+AMENDE|Contravention
+FUSION|Union
+DIRIGE|Mène
+FONDEE|Justifiée
+PLEINS|Remplis
+SUIVEZ|Accompagnez
+ETAPES|Phases
+ECRITS|Textes
+HOCKEY|Sport de crosse sur glace
+PREFET|Représentant de l'État
+ANNUEL|Chaque année
+GLOIRE|Renommée
+REUNIS|Rassemblés
+ENJEUX|Mises
+PARLEZ|Bavardez
+COUVRE|Protège
+METTEZ|Posez
+DEFEND|Protège
+GARDES|Surveillants
+CIVILS|Pas militaires
+HESITE|Tergiverse
+EVOQUE|Mentionne
+FLOTTE|Escadre
+SAVONS|Pains pour se laver
+TARIFS|Prix
+DEVAIS|Étais obligé
+SORTES|Genres
+CHANTE|Fredonne
+RESTES|Vestiges
+ADAPTE|Ajusté
+MOTIFS|Raisons
+BOUFFE|Nourriture (familier)
+BANDES|Groupes
+THEMES|Sujets
+TRAINS|TGV et TER
+ETUDIE|Apprend
+DONNEZ|Offrez
+IVOIRE|Défense d'éléphant
+DECEDE|Mort
+FOURNI|Livré
+LIVRER|Remettre
+MARIEE|Épouse du jour
+DEBUTS|Commencements
+SUIVIE|Accompagnée
+BASKET|Sport du panier
+LEGALE|Autorisée
+FAUTES|Erreurs
+TOMBEE|... de la nuit
+CHIMIE|Science des éléments
+URBAIN|De la ville
+TENANT|Titulaire
+SOEURS|Frangines
+LISTES|Inventaires
+FRAUDE|Tricherie
+LECONS|Cours
+BELGES|De Bruxelles
+APPUIE|Presse
+FACONS|Manières
+BOSSER|Travailler (familier)
+ACHATS|Emplettes
+RENDUS|Restitués
+CRAINT|Redoute
+ULTIME|Dernier
+EXPOSE|Présentation
+GENRES|Catégories
+TIRAGE|Loterie
+ENLEVE|Kidnappé
+VOYAIT|Apercevait
+RECENT|Nouveau
+RETIRE|Enlève
+RETENU|Gardé
+DUQUEL|De qui
+AIMAIT|Adorait
+CONCLU|Terminé
+BLOQUE|Coincé
+FAILLI|Manqué de peu
+BLONDE|Bière ou chevelure
+ATTIRE|Séduit
+DOUTES|Hésitations
+FERMEE|Close
+GRANDI|Poussé
+PROMET|Jure
+VRAIES|Authentiques
+FUTURS|À venir
+LANCEE|Jetée
+GOSSES|Enfants
+AMUSER|Divertir
+LIBERE|Délivré
+TENAIT|Gardait
+CHERIE|Bien-aimée
+APERCU|Résumé
+MIENNE|À moi
+COURTS|Terrains de tennis
+DELIRE|Folie passagère
+CANTON|Division suisse
+SURETE|Sécurité
+RESTEE|Demeurée
+ROULER|Avancer sur roues
+VENDUS|Cédés
+INCLUS|Compris
+PASSEZ|Traversez
+TACHES|Salissures
+PLAIRE|Séduire
+AIMAIS|Adorais
+JUNIOR|Cadet
+DEVINT|Se transforma
+FIEVRE|Température
+VALOIR|Coûter
+SORTIS|Partis dehors
+PLEURE|Verse des larmes
+COUPES|Trophées
+NUAGES|Cumulus
+DETTES|Créances
+TABLES|Meubles à pieds
+SACREE|Sainte
+MINEUR|Pas encore majeur
+BOITES|Cartons
+MAIRES|Élus municipaux
+POSTER|Affiche
+SOYONS|Existons (impératif)
+ETAGES|Niveaux
+SAINTS|Bienheureux
+PEINES|Chagrins
+ALBUMS|Disques
+BREVET|Diplôme de collège
+MUSEES|Louvre et Orsay
+SCHEMA|Croquis
+REUNIR|Rassembler
+POCHES|Sacs du pantalon
+ABBAYE|Monastère
+RAYONS|Rais
+COUCOU|Oiseau ou bonjour
+QUARTS|Quatrièmes
+RANGER|Ordonner
+VERRAS|Apercevras
+DELAIS|Sursis
+REUNIT|Rassemble
+BRULER|Flamber
+JOUANT|S'amusant
+ARRETS|Stations
+FERMES|Exploitations agricoles
+CHEQUE|Moyen de paiement
+SITUES|Placés
+AGENDA|Carnet de rendez-vous
+VERRES|Lunettes ou coupes
+GAMINS|Gosses
+LOURDS|Pesants
+JAUNES|Couleur citron
+TISSUS|Étoffes
+PERDUS|Égarés
+CAMPUS|Cité universitaire
+APPORT|Contribution
+HOTELS|Palaces
+ABSENT|Pas là
+DEFINI|Précisé
+RESIDE|Habite
+AURONS|Posséderons
+CRISES|Accès
+TIENNE|Garde (qu'il)
+JOUAIT|S'amusait
+NOMMER|Désigner
+EXERCE|Pratique
+CUIVRE|Métal rouge
+BORNES|Limites
+SUITES|Conséquences
+VERSER|Répandre
+CROISE|Rencontre
+ECRANS|Moniteurs
+URGENT|Pressant
+POUCES|Gros doigts
+ETEINT|Sans lumière
+CARRES|Quadrilatères
+PLAGES|Bords de mer
+PAILLE|Tige sèche
+BOULES|Sphères
+EVOLUE|Progresse
+FAILLE|Fissure
+DIESEL|Gazole
+PATRIE|Pays natal
+NOMMEE|Désignée
+SACHEZ|Apprenez
+SERONS|Existerons
+ISSUES|Sorties
+DEBUTE|Commence
+COULER|S'écouler
+RECOIS|Accueilles
+LARGES|Vastes
+VERREZ|Apercevrez
+PAYANT|Pas gratuit
+RUMEUR|Ragot
+VIVAIT|Existait
+POURRI|Gâté
+DEDIEE|Consacrée
+SIGNEE|Paraphée
+LIVRET|Petit livre
+ASSUME|Endosse
+PHASES|Étapes
+CANONS|Pièces d'artillerie
+DONNES|Offres
+RUINES|Décombres
+GEANTS|Colosses
+VOYAIS|Apercevais
+SAISIE|Prise
+DIVINE|Céleste
+FIABLE|Sûr
+CORDES|Ficelles
+MONDES|Univers
+ANNULE|Supprimé
+ANNEXE|Appendice
+JOLIES|Belles
+RELIEF|Saillie
+BOMBES|Explosifs
+ECHOUE|Rate
+PREVUS|Planifiés
+LEGION|... d'honneur
+ROBOTS|Automates
+TENUES|Uniformes
+DEPOTS|Entrepôts
+DEFILE|Parade
+REQUIS|Exigé
+SAVIEZ|Connaissiez
+PODIUM|Estrade des vainqueurs
+BASSES|Peu élevées
+TICKET|Billet
+RESOLU|Décidé
+FOYERS|Âtres
+PENALE|Relative aux délits
+POSENT|Déposent
+CREANT|Inventant
+VALENT|Coûtent
+COREEN|De Séoul
+VACHES|Laitières
+DOMINE|Surplombe
+RESTEZ|Demeurez
+REDIGE|Écrit
+CREVER|Percer
+BARRES|Tiges
+DESIRE|Souhaite
+REFAIT|Recommencé
+ENTITE|Être abstrait
+ENNUIE|Lasse
+EMMENE|Conduit
+MENEES|Intrigues
+REJETE|Refusé
+CONTES|Récits pour enfants
+DIVISE|Partage
+BISOUS|Baisers
+POEMES|Vers
+BUTEUR|Marqueur
