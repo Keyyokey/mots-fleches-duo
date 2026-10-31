@@ -1,0 +1,208 @@
+LYON|Ville des Lumières
+GRECE|Pays d'Athènes
+ALLEMAGNE|Pays de Berlin
+EGYPTE|Pays des pharaons
+SYRIE|Pays de Damas
+ARABIE|... saoudite
+TURQUIE|Pays d'Istanbul
+IRAK|Pays de Bagdad
+UKRAINE|Pays de Kiev
+IRLANDE|Île verte
+CHYPRE|Île d'Aphrodite
+POLOGNE|Pays de Varsovie
+ROME|Ville éternelle
+MEXIQUE|Pays des Aztèques
+NIGERIA|Pays de Lagos
+CHICAGO|Ville des vents
+ANGLETERRE|Pays de Londres
+VIENNE|Capitale autrichienne
+ALGERIE|Pays d'Alger
+COREE|Pays du matin calme
+IRAN|Ancienne Perse
+ISRAEL|Pays de Tel-Aviv
+CONGO|Fleuve d'Afrique
+SOUDAN|Pays de Khartoum
+TUNISIE|Pays de Carthage
+SENEGAL|Pays de Dakar
+PEKIN|Capitale chinoise
+BRUXELLES|Capitale belge
+KENYA|Pays de Nairobi
+QATAR|Émirat du Golfe
+GHANA|Pays d'Accra
+SHANGHAI|Port chinois
+LIBAN|Pays du Cèdre
+MALAISIE|Pays de Kuala Lumpur
+MARSEILLE|Cité phocéenne
+MOSCOU|Capitale russe
+PORTUGAL|Pays de Lisbonne
+ATHENES|Capitale grecque
+TOKYO|Capitale japonaise
+NORVEGE|Pays des fjords
+SUEDE|Pays de Stockholm
+CAMBODGE|Pays d'Angkor
+JORDANIE|Pays de Pétra
+AUTRICHE|Pays de Vienne
+OUGANDA|Pays de Kampala
+TANZANIE|Pays du Kilimandjaro
+CHILI|Long pays andin
+PAKISTAN|Pays d'Islamabad
+SUEZ|Célèbre canal
+MAGHREB|Afrique du Nord
+BERLIN|Capitale allemande
+TCHAD|Lac africain
+KOWEIT|Émirat pétrolier
+ARMENIE|Pays d'Erevan
+NIGER|Fleuve de Niamey
+GEORGIE|Pays de Tbilissi
+OCEANIE|Continent des îles
+ISTANBUL|Ancienne Constantinople
+PORTO|Vin portugais
+BULGARIE|Pays de Sofia
+MALTE|Île de la Valette
+ORLEANS|Ville de Jeanne d'Arc
+RWANDA|Pays des mille collines
+MADRID|Capitale espagnole
+COLOMBIE|Pays de Bogota
+NANCY|Ville de la place Stanislas
+MADAGASCAR|Grande Île
+VIETNAM|Pays d'Hanoï
+ANGOLA|Pays de Luanda
+TRIPOLI|Capitale libyenne
+DAMAS|Capitale syrienne
+TUNIS|Capitale tunisienne
+SOMALIE|Corne de l'Afrique
+BEYROUTH|Capitale libanaise
+GENEVE|Ville du lac Léman
+TANGER|Port marocain
+HAWAI|Archipel du Pacifique
+HONGRIE|Pays de Budapest
+TOGO|Pays de Lomé
+GAMBIE|Petit pays africain
+NAMIBIE|Pays du Namib
+PEROU|Pays des Incas
+NAPLES|Ville du Vésuve
+STOCKHOLM|Capitale suédoise
+PARAGUAY|Pays d'Asunción
+CAIRE|Le ... : capitale égyptienne
+ALASKA|État glacé
+CUBA|Île de La Havane
+BALKANS|Péninsule européenne
+GUYANE|Département d'Amérique
+ADEN|Port du Yémen
+DELHI|Ville indienne
+DANEMARK|Pays d'Andersen
+GAZA|Bande côtière
+LAOS|Pays de Vientiane
+LAGOS|Ville du Nigeria
+MANILLE|Capitale philippine
+SUMATRA|Île indonésienne
+GABON|Pays de Libreville
+FINLANDE|Pays des mille lacs
+ROUMANIE|Pays de Bucarest
+NANTES|Ville des ducs de Bretagne
+BENIN|Pays de Cotonou
+QUEBEC|Belle Province
+CANARIES|Îles espagnoles
+ECOSSE|Pays du kilt
+MACAO|Ancienne colonie portugaise
+BOLIVIE|Pays de La Paz
+DAKAR|Capitale sénégalaise
+ANTILLES|Îles des Caraïbes
+BIRMANIE|Myanmar
+BAGDAD|Capitale irakienne
+CRIMEE|Presqu'île de la mer Noire
+SAHARA|Plus grand désert chaud
+MILAN|Capitale de la mode
+SICILE|Île de l'Etna
+TEHERAN|Capitale iranienne
+ALEP|Ville syrienne
+SYDNEY|Ville de l'Opéra australien
+CORSE|Île de Beauté
+LOIRE|Fleuve des châteaux
+ALBANIE|Pays de Tirana
+GRENOBLE|Capitale des Alpes
+SINAI|Désert égyptien
+TAIWAN|Île de Taipei
+ROUEN|Ville normande
+NEPAL|Pays de l'Everest
+LILLE|Capitale des Flandres
+POITIERS|Ville de la bataille de 732
+CROATIE|Pays de Zagreb
+SIBERIE|Région glacée russe
+LISBONNE|Capitale portugaise
+ISLANDE|Île des volcans
+AMIENS|Ville de la cathédrale picarde
+DIJON|Ville de la moutarde
+VENISE|Ville des gondoles
+URUGUAY|Pays de Montevideo
+PRAGUE|Capitale tchèque
+LIMOGES|Ville de la porcelaine
+MECQUE|Ville sainte de l'islam
+ALGER|Capitale algérienne
+CAUCASE|Chaîne de montagnes
+PALMYRE|Cité antique syrienne
+HANOI|Capitale vietnamienne
+VATICAN|État du pape
+MIAMI|Ville de Floride
+GIBRALTAR|Détroit célèbre
+ORAN|Ville algérienne
+BANGKOK|Capitale thaïlandaise
+KYOTO|Ancienne capitale japonaise
+LIMA|Capitale péruvienne
+HAVANE|Capitale cubaine
+BAMAKO|Capitale malienne
+AMMAN|Capitale jordanienne
+ESTONIE|Pays de Tallinn
+LOME|Capitale togolaise
+DUBLIN|Capitale irlandaise
+BUDAPEST|Capitale hongroise
+MALDIVES|Archipel de l'océan Indien
+MARRAKECH|Ville rouge du Maroc
+AVIGNON|Cité des papes
+OSLO|Capitale norvégienne
+TURIN|Ville du Saint Suaire
+NICE|Ville de la promenade des Anglais
+HELSINKI|Capitale finlandaise
+MUNICH|Ville de la fête de la bière
+GROENLAND|Terre verte glacée
+COPENHAGUE|Capitale danoise
+INDOCHINE|Ancienne colonie française
+YEMEN|Pays de Sanaa
+SEOUL|Capitale sud-coréenne
+CASABLANCA|Grande ville marocaine
+MARTINIQUE|Île aux fleurs
+CACHEMIRE|Région himalayenne
+BANGLADESH|Pays de Dacca
+KHARTOUM|Capitale soudanaise
+GUADELOUPE|Île papillon
+ARLES|Ville des arènes provençales
+TOMBOUCTOU|Ville du Mali
+REIMS|Ville du sacre
+MAYOTTE|Île de l'océan Indien
+LOUVRE|Musée parisien
+CARTHAGE|Cité d'Hannibal
+OTTAWA|Capitale canadienne
+CEYLAN|Ancien nom du Sri Lanka
+BOMBAY|Mumbai
+VERSAILLES|Château du Roi-Soleil
+AFRIQUE|Continent noir
+EUROPE|Vieux continent
+ASIE|Plus grand continent
+ITALIE|Botte de l'Europe
+ESPAGNE|Pays de Madrid
+LONDRES|Capitale anglaise
+INDE|Pays du Gange
+MAROC|Royaume chérifien
+BRESIL|Pays de la samba
+BELGIQUE|Pays de Bruxelles
+AMERIQUE|Nouveau Monde
+RUSSIE|Pays des tsars
+TOULOUSE|Ville rose
+RENNES|Capitale bretonne
+NIL|Fleuve d'Égypte
+BORDEAUX|Grand vin
+MALI|Pays de Bamako
+MANCHE|Mer entre France et Angleterre
+SEINE|Fleuve de Paris
+JAVA|Île indonésienne
+RABAT|Capitale marocaine

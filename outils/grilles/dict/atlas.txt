@@ -1,0 +1,410 @@
+POLITIQUE|Art de gouverner
+HABITANTS|Population d'un lieu
+TERRITOIRE|Étendue d'un État
+MILITAIRE|Soldat
+SIECLES|Centaines d'années
+PUISSANCE|Force
+FRONTIERE|Limite entre deux pays
+QUARTIERS|Parties de ville
+URBAINE|De la ville
+CONFLITS|Guerres
+SOCIETES|Entreprises
+INFLUENCE|Ascendant
+LOCALES|Du coin
+POUVOIRS|Autorités
+HISTORIQUE|Du passé
+ESSENTIEL|Primordial
+VERITABLE|Authentique
+SUPERIEUR|Plus haut
+PRINCIPAL|Le plus important
+INTERIEUR|Dedans
+EDUCATION|Instruction
+EXCEPTION|Cas à part
+STRUCTURE|Ossature
+PROPRIETE|Bien possédé
+PARALLELE|Ligne de latitude
+CROISSANCE|Développement
+NATIONALE|Du pays
+GUERRES|Conflits armés
+AMERICAIN|Du Nouveau Monde
+SERVICES|Prestations
+PROCESSUS|Déroulement
+REVENUS|Gains
+FORMATION|Apprentissage
+SEPTEMBRE|Mois de la rentrée
+MILLION|Mille fois mille
+GEOGRAPHIE|Science des lieux
+DIVERSITE|Variété
+ORIENTALE|De l'Est
+REVOLUTION|Bouleversement
+ECHANGES|Commerce
+ACCORDS|Traités
+IMPORTANCE|Poids
+CARACTERE|Tempérament
+OCCUPATION|Activité
+PROXIMITE|Voisinage
+CENTRES|Milieux
+DIFFICILE|Ardu
+PUBLIQUES|Pour tous
+POPULAIRE|Apprécié de tous
+ATLAS|Recueil de cartes
+DIRECTION|Sens
+TROISIEME|Après le deuxième
+CONSTRUIRE|Bâtir
+PROGRES|Avancée
+EXISTENCE|Vie
+NAISSANCE|Venue au monde
+ENTREPRISE|Société
+FAIBLES|Sans force
+DECLIN|Décadence
+CULTURES|Champs cultivés
+RUPTURE|Cassure
+MAINTIEN|Conservation
+ISSUS|Nés de
+NECESSAIRE|Indispensable
+MAITRISE|Contrôle
+FACTEUR|Postier
+ASPECTS|Apparences
+COMPRENDRE|Saisir le sens
+SECONDAIRE|Accessoire
+UNIVERSEL|Mondial
+EDITEUR|Il publie les livres
+RESSOURCES|Richesses
+ACTIVITES|Occupations
+EXPANSION|Développement
+METROPOLE|Grande ville
+TRANSPORT|Acheminement
+PAUVRETE|Misère
+DAVANTAGE|Plus
+MOUVEMENTS|Déplacements
+MULTIPLES|Nombreux
+RECHERCHE|Quête
+DURABLE|Qui dure
+MARITIME|De la mer
+FEVRIER|Mois le plus court
+EXTENSION|Agrandissement
+AUTONOMIE|Indépendance
+AGRICOLES|Des champs
+DIVERSES|Variées
+JURIDIQUE|Du droit
+INDIVIDUS|Personnes
+UNIVERSITE|Faculté
+REGIONALE|De la région
+ATTEINDRE|Parvenir à
+PHENOMENE|Fait remarquable
+CAMPAGNES|Zones rurales
+COMMERCIAL|Marchand
+DEVELOPPER|Faire grandir
+MODERNES|Actuels
+EXTERIEUR|Dehors
+RESIDENCE|Domicile
+ORIGINES|Racines
+TOURNANT|Virage
+COMPLEXES|Compliqués
+PORTS|Havres
+DYNAMIQUE|Énergique
+STRATEGIE|Plan d'action
+AMPLEUR|Étendue
+CENTAINES|Par ... : en grand nombre
+CAPACITES|Aptitudes
+DOMAINES|Propriétés
+INITIATIVE|Prise d'action
+CONTINENTS|Afrique, Asie...
+CONTRAINTE|Obligation
+MASSIVE|Imposante
+RESULTATS|Bilans
+HERITAGE|Succession
+PERIODES|Époques
+TECHNIQUE|Savoir-faire
+DIZAINES|Groupes de dix
+EMPRISE|Domination
+RENFORCER|Consolider
+DECENNIE|Dix ans
+DIMENSION|Taille
+PEUPLES|Nations
+CONQUETE|Victoire territoriale
+DOMINATION|Suprématie
+IMPERIALE|De l'empereur
+RELIGIEUSE|Nonne
+COMMUNAUTE|Collectivité
+RELIGIEUX|Moine
+INDUSTRIE|Secteur des usines
+ETRANGERS|Venus d'ailleurs
+REVOLTE|Soulèvement
+AFRICAIN|D'Afrique
+EFFICACITE|Rendement
+TRADITION|Coutume
+MINORITE|Petit nombre
+CONTRAIRE|Opposé
+MARCHES|Foires
+DIFFERENCE|Écart
+VASTES|Étendus
+EFFECTIFS|Troupes
+CONTROLER|Vérifier
+REFERENCE|Modèle
+RICHESSES|Trésors
+KILOMETRES|Mesures de distance
+VOISINS|D'à côté
+CLASSIQUE|Traditionnel
+OPPOSITION|Contraste
+BATIMENTS|Édifices
+PROPORTION|Rapport
+DIRIGEANTS|Chefs
+IMPOSER|Obliger
+AUGMENTER|Accroître
+NECESSITE|Besoin
+ECONOMIES|Épargne
+RELATIVE|Toute ...
+RECENTES|Nouvelles
+MILIEUX|Environnements
+EVENEMENTS|Faits marquants
+CINQUANTE|Demi-centaine
+COURANTS|Flux d'eau
+SPATIALE|De l'espace
+COMPLEXITE|Complication
+MAINTENIR|Conserver
+PROFONDE|Abyssale
+TENTATIVE|Essai
+FOURNIT|Procure
+ACCUEILLIR|Recevoir
+DESTINE|Prédestiné
+ETENDRE|Allonger
+ACCEDER|Parvenir
+DISPOSITIF|Mécanisme
+CONSTANTE|Invariable
+RURAL|Des champs
+CONSERVER|Garder
+PARTIELLE|Incomplète
+VARIABLE|Changeant
+FOURNIR|Procurer
+GRANDEUR|Taille
+GENERALES|Globales
+PUISSANTE|Forte
+COLONIES|Territoires dominés
+EMPIRES|Vastes États
+INEGALITES|Écarts sociaux
+PROVINCES|Régions
+ELITES|Les meilleurs
+COLONIE|Territoire dominé
+PATRIMOINE|Héritage
+RESISTANCE|Opposition
+SECTEURS|Domaines
+EXPRESSION|Locution
+TOURISME|Voyages d'agrément
+AUTORITES|Pouvoirs publics
+AUTOMOBILE|Voiture
+GENERATION|Classe d'âge
+ETHNIQUES|Relatifs aux peuples
+PRINCIPES|Règles
+ANNUELLE|Chaque année
+CONSCIENCE|Lucidité
+INDUSTRIEL|Des usines
+EMERGENCE|Apparition
+REDUCTION|Baisse
+GOLFE|Baie profonde
+DENSITE|Concentration
+VILLAGES|Hameaux
+POLES|Nord et Sud
+OBJECTIFS|Buts
+ETUDIANTS|Élèves de fac
+OFFICIELLE|Formelle
+FONDE|Créé
+DECENNIES|Dizaines d'années
+QUALIFIES|Compétents
+HIERARCHIE|Ordre des rangs
+PERIPHERIE|Pourtour
+INDIEN|D'Inde
+COURONNE|Diadème
+GLOBALE|Totale
+INTERNES|Pensionnaires
+NATURELS|Sans artifice
+IDEOLOGIE|Doctrine
+UTILISES|Employés
+RENOUVEAU|Renaissance
+QUOTIDIEN|Journal
+PROGRAMME|Plan
+EMIGRATION|Départ du pays
+REFORMES|Changements
+TERRESTRE|De la Terre
+PROVENANCE|Origine
+ACTUELS|Présents
+INFERIEUR|Plus bas
+SEPARATION|Rupture
+GARANTIR|Assurer
+SYMBOLIQUE|Emblématique
+ETABLIR|Instaurer
+CONCEPTION|Création
+CONDITION|Clause
+CINQUIEME|Après le quatrième
+DECOUVERTE|Trouvaille
+INSTALLER|Mettre en place
+MARCHANDS|Commerçants
+ASIATIQUES|D'Asie
+HUMAINES|Des hommes
+DEFINITION|Sens d'un mot
+DOMINANT|Prépondérant
+ADAPTER|Ajuster
+TRANSFERT|Déplacement
+VIGUEUR|Énergie
+EQUILIBRES|Stabilités
+DEFINIR|Préciser
+SUPREMATIE|Domination
+PROSPERE|Florissant
+COLONIALE|Des colonies
+ISLAM|Religion du Coran
+CHRETIENS|Fidèles du Christ
+MILLIARDS|Mille millions
+RESERVES|Provisions
+CENTRALES|Usines électriques
+DEMOCRATIE|Pouvoir du peuple
+MUSULMANE|De l'islam
+MOBILITE|Capacité à bouger
+IMMIGRES|Venus d'ailleurs
+TRANSITION|Passage
+TRAITES|Accords
+LOISIRS|Temps libre
+FIDELES|Croyants
+SYSTEMES|Ensembles organisés
+CIVILES|Pas militaires
+EMEUTES|Troubles
+SYMBOLE|Emblème
+OUVERTURE|Début
+GOUVERNEUR|Chef de province
+MINISTERE|Département ministériel
+FONDATION|Création
+AUTONOME|Indépendant
+DEFIS|Challenges
+DOMESTIQUE|Serviteur
+OUVRIERS|Travailleurs
+BANLIEUE|Périphérie
+PERSONNEL|Employés
+MOYENNES|Notes du bulletin
+CROISSANTE|Grandissante
+POSSESSION|Propriété
+REGIONAL|De la région
+FINANCIER|De l'argent
+HISTORIENS|Spécialistes du passé
+NOURRITURE|Aliments
+ECHELLES|Escabeaux
+DIPLOMATIE|Art des relations entre États
+DIMINUTION|Baisse
+EQUILIBRE|Stabilité
+CAPITALES|Villes principales
+CATEGORIES|Classes
+ANTIQUE|Très ancien
+ADHESION|Approbation
+EXPERIENCE|Expérimentation
+HUMAINS|Hommes
+IMPOSSIBLE|Irréalisable
+SPECIFIQUE|Particulier
+ORGANISER|Préparer
+CULTES|Religions
+PUISSANT|Fort
+PRESERVER|Protéger
+FONDEMENTS|Bases
+SOUMISE|Docile
+STATUTS|Règlements
+TERRAINS|Parcelles
+MODESTE|Humble
+HOPITAUX|Établissements de soins
+AUPARAVANT|Avant
+EXERCER|Pratiquer
+HABITATION|Logement
+VOYAGES|Périples
+MIXTE|Pour filles et garçons
+DISTANCES|Écarts
+EXPLIQUER|Faire comprendre
+LONGUES|Étendues
+QUATRIEME|Après le troisième
+MONOPOLE|Exclusivité
+INDIVIDUEL|Personnel
+ADAPTATION|Ajustement
+SPHERE|Boule
+FISCALITE|Impôts
+OUVRAGES|Livres
+AVANTAGES|Atouts
+MODALITES|Formes
+PETROLE|Or noir
+MUSULMANS|Fidèles de l'islam
+DOLLARS|Monnaie américaine
+COLONIAL|Des colonies
+CULTE|Religion
+LOGEMENTS|Habitations
+CATHOLIQUE|Chrétien de Rome
+REFUGIES|Exilés
+RISQUES|Dangers
+MATIERES|Substances
+COMMUNISTE|Rouge
+ESCLAVES|Captifs
+CHINOISE|De Pékin
+COUTS|Prix
+REPRESSION|Sanction
+COMMUNES|Municipalités
+PENINSULE|Presqu'île
+ARCHIPEL|Groupe d'îles
+LIBERATION|Délivrance
+FEDERAL|De la fédération
+DIFFUSION|Propagation
+VIOLENCES|Brutalités
+DEPENDANCE|Addiction
+RICHESSE|Fortune
+FONDATEUR|Créateur
+MODERNITE|Caractère actuel
+ANNEXION|Rattachement forcé
+OCCIDENTAL|De l'Ouest
+GENERAUX|Officiers étoilés
+COLLECTIFS|Communs
+IMMEUBLES|Bâtiments
+NIVEAUX|Étages
+REGIMES|Systèmes politiques
+OPERATION|Intervention
+MILLIARD|Mille millions
+TERRORISME|Violence politique
+CATEGORIE|Classe
+PROSPERITE|Abondance
+MONARCHIE|Royauté
+SOUVERAINS|Rois
+REPUBLIQUE|Régime de Marianne
+EXPLOSION|Déflagration
+MIGRATION|Déplacement de population
+ESPERANCE|Espoir
+PROFONDEUR|Fond
+CAPITAUX|Fonds
+LEGITIMITE|Bien-fondé
+COLLECTIF|Groupe
+BANQUES|Établissements financiers
+TRANSIT|Passage
+RIVALITES|Concurrences
+SUCCESSION|Héritage
+CONQUERIR|Gagner
+ATTRACTION|Manège
+FAIBLESSE|Fragilité
+AVIATION|Aéronautique
+DOCUMENTS|Papiers
+CONNAITRE|Savoir
+FONCIER|Des terrains
+ENCEINTE|Rempart
+CONTRATS|Engagements
+ASCENSION|Montée
+DIFFICULTE|Obstacle
+COURANTE|Habituelle
+TAXES|Impôts
+OPPOSER|Confronter
+ALLIANCES|Pactes
+VARIES|Divers
+HOSTILES|Ennemis
+AMELIORER|Perfectionner
+MASSIFS|Montagnes
+INTERVENIR|Agir
+AMBITIEUX|Qui vise haut
+SCOLAIRES|De l'école
+PRECARITE|Fragilité sociale
+PARADOXES|Contradictions
+MARIAGES|Noces
+VARIETE|Diversité
+RURALE|De la campagne
+EXEMPLES|Modèles
+EXCELLENCE|Perfection
+CHAINES|Suites de montagnes
+CENTAINE|Cent environ
+INSERTION|Intégration
