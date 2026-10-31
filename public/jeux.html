@@ -353,7 +353,7 @@ body.sk.light .sktl{background:rgba(15,19,26,.14)}
 .sktl i{display:block;height:100%;border-radius:99px;transition:width .25s linear,background .25s linear;box-shadow:0 0 10px rgba(0,0,0,.15)}
 .sktl[hidden]{display:none}
 .skboard{padding:14px!important;display:flex;justify-content:center;overflow:auto;min-height:0}
-.skboard .board{overflow:visible!important;min-height:0}
+.skboard .board{flex:1;min-height:0;height:100%;overflow:auto!important;display:flex;justify-content:center;align-items:flex-start}
 body.sk-rond.playing #game,body.sk-meles.playing #game{max-width:860px;width:100%;margin:0 auto;display:grid!important;grid-template-columns:minmax(0,1fr) auto!important;gap:12px!important}
 body.sk-rond.playing #game{grid-template-rows:auto minmax(0,1fr) auto auto!important;grid-template-areas:"left tools" "board board" "under under" "acts acts"!important}
 body.sk-meles.playing #game{grid-template-rows:auto auto minmax(0,1fr) auto!important;grid-template-areas:"left tools" "under under" "board board" "acts acts"!important}
@@ -381,6 +381,11 @@ body.sk-meles .under .mwords{background:var(--skglass);border:1px solid var(--sk
   body.sk-rond .acts .k.go,body.sk-meles .acts .k.go{flex:1;min-width:0}
   .skboard{padding:8px!important}
 }
+/* mots mêlés : capsules à la place du remplissage des cases */
+body.sk-meles .mgrid{position:relative}
+body.sk-meles svg.skcaps{position:absolute;left:0;top:0;pointer-events:none;z-index:2;overflow:visible}
+body.sk-meles .ml.f,body.sk-meles .ml.f2{background:var(--cellbg)!important;box-shadow:none!important;color:inherit!important}
+body.sk-meles .mw.f{background:color-mix(in srgb,var(--fc) 30%,transparent)!important;border:1px solid var(--fc)!important;text-decoration:line-through;text-decoration-thickness:2px}
 </style></head>
 <body>
 <div class="wrap">
@@ -1508,6 +1513,16 @@ function jeux(){
     if(PAGE==="rond")slots();
     drawOverlay(wrapB,window.__skState())};
   D.addEventListener("input",e=>{if(e.target&&e.target.id==="ans")slots()});
+  let lw=0,lh=0;setInterval(()=>{const r=wrapB.getBoundingClientRect();if(Math.abs(r.width-lw)>2||Math.abs(r.height-lh)>2){lw=r.width;lh=r.height;try{if(typeof fitMeles==="function"&&PAGE==="meles")fitMeles()}catch(e){}dispatchEvent(new Event("resize"))}},300);
+  // mots mêlés : mots trouvés entourés d'une capsule à la couleur du joueur (les croisements gardent les deux capsules)
+  if(PAGE==="meles"&&typeof renderMeles==="function"){const orig=renderMeles;
+    const caps=()=>{const g=$("mgrid");if(!g||!G)return;let sv=g.querySelector("svg.skcaps");if(!sv){sv=D.createElementNS("http://www.w3.org/2000/svg","svg");sv.setAttribute("class","skcaps");g.appendChild(sv)}
+      sv.setAttribute("width",g.clientWidth);sv.setAttribute("height",g.clientHeight);let h="";
+      G.words.forEach(w=>{const f=G.found[w.w];if(!f)return;const cs=cellsOf(w);const a0=$("m"+cs[0]),b0=$("m"+cs[cs.length-1]);if(!a0||!b0)return;
+        const s0=a0.offsetWidth,x1=a0.offsetLeft+s0/2,y1=a0.offsetTop+s0/2,x2=b0.offsetLeft+s0/2,y2=b0.offsetTop+s0/2;const L=Math.hypot(x2-x1,y2-y1),H=s0*.82,ang=Math.atan2(y2-y1,x2-x1)*180/Math.PI;
+        const col=PCOL[f.by]||"#34d399";h+='<rect x="'+((x1+x2)/2-(L+H)/2)+'" y="'+((y1+y2)/2-H/2)+'" width="'+(L+H)+'" height="'+H+'" rx="'+H/2+'" transform="rotate('+ang+' '+(x1+x2)/2+' '+(y1+y2)/2+')" fill="'+col+'" fill-opacity=".28" stroke="'+col+'" stroke-width="2"/>'});
+      sv.innerHTML=h};
+    renderMeles=function(){const r=orig.apply(this,arguments);try{caps()}catch(e){}return r};addEventListener("resize",()=>setTimeout(caps,60))}
   setInterval(upd,250);upd()}
 function start(){mount();D.body.classList.add("sk-"+PAGE);wireHeader();if(PAGE==="fleches")fleches();else jeux()}
 if(D.readyState==="loading")D.addEventListener("DOMContentLoaded",start);else start();
