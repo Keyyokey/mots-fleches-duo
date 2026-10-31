@@ -355,7 +355,7 @@ const server = http.createServer((req, res) => {
   if (url.pathname === "/maquette" || url.pathname === "/maquette/") return sendPage(req, res, path.join(__dirname, "public", "maquette.html"));
   if (url.pathname === "/mot" || url.pathname === "/mot/") return sendPage(req, res, path.join(__dirname, "public", "mot.html"));
   if (/^\/(?:[A-Za-z0-9]{5}\/)?rond\/?$/.test(url.pathname)) return sendPage(req, res, path.join(__dirname, "public", "rd.html"));
-  if (/^\/(?:[A-Za-z0-9]{5}\/)?(rond|meles)\/?$/.test(url.pathname)) return sendPage(req, res, path.join(__dirname, "public", "jeux.html"));
+  if (/^\/(?:[A-Za-z0-9]{5}\/)?meles\/?$/.test(url.pathname)) return sendPage(req, res, path.join(__dirname, "public", "mm.html"));
   if (/^\/(?:[A-Za-z0-9]{5}\/)?fleches\/?$/.test(url.pathname)) return sendPage(req, res, path.join(__dirname, "public", "fl.html"));
   if (/^\/(?:[A-Za-z0-9]{5}\/)?poker\/?$/.test(url.pathname)) return sendPage(req, res, path.join(__dirname, "public", "poker.html"));
   if (url.pathname === "/" || /^\/[A-Za-z0-9]{5}\/?$/.test(url.pathname)) {
