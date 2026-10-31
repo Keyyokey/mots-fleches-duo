@@ -13,6 +13,7 @@ const PORT = process.env.PORT || 3000;
 const DATA_DIR = process.env.DATA_DIR || path.join(__dirname, "data");
 const SAVE_FILE = path.join(DATA_DIR, "salons.json");
 const PAGE = path.join(__dirname, "public", "index.html");
+const HOME = path.join(__dirname, "public", "accueil.html");
 const MAX_DOC = 300 * 1024;          // taille max d'une partie
 const MAX_DOCS = 40;                 // parties max par salon
 const CODE_RE = /^[A-Z0-9]{5}$/;
@@ -189,9 +190,39 @@ function salonList(p) {
   return Object.entries(p.salons || {}).sort((a, b) => b[1] - a[1]).slice(0, 30).map(([code, t]) => {
     const s = salons.get(code); let live = 0, open = 0;
     if (s) { live = s.sockets.size; for (const id in s.docs) { const d = s.docs[id]; if (d && d.players && !d.solo && !d.done) open++; } }
-    return { code, t, live, open };
+    const nm = s && s.docs.meta && typeof s.docs.meta.name === "string" ? s.docs.meta.name.slice(0, 40) : "";
+    return { code, t, live, open, name: nm };
   });
 }
+// ---------- points des joueurs (classement général, progression) ----------
+const rankMem = new Map();           // pseudo -> total (secours sans Redis)
+const DAYKEY = () => new Date(Date.now() + 3600e3).toISOString().slice(0, 10);
+const SOLO_MULT = { facile: 1, normal: 1.5, moyen: 1.5, difficile: 2 };
+async function addPoints(name, p, game, pts) {
+  p.pts = p.pts || { tot: 0, g: {}, d: {} };
+  p.pts.tot += pts; p.pts.g[game] = (p.pts.g[game] || 0) + pts;
+  const day = DAYKEY(); const d = p.pts.d[day] || {}; d[game] = (d[game] || 0) + pts; p.pts.d[day] = d;
+  const days = Object.keys(p.pts.d).sort(); if (days.length > 60) days.slice(0, days.length - 60).forEach(k => delete p.pts.d[k]);
+  rankMem.set(name, p.pts.tot);
+  if (REDIS) redis(["ZADD", "rank", String(p.pts.tot), name]).catch(e => console.error("Classement Redis :", e.message));
+}
+async function topRank(me) {
+  let top = [], mine = null;
+  if (REDIS) {
+    try {
+      const r = await redis(["ZREVRANGE", "rank", "0", "9", "WITHSCORES"]);
+      for (let i = 0; i < r.length; i += 2) top.push({ name: r[i], pts: Math.round(Number(r[i + 1])) });
+      if (me) { const [rk, sc] = await Promise.all([redis(["ZREVRANK", "rank", me]), redis(["ZSCORE", "rank", me])]); if (rk !== null && rk !== undefined) mine = { name: me, rank: Number(rk) + 1, pts: Math.round(Number(sc)) }; }
+      return { top, me: mine };
+    } catch (e) { console.error("Classement Redis :", e.message); }
+  }
+  const all = [...rankMem].sort((a, b) => b[1] - a[1]);
+  top = all.slice(0, 10).map(([name, pts]) => ({ name, pts: Math.round(pts) }));
+  const i = all.findIndex(x => x[0] === me); if (i >= 0) mine = { name: me, rank: i + 1, pts: Math.round(all[i][1]) };
+  return { top, me: mine };
+}
+for (const [k, p] of players) if (p.pts) rankMem.set(k, p.pts.tot);
+
 async function api(req, res, route) {
   const out = (code, o) => { res.writeHead(code, { "content-type": "application/json", "cache-control": "no-store" }); res.end(JSON.stringify(o)); };
   if (req.method !== "POST") return out(405, { error: "méthode" });
@@ -199,6 +230,7 @@ async function api(req, res, route) {
   let b; try { b = JSON.parse(body || "{}"); } catch { return out(400, { error: "json" }); }
   const ip = String(req.headers["x-forwarded-for"] || req.socket.remoteAddress || "").split(",")[0].trim();
   const name = String(b.name || "").toUpperCase();
+  if (route === "rank") return out(200, await topRank(PSEUDO_RE.test(name) ? name : null));
   if (!PSEUDO_RE.test(name)) return out(400, { error: "pseudo", msg: "Pseudo invalide : 2 à 7 caractères (A-Z, 0-9, @ # _)." });
   let p; try { p = await getPlayer(name); } catch { return out(503, { error: "indispo", msg: "Serveur occupé, réessaie dans un instant." }); }
   const authed = () => p && b.token && (p.toks || []).includes(sha(String(b.token)));
@@ -220,7 +252,19 @@ async function api(req, res, route) {
     fails.delete("pl:" + name); const token = newToken(p); savePlayer(name); return out(200, { token, salons: salonList(p) });
   }
   if (!authed()) return out(401, { error: "jeton", msg: "Reconnecte-toi avec ton code secret." });
-  if (route === "me") return out(200, { salons: salonList(p) });
+  if (route === "me") return out(200, { salons: salonList(p), pts: p.pts || { tot: 0, g: {}, d: {} } });
+  if (route === "score") {
+    // points d'une partie terminée, envoyés par le joueur lui-même (une seule fois par partie)
+    const game = String(b.game || ""), gid = String(b.gid || "");
+    if (!/^(fleches|rond|meles|poker|mot|culture)$/.test(game) || !/^[A-Za-z0-9_-]{3,40}$/.test(gid)) return out(400, { error: "partie" });
+    p.gids = Array.isArray(p.gids) ? p.gids : [];
+    if (p.gids.includes(game + gid)) return out(200, { ok: true, dup: true, pts: p.pts });
+    let pts = Math.max(0, Math.min(800, Math.round(Number(b.pts) || 0)));
+    if (b.solo) pts = Math.round(pts * (SOLO_MULT[b.level] || 1));
+    p.gids = p.gids.slice(-300).concat(game + gid);
+    if (pts) await addPoints(name, p, game, pts);
+    savePlayer(name); return out(200, { ok: true, add: pts, pts: p.pts });
+  }
   if (route === "link") {
     const code = String(b.salon || "").toUpperCase(); if (!CODE_RE.test(code)) return out(400, { error: "salon" });
     p.salons = p.salons || {}; if (b.remove) delete p.salons[code]; else p.salons[code] = Date.now();
@@ -233,28 +277,52 @@ async function api(req, res, route) {
 }
 
 // ---------- serveur web ----------
-const pages = {};                      // fichier -> { raw, gz, mtime }
-function page(file) {
+const pages = {};                      // fichier -> { raw, gz, br, etag, mtime }
+function pack(raw) {
+  return { raw, gz: zlib.gzipSync(raw, { level: 9 }), br: zlib.brotliCompressSync(raw, { params: { [zlib.constants.BROTLI_PARAM_QUALITY]: 11, [zlib.constants.BROTLI_PARAM_SIZE_HINT]: raw.length } }), etag: '"' + crypto.createHash("sha1").update(raw).digest("base64url").slice(0, 16) + '"' };
+}
+function page(file, inject) {
   const st = fs.statSync(file);
   const c = pages[file];
   if (c && c.mtime === st.mtimeMs) return c;
-  const raw = Buffer.from(fs.readFileSync(file, "utf8").replace("<head>", "<head>\n<script>window.SUPPORT=" + SUPPORT + ";</script>"));
-  return (pages[file] = { raw, gz: zlib.gzipSync(raw, { level: 9 }), mtime: st.mtimeMs });
+  let txt = fs.readFileSync(file, "utf8");
+  if (inject) txt = txt.replace("<head>", "<head>\n<script>window.SUPPORT=" + SUPPORT + ";</script>");
+  return (pages[file] = { ...pack(Buffer.from(txt)), mtime: st.mtimeMs });
+}
+function sendBody(req, res, p, type, cache) {
+  const ae = req.headers["accept-encoding"] || "";
+  const h = { "content-type": type, "cache-control": cache, vary: "Accept-Encoding", etag: p.etag };
+  if (req.headers["if-none-match"] === p.etag) { res.writeHead(304, h); return res.end(); }
+  if (/\bbr\b/.test(ae)) { res.writeHead(200, { ...h, "content-encoding": "br" }); return res.end(p.br); }
+  if (/\bgzip\b/.test(ae)) { res.writeHead(200, { ...h, "content-encoding": "gzip" }); return res.end(p.gz); }
+  res.writeHead(200, h); res.end(p.raw);
 }
 function sendPage(req, res, file) {
-  let p; try { p = page(file); } catch { res.writeHead(500); return res.end("Page manquante"); }
-  const gz = /\bgzip\b/.test(req.headers["accept-encoding"] || "");
-  res.writeHead(200, { "content-type": "text/html; charset=utf-8", "cache-control": "no-cache", vary: "Accept-Encoding", ...(gz ? { "content-encoding": "gzip" } : {}) });
-  res.end(gz ? p.gz : p.raw);
+  let p; try { p = page(file, true); } catch { res.writeHead(500); return res.end("Page manquante"); }
+  sendBody(req, res, p, "text/html; charset=utf-8", "no-cache");
+}
+// données lourdes (grilles…) : nom de fichier versionné → mises en cache un an par le navigateur
+const STATIC = { js: "text/javascript; charset=utf-8", json: "application/json", svg: "image/svg+xml", css: "text/css; charset=utf-8" };
+function sendStatic(req, res, name) {
+  const m = name.match(/^([a-z0-9-]{3,60})\.(js|json|svg|css)$/); if (!m) { res.writeHead(404); return res.end(); }
+  let p; try { p = page(path.join(__dirname, "public", "d", name), false); } catch { res.writeHead(404); return res.end(); }
+  sendBody(req, res, p, STATIC[m[2]], /-[0-9a-f]{10}\./.test(name) ? "public, max-age=31536000, immutable" : "public, max-age=3600");
 }
 const server = http.createServer((req, res) => {
   const url = new URL(req.url, "http://x");
   if (url.pathname === "/healthz") { res.writeHead(200, { "content-type": "text/plain" }); return res.end("ok " + salons.size + (REDIS ? " redis" : "")); }
-  const am = url.pathname.match(/^\/api\/p\/(check|create|login|me|link|pin|logout)$/);
+  const am = url.pathname.match(/^\/api\/p\/(check|create|login|me|link|pin|logout|rank|score)$/);
   if (am) return void api(req, res, am[1]).catch(e => { console.error(e); try { res.writeHead(500); res.end("{}"); } catch {} });
+  if (url.pathname.startsWith("/d/")) return sendStatic(req, res, url.pathname.slice(3));
   if (url.pathname === "/mot" || url.pathname === "/mot/") return sendPage(req, res, path.join(__dirname, "public", "mot.html"));
-  if (/^\/[A-Za-z0-9]{5}\/(rond|meles)\/?$/.test(url.pathname) || /^\/(rond|meles)\/?$/.test(url.pathname)) return sendPage(req, res, path.join(__dirname, "public", "jeux.html"));
-  if (url.pathname === "/" || /^\/[A-Za-z0-9]{5}\/?$/.test(url.pathname)) return sendPage(req, res, PAGE);
+  if (/^\/(?:[A-Za-z0-9]{5}\/)?(rond|meles)\/?$/.test(url.pathname)) return sendPage(req, res, path.join(__dirname, "public", "jeux.html"));
+  if (/^\/(?:[A-Za-z0-9]{5}\/)?fleches\/?$/.test(url.pathname)) return sendPage(req, res, PAGE);
+  if (/^\/(?:[A-Za-z0-9]{5}\/)?poker\/?$/.test(url.pathname)) return sendPage(req, res, path.join(__dirname, "public", "poker.html"));
+  if (url.pathname === "/" || /^\/[A-Za-z0-9]{5}\/?$/.test(url.pathname)) {
+    // anciens liens d'invitation vers une partie de mots fléchés : on garde le chemin du jeu
+    if (/[?&]join=/.test(url.search) && !/[?&]join=1\b/.test(url.search) && url.pathname !== "/") { res.writeHead(302, { location: url.pathname.replace(/\/$/, "") + "/fleches" + url.search }); return res.end(); }
+    return sendPage(req, res, HOME);
+  }
   res.writeHead(404, { "content-type": "text/html; charset=utf-8" });
   res.end('<!doctype html><html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Salon introuvable</title><style>body{margin:0;min-height:100vh;display:grid;place-items:center;background:#121214;color:#ECEDF2;font-family:system-ui,sans-serif;padding:16px}main{max-width:380px;text-align:center;display:flex;flex-direction:column;gap:12px}h1{margin:0;font-size:1.4rem}p{color:#8B8C99;margin:0}form{display:flex;gap:8px}input{flex:1;min-width:0;font-size:1.3rem;font-weight:800;letter-spacing:.2em;text-transform:uppercase;text-align:center;padding:10px;border-radius:12px;border:1px solid #2f2f39;background:#1E1E24;color:#ECEDF2}button,a{font:inherit;font-weight:700;padding:12px 16px;border-radius:12px;border:none;background:#00ADB5;color:#041b1d;text-decoration:none;cursor:pointer}</style></head><body><main><h1>Ce salon n\'existe pas</h1><p>Un code de salon fait 5 caractères (lettres et chiffres). Vérifie celui qu\'on t\'a envoyé.</p><form onsubmit="event.preventDefault();var v=this.c.value.toUpperCase().replace(/[^A-Z0-9]/g,\'\');if(v.length===5)location.href=\'/\'+v"><input name="c" maxlength="5" placeholder="CODE" aria-label="Code du salon"><button>Rejoindre</button></form><a href="/">Créer un nouveau salon</a></main></body></html>');
 });
