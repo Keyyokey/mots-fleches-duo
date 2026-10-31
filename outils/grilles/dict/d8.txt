@@ -347,3 +347,121 @@ ANTENNE|Récepteur radio
 RENNES|Ville bretonne
 TENNIS|Sport de Roland-Garros
 SIENNE|Ville de Toscane
+
+POITRINE|Torse
+SOURCILS|Arcs au-dessus des yeux
+MACHOIRE|Os des dents
+DEUXIEME|Second
+ECHAPPER|S'enfuir
+RESPIRER|Inspirer et expirer
+IMAGINER|Inventer
+AUSSITOT|Immédiatement
+IMMOBILE|Figé
+OBSERVER|Regarder attentivement
+OCCASION|Opportunité
+PROMESSE|Engagement
+LUMIERES|Éclairages
+INSTINCT|Intuition naturelle
+RACONTER|Narrer
+AGREABLE|Plaisant
+FAMILIER|Connu
+ARRACHER|Extirper
+RIDICULE|Grotesque
+ATTRAPER|Saisir
+DEJEUNER|Repas de midi
+NERVEUSE|Agitée
+SERIEUSE|Grave
+FATIGUEE|Lasse
+SURVIVRE|Rester en vie
+ATTITUDE|Comportement
+ETREINTE|Embrassade
+TERRIBLE|Effroyable
+EXPLOSER|Éclater
+BLESSURE|Plaie
+INTIMITE|Vie privée
+EVIDENCE|Certitude
+RESISTER|Tenir bon
+DETENDRE|Relaxer
+RESOUDRE|Trouver la solution
+COMPLETE|Entière
+DETRUIRE|Anéantir
+RALENTIR|Freiner
+SENSIBLE|Émotif
+MORCEAUX|Fragments
+PRUDENTE|Avisée
+ETEINDRE|Couper la lumière
+REGULIER|Constant
+SOULEVER|Lever
+PORTIERE|Porte de voiture
+POIGNETS|Articulations de la main
+CARESSER|Effleurer tendrement
+SOUFFRIR|Avoir mal
+COUPABLE|Fautif
+REPLIQUE|Réponse
+MEFIANCE|Soupçon
+BOUTIQUE|Magasin
+PORTABLE|Téléphone mobile
+CONDUIRE|Piloter
+RASSURER|Tranquilliser
+PRUDENCE|Précaution
+HABITUEL|Ordinaire
+QUARANTE|Quatre dizaines
+LUNETTES|Elles corrigent la vue
+LUMINEUX|Éclairé
+PRECIEUX|De grande valeur
+NETTOYER|Laver
+HORRIBLE|Affreux
+CURIEUSE|Indiscrète
+PENOMBRE|Demi-obscurité
+DESORDRE|Fouillis
+PASSAGER|Voyageur
+LOINTAIN|Éloigné
+PERPLEXE|Indécis
+BARRIERE|Clôture
+UNIFORME|Tenue réglementaire
+SAVOURER|Déguster
+EXPRIMER|Dire
+CREATURE|Être vivant
+HUMIDITE|Moiteur
+JALOUSIE|Envie
+DELICATE|Fine
+RENONCER|Abandonner
+QUATORZE|Dix plus quatre
+TABOURET|Siège sans dossier
+EXPLORER|Découvrir
+GENTILLE|Aimable
+INCENDIE|Feu ravageur
+NARQUOIS|Moqueur
+PLANCHER|Sol en bois
+TAILLEUR|Couturier ou costume
+IMMEUBLE|Bâtiment
+ADORABLE|Charmant
+ATTENTIF|Concentré
+TRAHISON|Félonie
+PAISIBLE|Calme
+DESCENTE|Pente
+PRETEXTE|Excuse
+NEGOCIER|Marchander
+CORRIGER|Rectifier
+CUILLERE|Couvert à soupe
+COMPLICE|Acolyte
+FOUILLER|Chercher partout
+NOCTURNE|De nuit
+SANGLOTS|Pleurs
+BRANCHES|Rameaux
+DETRESSE|Désespoir
+BISCUITS|Gâteaux secs
+DEMARCHE|Façon de marcher
+SONNERIE|Sonnette
+SANDWICH|Casse-croûte
+COMPAGNE|Partenaire
+FOURRURE|Pelage
+CUISINER|Préparer à manger
+PRIORITE|Urgence
+DESASTRE|Catastrophe
+CHEVILLE|Articulation du pied
+TENEBRES|Obscurité totale
+DOUZAINE|Douze
+PUPILLES|Centres des yeux
+POSSEDER|Avoir
+DENTELLE|Tissu ajouré

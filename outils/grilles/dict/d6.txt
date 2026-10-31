@@ -321,3 +321,139 @@ VOLCAN|Montagne de feu
 VOLEUR|Pickpocket
 VOYAGE|Périple
 ZEPHYR|Vent doux
+
+JAMBES|Elles servent à marcher
+SORTIE|Issue
+SOMBRE|Obscur
+RYTHME|Cadence
+BOUGER|Remuer
+COURIR|Filer à toutes jambes
+CHAUDE|Brûlante
+FROIDE|Glaciale
+LEGERE|Peu lourde
+LACHER|Laisser tomber
+PRECIS|Exact
+SOLIDE|Robuste
+HUMIDE|Mouillé
+COUPER|Trancher
+SOUPIR|Souffle de lassitude
+RAUQUE|Voix enrouée
+BRISER|Casser
+TRAITS|Lignes du visage
+VISION|Vue
+LOURDE|Pesante
+QUINZE|Dix plus cinq
+GORGEE|Petite quantité bue
+ONGLES|Bouts des doigts
+ECLATS|Morceaux brisés
+FIERTE|Orgueil
+REGLER|Payer
+COURTE|Brève
+ARBRES|Chênes ou hêtres
+POINGS|Mains fermées
+FORCER|Contraindre
+VAGUES|Ondes de la mer
+HANCHE|Haut de la cuisse
+GESTES|Mouvements
+AVOUER|Reconnaître
+OPTION|Choix
+OMBRES|Zones sans lumière
+BRUITS|Sons
+DEGATS|Dommages
+EXPRES|À dessein
+STABLE|Équilibré
+BOUCLE|Mèche frisée
+FONDRE|Devenir liquide
+COUDES|Articulations du bras
+INTIME|Très personnel
+DETOUR|Chemin plus long
+ENNUIS|Soucis
+FACADE|Devant de maison
+MASQUE|Loup de carnaval
+DOUTER|Hésiter à croire
+GUIDER|Montrer le chemin
+VEINES|Vaisseaux sanguins
+GOUTER|Collation de quatre heures
+COURBE|Arrondi
+MARBRE|Pierre de statue
+HURLER|Crier fort
+REVERS|Coup de tennis
+FAUSSE|Erronée
+TIMIDE|Réservé
+FUREUR|Rage
+REGRET|Remords
+CLOCHE|Elle sonne au clocher
+DANSER|Valser
+PARDON|Excuse
+DINGUE|Fou
+SURVIE|Fait de rester en vie
+DEGOUT|Répugnance
+REFUGE|Abri
+FEROCE|Sauvage
+FLUIDE|Liquide
+MASSIF|Imposant
+SALIVE|Bave
+TEINTE|Nuance
+SIGNER|Parapher
+BONDIR|Sauter
+REBORD|Bord saillant
+AMITIE|Affection entre copains
+ENFUIR|S'... : se sauver
+PENSIF|Songeur
+INTACT|Entier
+TRAHIR|Dénoncer
+CAISSE|Boîte ou guichet
+VAPEUR|Brume chaude
+MENAGE|Nettoyage
+ECHINE|Colonne vertébrale
+SALUER|Dire bonjour
+OUTILS|Marteau et tournevis
+CHEVET|Table de nuit
+NAUSEE|Mal au cœur
+CLARTE|Lumière
+SONORE|Bruyant
+PERCER|Trouer
+COFFRE|Malle
+MEPRIS|Dédain
+RAPPEL|Bis au concert
+EXACTE|Juste
+RICTUS|Sourire forcé
+MIGNON|Adorable
+MOUSSE|Écume ou dessert
+RITUEL|Cérémonial
+SIEGES|Fauteuils
+EXIGER|Réclamer
+ARMURE|Protection du chevalier
+COMBLE|Grenier ou sommet
+JALOUX|Envieux
+TAQUIN|Farceur
+TREIZE|Nombre porte-malheur
+JOYEUX|Gai
+SONNER|Tinter
+SOUPLE|Flexible
+HOQUET|Spasme du diaphragme
+MATINS|Débuts de journée
+VIRAGE|Tournant
+CAUSER|Bavarder
+MAIGRE|Très mince
+HAUSSE|Augmentation
+DECLIC|Déclenchement
+PHARES|Feux de voiture
+MALICE|Espièglerie
+ADORER|Aimer passionnément
+AFFAME|Qui a très faim
+PRIERE|Supplique
+SUBTIL|Fin
+FREMIR|Frissonner
+CABINE|Petite pièce
+MORTEL|Fatal
+VERROU|Loquet
+ROMANS|Livres de fiction
+POUDRE|Fine poussière
+PORCHE|Entrée couverte
+POIGNE|Force de la main
+LAVABO|Bassin de salle de bains
+CINEMA|Salle obscure
+CINEMA|Septième art
+CINEMA|Grand écran
+CINEMA|Comédie

@@ -523,3 +523,473 @@ VOLER|Dérober
 VOTER|Choisir
 WAGON|Voiture de train
 ZEBRE|Équidé rayé
+
+CETTE|Démonstratif féminin
+FEMME|Épouse
+ASSIS|Sur une chaise
+PERDU|Égaré
+VENUE|Arrivée
+AMOUR|Passion du cœur
+POCHE|Elle est dans le pantalon
+JOUES|Pommettes
+CESSE|Sans ... : toujours
+TENDU|Crispé
+NULLE|Sans valeur
+EPAIS|Pas mince
+PAUME|Creux de la main
+CREUX|Vide à l'intérieur
+JETER|Lancer
+NOIRS|Ébène
+SALON|Pièce de réception
+SIENS|Les ... : sa famille
+CENSE|Supposé
+DORMI|Fait la sieste
+NUQUE|Arrière du cou
+SEUIL|Pas de la porte
+FIXER|Regarder longuement
+LEVRE|Bord de la bouche
+NUITS|Heures sombres
+LACHE|Peureux
+UTILE|Qui sert
+JUGER|Rendre un verdict
+CACHE|Dissimulé
+VIDES|Creux
+MECHE|Touffe de cheveux
+SUEUR|Transpiration
+ANGLE|Coin
+QUEUE|File d'attente
+BLEUS|Ecchymoses
+FOLLE|Démente
+SECHE|Aride
+BLEUE|Couleur du ciel
+FLANC|Côté du corps
+AMUSE|Diverti
+REPOS|Détente
+BOUGE|Remue
+OBJET|Chose
+REMIS|Rétabli
+DOUEE|Talentueuse
+RAVIE|Enchantée
+SACRE|Saint
+DOUZE|Une douzaine
+REINS|Bas du dos
+SERVI|Présenté à table
+FOUET|Instrument de pâtisserie
+REFUS|Non
+FOYER|Maison
+CIBLE|Objectif
+FONCE|Sombre
+PITIE|Compassion
+GUISE|À sa ... : comme il veut
+DURER|Se prolonger
+PLATS|Mets
+FIGEE|Immobile
+VRAIS|Authentiques
+GUERE|Pas beaucoup
+VASTE|Immense
+TEMPE|Côté du front
+RAIDE|Rigide
+COINS|Angles
+VIEIL|Âgé devant une voyelle
+SOIRS|Fins de journée
+VERTS|Couleur de l'herbe
+REELS|Véritables
+GRISE|Couleur de souris
+GANTS|Ils couvrent les mains
+EXIGE|Réclame
+MELER|Mélanger
+TYPES|Gars
+BORDS|Rebords
+AVIDE|Gourmand
+SUBIR|Endurer
+QUETE|Recherche du Graal
+RECUL|Mouvement en arrière
+FILER|Partir vite
+SEIZE|Dix plus six
+FORTS|Costauds
+VIDER|Débarrasser
+DOREE|Couleur d'or
+LENTS|Pas rapides
+TAPER|Frapper
+JOUIR|Profiter
+PIQUE|Couleur de cartes
+APPUI|Soutien
+CONGE|Vacances
+LECON|Cours
+DECOR|Cadre
+DEUIL|Chagrin après un décès
+OBEIR|Se soumettre
+PLIER|Courber
+PAROI|Mur
+EVIER|Bac de cuisine
+TIEDE|Ni chaud ni froid
+SOUCI|Inquiétude ou fleur
+BRUTE|Personne violente
+TRAHI|Dénoncé
+PROIE|Victime du prédateur
+BRUNE|Bière ou cheveux
+ROMPU|Brisé
+NOYER|Arbre à noix
+BAINS|Thermes
+VENDU|Cédé
+VOMIR|Rendre
+RUBAN|Bande de tissu
+GOSSE|Enfant
+PLATE|Sans relief
+RAMPE|Garde-corps
+AIGUE|Pointue
+ANIME|Plein de vie
+PUNIR|Sanctionner
+BOMBE|Explosif
+ARETE|Os de poisson
+GIFLE|Claque
+VOIES|Chemins
+DEMIE|Moitié
+MARIE|Uni par le mariage
+GEMIR|Se plaindre
+ROUES|Cercles du vélo
+DIEUX|Habitants de l'Olympe
+MARRE|En avoir ... : être lassé
+GEANT|Colosse
+ROBES|Habits de soirée
+TORDU|Bizarre
+ISOLE|Seul
+METEO|Bulletin du temps
+BAIES|Petits fruits
+TEINT|Couleur de peau
+CHERI|Bien-aimé
+TROUS|Cavités
+REPIT|Pause
+NIECE|Fille du frère
+BIAIS|Détour
+JOINT|Raccord
+NAIVE|Candide
+GILET|Veste sans manches
+KILOS|Masse en trop
+RIDES|Plis du visage
+BULLE|Sphère de savon
+TUEUR|Assassin
+PNEUS|Gommes de voiture
+MOTIF|Raison
+FRIGO|Réfrigérateur
+SOBRE|Simple
+BONUS|Prime
+NEANT|Vide total
+LEGAL|Permis par la loi
+FLOUE|Trouble
+FETER|Célébrer
+BANCS|Sièges de parc
+BONDE|Plein à craquer
+PECHE|Fruit ou faute
+MICRO|Pour parler fort
+LAPIN|Animal du terrier
+PRIME|Récompense
+BATIR|Construire
+REGNE|Gouvernement d'un roi
+NEUVE|Toute nouvelle
+TUYAU|Conduit
+PLOMB|Métal lourd
+ARCHE|Bateau de Noé
+TRONE|Siège royal
+CALIN|Câlinerie
+AMPLE|Large
+TERNE|Sans éclat
+DEMON|Diable
+GLAND|Fruit du chêne
+BONTE|Gentillesse
+JURER|Promettre
+PEAUX|Épidermes
+RUINE|Décombres
+PLAID|Couverture
+FONDU|Liquéfié
+REJET|Refus
+ACTIF|Dynamique
+MOITE|Humide
+ALPHA|Première grecque
+BACON|Lard fumé
+QUASI|Presque
+ROUGI|Devenu rouge
+MEUTE|Groupe de loups
+LOUPS|Hurleurs de la forêt
+CROCS|Dents pointues
+FENTE|Ouverture étroite
+IVRES|Saouls
+JURON|Gros mot
+EGARD|Respect
+MOCHE|Laid
+DOTEE|Pourvue
+AFFUT|Aux aguets : à l'...
+CRETE|Sommet ou île grecque
+MAREE|Mouvement de la mer
+LONGE|Corde du cheval
+BAZAR|Désordre
+ALLIE|Partenaire
+LOYAL|Fidèle
+CADET|Plus jeune
+EXCES|Abus
+AIGUS|Perçants
+RENES|Guides du cheval
+BUSTE|Torse
+PERIL|Danger
+CULOT|Audace
+GAMME|Do ré mi...
+BOUEE|Flotteur
+ENVOI|Expédition
+ENJEU|Ce qui est en jeu
+JOLIS|Beaux
+RABAT|Partie repliée
+DECES|Mort
+GARER|Stationner
+DIVIN|Céleste
+MENUS|Cartes du restaurant
+TOAST|Pain grillé
+PACTE|Accord
+LAIDE|Pas belle
+ONDES|Vagues
+DELIT|Infraction
+NEUFS|Tout nouveaux
+EVEIL|Réveil
+APPAT|Leurre
+VOUTE|Plafond courbe
+DEPIT|Rancœur
+SUAVE|Doux et agréable
+DEGRE|Échelon
+FUMER|Griller une cigarette
+FREIN|Il arrête la voiture
+BLEME|Très pâle
+SITOT|Aussitôt
+OUBLI|Trou de mémoire
+SALIR|Tacher
+SENSE|Raisonnable
+RINCE|Passe à l'eau
+STAND|Comptoir de foire
+HANTE|Fréquenté par un fantôme
+NEVEU|Fils de la sœur
+BOCAL|Pot en verre
+GAGES|Salaire du domestique
+ECRIN|Boîte à bijoux
+BAUME|Pommade
+RONDS|Cercles
+EBATS|Jeux amoureux
+VOLET|Contrevent
+STOCK|Réserve
+BOUTS|Extrémités
+SEAUX|Récipients du puits
+GONDS|Pivots de porte
+MOLLE|Pas ferme
+RODER|Errer avec de mauvaises intentions
+RAYER|Barrer
+FELIN|Chat sauvage
+CHIOT|Petit chien
+TABAC|Herbe à fumer
+LOUER|Prendre en location
+FLOTS|Vagues
+TRAME|Intrigue
+PLANE|Vole sans moteur
+BLASE|Désabusé
+ROUND|Reprise de boxe
+AIGRE|Acide
+SAGES|Raisonnables
+BREFS|Courts
+DALLE|Plaque de pierre
+SCEAU|Cachet royal
+PULLS|Tricots
+BATTE|Bâton de base-ball
+COGNA|Frappa
+DEFIE|Provoque
+RECHE|Rugueux
+MORNE|Triste
+ENGIN|Machine
+QUAIS|Bords de gare
+VIRIL|Masculin
+PESTE|Épidémie ancienne
+GAFFE|Bévue
+POMPE|Chaussure ou machine
+JADIS|Autrefois
+EXIGU|Trop petit
+COCON|Nid douillet
+VENTS|Mistral et tramontane
+VEUVE|Femme qui a perdu son mari
+COQUE|Coquille d'œuf
+CLOUS|Pointes du marteau
+JUGES|Magistrats
+GALOP|Allure rapide du cheval
+POILU|Velu
+EGARE|Perdu
+VERTU|Qualité morale
+PULPE|Chair du fruit
+EXCLU|Écarté
+IMITE|Copie
+ACIDE|Aigre
+GARNI|Rempli
+FIERS|Orgueilleux
+HAVRE|Refuge
+SORTS|Enchantements
+HAMPE|Manche du drapeau
+PAINS|Baguettes
+TREVE|Pause dans la guerre
+NAVRE|Désolé
+GELER|Glacer
+ALIAS|Autrement dit
+JOUTE|Combat de chevaliers
+JAUGE|Indicateur de niveau
+CODES|Mots de passe
+JUPES|Vêtements de femme
+COLIS|Paquet
+GERBE|Bouquet de blé
+FURIE|Rage
+ACERE|Tranchant
+NORME|Règle
+PUREE|Écrasée de pommes de terre
+CLORE|Fermer
+FLIRT|Amourette
+FAUVE|Bête sauvage
+RAVIN|Gorge profonde
+CIEUX|Paradis
+HOTES|Reçoivent ou sont reçus
+VENIN|Poison du serpent
+VITAL|Indispensable
+BIDON|Récipient ou faux
+AMONT|Vers la source
+RUGIR|Crier comme le lion
+MURAL|Sur le mur
+ELOGE|Compliment
+ECUME|Mousse des vagues
+TIBIA|Os de la jambe
+RUBIS|Pierre rouge
+POKER|Jeu de cartes
+BACHE|Toile imperméable
+PROUE|Avant du navire
+BRINS|Tiges fines
+MALLE|Gros coffre
+MATHS|Calcul à l'école
+ENVOL|Décollage
+BLOCS|Pavés
+BUTIN|Trésor du voleur
+FARCE|Blague
+TRAPU|Petit et costaud
+GALBE|Courbe gracieuse
+USURE|Effet du temps
+FLAIR|Intuition
+BEANT|Grand ouvert
+OPTER|Choisir
+RAVIR|Enchanter
+BERGE|Rive
+PATIO|Cour intérieure
+TYRAN|Despote
+FLUTE|Instrument à vent
+GRADE|Rang militaire
+VOCAL|De la voix
+ICONE|Image sainte
+TIGES|Queues de fleurs
+DIGUE|Barrage
+AIGLE|Rapace royal
+DUVET|Plume légère
+MURET|Petit mur
+EPARS|Dispersés
+TEMPO|Rythme
+RACES|Lignées
+EGAUX|Pareils
+COHUE|Foule
+REPLI|Retraite
+RUDES|Durs
+BRAVO|Félicitations
+BAVER|Saliver
+SECTE|Groupe fermé
+HAREM|Palais des épouses
+SAUGE|Herbe aromatique
+LILAS|Arbuste à fleurs mauves
+SCORE|Résultat du match
+DEBIT|Flux
+DINDE|Volaille de Noël
+MOISI|Couvert de champignons
+PRUDE|Pudibond
+SALVE|Décharge de canons
+MYTHE|Légende
+OASIS|Point d'eau du désert
+RANCH|Ferme du cow-boy
+CHOPE|Grand verre à bière
+VANNE|Plaisanterie ou robinet
+BUCHE|Gâteau de Noël
+ECHOS|Sons renvoyés
+FIOLE|Petite bouteille
+RHUME|Nez qui coule
+HORDE|Troupe sauvage
+FRELE|Fragile
+REGAL|Délice
+VERSO|Dos de la feuille
+FRIRE|Cuire dans l'huile
+ORBES|Sphères
+GOBER|Avaler d'un coup
+JUDAS|Traître ou œilleton
+ABRIS|Refuges
+STORE|Rideau à lamelles
+CHALE|Étoffe sur les épaules
+EUROS|Monnaie unique
+MOTEL|Hôtel de bord de route
+LOUVE|Femelle du loup
+LIGUE|Association
+DAGUE|Poignard
+MAMIE|Grand-mère
+SBIRE|Homme de main
+DEVIS|Estimation de prix
+BARBU|Poilu du menton
+OZONE|Couche protectrice
+PIEUX|Dévot
+PONEY|Petit cheval
+OVALE|En forme d'œuf
+CIVIL|Pas militaire
+BLUFF|Feinte au poker
+BLAME|Reproche
+HUMER|Sentir
+BICHE|Femelle du cerf
+FATAL|Mortel
+JOYAU|Bijou précieux
+LATIN|Langue de César
+COACH|Entraîneur
+DOCKS|Entrepôts du port
+MINOU|Petit chat
+TAROT|Jeu de cartes divinatoires
+FUSEE|Engin spatial
+HABIT|Vêtement
+RETRO|À l'ancienne
+PREUX|Vaillant chevalier
+EPIER|Espionner
+TOQUE|Chapeau de chef
+HELAS|Malheureusement
+RATON|... laveur
+CUBES|Jeux de construction
+PORES|Trous de la peau
+BISOU|Baiser d'enfant
+FLEAU|Calamité
+KARMA|Destin selon ses actes
+GRELE|Pluie de glace
+RISEE|Objet de moquerie
+FUTEE|Maligne
+SALSA|Danse latine
+TABOU|Interdit
+AILEE|Avec des ailes
+FASTE|Luxe
+BAFFE|Gifle
+DUNES|Collines de sable
+YACHT|Bateau de luxe
+ELFES|Lutins des forêts
+FOURS|Échecs ou cuisinières
+SERUM|Liquide médical
+EBENE|Bois noir
+ETAIN|Métal du soldat de plomb
+CANIF|Petit couteau
+ORTIE|Plante qui pique
+BRIDE|Harnais de tête
+LIONS|Rois de la savane
+PARIA|Exclu
+HOULE|Mouvement de la mer
+LIEGE|Bouchon
+REBUT|Déchet
+ARDUE|Difficile
+VIGNE|Plante du vin
+ESSOR|Développement
+ANTAN|D'... : d'autrefois
+SCOOP|Exclusivité
+LUBIE|Caprice
+RECTO|Côté face

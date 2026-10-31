@@ -403,3 +403,140 @@ RAMONEUR|Nettoyeur de cheminée
 SAPHIR|Pierre bleue
 TOURNESOL|Fleur du soleil
 VERNISSAGE|Inauguration d'exposition
+
+PROFOND|Abyssal
+MARCHER|Avancer à pied
+ASSEOIR|S'installer sur une chaise
+SOUDAIN|Tout à coup
+ENTIERE|Complète
+TENSION|Pression
+PLAFOND|Haut de la pièce
+DOUCEUR|Tendresse
+SOURCIL|Poils au-dessus de l'œil
+ESTOMAC|Poche digestive
+DECIDER|Trancher
+POIGNEE|Manche de porte
+IMMENSE|Gigantesque
+AVANCER|Progresser
+POUSSER|Grandir
+FRISSON|Tremblement
+INTENSE|Fort
+ATTIRER|Séduire
+RECULER|Aller en arrière
+MURMURE|Chuchotement
+PROUVER|Démontrer
+PLEURER|Verser des larmes
+MELANGE|Mixture
+COUVERT|Ciel nuageux
+RELEVER|Redresser
+MUSCLES|Biceps et triceps
+PANIQUE|Peur subite
+SINCERE|Franc
+HONNETE|Intègre
+IGNORER|Ne pas savoir
+MATINEE|Début de journée
+REPARER|Dépanner
+FRAICHE|Un peu froide
+REFUSER|Dire non
+INCONNU|Étranger
+VISIBLE|Apparent
+EPAISSE|Dense
+SECRETS|Confidences
+HESITER|Tergiverser
+FRAGILE|Cassable
+DISCRET|Réservé
+EMMENER|Conduire avec soi
+STUPIDE|Bête
+CARESSE|Geste tendre
+FURIEUX|Enragé
+LIBERER|Délivrer
+REVELER|Dévoiler
+DEVINER|Pressentir
+REMPLIR|Combler
+PRESSER|Comprimer
+DISPUTE|Querelle
+DIRIGER|Mener
+PLATEAU|Grand plat
+LIMITES|Frontières
+EFFACER|Gommer
+ESPERER|Souhaiter
+CHASSER|Traquer le gibier
+CERCLES|Ronds
+ECARTER|Éloigner
+FICTION|Récit imaginaire
+ENLEVER|Retirer
+MALAISE|Gêne
+BAISSER|Descendre
+INQUIET|Anxieux
+NORMALE|Ordinaire
+REPETER|Redire
+GRIMACE|Mimique
+COLONNE|Pilier
+FLAMMES|Feu
+POSTURE|Attitude
+HORREUR|Épouvante
+PANNEAU|Écriteau
+CHAISES|Sièges
+FATIGUE|Lassitude
+BAISERS|Bisous
+LIQUIDE|Fluide
+SAUVAGE|Pas domestique
+RIDEAUX|Voilages
+ETAGERE|Planche murale
+TERREUR|Effroi
+CHAGRIN|Peine
+EXISTER|Être
+RISQUER|Oser
+BONJOUR|Salutation
+BRUSQUE|Soudain
+PARKING|Lieu de stationnement
+FEUILLE|Page ou élément d'arbre
+REFLEXE|Réaction immédiate
+ABSURDE|Insensé
+TORTURE|Supplice
+APAISER|Calmer
+NOURRIR|Alimenter
+ENDORMI|Assoupi
+ADULTES|Grandes personnes
+CHARGER|Remplir
+PIERRES|Cailloux
+ALLONGE|Étendu
+BOUCHEE|Morceau avalé
+VISITER|Découvrir un lieu
+CHIGNON|Cheveux noués
+AVEUGLE|Non-voyant
+LANGAGE|Façon de parler
+MAGIQUE|Enchanté
+FROTTER|Astiquer
+TROUBLE|Flou
+NARINES|Trous du nez
+ETROITE|Pas large
+GRIMPER|Escalader
+QUALITE|Valeur
+HABILLE|Vêtu
+PLONGER|Sauter dans l'eau
+ABSOLUE|Totale
+VEILLER|Rester éveillé
+TEMOINS|Ils ont vu la scène
+GRANDIR|Pousser
+ETUDIER|Apprendre
+PARAGES|Alentours
+ERREURS|Fautes
+DEVORER|Manger goulûment
+SUSPENS|Attente angoissée
+CONFORT|Bien-être
+ENNEMIS|Adversaires
+CHAMADE|Cœur qui bat la ...
+MOQUEUR|Railleur
+COMMODE|Meuble à tiroirs
+REFLETS|Images dans le miroir
+PLANTES|Végétaux
+PLAINTE|Gémissement
+LENTEUR|Manque de vitesse
+GRAVITE|Pesanteur
+VERTIGE|Peur du vide
+MEUBLES|Mobilier
+BRULURE|Lésion du feu
+BRILLER|Étinceler
+SEPARER|Diviser
+SUSPECT|Douteux

@@ -126,3 +126,268 @@ LI|Lithium
 TI|Titane
 NE|Néon
 AR|Argon
+RE|Note après do
+RE|Deuxième note
+RE|Note de la gamme
+RE|Préfixe de retour
+IN|À la mode
+IN|Tendance
+IN|Branché
+IN|Dans le vent
+EE|Voyelles doublées
+EE|Deux e
+EE|Paire de voyelles
+IL|Pronom masculin
+IL|Lui, sujet
+IL|Pronom impersonnel
+IE|C'est-à-dire en bref
+IE|Autrement dit
+IE|Soit, abrégé
+OR|Métal précieux
+OR|Métal jaune
+OR|Médaille du vainqueur
+OR|Conjonction
+EL|Lettre l
+EL|Article espagnol
+EL|Le, à madrid
+SE|Pronom réfléchi
+SE|Soi-même
+SE|Lui-même
+TP|Travaux pratiques
+TP|Cours en labo
+TP|Exercice de labo
+SS|Sécu
+SS|Protection sociale
+SS|Consonnes doubles
+EU|Possédé
+EU|Obtenu
+EU|Trompé
+EU|Détenu
+ES|Tu y existes
+ES|Tu existes
+AL|Aluminium
+AL|Métal léger
+AL|Symbole chimique
+RR|Consonnes de terre
+RR|Deux r
+RR|R doublé
+UI|Diphtongue de huit
+UI|Son de nuit
+UI|Cœur de pluie
+TS|Tous en texto
+TS|Tous en bref
+TS|Consonnes de test
+RN|Route nationale
+RN|Grande route
+RN|Axe routier
+CE|Démonstratif
+CE|Cela
+CE|Cet objet
+RT|Retweet
+RT|Partage de tweet
+US|Coutumes
+US|Usages
+US|Habitudes
+US|Mœurs
+GR|Gramme abrégé
+GR|Sentier de randonnée
+GR|Chemin balisé
+UT|Ancien do
+UT|Première note
+UT|Do d'autrefois
+UE|Union des 27
+UE|Europe unie
+UE|Union européenne
+EN|Pronom adverbial
+EN|Dedans
+EN|De cela
+AT|Arobase en anglais
+AT|@ anglais
+AT|À, en anglais
+OS|Pièce du squelette
+OS|À ronger
+OS|Tibia ou fémur
+OS|Os à moelle
+TE|Pronom personnel
+TE|Toi, complément
+TE|Règle à dessin
+RO|Code de la roumanie
+RO|Roumanie en bref
+RO|Début de route
+ST|Saint abrégé
+ST|Saint en bref
+ST|Chut !
+RA|Coup de baguette
+RA|Dieu soleil
+RA|Radium
+SI|Note avant do
+SI|Tellement
+SI|Oui en réponse
+SI|Condition
+LI|Lithium
+LI|Distance chinoise
+LI|Métal des batteries
+TT|Tout-terrain
+TT|Vélo tout-terrain
+TT|Deux t
+SA|Possessif
+SA|À lui
+SA|À elle
+SA|Société anonyme
+SU|Connu
+SU|Appris
+SU|Retenu
+RU|Petit ruisseau
+RU|Filet d'eau
+RU|Rigole
+EH|Interpellation
+EH|Hé
+EH|Appel
+OT|Office du tourisme
+OT|Syndicat d'initiative
+OT|Accueil touristique
+LE|Article défini
+LE|Celui-ci
+LE|Article masculin
+LU|Parcouru des yeux
+LU|Déchiffré
+LU|Consulté
+FE|Fer du chimiste
+FE|Symbole du fer
+FE|Fin de café
+ME|Pronom réfléchi
+ME|Moi, complément
+ME|À moi
+EM|Lettre m
+EM|M épelé
+EM|Début d'émotion
+NT|Nouveau testament
+NT|Évangiles
+NT|Bible chrétienne (partie)
+PB|Plomb
+PB|Problème en bref
+PB|Souci en texto
+SN|Étain du chimiste
+SN|Symbole de l'étain
+SN|Métal de soudure
+UN|Premier nombre
+UN|Article indéfini
+UN|Seul
+UN|Unique
+CO|Préfixe d'union
+CO|Avec, en préfixe
+CO|Cobalt
+ON|Pronom indéfini
+ON|Nous familier
+ON|Quelqu'un
+MT|Mont abrégé
+MT|Montagne en bref
+MT|Sommet abrégé
+HE|Appel familier
+HE|Eh
+HE|Hélium
+NI|Ni l'un...
+NI|Nickel du chimiste
+NI|Et pas
+DE|Préposition courante
+DE|Cube à jouer
+DE|Cube à points
+SO|Sud-ouest en bref
+SO|Ainsi, en anglais
+EF|Lettre f
+EF|F épelé
+EF|Début d'effort
+AE|Voyelles liées
+AE|Deux voyelles
+AE|Æ délié
+AI|Paresseux d'amérique
+AI|Possède (moi)
+AI|J'... raison
+NU|Sans vêtement
+NU|Dévêtu
+NU|Dépouillé
+NU|Lettre grecque
+TA|Possessif familier
+TA|À toi
+TA|Possessif de toi
+AA|Lave du volcan
+AA|Coulée rugueuse
+AA|Deux a
+OU|Choix
+OU|Alternative
+OU|Sinon
+AS|Carte maîtresse
+AS|Champion
+AS|Virtuose
+AS|Tu possèdes
+TI|Titane
+TI|Symbole du titane
+TI|Note anglaise
+BU|Avalé
+BU|Absorbé
+BU|Siroté
+DS|Devoir surveillé
+DS|Contrôle en classe
+DS|Console portable
+BD|Album à bulles
+BD|Neuvième art
+BD|Bande dessinée
+PI|Constante du cercle
+PI|3,14
+PI|Lettre grecque
+JE|Moi au début
+JE|Pronom sujet
+JE|Moi, sujet
+MU|Lettre grecque
+MU|Animé
+MU|Poussé
+LA|Note du diapason
+LA|Article féminin
+LA|À cet endroit (sans accent)
+TV|Petit écran
+TV|Télé
+TV|Poste
+OC|Langue du sud
+OC|Oui occitan
+OC|Langue d'…
+XI|Lettre grecque
+XI|Onze romain
+XI|Équipe de foot
+FA|Note de la gamme
+FA|Clé de basse
+FA|Quatrième note
+OO|Voyelles d'oeuf
+OO|Deux o
+OO|Lunettes rondes
+OI|Diphtongue
+OI|Son de roi
+OI|Cœur de loin
+HI|Rire étouffé
+HI|Petit rire
+QI|Mesure d'intelligence
+QI|Quotient intellectuel
+QI|Test de logique
+MI|Note entre ré et fa
+MI|Moitié
+MI|À demi
+TD|Travaux dirigés
+TD|Séance d'exercices
+TD|Cours en petit groupe
+CD|Disque laser
+CD|Album
+CD|Disque compact
+DO|Note de tête
+DO|Première note
+DO|Ut
+CU|Cuivre
+CU|Symbole du cuivre
+CU|Métal rouge
+NO|Théâtre japonais
+NO|Numéro abrégé
+NO|Non anglais
+OM|Son sacré
+OM|Club marseillais
+OM|Mantra
+NA|Sodium
+NA|Et voilà !
+NA|Symbole du sodium

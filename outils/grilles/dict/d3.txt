@@ -374,3 +374,293 @@ VUS|Aperçus
 YAK|Bœuf du Tibet
 YEN|Monnaie japonaise
 YES|Oui anglais
+
+QUI|Pronom relatif
+MON|Possessif à moi
+AIS|Paresseux d'Amérique
+AUX|Article contracté pluriel
+ONT|Possèdent
+CET|Démonstratif devant voyelle
+AIT|Possède (qu'il)
+LUS|Parcourus des yeux
+TES|À toi
+HUI|Aujourd'hui, en vieux français
+VOS|À vous
+VIF|Plein d'entrain
+FIT|Réalisa
+EUT|Posséda
+IRE|Colère ancienne
+MIT|Posa
+RIS|Rires, autrefois
+OIS|Entends (vieux verbe)
+BAT|Frappe
+EUH|Marque d'hésitation
+FUI|Évité
+SUT|Connut
+PLU|Charmé
+FUR|Au ... et à mesure
+CON|Idiot (familier)
+ARS|Membres du cheval
+FOR|Intérieur (en son ...)
+ODE|Poème lyrique
+OTA|Enleva
+HUM|Marque le doute
+NES|Venus au monde
+GIT|Repose sous la pierre
+JOB|Petit boulot
+RIE|S'amuse (qu'elle)
+HOP|Et voilà !
+NIA|Contesta
+DRU|Épais et serré
+MIN|Minute abrégée
+FIE|Se ... : faire confiance
+EST|Point cardinal
+EST|Levant
+EST|Orient
+EST|Se trouve
+EST|Côté du soleil levant
+ETE|Saison chaude
+ETE|Temps des vacances
+ETE|Existé
+ETE|Saison des moissons
+ICI|En ce lieu
+ICI|Pas là-bas
+ICI|À cet endroit
+ICI|Tout près
+ETC|Et ainsi de suite
+ETC|Et le reste
+ETC|Fin d'énumération
+UNE|Première page
+UNE|Article féminin
+UNE|Un au féminin
+UNE|Titre du journal
+TSE|Mouche africaine (tsé-tsé)
+TSE|Demi-mouche
+TSE|Moitié de mouche
+USA|Pays de l'oncle sam
+USA|États-unis
+USA|Patrie du jazz
+USA|Abîma
+ERE|Époque
+ERE|Période
+ERE|Âge historique
+ERE|Temps marquant
+TER|Train régional
+TER|Troisième fois
+TER|Train de province
+ETA|Lettre grecque
+ETA|Septième grecque
+ETA|H grec
+IRA|Se rendra
+IRA|Partira
+IRA|Marchera bien
+IRA|Colère latine
+USE|Abîme
+USE|Élimé
+USE|Fatigué
+USE|Fait emploi
+ISO|Norme internationale
+ISO|Préfixe d'égalité
+ISO|Label de qualité
+OTE|Enlève
+OTE|Retire
+OTE|Soustrait
+OTE|Supprime
+NEE|Venue au monde
+NEE|Apparue
+NEE|Originaire
+NEE|De naissance
+SES|Possessif pluriel
+SES|À lui
+SES|À elle
+SES|Les siens
+ACE|Service gagnant
+ACE|As du tennis
+ACE|Point direct
+EPI|Tête de blé
+EPI|Bout de maïs
+EPI|Grains en tête
+EPI|Mèche rebelle
+ART|Talent créatif
+ART|Savoir-faire
+ART|Technique
+ART|Manière
+LEI|Monnaie roumaine
+LEI|Collier de fleurs
+LEI|Argent de bucarest
+EAU|Liquide vital
+EAU|Boisson pure
+EAU|H2o
+EAU|On la boit
+REA|Service hospitalier d'urgence
+REA|Soins intensifs
+REA|Réanimation en bref
+EUE|Possédée
+EUE|Obtenue
+EUE|Dupée
+SPA|Bain bouillonnant
+SPA|Jacuzzi
+SPA|Refuge pour chiens
+AIR|On le respire
+AIR|Mélodie
+AIR|Allure
+AIR|Atmosphère
+OSE|Tente
+OSE|S'aventure
+OSE|A du cran
+OSE|Risque
+ILS|Pronom pluriel
+ILS|Eux, sujets
+ILS|Les autres
+LES|Article pluriel
+LES|Ceux-là
+LES|Article défini
+ANS|Années
+ANS|Âge
+ANS|Bougies d'anniversaire
+NET|Clair
+NET|Propre
+NET|Sans bavure
+NET|Toile
+ECU|Bouclier ancien
+ECU|Vieille pièce
+ECU|Armoiries
+ENA|École de hauts fonctionnaires
+ENA|Grande école
+ENA|Pépinière d'énarques
+ANE|Baudet
+ANE|Grison
+ANE|Bourricot
+ANE|Ignorant
+API|Petite pomme
+API|Pomme d'api
+API|Interface de code
+IDE|Poisson d'eau douce
+IDE|Poisson rouge
+IDE|Cyprinidé
+EUS|Possédés
+EUS|Obtenus
+EUS|Trompés
+INN|Rivière d'autriche
+INN|Affluent du danube
+INN|Auberge anglaise
+AMI|Copain fidèle
+AMI|Pote
+AMI|Camarade
+AMI|Allié
+EVE|Première femme
+EVE|Compagne d'adam
+EVE|Veille anglaise
+UNI|Sans motif
+UNI|Lisse
+UNI|Rassemblé
+UNI|Joint
+VER|Lombric
+VER|Appât
+VER|Asticot
+FER|Métal de la forge
+FER|Outil à repasser
+FER|Métal gris
+FER|Club de golf
+PSI|Lettre grecque
+PSI|Avant-dernière grecque
+PSI|Trident grec
+UNS|Quelques-uns
+UNS|Certains
+UNS|Les … et les autres
+TEL|Pareil
+TEL|Semblable
+TEL|Téléphone en bref
+ILE|Terre entourée d'eau
+ILE|Corse ou crète
+ILE|Refuge de naufragé
+ION|Atome chargé
+ION|Particule électrique
+ION|Cation ou anion
+PRO|Professionnel
+PRO|Expert
+PRO|Spécialiste
+NEO|Préfixe de nouveauté
+NEO|Nouveau, en préfixe
+NEO|Moderne
+MER|Grande étendue salée
+MER|Océan
+MER|Grande bleue
+MER|Littoral
+EMU|Touché
+EMU|Attendri
+EMU|Bouleversé
+EMU|Grand oiseau coureur
+NIE|Conteste
+NIE|Dément
+NIE|Refuse d'avouer
+SET|Manche de tennis
+SET|Napperon
+SET|Jeu de tennis
+ABS|Freins antiblocage
+ABS|Sécurité de freinage
+ABS|Abdos en anglais
+ARE|Cent mètres carrés
+ARE|Mesure agraire
+ARE|Unité de surface
+SEL|Condiment marin
+SEL|Piment du discours
+SEL|Saveur
+ONU|Assemblée des nations
+ONU|Nations unies
+ONU|Casques bleus
+NAN|Non familier
+NAN|Pas question
+NAN|Pain indien
+ASE|Suffixe d'enzyme
+ASE|Fin d'enzyme
+ASE|Suffixe chimique
+CES|Démonstratif pluriel
+CES|Ceux-ci
+CES|Celles-là
+ELU|Choisi par vote
+ELU|Député
+ELU|Élu du peuple
+SUE|Transpire
+SUE|Perle
+SUE|Mouille sa chemise
+OUI|Accord
+OUI|Affirmation
+OUI|D'accord
+NOS|Possessif pluriel
+NOS|À nous
+NOS|Les nôtres
+TEE|Support de balle de golf
+TEE|Cheville de golf
+TEE|Départ au golf
+MES|Possessif pluriel
+MES|À moi
+MES|Les miens
+FEE|Magicienne bienveillante
+FEE|Marraine de cendrillon
+FEE|Enchanteresse
+ADO|Jeune en crise
+ADO|Teenager
+ADO|Collégien
+ROI|Souverain
+ROI|Monarque
+ROI|Pièce d'échecs
+TIR|Coup de feu
+TIR|Frappe
+TIR|Décoché
+AIL|Condiment à gousses
+AIL|Gousse
+AIL|Anti-vampire
+PLI|Lettre
+PLI|Repli de tissu
+PLI|Papier
+PLI|Levée aux cartes
+INA|Archives audiovisuelles
+INA|Mémoire de la télé
+INA|Archives télé
+RIO|Ville carioca
+RIO|Cité du carnaval
+RIO|Fleuve espagnol
+ORE|Monnaie scandinave
+ORE|Centime suédois
+ORE|Minerai anglais

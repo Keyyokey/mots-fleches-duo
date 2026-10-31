@@ -569,3 +569,342 @@ YEUX|Organes de la vue
 ZERO|Rien du tout
 ZONE|Secteur
 ZOOM|Objectif grossissant
+
+NOUS|Toi et moi
+SUIS|Existe (je)
+PUIS|Ensuite
+SONT|Existent
+LEUR|À eux
+QUOI|Pronom interrogatif
+PEUX|Es capable
+SOIT|C'est-à-dire
+VAIS|Me rends
+DONT|Pronom relatif
+CHEZ|Au domicile de
+PEUT|Est capable
+SENS|Direction
+FACE|Visage
+CEUX|Démonstratif pluriel
+SAIS|Connais
+VEUX|Désires
+FAIS|Réalises
+FAUT|Il est nécessaire
+QUEL|Interrogatif
+VOIS|Aperçois
+TANT|Tellement
+SAIT|Connaît
+AVEZ|Possédez
+VEUT|Désire
+DOIS|Es redevable
+FINI|Terminé
+HORS|En dehors de
+CINQ|Les doigts d'une main
+VENU|Arrivé
+CELA|Ça
+SOIS|Existe (que tu)
+FERA|Réalisera
+GROS|Volumineux
+ROIS|Souverains
+VONT|Se rendent
+TORT|Erreur
+DISE|Prononce (qu'il)
+VAUT|Coûte
+TENU|Gardé en main
+REND|Restitue
+VOIT|Aperçoit
+RECU|Accueilli
+VECU|Existé
+LEVE|Debout
+FINE|Mince
+VIVE|Pleine d'entrain
+REVE|Songe
+TRUC|Machin
+SENT|Flaire
+POSA|Déposa
+AGIT|Intervient
+SORS|Quitte la pièce
+PARS|Quitte
+PRIT|Saisit
+LEVA|Souleva
+AFIN|... que : pour que
+HALL|Grande entrée
+CLIN|... d'œil
+DORT|Fait la sieste
+JETA|Lança
+SUIT|Accompagne
+HEIN|Pardon ?
+ALLE|Parti
+DOUE|Talentueux
+MENE|Conduit
+RANG|Ligne
+DORS|Fais dodo
+TELS|Pareils
+VINT|Arriva
+PAYE|Salaire
+VUES|Panoramas
+TIRA|Tracta
+VOLE|Dérobé
+GARS|Garçon
+FILM|Long métrage
+SACS|Besaces
+FIXA|Attacha
+CAMP|Bivouac
+CECI|Cette chose-là
+LIES|Attachés
+CRIA|Hurla
+GERE|Administre
+CRIE|Hurle
+PERD|Égare
+TIEN|Le ... : à toi
+TEST|Épreuve
+CRAN|Courage
+VETU|Habillé
+TEND|Allonge le bras
+EMIT|Produisit un son
+AYEZ|Possédez (que vous)
+ALLA|Se rendit
+SERS|Verse à boire
+PESE|Mesure le poids
+SONS|Bruits
+DIRA|Prononcera
+LIEE|Attachée
+DURS|Pas tendres
+TINT|Garda
+MENS|Ne dis pas vrai
+AIDA|Opéra de Verdi
+DECU|Désappointé
+MENT|Ne dit pas vrai
+AGEE|Vieille
+CEDA|Abandonna
+SUBI|Enduré
+MELE|Mélangé
+PARU|Publié
+NOUA|Attacha
+SURS|Certains
+SECS|Arides
+MECS|Types
+CALA|Cessa d'avancer
+BOIT|Avale un liquide
+DURA|Se prolongea
+NOTA|Inscrivit
+DITE|Prononcée
+ASSE|Pioche de tonnelier
+MORD|Croque
+TAIT|Garde le silence
+TOUX|Elle irrite la gorge
+VIRE|Tourne
+PLIA|Courba
+PLIS|Rides du tissu
+CRUT|Pensa
+CHIC|Élégant
+TUEE|Abattue
+VIFS|Alertes
+PARI|Mise
+REVU|Revisité
+VALU|Coûté
+TAXI|Voiture de location
+FLUX|Courant
+RIDE|Pli de la peau
+OINT|Enduit d'huile sainte
+BATS|Frappes
+CRUS|Pas cuits
+ETAU|Il serre fort à l'atelier
+TETU|Obstiné
+LISE|Parcoure des yeux
+TAPA|Frappa
+GARA|Rangea la voiture
+VEXE|Froissé
+EMET|Produit
+BAIL|Contrat de location
+RALE|Plainte rauque
+FILA|Partit vite
+TOME|Volume
+UNIS|Rassemblés
+ACRE|Irritant
+NANA|Fille (familier)
+JURA|Promit solennellement
+VEND|Cède contre argent
+TIRS|Coups de feu
+VOLA|Déroba
+NAIT|Vient au monde
+RAVE|Navet fourrager
+POTE|Copain
+TORD|Déforme
+VAUX|Vallées
+ABAT|Fait tomber
+FUIS|Évite
+PEND|Accroche
+ETUI|Boîte à lunettes
+LOGO|Emblème de marque
+NAGE|Brasse ou crawl
+VRAC|Sans emballage
+SOLS|Planchers
+FEND|Coupe en deux
+BILE|Sécrétion du foie
+NOIE|Submerge
+NEON|Tube lumineux
+SEME|Ensemencé
+JOUA|S'amusa
+VOMI|Rendu
+DENI|Refus d'admettre
+EUES|Possédées
+EMIS|Produits
+TROT|Allure du cheval
+PROF|Enseignant
+OPTE|Choisi
+ADOS|Jeunes gens
+YOGA|Discipline indienne
+TAIS|Gardes le silence
+VIRA|Tourna
+ROTI|Viande au four
+BUEE|Vapeur sur la vitre
+NOYE|Submergé
+MOTO|Deux-roues
+FLIC|Policier (familier)
+TINS|Gardai
+UNIT|Rassemble
+DITS|Prononcés
+BAVE|Salive
+AGIS|Interviens
+VICE|Défaut
+PUNI|Sanctionné
+TAPI|Caché
+GOLF|Sport du green
+FUIT|S'échappe
+JOUI|Profité
+HAIR|Détester
+RATS|Rongeurs
+PAVE|Gros livre
+OMIS|Oubliés
+LICE|Champ de tournoi
+LACE|Ferme ses chaussures
+RATA|Manqua sa cible
+HATA|Pressa
+DINE|Soupé
+LAVA|Nettoya
+FOOT|Ballon rond
+COUT|Prix
+PLUT|Charma
+OBEI|Écouté
+MIMA|Imita
+LUIT|Brille
+JETS|Lancers
+OSEE|Risquée
+JURY|Assemblée qui juge
+HAIS|Détestes
+MENA|Conduisit
+RELU|Lu à nouveau
+INSU|À l'... de : sans qu'on sache
+ABUS|Excès
+JAZZ|Musique de La Nouvelle-Orléans
+HUMA|Respira
+MUNI|Pourvu
+ARMA|Équipa d'armes
+LUES|Parcourues des yeux
+MAGE|Sorcier
+GANG|Bande
+COCO|Noix des tropiques
+RAME|Aviron
+OREE|Lisière du bois
+SODA|Boisson gazeuse
+RAIL|Voie de train
+MELA|Mélangea
+EMOI|Trouble
+OSEZ|Risquez
+PICS|Sommets
+RIME|Son final du vers
+BOUM|Fête d'ados
+OSES|Risques
+PALI|Blêmi
+TRIE|Sélectionne
+RHUM|Alcool des Antilles
+GEMI|Poussé une plainte
+TOLE|Plaque de métal
+CREA|Inventa
+PRIA|Supplia
+OPTA|Choisit
+MIRE|Ligne de visée
+CONS|Idiots (familier)
+POUF|Siège bas
+PARE|Prêt
+SELS|Ils raniment
+AVEN|Gouffre calcaire
+FRET|Cargaison
+MIME|Imitateur muet
+SUCS|Jus
+MINI|Tout petit
+CHUT|Silence !
+ELUS|Choisis
+IREZ|Vous rendrez
+HERE|Pauvre ...
+FELE|Un peu fou
+BUTA|Trébucha
+APRE|Rude
+BEAT|Ravi et naïf
+LIAS|Attachas
+BOUC|Mâle de la chèvre
+LOFT|Atelier aménagé
+RALA|Protesta
+VOUE|Consacré
+RUER|Se ... : se précipiter
+THYM|Herbe de Provence
+LOTS|Parts
+GENT|Peuple, en vieux français
+SAGA|Longue histoire familiale
+MURI|Devenu mûr
+SOUL|Ivre
+ROSI|Devenu rose
+PERI|Mort
+MUSC|Parfum animal
+SCIE|Outil denté
+ACON|Petit bateau plat
+FUTS|Tonneaux
+RAID|Expédition
+TATA|Tâtonna
+PESA|Mesura le poids
+CHAR|Véhicule blindé
+PENE|Pièce de serrure
+RAIS|Rayons
+ROCS|Rochers
+GREC|D'Athènes
+BOSS|Patron
+PARA|Soldat parachutiste
+ISSU|Né de
+HOLA|Halte !
+OSAI|Risquai
+HUIS|À ... clos
+THON|Gros poisson
+REER|Bramer (cerf)
+GONG|Il sonne la fin du round
+PURS|Sans mélange
+DAIM|Cervidé
+DUES|Méritées
+ENTE|Greffe
+VIDA|Débarrassa
+ETES|Saisons chaudes
+ETES|Vous existez
+ETES|Belles saisons
+LEST|Poids d'équilibre
+LEST|Sacs de sable
+LEST|Contrepoids
+STAR|Vedette
+STAR|Célébrité
+STAR|Étoile
+STAR|Idole
+ETAT|Nation
+ETAT|Condition
+ETAT|Pays
+ETAT|Situation
+REEL|Véritable
+REEL|Concret
+REEL|Authentique
+REEL|Existant
+ESSE|Crochet en s
+ESSE|Cheville de roue
+ESSE|Crochet de boucher
+OSER|Tenter
+OSER|Risquer
+OSER|S'aventurer
+ITEM|De même
+ITEM|Élément
+ITEM|Objet de liste
