@@ -729,10 +729,10 @@ body.nodeco .blob{opacity:.35}
 </div>
 <div class="pop" id="popMe" role="dialog" aria-label="Accéder à ma page"></div>
 <div class="pop" id="popSalon" role="dialog" aria-label="Mes salons"></div>
+<div class="overlay" id="need"><div class="glass sheet qbox"><div class="ico-big">👥</div><h3 id="needT">Jouer à plusieurs</h3><div class="note">Pour jouer avec d'autres joueurs, il te faut un pseudo : c'est lui qui te place dans la partie et compte tes points.</div><button class="btn primary" id="needMe">Créer mon pseudo</button><button class="btn" id="needSolo">Jouer en solo</button><button class="btn" id="needX" style="background:transparent">Annuler</button></div></div>
 <div class="overlay" id="cfg"><div class="glass sheet">
   <h3 id="cfgT">Mots fléchés · Solo</h3>
   <div class="cfgfl"><div class="seg" id="lvl"></div>
-  <label class="f" id="tRow">⏱ Chronomètre<select id="tsel"><option value="-1">Règles du jeu : 45 s (facile), 1 min (normal), 1 min 30 (difficile) par tour · 2 tours chacun, 1 seul dès 80 % · 3 champs max</option><option value="60">1 min par tour</option><option value="90">1 min 30 par tour</option><option value="120">2 min par tour</option><option value="0">Sans chrono</option></select></label>
   <label class="f">Numéro de grille<select id="gnum"></select></label></div>
   <div class="cfgpk" style="display:none">
     <div class="note">Format de la partie</div>
@@ -895,12 +895,13 @@ $$(".tile").forEach(t=>t.addEventListener("click",e=>{if(e.target.closest(".mode
 document.addEventListener("click",e=>{if(!e.target.closest(".tile"))$$(".tile").forEach(x=>x.classList.remove("lift"))});
 let CFG=null;
 function openCfg(t,m,opp){const k=t.dataset.key,G=GAMES[k];
+  if(m==="multi"&&(!ME||ME.stale)&&k!=="poker"){$("#needT").textContent=G.nm+" à plusieurs";$("#need").dataset.k=k;$("#need").classList.add("on");return}
   if(k==="culture"){mini("🧠 Culture générale","Le jeu du mois arrive très bientôt !");return}
   CFG={k,m,opp};$("#cfgT").textContent=G.nm+" · "+({solo:"Solo",multi:"Multijoueur",resume:"Reprendre la partie"}[m]);
   const pk=k==="poker";$(".cfgfl").style.display=pk||m==="resume"?"none":"";$(".cfgpk").style.display=pk&&m!=="resume"?"":"none";
   if(!pk){const lv=$("#lvl");lv.innerHTML=G.lv.map(([v,l],i)=>'<button data-v="'+v+'" class="'+(i===(LS.get("fl-cfg-lvl-"+k)|0)?"on":"")+'">'+l+'</button>').join("");
     lv.querySelectorAll("button").forEach((b,i)=>b.onclick=()=>{lv.querySelectorAll("button").forEach(x=>x.classList.toggle("on",x===b));LS.set("fl-cfg-lvl-"+k,i);fillNums()});
-    $("#tRow").style.display=G.t&&m==="multi"?"":"none";fillNums()}
+    fillNums()}
   $("#cfgNote").textContent=m==="resume"?"La partie en cours reprend là où elle s'est arrêtée.":m==="multi"?(opp?"Partie avec "+opp+" : « Suivant » ouvre la table, la partie démarre quand vous êtes deux.":"« Suivant » ouvre la table du salon : invite ton adversaire, la partie démarre quand vous êtes deux."):"« Suivant » lance directement la partie.";
   if(m==="multi"&&!CODE&&!pk)$("#cfgNote").textContent+=" Un salon sera créé pour vous.";
   $("#cfg").classList.add("on")}
@@ -911,7 +912,7 @@ $$(".modes .abtn").forEach(bindMode);
 $("#cfgX").onclick=()=>$("#cfg").classList.remove("on");
 $("#cfgGo").onclick=()=>{const{k,m,opp}=CFG;$("#cfg").classList.remove("on");
   const lv=($("#lvl .on")||{}).dataset?.v||"";const q=new URLSearchParams({go:m});if(lv&&m!=="resume")q.set("lvl",lv);const n=$("#gnum").value;if(n&&m!=="resume")q.set("n",n);
-  if((k==="fleches"||k==="rond")&&m==="multi")q.set("t",$("#tsel").value);if(opp)q.set("opp",opp);
+  if((k==="fleches"||k==="rond")&&m==="multi")q.set("t","-1");if(opp)q.set("opp",opp);
   if(k==="poker"){q.set("fmt",($("#pkFmt .on")||{}).dataset?.v||"10");q.set("mise",$("#pkMise").value);q.set("dec",$("#pkDec").value)}
   const base=CODE?"/"+CODE+"/"+k:(m==="multi"?"/"+newCode()+"/"+k:"/"+k);location.href=base+"?"+q}
 $$("#pkFmt button").forEach(b=>b.onclick=()=>$$("#pkFmt button").forEach(x=>x.classList.toggle("on",x===b)));
@@ -944,6 +945,12 @@ $("#dim").addEventListener("click",()=>{closePops();$("#mMenu").classList.remove
 // ---------- démarrage ----------
 updPills();renderPeers();renderSalon();renderRank();chart(0);renderResume();connect();loadMe();
 if(CODE){LS.set("fl-ok-"+CODE,"1");try{const all=JSON.parse(LS.get("fl-salons")||"{}");all[CODE]=Date.now();LS.set("fl-salons",JSON.stringify(all))}catch(e){}if(ME&&!ME.stale)call("link",{name:ME.name,token:ME.token,salon:CODE})}
+
+// ---------- multijoueur sans pseudo : créer un pseudo ou jouer en solo ----------
+$("#needSolo").onclick=()=>{const k=$("#need").dataset.k;$("#need").classList.remove("on");const t=$$(".tile").find(x=>x.dataset.key===k);if(t)openCfg(t,"solo")};
+$("#needMe").onclick=()=>{$("#need").classList.remove("on");const b=window.innerWidth<=620?$("#mBtn"):$(".me-pill");openMe(b);setTimeout(()=>{const n=$("#meNew");if(n)n.click()},30)};
+$("#needX").onclick=()=>$("#need").classList.remove("on");
+if(new URLSearchParams(location.search).get("need")==="pseudo"){$("#need").classList.add("on")}
 
 </script>
 </body>
