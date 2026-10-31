@@ -1,7 +1,6 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <meta name="description" content="Mots fléchés, Tourniquet, mots mêlés et Poker Lettres : joue en solo ou entre amis, en direct.">
 <meta name="theme-color" content="#121214">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22%3E%3Ctext y=%22.9em%22 font-size=%2290%22%3E🔤%3C/text%3E%3C/svg%3E">
@@ -9,7 +8,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Mots Fléchés Duo</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link media="print" onload="this.media='all'" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&family=Nunito:wght@600;800&family=Playfair+Display:wght@600;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&family=Nunito:wght@600;800&family=Playfair+Display:wght@600;700;800&display=swap" rel="stylesheet">
 <style>
 :root{
   --bg1:#0b1d2a;--bg2:#1b1440;--bg3:#0f3b3f;
@@ -733,7 +732,7 @@ body.nodeco .blob{opacity:.35}
 <div class="overlay" id="cfg"><div class="glass sheet">
   <h3 id="cfgT">Mots fléchés · Solo</h3>
   <div class="cfgfl"><div class="seg" id="lvl"></div>
-  <label class="f" id="tRow">⏱ Chronomètre<select id="tsel"><option value="-1">Rythme officiel (2 min, puis 1 min 30, +1 min si mot trouvé)</option><option value="60">1 min par tour</option><option value="90">1 min 30 par tour</option><option value="120">2 min par tour</option><option value="0">Sans chrono</option></select></label>
+  <label class="f" id="tRow">⏱ Chronomètre<select id="tsel"><option value="-1">Règles du jeu : 45 s (facile), 1 min (normal), 1 min 30 (difficile) par tour · 2 tours chacun, 1 seul dès 80 % · 3 champs max</option><option value="60">1 min par tour</option><option value="90">1 min 30 par tour</option><option value="120">2 min par tour</option><option value="0">Sans chrono</option></select></label>
   <label class="f">Numéro de grille<select id="gnum"></select></label></div>
   <div class="cfgpk" style="display:none">
     <div class="note">Format de la partie</div>
@@ -889,7 +888,7 @@ $$("[data-open=share]").forEach(b=>b.onclick=share);
 
 // ---------- tuiles de jeu et fenêtre de réglages ----------
 const GAMES={fleches:{nm:"Mots fléchés",lv:[["facile","Facile",310],["normal","Normal",305],["difficile","Difficile",285]],t:true},
-  rond:{nm:"Le Tourniquet",lv:[["facile","Facile",220],["moyen","Normal",220],["difficile","Difficile",220]]},
+  rond:{nm:"Le Tourniquet",lv:[["facile","Facile",220],["moyen","Normal",220],["difficile","Difficile",220]],t:true},
   meles:{nm:"Mots mêlés",lv:[["facile","Facile",200],["moyen","Normal",200],["difficile","Difficile",200]]},
   poker:{nm:"Poker lettres",lv:[]},culture:{nm:"Culture générale",lv:[]}};
 $$(".tile").forEach(t=>t.addEventListener("click",e=>{if(e.target.closest(".modes"))return;const was=t.classList.contains("lift");$$(".tile").forEach(x=>x.classList.remove("lift"));if(!was)t.classList.add("lift")}));
@@ -912,7 +911,7 @@ $$(".modes .abtn").forEach(bindMode);
 $("#cfgX").onclick=()=>$("#cfg").classList.remove("on");
 $("#cfgGo").onclick=()=>{const{k,m,opp}=CFG;$("#cfg").classList.remove("on");
   const lv=($("#lvl .on")||{}).dataset?.v||"";const q=new URLSearchParams({go:m});if(lv&&m!=="resume")q.set("lvl",lv);const n=$("#gnum").value;if(n&&m!=="resume")q.set("n",n);
-  if(k==="fleches"&&m==="multi")q.set("t",$("#tsel").value);if(opp)q.set("opp",opp);
+  if((k==="fleches"||k==="rond")&&m==="multi")q.set("t",$("#tsel").value);if(opp)q.set("opp",opp);
   if(k==="poker"){q.set("fmt",($("#pkFmt .on")||{}).dataset?.v||"10");q.set("mise",$("#pkMise").value);q.set("dec",$("#pkDec").value)}
   const base=CODE?"/"+CODE+"/"+k:(m==="multi"?"/"+newCode()+"/"+k:"/"+k);location.href=base+"?"+q}
 $$("#pkFmt button").forEach(b=>b.onclick=()=>$$("#pkFmt button").forEach(x=>x.classList.toggle("on",x===b)));

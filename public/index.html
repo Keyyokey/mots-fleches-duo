@@ -377,6 +377,9 @@ body.playing #game{display:grid!important;grid-template-columns:minmax(0,1fr) au
   #online{text-align:left}
 }
 @media (prefers-reduced-motion:reduce){.c,.c.ok,.c.wrong,.timer.low,.overlay,.dropdown,.c .L.pend,.turnflash,.react,.chip b.bump{animation:none;transition:none}}
+.tinfo{display:flex;align-items:center;gap:8px;justify-content:center;font-size:.8rem;color:var(--muted);margin:2px 0 4px}
+.tinfo b{color:var(--ink)}
+.tinfo .tdots{display:inline-flex;gap:4px}.tinfo .tdots i{width:8px;height:8px;border-radius:50%;border:1.5px solid var(--accent);opacity:.6}.tinfo .tdots i.on{background:var(--accent);opacity:1;box-shadow:0 0 8px var(--accent)}
 </style>
 <style>
 html,body{margin:0}img{max-width:100%}[hidden]{display:none!important}
@@ -430,6 +433,7 @@ body.light .chip .clk.low,body.light .chip.on .clk.low,.chip .clk.low,.chip.on .
 @media (prefers-reduced-motion:reduce){.chip.on .av::after,.chip.on::after,.chip .clk.low{animation:none!important}}
 body.light{--cellbg:#d5deea}
 body.light .grid{background:#b9c4d2}
+#scores .chip .sub{display:none!important}
 </style></head>
 <body>
 
@@ -479,7 +483,7 @@ body.light .grid{background:#b9c4d2}
       <label class="multiOnly extra" id="row3" hidden><span class="sw" style="background:var(--p3)"></span><input type="text" id="n3" maxlength="14" placeholder="Joueur 4 (facultatif)"></label>
       <label class="chk multiOnly" for="tsel">⏱ Chrono par tour :
         <select id="tsel" style="font-family:var(--f-ui);font-size:1rem;padding:8px 10px;border:1px solid var(--line);border-radius:var(--r-sm);background:var(--bg);color:var(--ink)">
-          <option value="-1" selected>Rythme officiel : 2 min au 1er tour, puis 1 min 30 (+1 min si mot trouvé)</option><option value="0">Sans chrono</option><option value="60">1 minute</option><option value="120">2 minutes</option><option value="180">3 minutes</option>
+          <option value="-1" selected>Règles du jeu : 45 s (facile), 1 min (normal), 1 min 30 (difficile) par tour · 2 tours chacun, 1 seul dès 80 % · 3 champs max par tour</option><option value="0">Sans chrono</option><option value="60">1 minute</option><option value="120">2 minutes</option><option value="180">3 minutes</option>
         </select></label>
       <div class="ghint soloOnly">En solo, un chronomètre mesure ton temps total.</div>
       <div class="err" id="lerr"></div>
@@ -508,7 +512,7 @@ body.light .grid{background:#b9c4d2}
     <aside class="gleft">
       <div class="gname" id="gname"></div>
       <div class="scores" id="scores"></div>
-      <div class="statusrow"><div class="status" id="status" role="status" aria-live="polite"></div><div class="timer" id="timer" hidden></div></div>
+      <div class="statusrow"><div class="status" id="status" role="status" aria-live="polite"></div><div class="timer" id="timer" hidden></div></div><div class="tinfo" id="tinfo" hidden></div>
       <div class="ginfo">
         <div class="gi-row"><span>Grille remplie</span><b id="progPct">0 %</b></div>
         <div class="progress" id="prog" title="Grille remplie"><i></i></div>
@@ -1260,7 +1264,7 @@ function renderScores(){const el=$("scores");el.innerHTML="";const s=mySeat();
     d.querySelector(".av").textContent=(p.name||"?").trim().charAt(0).toUpperCase();d.querySelector(".nm").textContent=p.name;
     d.querySelector(".sub").textContent=G.done?"":G.solo?"en solo":G.turn===i?(s===i||s==="all"?"à toi de jouer":"en train de jouer"):(s===i?"c'est toi · en attente":"en attente");
     d.querySelector("b").textContent=p.score;d.title=p.name+" : "+p.score+" points";
-    if(!G.solo&&G.timer){const T=G.timer===-1?(i===G.turn?curDur():((G.played||{})[i]?90:120)):G.timer;d.lastChild.textContent=Math.floor(T/60)+":"+String(T%60).padStart(2,"0")};el.appendChild(d)});clockMirror()}
+    if(!G.solo&&G.timer){const T=G.timer===-1?curDur():G.timer;d.lastChild.textContent=Math.floor(T/60)+":"+String(T%60).padStart(2,"0")};el.appendChild(d)});clockMirror()}
 function clockMirror(){const t=$("timer");if(!G)return;const i=G.solo?0:G.turn;const c=$("scores").children[i]?.querySelector(".clk");if(!c)return;
   if(t.hidden&&!G.solo)return;c.textContent=t.hidden?"":t.textContent.replace("⏱ ","");c.classList.toggle("low",t.classList.contains("low"))}
 function fillBand(el,idx){el.innerHTML=idx.map(playerCard).join("");[...el.children].forEach((d,j)=>d.querySelector(".nm").textContent=G.players[idx[j]].name)}
@@ -1310,7 +1314,7 @@ function render(){
   if(!play&&document.activeElement===kb)kb.blur();
   $("dock").hidden=!!G.done;if($("dock").hidden!==window.__dh){window.__dh=$("dock").hidden;requestAnimationFrame(fit)}
   $("mystIn").placeholder=G.mystery!=null?"Déjà trouvé":play?"Ta proposition":"Attends ton tour";
-  $("menuInfo").textContent=(G.solo?"Solo":"À plusieurs")+" · "+({facile:"Facile",normal:"Normal",difficile:"Difficile"}[G.level||"normal"])+" · "+(G.solo?"chronomètre":G.timer===-1?"rythme officiel (2 min, 1 min 30, bonus 1 min)":G.timer?"chrono "+(G.timer/60)+" min par tour":"sans chrono")+" · finir la grille : +20 points";
+  $("menuInfo").textContent=(G.solo?"Solo":"À plusieurs")+" · "+({facile:"Facile",normal:"Normal",difficile:"Difficile"}[G.level||"normal"])+" · "+(G.solo?"chronomètre":G.timer===-1?"règles du jeu (2 tours de "+({facile:"45 s",normal:"1 min",difficile:"1 min 30"}[G.level||"normal"])+", 1 seul dès 80 %, 3 champs max)":G.timer?"chrono "+(G.timer/60)+" min par tour":"sans chrono")+" · finir la grille : +20 points";
   $("chSeat").hidden=!!G.solo;
   tick();
   announce();
@@ -1364,10 +1368,19 @@ kb.addEventListener("keydown",e=>{if(!sel||!G)return;
     if(rr>=0&&rr<NR&&cc>=0&&cc<NC&&!isQ(rr,cc)){sel=rr+","+cc;dir=d[1]?"h":"v";if(!cellWords[sel]?.[dir])dir=dir==="h"?"v":"h";highlight()}}});
 
 // ---------- règles ----------
-const nextTurn=()=>{if(G){G.played=G.played||{};G.played[G.turn]=1;G.bonus=false}return(G.turn+1)%G.players.length};
+const nextTurn=()=>{if(G){G.played=G.played||{};G.played[G.turn]=1;G.bonus=false;G.tour=1;G.champs=0}return(G.turn+1)%G.players.length};
+// règles du jeu (document) : 2 tours d'affilée par joueur, 1 seul dès 80 % de la grille remplie, 3 champs max par tour
+const RULES=()=>G&&!G.solo&&G.timer===-1;
+function fillRatio(){return ALL.length?ALL.filter(k=>G.filled[k]!==undefined).length/ALL.length:0}
+function maxTours(){return fillRatio()>=0.8?1:2}
+function endTour(why){const p=G.players[G.turn];if((G.tour||1)<maxTours()){G.tour=(G.tour||1)+1;G.champs=0;G.turnStart=Date.now();G.msg=(why?why+" ":"")+p.name+" enchaîne son 2e tour.";}
+  else{G.turn=nextTurn();G.turnStart=Date.now();G.msg=(why?why+" ":"")+"Au tour de "+G.players[G.turn].name+".";}}
+function champsOf(ks){let rest=new Set(ks),n=0;while(rest.size){let best=null,bc=0;words.forEach(w=>{if(!w.cells.length)return;const c=w.cells.filter(x=>rest.has(x)).length;if(c>bc){bc=c;best=w}});if(!best)break;best.cells.forEach(x=>rest.delete(x));n++}return n}
+function check80(){if(!RULES()||G.f80)return;if(fillRatio()>=0.8){G.f80=true;G.msg+=" 🔔 Grille remplie à 80 % : plus qu'un tour chacun.";try{sfx("turn")}catch(e){};setTimeout(()=>flash("🔔 Grille à 80 % · plus qu'un tour chacun"),300)}}
 // rythme officiel : 1er tour de chacun 2 min, tour normal 1 min 30, deuxième tour (après un mot trouvé) 1 min, jamais plus de 2 tours d'affilée
-function curDur(){if(!G||G.timer!==-1)return G?G.timer:0;return G.bonus?60:((G.played||{})[G.turn]?90:120)}
+function curDur(){if(!G||G.timer!==-1)return G?G.timer:0;return {facile:45,normal:60,difficile:90}[G.level||"normal"]||60}
 function bonusTurn(){if(G.solo){G.again=false;return}
+  if(RULES()){G.again=false;check80();if((G.champs||0)>=3){endTour(G.msg+" 3 champs remplis, fin du tour.")}return}
   if(G.timer===-1&&G.bonus){G.turn=nextTurn();G.again=false;G.msg+=` Fin du deuxième tour : au tour de ${G.players[G.turn].name}.`}
   else{G.again=true;if(G.timer===-1)G.bonus=true}}
 function markLast(){document.querySelectorAll("#g .lastp").forEach(e=>e.classList.remove("lastp"));const L=G&&G.last;if(!L||!L.ok||G.solo&&false)return;
@@ -1377,6 +1390,7 @@ function bump(cells,ok,wrong){G.last={n:(G.last?.n||0)+1,cells,ok,wrong:wrong||{
 function validate(){
   if(!canPlay())return;const ks=Object.keys(pend).filter(k=>G.filled[k]===undefined);
   if(!ks.length){G.msg="Écris au moins une lettre avant de valider.";G.msgKind="bad";render();return}
+  if(RULES()){const n=champsOf(ks),left=3-(G.champs||0);if(n>left){G.msg=`3 champs maximum par tour : il te reste ${left} champ${left>1?"s":""} (tu en remplis ${n}).`;G.msgKind="bad";render();return}}
   const bad=ks.filter(k=>!correct(k,pend[k]));const p=G.players[G.turn];const lvl=G.level||"normal";
   if(bad.length&&lvl==="facile"&&bad.length<ks.length){
     const good=ks.filter(k=>correct(k,pend[k]));const wrong={};bad.forEach(k=>wrong[k]=pend[k]);
@@ -1404,9 +1418,9 @@ function validate(){
   const before=new Set(Object.keys(G.filled));G.letters=G.letters||{};
   let pts=0;ks.forEach(k=>{G.filled[k]=G.turn;G.letters[k]=pend[k];pts+=1+(cur.nums[k]?2:0)});
   let done=0;words.forEach(w=>{if(!w.cells.length)return;const full=w.cells.every(x=>G.filled[x]!==undefined);const was=w.cells.every(x=>before.has(x));if(full&&!was)done++});
-  pts+=3*done;p.score+=pts;pend={};
+  pts+=3*done;p.score+=pts;if(RULES())G.champs=(G.champs||0)+champsOf(ks);pend={};
   G.msg=`Bravo ${p.name} ! +${pts} point${pts>1?"s":""}${done?` (${done} mot${done>1?"s":""} terminé${done>1?"s":""})`:""}.`;G.msgKind="good";bonusTurn();
-  G.turnStart=Date.now();
+  if(!RULES())G.turnStart=Date.now();
   if(ALL.every(k=>G.filled[k]!==undefined)){p.score+=20;G.done=true;G.msg=`${p.name} termine la grille : +${pts} et +20 points de bonus !`;G.msgKind="good"}
   const ord=[...ks].sort((a,b)=>{const [r1,c1]=a.split(",").map(Number),[r2,c2]=b.split(",").map(Number);return r1-r2||c1-c2});
   ord.forEach((k,i)=>{const e=els[k];e.style.setProperty("--d",(i*0.05)+"s");e.classList.remove("ok");void e.offsetWidth;e.classList.add("ok")});
@@ -1484,14 +1498,16 @@ window.addEventListener("resize",vv);
 function tick(){const el=$("timer");
   if(G&&G.solo&&!G.done){const s_=Math.floor((Date.now()-(G.started||Date.now()))/1000);el.hidden=false;el.classList.remove("low");el.textContent="⏱ "+Math.floor(s_/60)+":"+String(s_%60).padStart(2,"0");return}
   const tl=$("tline");
-  if(!G||G.done||!G.timer){el.hidden=true;if(tl)tl.hidden=true;return}
+  if(!G||G.done||!G.timer){el.hidden=true;if(tl)tl.hidden=true;const ti=$("tinfo");if(ti)ti.hidden=true;return}
   const D=curDur(),msLeft=G.turnStart+D*1000-Date.now(),left=Math.ceil(msLeft/1000);el.hidden=false;
   if(tl){tl.hidden=false;const r=Math.max(0,Math.min(1,msLeft/(D*1000)));const b=tl.firstChild;b.style.width=(r*100)+"%";b.style.background="hsl("+Math.round(130*r*r)+" 80% 48%)";tl.classList.toggle("low",left<=10);
     tl.title=G.bonus?"Deuxième tour (1 min)":"";tl.dataset.lbl=G.bonus?"Bonus":"";
+    const ti=$("tinfo");if(ti){if(RULES()){ti.hidden=false;const mt=maxTours(),t=Math.min(G.tour||1,mt);ti.innerHTML='<span class="tdots">'+[1,2].slice(0,mt).map(x=>'<i class="'+(x<=t?"on":"")+'"></i>').join("")+'</span> Tour '+t+'/'+mt+' · <b>'+(G.champs||0)+'/3</b> champs'+(mt===1?' · grille à 80 %':'')}else ti.hidden=true}
     const st=G.turnStart;if(left<=10&&left>0&&window.__warnFor!==st&&(canPlay()||mySeat()!==null)){window.__warnFor=st;sfx("warn")}}
   const v=Math.max(0,left);el.textContent="⏱ "+Math.floor(v/60)+":"+String(v%60).padStart(2,"0");el.classList.toggle("low",v<=10);
   if(left<=0&&(canPlay()||left<=-4)&&col!==undefined){const p=G.players[G.turn];const stamp=G.turnStart;
     if(window.__toFor===stamp)return;window.__toFor=stamp;pend={};sfx("timeout");
+    if(RULES()){endTour("Temps écoulé pour "+p.name+" !");G.msgKind="bad";save();render();return}
     G.turn=nextTurn();G.turnStart=Date.now();G.msg=`Temps écoulé pour ${p.name} ! Au tour de ${G.players[G.turn].name}.`;G.msgKind="bad";save();render()}}
 setInterval(()=>{if(!$("game").hidden&&G){tick();clockMirror()}},500);
 function closeSol(){$("solBox").hidden=true;revArmed=false;$("revAll").textContent="Voir toute la solution (fin de partie)"}
@@ -1519,7 +1535,7 @@ $("pass").onclick=()=>{if(!canPlay())return;const p=G.players[G.turn];pend={};G.
 $("mystBtn").onclick=()=>{if(!canPlay()||G.mystery!=null)return;$("mystBox").hidden=true;
   const v=norm($("mystIn").value).replace(/[^A-Z]/g,"");if(!v)return;
   const p=G.players[G.turn];$("mystIn").value="";
-  if(v===cur.myst){sfx("myst");confetti();p.score+=20;G.mystery=G.turn;G.msg=`${p.name} trouve le mot mystère ! +20 points.`;G.msgKind="good";bonusTurn();G.turnStart=Date.now()}
+  if(v===cur.myst){sfx("myst");confetti();p.score+=20;G.mystery=G.turn;G.msg=`${p.name} trouve le mot mystère ! +20 points.`;G.msgKind="good";bonusTurn();if(!RULES())G.turnStart=Date.now()}
   else if(G.solo){sfx("bad");if((G.level||"normal")==="difficile")p.score-=5;G.msg=`« ${v} » n'est pas le mot mystère.`+((G.level||"normal")==="difficile"?" (−5 points)":"");G.msgKind="bad"}
   else{G.turn=nextTurn();G.turnStart=Date.now();G.msg=`« ${v} » n'est pas le mot mystère. Au tour de ${G.players[G.turn].name}.`;G.msgKind="bad"}
   save();render()};
