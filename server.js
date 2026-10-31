@@ -352,6 +352,7 @@ const server = http.createServer((req, res) => {
   const am = url.pathname.match(/^\/api\/p\/(check|create|login|me|link|pin|logout|rank|score|wallet|conv)$/);
   if (am) return void api(req, res, am[1]).catch(e => { console.error(e); try { res.writeHead(500); res.end("{}"); } catch {} });
   if (url.pathname.startsWith("/d/")) return sendStatic(req, res, url.pathname.slice(3));
+  if (url.pathname === "/maquette" || url.pathname === "/maquette/") return sendPage(req, res, path.join(__dirname, "public", "maquette.html"));
   if (url.pathname === "/mot" || url.pathname === "/mot/") return sendPage(req, res, path.join(__dirname, "public", "mot.html"));
   if (/^\/(?:[A-Za-z0-9]{5}\/)?(rond|meles)\/?$/.test(url.pathname)) return sendPage(req, res, path.join(__dirname, "public", "jeux.html"));
   if (/^\/(?:[A-Za-z0-9]{5}\/)?fleches\/?$/.test(url.pathname)) return sendPage(req, res, PAGE);
