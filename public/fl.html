@@ -677,6 +677,14 @@ table.bar td,table.bar th{padding:5px 6px;border-bottom:1px solid rgba(255,255,2
 @media (max-width:900px){.fl2{grid-template-columns:1fr!important}.flside .flclue{order:2}}
 @media (max-width:620px){.fl2 .flclue{order:2}.fbtns .btn{min-width:38px;padding:6px 8px}}
 .flclue .clueTxt{flex:none!important}
+/* commun aux pages de jeu */
+.rb2.live{border-style:dashed;opacity:.8}
+.rdclue .fbtns{flex:none}
+.rd .rdtop .scores2 .sc{flex:1}
+.rdboard .fover{border-radius:inherit}
+.rdboard .count{position:absolute;inset:0;display:none;place-items:center;border-radius:inherit;background:rgba(5,10,20,.35);backdrop-filter:blur(3px)}
+.rdboard .count.on{display:grid}
+@media (max-width:620px){.rdclue .fbtns{flex:1 1 100%}}
 </style>
 <style id="sk-css">/* ---------- habillage du site (maquette validée) ---------- */
 body.sk{--skbg1:#0b1d2a;--skbg2:#1b1440;--skbg3:#0f3b3f;--skglass:rgba(255,255,255,.08);--skglass2:rgba(255,255,255,.14);--skstroke:rgba(255,255,255,.18);--skgold:#ffc857;
@@ -892,7 +900,7 @@ body.sk-fleches.light .c.sel .L{color:#0f131a!important}
 body.sk-fleches.light .c.pp .L{color:#8a93a3!important}
 </style>
 </head>
-<body class="sk-new">
+<body class="sk-new g-fleches">
 <div class="blob b1"></div><div class="blob b2"></div><div class="blob b3"></div>
 <div class="wrap">
 <main class="view on" id="v-fleches">
@@ -1408,7 +1416,7 @@ function start(){const go=Q.get("go"),lvl=Q.get("lvl")||"facile",n=Number(Q.get(
   if(!ME){location.replace(HOME+"?need=pseudo");return}
   // à plusieurs : la partie du salon, ou une nouvelle
   const ready=()=>{const d=docs[DOC];
-    if(go==="multi"&&!(d&&!d.done&&d.players&&d.players.some(p=>String(p.name).toUpperCase()===ME.name)&&!n)){open(newGame(chooseGrid(lvl,n),[ME.name,(Q.get("opp")||"Invité").toUpperCase()===ME.name?"Invité":(Q.get("opp")||"Invité")],false,lvl));save();return}
+    if(go==="multi"&&!(d&&!d.done&&d.players&&(d.players.some(p=>String(p.name).toUpperCase()===ME.name)||d.players.some(p=>p.name==="Invité"))&&!n)){open(newGame(chooseGrid(lvl,n),[ME.name,(Q.get("opp")||"Invité").toUpperCase()===ME.name?"Invité":(Q.get("opp")||"Invité")],false,lvl));save();return}
     if(d&&!d.solo&&d.players){open(d);return}
     let g=null;try{g=JSON.parse(LS.get(SOLOKEY)||"null")}catch(e){}if(g&&!g.done){open(g);return}
     location.replace(HOME)};
