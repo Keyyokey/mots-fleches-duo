@@ -498,6 +498,8 @@ header{display:flex;align-items:center;gap:14px;padding:6px 4px;flex-wrap:nowrap
 .share-ico svg{width:100%;height:100%}
 .hbtns{display:flex;gap:6px}
 .glass-pill.sq{width:44px;height:44px;padding:0;justify-content:center;font-size:1.05rem}
+.glass-pill.sq .gico{width:27px;height:27px;display:block;transition:transform .2s}.glass-pill.sq:hover .gico{transform:scale(1.08)}.glass-pill.sq.off .gico{opacity:.4;filter:grayscale(.6)}
+.mq .gico{width:20px;height:20px;vertical-align:-5px;margin-right:4px}
 .glass-pill:hover{background:var(--glass2)}
 @media (max-width:820px){header{flex-wrap:wrap}.hsp{display:none}.logo.glass-pill{flex:1 1 100%;justify-content:center}}
 @media (max-width:480px){header{gap:4px}.me-pill b{max-width:64px;overflow:hidden;text-overflow:ellipsis}.salon-pill{padding:3px 8px}.me-pill .sub,.salon-pill span{display:none}.share-ico{width:36px;height:36px}.glass-pill.sq{width:36px;height:36px;min-height:36px;font-size:.9rem}.hbtns{gap:4px;margin-left:auto}.me-pill,.salon-pill{min-height:40px;padding-top:3px;padding-bottom:3px}.av-me{width:30px;height:30px}.sofa{width:32px}}
@@ -696,7 +698,7 @@ body.nodeco .blob{opacity:.35}
   <button class="mi" data-act="pseudo"><span class="mic"><span class="av-me" id="mAv">?</span></span><span class="mt"><b id="mMe">Pseudo</b><small id="mMeSub">Se connecter · Ma page</small></span></button>
   <button class="mi" data-act="salon"><span class="mic"><svg viewBox="0 0 48 28" class="sofa"><path d="M8 6q0-4 4-4h24q4 0 4 4v8H8z" fill="currentColor" opacity=".85"/><path d="M2 12q0-3 3-3t3 3v4h32v-4q0-3 3-3t3 3v10q0 3-3 3H5q-3 0-3-3z" fill="currentColor"/></svg></span><span class="mt"><b id="mSalon">Nom du salon</b><small>Mes salons · rejoindre · créer</small></span></button>
   <button class="mi" data-act="share"><span class="mic share-mini">✳︎</span><span class="mt"><b>Partager</b><small>Inviter des amis</small></span></button>
-  <div class="mrow"><button class="mq" data-act="theme" id="mTheme">🌙 Sombre</button><button class="mq" data-act="deco">🎃 Décor</button><button class="mq" data-act="sound" id="mSound">🔊 Son</button></div>
+  <div class="mrow"><button class="mq" data-act="theme" id="mTheme">🌙 Sombre</button><button class="mq" data-act="deco" id="mDeco">🎃 Décor</button><button class="mq" data-act="sound" id="mSound">🔊 Son</button></div>
 </div>
 <div class="hline"></div>
 
@@ -772,6 +774,35 @@ body.nodeco .blob{opacity:.35}
 <div class="overlay" id="mini"><div class="glass sheet"><h3 id="miniT"></h3><div class="note" id="miniB"></div><button class="btn primary" id="miniX">Fermer</button></div></div>
 
 <script>
+// ---------- icônes « verre » de l'en-tête (relief, dégradé, reflet, halo) ----------
+const ICO=(()=>{let n=0;
+  // chaque appel crée des identifiants neufs (une icône cachée ne casse pas les autres) ; g : [clair, moyen, foncé] ; glow : couleur du halo ; body : formes (utilisent fill="url(#B)") ; gloss : formes recouvertes du reflet
+  const mk=(g,glow,body,extra)=>()=>{const k="ic"+(n++);const B=k+"b",H=k+"h",F=k+"f";
+    const b=body.replace(/url\(#B\)/g,"url(#"+B+")");
+    return '<svg viewBox="0 0 48 48" aria-hidden="true" class="gico"><defs><linearGradient id="'+B+'" x1=".15" y1="0" x2=".85" y2="1"><stop offset="0" stop-color="'+g[0]+'"/><stop offset=".55" stop-color="'+g[1]+'"/><stop offset="1" stop-color="'+g[2]+'"/></linearGradient>'
+      +'<linearGradient id="'+H+'" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff" stop-opacity=".75"/><stop offset=".45" stop-color="#fff" stop-opacity=".08"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></linearGradient>'
+      +'<filter id="'+F+'" x="-40%" y="-40%" width="180%" height="180%"><feDropShadow dx="0" dy="2" stdDeviation="2.4" flood-color="'+glow+'" flood-opacity=".55"/></filter></defs>'
+      +'<g filter="url(#'+F+')">'+b+'</g><g fill="url(#'+H+')" style="mix-blend-mode:screen">'+b.replace(/fill="url\(#[^)]+\)"/g,"").replace(/stroke="url\(#[^)]+\)"/g,'stroke="none"')+'</g>'+(extra||"")+'</svg>'};
+  const ORANGE=["#FFE27A","#FFAE34","#F0711C"];
+  const moonP='<path fill="url(#B)" d="M29.5 7.5a17 17 0 1 0 11.2 26.6A12.5 12.5 0 0 1 29.5 7.5z"/>';
+  const rays=[0,45,90,135,180,225,270,315].map(a=>'<rect fill="url(#B)" x="22" y="3.5" width="4" height="8" rx="2" transform="rotate('+a+' 24 24)"/>').join("");
+  const spk='<path fill="url(#B)" d="M7 19a3 3 0 0 1 3-3h5.5l8.3-6.7c1.3-1 3.2-.1 3.2 1.6v26.2c0 1.7-1.9 2.6-3.2 1.6L15.5 32H10a3 3 0 0 1-3-3z"/>';
+  return{
+    moon:mk(ORANGE,"#FF9A2E",moonP,'<path d="M17 13.5a13.5 13.5 0 0 0-3.2 15" fill="none" stroke="#fff" stroke-opacity=".7" stroke-width="1.6" stroke-linecap="round"/>'),
+    sun:mk(["#FFF19A","#FFC93C","#FF9420"],"#FFB020",rays+'<circle fill="url(#B)" cx="24" cy="24" r="9.5"/>'),
+    snd:mk(["#C9F4FF","#6CC8F5","#3A7FE0"],"#4BA3F0",spk+'<path fill="none" stroke="url(#B)" stroke-width="3.4" stroke-linecap="round" d="M32 18.5a8 8 0 0 1 0 11M36.5 14a14 14 0 0 1 0 20"/>'),
+    mute:mk(["#E6E9F2","#A9B2C8","#6E7894"],"#8A93AE",spk+'<path fill="none" stroke="url(#B)" stroke-width="3.6" stroke-linecap="round" d="M32 19l9 10M41 19l-9 10"/>'),
+    pumpkin:mk(ORANGE,"#FF8A1E",'<ellipse fill="url(#B)" cx="15.5" cy="28" rx="9" ry="12"/><ellipse fill="url(#B)" cx="32.5" cy="28" rx="9" ry="12"/><ellipse fill="url(#B)" cx="24" cy="28" rx="9.5" ry="13"/>',
+      '<path d="M24 15.5c0-4 1.5-7 4.5-8.5" fill="none" stroke="#3FAE5A" stroke-width="3.4" stroke-linecap="round"/><path d="M19.5 17q-4 11 0 22M28.5 17q4 11 0 22" fill="none" stroke="#B4500F" stroke-opacity=".45" stroke-width="1.4"/>'),
+    tree:mk(["#9BF0A8","#3DC46A","#1D8146"],"#2FB45E",'<path fill="url(#B)" d="M24 6l9 11h-4l8 10h-5l8 11H8l8-11h-5l8-10h-4z"/>','<rect x="21.5" y="38" width="5" height="5" rx="1.2" fill="#9A6234"/><path d="M24 2.5l1.4 2.9 3.1.4-2.3 2.1.6 3.1-2.8-1.5-2.8 1.5.6-3.1-2.3-2.1 3.1-.4z" fill="#FFD84A"/>'),
+    cheers:mk(["#FFF0B0","#F5C952","#D38F1C"],"#E8B33A",'<path fill="url(#B)" d="M9 8h10l-1 11a4 4 0 0 1-8 0z"/><path fill="url(#B)" d="M29 8h10l-1 11a4 4 0 0 1-8 0z"/>',
+      '<path d="M14 23v13M10 37h8M34 23v13M30 37h8" stroke="#F5C952" stroke-width="2.2" stroke-linecap="round" fill="none"/><circle cx="24" cy="9" r="1.6" fill="#FFE58A"/><circle cx="21" cy="14" r="1.1" fill="#FFE58A"/><circle cx="27" cy="13" r="1.1" fill="#FFE58A"/>'),
+    heart:mk(["#FFB3C7","#FF5C8A","#D92B5E"],"#FF4F80",'<path fill="url(#B)" d="M24 40S7 29.5 7 18.5A8.5 8.5 0 0 1 24 14a8.5 8.5 0 0 1 17 4.5C41 29.5 24 40 24 40z"/>'),
+    grid:mk(["#A8F2EE","#3CC3BE","#16807F"],"#2DB3AE",'<rect fill="url(#B)" x="8" y="8" width="32" height="32" rx="8"/>','<path d="M18.7 12v24M29.3 12v24M12 18.7h24M12 29.3h24" stroke="#fff" stroke-opacity=".55" stroke-width="1.8" stroke-linecap="round"/>')
+  }})();
+// décor du moment (mêmes dates qu'avant)
+const SEASON_ICO=(()=>{const d=new Date(),md=(d.getMonth()+1)*100+d.getDate();if(md>=1010&&md<=1102)return"pumpkin";if(md>=1201&&md<=1226)return"tree";if(md>=1227||md<=106)return"cheers";if(md>=207&&md<=215)return"heart";if(md>=621&&md<=831)return"sun";return"grid"})();
+
 // ---------- fenêtres Pseudo et Salon (partagées par l'accueil et l'en-tête des jeux) ----------
 // env : q(sel) · call(route,body) · getME() · setME(o) · esc · toast · place(pop,btn) · show(pop) · hide(pop) · code() · room() · onLogin() · onLogout()
 function makeAcctUI(env){
@@ -784,7 +815,7 @@ function makeAcctUI(env){
   const pinIn=el=>{el.oninput=e=>{e.target.value=e.target.value.replace(/\D/g,"").slice(0,4)}};
   let LIST=null;                                   // dernière liste reçue du serveur
   function rows(L){return L.map(x=>'<button class="sl'+(x.code===env.code()?" here":"")+'" data-c="'+x.code+'"><span class="nm2">'+esc(x.name||"Salon")+'</span>'+(x.role==="owner"?'<span class="live" title="Tu es responsable de ce salon">★</span>':"")+(x.live?'<span class="live">'+x.live+' en ligne</span>':"")+'<span class="code" style="margin-left:auto;letter-spacing:.02em">Ouvrir ›</span></button>').join("")}
-  const openRoom=id=>{location.href="/"+id};
+  const openRoom=id=>{if(env.open)return env.open(id);location.href="/"+id};
 
   // ----- Pseudo -----
   function openMe(btn){const p=env.q("#popMe");const ME=env.getME();
@@ -824,7 +855,7 @@ function makeAcctUI(env){
       if(r.status!==200||!Array.isArray(r.salons)){p.innerHTML='<h4>Mes salons</h4><div class="err">Impossible de charger tes salons. Réessaie.</div><button class="btn" id="slRe">Réessayer</button>';p.querySelector("#slRe").onclick=()=>openSalon(btn);return}
       LIST=r.salons;ME.salons=r.salons;env.setME(ME);drawList(p,btn,flash)})}
   function drawList(p,btn,flash){const L=LIST||[];const cur=L.find(x=>x.code===env.code()&&x.role==="owner");
-    p.innerHTML='<h4>Mes salons</h4>'+(flash?'<div class="note" style="color:var(--ok,#7cf0a9);font-weight:700">'+esc(flash)+'</div>':"")
+    p.innerHTML='<h4>Mes salons</h4>'+(flash?'<div class="note" style="color:var(--accent);font-weight:700">'+esc(flash)+'</div>':"")
       +(L.length?'<div class="list" style="max-height:min(46vh,320px);overflow:auto">'+rows(L)+'</div>':'<div class="note">Tu n\'as accès à aucun salon pour le moment. Rejoins un salon avec son nom et son code d\'accès.</div>')
       +'<div style="display:flex;gap:8px"><button class="btn primary" id="slJoin" style="flex:1">Rejoindre un salon</button><button class="btn" id="slNew" style="flex:1">Créer un salon</button></div>'
       +(cur?'<button class="lnk" id="slMng">Gérer ce salon</button>':"");
@@ -880,14 +911,17 @@ function salonName(c){if(c===CODE&&ROOM)return ROOM.name;const x=(ME&&ME.salons|
 let ROOM=null;                                      // salon ouvert : nom, rôle (envoyés par le serveur après vérification de l'accès)
 
 // ---------- thème, décor, son (mêmes réglages que dans les jeux) ----------
-function applyTheme(m){document.documentElement.dataset.theme=m;$("#themeBtn").textContent=m==="light"?"☀️":"🌙";LS.set("fl-theme",m)}
+// icônes « verre » de l'en-tête (icons.js)
+function hdrIcons(){const L=document.documentElement.dataset.theme==="light",S=LS.get("fl-sound")!=="off",D=LS.get("fl-deco")!=="off";
+  $("#themeBtn").innerHTML=L?ICO.sun():ICO.moon();$("#soundBtn").innerHTML=S?ICO.snd():ICO.mute();$("#decoBtn").innerHTML=ICO[SEASON_ICO]();$("#decoBtn").classList.toggle("off",!D);
+  const t=$("#mTheme");if(t){t.innerHTML=L?ICO.sun()+"Clair":ICO.moon()+"Sombre";$("#mSound").innerHTML=S?ICO.snd()+"Son":ICO.mute()+"Muet";const d=$("#mDeco");if(d)d.innerHTML=ICO[SEASON_ICO]()+"Décor"}}
+function applyTheme(m){document.documentElement.dataset.theme=m;LS.set("fl-theme",m);hdrIcons()}
 applyTheme(LS.get("fl-theme")||"dark");
 $("#themeBtn").onclick=()=>applyTheme(document.documentElement.dataset.theme==="light"?"dark":"light");
-function applySound(on){$("#soundBtn").textContent=on?"🔊":"🔇";LS.set("fl-sound",on?"on":"off")}
+function applySound(on){LS.set("fl-sound",on?"on":"off");hdrIcons()}
 applySound(LS.get("fl-sound")!=="off");
-$("#soundBtn").onclick=()=>applySound($("#soundBtn").textContent!=="🔊");
-const SEASON=(()=>{const d=new Date(),md=(d.getMonth()+1)*100+d.getDate();if(md>=1010&&md<=1102)return"🎃";if(md>=1201&&md<=1226)return"🎄";if(md>=1227||md<=106)return"🥂";if(md>=207&&md<=215)return"💘";if(md>=621&&md<=831)return"☀️";return"▦"})();
-function applyDeco(on){$("#decoBtn").textContent=SEASON;$("#decoBtn").style.opacity=on?"1":".4";document.body.classList.toggle("nodeco",!on);LS.set("fl-deco",on?"on":"off")}
+$("#soundBtn").onclick=()=>applySound(LS.get("fl-sound")==="off");
+function applyDeco(on){document.body.classList.toggle("nodeco",!on);LS.set("fl-deco",on?"on":"off");hdrIcons()}
 applyDeco(LS.get("fl-deco")!=="off");
 $("#decoBtn").onclick=()=>applyDeco(LS.get("fl-deco")==="off");
 
@@ -1027,11 +1061,11 @@ $("#dim").addEventListener("click",()=>{closePops();$("#mMenu").classList.remove
 (function(){const b=$("#mBtn"),m=$("#mMenu");const close=()=>{m.classList.remove("on");b.setAttribute("aria-expanded","false")};
   b.onclick=e=>{e.stopPropagation();const on=!m.classList.contains("on");closePops();m.classList.toggle("on",on);b.setAttribute("aria-expanded",String(on));
     $("#mMe").textContent=ME?ME.name:"Pseudo";$("#mAv").textContent=ME?ME.name[0]:"?";$("#mMeSub").textContent=ME?"Ma page":"Se connecter · Ma page";$("#mSalon").textContent=CODE?(salonName(CODE)||"Salon "+CODE):"Nom du salon";
-    $("#mTheme").textContent=document.documentElement.dataset.theme==="light"?"☀️ Clair":"🌙 Sombre";$("#mSound").textContent=$("#soundBtn").textContent==="🔊"?"🔊 Son":"🔇 Muet"};
+    hdrIcons()};
   m.addEventListener("click",e=>{e.stopPropagation();const a=e.target.closest("[data-act]")?.dataset.act;if(!a)return;
     if(a==="pseudo"){close();openMe(b)}else if(a==="salon"){close();openSalon(b)}else if(a==="share"){close();share()}
-    else if(a==="theme"){$("#themeBtn").click();$("#mTheme").textContent=document.documentElement.dataset.theme==="light"?"☀️ Clair":"🌙 Sombre"}
-    else if(a==="deco"){$("#decoBtn").click()}else if(a==="sound"){$("#soundBtn").click();$("#mSound").textContent=$("#soundBtn").textContent==="🔊"?"🔊 Son":"🔇 Muet"}});
+    else if(a==="theme"){$("#themeBtn").click()}
+    else if(a==="deco"){$("#decoBtn").click()}else if(a==="sound"){$("#soundBtn").click()}});
   document.addEventListener("click",e=>{if(!e.target.closest("#mMenu")&&!e.target.closest("#mBtn"))close()})})();
 
 // ---------- démarrage ----------
