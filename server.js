@@ -538,7 +538,8 @@ const poker = makePoker({
 async function api(req, res, route) {
   const out = (code, o) => { res.writeHead(code, { "content-type": "application/json", "cache-control": "no-store" }); res.end(JSON.stringify(o)); };
   if (req.method !== "POST") return out(405, { error: "méthode" });
-  let body = ""; for await (const ch of req) { body += ch; if (body.length > 4096) return out(413, { error: "trop long" }); }
+  const MAXB = route === "solo" ? 96 * 1024 : 4096;
+  let body = ""; for await (const ch of req) { body += ch; if (body.length > MAXB) return out(413, { error: "trop long" }); }
   let b; try { b = JSON.parse(body || "{}"); } catch { return out(400, { error: "json" }); }
   const ip = String(req.headers["x-forwarded-for"] || req.socket.remoteAddress || "").split(",")[0].trim();
   const name = normPseudo(b.name);
@@ -582,7 +583,7 @@ async function api(req, res, route) {
   }
   if (!authed()) return out(401, { error: "jeton", msg: "Reconnecte-toi avec ton code secret." });
   if (["salons", "sjoin", "screate", "skick", "scode"].includes(route)) return void await salonApi(route, name, p, b, ip, out, bad);
-  if (route === "me") { let list = null; try { list = await salonList(name, p); } catch {} return out(200, { name, salons: list, pts: ptsOut(p) }); }
+  if (route === "me") { let list = null; try { list = await salonList(name, p); } catch {} return out(200, { name, salons: list, pts: ptsOut(p), solo: Object.keys(p.solo || {}) }); }
   if (route === "wallet" || route === "conv") {
     ensureWallet(p); p.cv = (p.cv || []).filter(x => Date.now() - x.t < 2 * 3600e3);
     const used = p.cv.reduce((a, x) => a + x.n, 0);
@@ -617,6 +618,14 @@ async function api(req, res, route) {
     const refs = Array.isArray(b.items) ? b.items.slice(0, 50) : [{ ref: b.ref, ev: b.ev }];
     let n = 0; for (const it of refs) if (it && markHist(p, game, String(it.ref || ""), it.ev === "d" ? "d" : "s")) n++;
     if (n) savePlayer(name); return out(200, { ok: true, n });
+  }
+  // partie solo en cours, gardée sur le compte : on la poursuit depuis un autre appareil
+  if (route === "solo") {
+    const game = String(b.game || ""); if (!CAT.GAMES.includes(game)) return bad("game", "Jeu inconnu.");
+    p.solo = p.solo || {};
+    if (b.op === "put") { const d = b.doc; if (d && typeof d === "object" && d.solo && !d.done) p.solo[game] = { t: Date.now(), doc: d }; else delete p.solo[game]; savePlayer(name); return out(200, { ok: true }); }
+    const h = (p.hist && p.hist[game]) || {};
+    return out(200, { ok: true, doc: p.solo[game] ? p.solo[game].doc : null, t: p.solo[game] ? p.solo[game].t : 0, played: Object.keys(h) });
   }
   if (route === "logout") { p.toks = (p.toks || []).filter(t => t !== sha(String(b.token))); savePlayer(name); return out(200, { ok: true }); }
   return out(404, { error: "route" });
@@ -657,7 +666,7 @@ function sendStatic(req, res, name) {
 const server = http.createServer((req, res) => {
   const url = new URL(req.url, "http://x");
   if (url.pathname === "/healthz") { res.writeHead(200, { "content-type": "text/plain" }); return res.end("ok " + salons.size + (REDIS ? " redis" : "")); }
-  const am = url.pathname.match(/^\/api\/p\/(create|login|me|pin|logout|rank|score|wallet|conv|salons|sjoin|screate|skick|scode|hist)$/);
+  const am = url.pathname.match(/^\/api\/p\/(create|login|me|pin|logout|rank|score|wallet|conv|salons|sjoin|screate|skick|scode|hist|solo)$/);
   if (am) return void api(req, res, am[1]).catch(e => { console.error(e); try { res.writeHead(500); res.end("{}"); } catch {} });
   if (url.pathname.startsWith("/d/")) return sendStatic(req, res, url.pathname.slice(3));
   if (url.pathname === "/maquette" || url.pathname === "/maquette/") return sendPage(req, res, path.join(__dirname, "public", "maquette.html"));

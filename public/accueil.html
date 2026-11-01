@@ -841,7 +841,10 @@ function makeAcctUI(env){
   const say=r=>esc(r.msg||"Serveur injoignable. Réessaie.")+(r.detail?"<br>"+esc(r.detail):"");
   const CHECK="Vérifie les informations saisies.";
   const pinIn=el=>{el.oninput=e=>{e.target.value=e.target.value.replace(/\D/g,"").slice(0,4)}};
-  let LIST=null;                                   // dernière liste reçue du serveur
+  let LIST=null;
+  // parties jouées sans compte : reprises dans le compte créé ou ouvert
+  function guestUpload(name,token){try{const h=JSON.parse(localStorage.getItem("fl-guest-h")||"[]");if(!h.length)return;const by={};h.forEach(x=>(by[x.game]=by[x.game]||[]).push({ref:x.ref,ev:x.ev}));
+    Promise.all(Object.entries(by).map(([game,items])=>env.call("hist",{name,token,game,items:items.slice(-50)}))).then(rs=>{if(rs.every(r=>r.status===200)){["fl-guest-h","fl-guest-g","fl-guest-asked"].forEach(k=>localStorage.removeItem(k))}})}catch(e){}}                                   // dernière liste reçue du serveur
   function rows(L){return L.map(x=>'<button class="sl'+(x.code===env.code()?" here":"")+'" data-c="'+x.code+'"><span class="nm2">'+esc(x.name||"Salon")+'</span>'+(x.role==="owner"?'<span class="live" title="Tu es responsable de ce salon">★</span>':"")+(x.live?'<span class="live">'+x.live+' en ligne</span>':"")+'<span class="code" style="margin-left:auto;letter-spacing:.02em">Ouvrir ›</span></button>').join("")}
   const openRoom=id=>{if(env.open)return env.open(id);location.href="/"+id};
 
@@ -853,7 +856,7 @@ function makeAcctUI(env){
       const go=async()=>{if(!RE.test(n.value)){er.innerHTML=CHECK+"<br>Pseudo : 2 à 7 caractères, lettres A-Z, chiffres et @ # _ (sans espace).";n.focus();return}
         if(!/^\d{4}$/.test(c.value)){er.innerHTML=CHECK+"<br>Code secret : exactement 4 chiffres.";c.focus();return}
         const b=p.querySelector("#meGo");b.disabled=true;const r=await env.call("login",{name:n.value,pin:c.value});b.disabled=false;
-        if(r.status===200){env.setME({name:r.name||n.value,token:r.token,salons:r.salons||[]});env.onLogin();openMe(btn)}else{er.innerHTML=say(r);c.value="";c.focus()}};
+        if(r.status===200){env.setME({name:r.name||n.value,token:r.token,salons:r.salons||[]});guestUpload(r.name||n.value,r.token);env.onLogin();openMe(btn)}else{er.innerHTML=say(r);c.value="";c.focus()}};
       p.querySelector("#meGo").onclick=go;c.onkeydown=e=>{if(e.key==="Enter")go()};
       p.querySelector("#meNew").onclick=()=>{
         p.innerHTML='<h4>Créer mon pseudo</h4><input class="in" id="nwName" maxlength="7" placeholder="PSEUDO (2 À 7)" autocomplete="username"><input class="in pin" id="nwPin" type="password" inputmode="numeric" maxlength="4" placeholder="CODE · 4 CHIFFRES" autocomplete="new-password"><div class="note">Ton pseudo s\'affiche dans les parties et te suit sur tous tes appareils. Il ne pourra pas être changé.</div><div class="err" id="nwErr"></div><button class="btn primary" id="nwGo">Créer</button><button class="lnk" id="nwBack">J\'ai déjà un pseudo</button>';
@@ -862,7 +865,7 @@ function makeAcctUI(env){
         const go2=async()=>{if(!RE.test(nn.value)){er2.innerHTML=CHECK+"<br>Pseudo : 2 à 7 caractères, lettres A-Z, chiffres et @ # _ (sans espace).";nn.focus();return}
           if(!/^\d{4}$/.test(nc.value)){er2.innerHTML=CHECK+"<br>Code secret : exactement 4 chiffres.";nc.focus();return}
           const b=p.querySelector("#nwGo");b.disabled=true;const r=await env.call("create",{name:nn.value,pin:nc.value});b.disabled=false;
-          if(r.status===200){env.setME({name:r.name||nn.value,token:r.token,salons:[]});env.onLogin();openMe(btn);env.toast("👋","Bienvenue <b>"+esc(r.name||nn.value)+"</b> !")}
+          if(r.status===200){env.setME({name:r.name||nn.value,token:r.token,salons:[]});guestUpload(r.name||nn.value,r.token);env.onLogin();openMe(btn);env.toast("👋","Bienvenue <b>"+esc(r.name||nn.value)+"</b> !")}
           else{er2.innerHTML=say(r);(r.field==="pin"?nc:nn).focus()}};
         p.querySelector("#nwGo").onclick=go2;nc.onkeydown=e=>{if(e.key==="Enter")go2()};setTimeout(()=>nn.focus(),50)}}
     else{const L=ME.salons||[];
@@ -996,7 +999,7 @@ async function renderRank(){const r=await call("rank",{name:ME?ME.name:""});cons
   box.innerHTML=h}
 
 // ---------- ma progression : points cumulés jour après jour ----------
-let PTS=null;const CHG=["fleches","rond","meles","poker"];
+let PTS=null,SRVSOLO=new Set();const CHG=["fleches","rond","meles","poker"];
 function chart(i){const box=$("#chart"),sub=$("#chartSub"),tabs=$("#chartTabs");
   const hide=on=>{box.style.display=on?"none":"";tabs.style.display=on?"none":""};
   if(!ME||ME.stale){hide(true);box.innerHTML="";sub.textContent="Veuillez vous connecter pour accéder à vos stats.";return}
@@ -1026,7 +1029,7 @@ function chart(i){const box=$("#chart"),sub=$("#chartSub"),tabs=$("#chartTabs");
 const curTab=()=>{const b=$("#chartTabs .on");const c=b?b.dataset.c:"0";return c==="t"?"t":+c};
 $$("#chartTabs button").forEach(b=>b.onclick=()=>{$$("#chartTabs button").forEach(x=>x.classList.toggle("on",x===b));chart(curTab())});
 async function loadMe(){if(!ME)return;const r=await call("me",{name:ME.name,token:ME.token});
-  if(r.status===200){if(Array.isArray(r.salons))ME.salons=r.salons;store();updPills();PTS=r.pts;chart(curTab())}
+  if(r.status===200){if(Array.isArray(r.salons))ME.salons=r.salons;store();updPills();PTS=r.pts;SRVSOLO=new Set(r.solo||[]);renderResume();chart(curTab())}
   else if(r.status===401){ME.stale=true;store();chart(curTab())}}
 
 // ---------- fenêtres Pseudo et Salon ----------
@@ -1053,7 +1056,7 @@ function share(){const link=location.origin+"/"+(CODE&&ROOM?CODE:"");const own=R
 $$("[data-open=share]").forEach(b=>b.onclick=share);
 
 // ---------- tuiles de jeu et fenêtre de réglages ----------
-const GAMES={fleches:{nm:"Mots fléchés",lv:[["facile","Facile",310],["normal","Normal",305],["difficile","Difficile",285]],t:true},
+const GAMES={fleches:{nm:"Mots fléchés",lv:[["facile","Facile",310],["normal","Normal",314],["difficile","Difficile",293]],t:true},
   rond:{nm:"Le Tourniquet",lv:[["facile","Facile",220],["moyen","Normal",220],["difficile","Difficile",220]],t:true},
   meles:{nm:"Mots mêlés",lv:[["facile","Facile",200],["moyen","Normal",200],["difficile","Difficile",200]]},
   poker:{nm:"Poker lettres",lv:[]},culture:{nm:"Culture générale",lv:[]}};
@@ -1061,7 +1064,8 @@ $$(".tile").forEach(t=>t.addEventListener("click",e=>{if(e.target.closest(".mode
 document.addEventListener("click",e=>{if(!e.target.closest(".tile"))$$(".tile").forEach(x=>x.classList.remove("lift"))});
 let CFG=null;
 function openCfg(t,m,opp){const k=t.dataset.key,G=GAMES[k];
-  if(m==="multi"&&(!ME||ME.stale)){$("#needT").textContent=G.nm+" à plusieurs";$("#need").dataset.k=k;$("#need").classList.add("on");return}
+  if(m==="solo"&&!ME&&guestN()>=GUEST_MAX){needAccount();return}
+  if(m==="multi"&&(!ME||ME.stale)){needMulti();$("#needT").textContent=G.nm+" à plusieurs";$("#need").dataset.k=k;$("#need").classList.add("on");return}
   if(k==="culture"){mini("🧠 Culture générale","Le jeu du mois arrive très bientôt !");return}
   CFG={k,m,opp};$("#cfgT").textContent=G.nm+" · "+({solo:"Solo",multi:"Multijoueur",resume:"Reprendre la partie"}[m]);
   const pk=k==="poker";$(".cfgfl").style.display=pk||m==="resume"?"none":"";$(".cfgpk").style.display=pk&&m!=="resume"?"":"none";
@@ -1087,7 +1091,7 @@ $$("#pkFmt button").forEach(b=>b.onclick=()=>$$("#pkFmt button").forEach(x=>x.cl
 function renderResume(){$$(".tile").forEach(t=>{const k=t.dataset.key;let on=false;
   const docs=Object.assign({},(()=>{try{return JSON.parse(LS.get("fl-salon-"+CODE)||"{}").docs||{}}catch(e){return{}}})(),CODE?DOCS:{});
   for(const id in docs){const d=docs[id];if(!d||!d.players||d.done||d.solo)continue;const g=(id==="rond"||id==="meles"||id==="poker")?id:"fleches";if(g===k&&Date.now()-(d.started||0)<7*864e5)on=true}
-  if(LS.get("fl-paused-"+k))on=true;
+  if(LS.get("fl-paused-"+k)||SRVSOLO.has(k))on=true;
   const m=t.querySelector(".modes");let r=m.querySelector('[data-mode="resume"]');
   if(on&&!r){r=document.createElement("button");r.className="abtn";r.dataset.mode="resume";r.innerHTML="<span>▶</span> Reprendre";m.prepend(r);bindMode(r)}if(!on&&r)r.remove()})}
 
@@ -1116,9 +1120,18 @@ if(new URLSearchParams(location.search).get("open")==="salon")setTimeout(()=>ope
 
 // ---------- multijoueur sans pseudo : créer un pseudo ou jouer en solo ----------
 $("#needSolo").onclick=()=>{const k=$("#need").dataset.k;$("#need").classList.remove("on");const t=$$(".tile").find(x=>x.dataset.key===k);if(t)openCfg(t,"solo")};
-$("#needMe").onclick=()=>{$("#need").classList.remove("on");const b=window.innerWidth<=620?$("#mBtn"):$(".me-pill");openMe(b);setTimeout(()=>{const n=$("#meNew");if(n)n.click()},30)};
+$("#needMe").onclick=e=>{e.stopPropagation();$("#need").classList.remove("on");const b=window.innerWidth<=620?$("#mBtn"):$(".me-pill");openMe(b);setTimeout(()=>{const n=$("#meNew");if(n)n.click()},30)};
 $("#needX").onclick=()=>$("#need").classList.remove("on");
 if(new URLSearchParams(location.search).get("need")==="pseudo"){$("#need").classList.add("on")}
+// ---------- sans compte : 3 parties solo, puis compte obligatoire (les parties jouées sont reprises dans le compte) ----------
+const GUEST_MAX=3;const guestN=()=>{try{return JSON.parse(LS.get("fl-guest-g")||"[]").length}catch(e){return 0}};
+const NEED_TXT=$("#need .note").innerHTML;
+function needAccount(){const n=$("#need");$("#needT").textContent="Crée ton compte pour continuer";
+  n.querySelector(".note").innerHTML="Tu as joué "+GUEST_MAX+" parties sans compte. Pour jouer la 4<sup>e</sup>, crée ton pseudo : tes parties déjà jouées y seront gardées.";
+  $("#needSolo").style.display="none";n.classList.add("on")}
+function needMulti(){$("#need .note").innerHTML=NEED_TXT;$("#needSolo").style.display=""}
+if(new URLSearchParams(location.search).get("need")==="compte"&&!ME){needAccount();history.replaceState(null,"",location.pathname)}
+else if(!ME&&guestN()>=GUEST_MAX&&!LS.get("fl-guest-asked")){LS.set("fl-guest-asked","1");needAccount()}
 
 </script>
 </body>

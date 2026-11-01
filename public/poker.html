@@ -755,6 +755,9 @@ const HADCODE=!!CODE;
 if(!CODE){const a=new Uint32Array(5);crypto.getRandomValues(a);CODE=[...a].map(x=>CH[x%CH.length]).join("");}
 const Q=new URLSearchParams(location.search);const GO=Q.get("go");
 // hors salon (ou visiteur sans compte) : table privée contre le robot, sans entrer dans un salon
+// sans compte : 3 parties, puis compte obligatoire
+const GUEST_MAX=3,guestN=()=>{try{return JSON.parse(LS.get("fl-guest-g")||"[]").length}catch(e){return 0}};
+const guestBlocked=()=>!ME&&guestN()>=GUEST_MAX;
 const SOLO=!HADCODE||!ME||!/^[A-Z0-9@#_]{2,7}$/.test(ME.name||"");
 try{history.replaceState(null,"",HADCODE?"/"+CODE+"/poker":"/poker")}catch(e){}
 const HOMEURL=HADCODE?"/"+CODE:"/";$("#homeLink").href=HOMEURL;
@@ -773,11 +776,12 @@ function send(o){if(ws&&ws.readyState===1)ws.send(JSON.stringify(o))}
 function pk(o){send({t:"pk",name:ME?ME.name:"",token:ME?ME.token:"",...o})}
 function connect(){ws=new WebSocket((location.protocol==="https:"?"wss://":"ws://")+location.host+"/ws");
   ws.onopen=()=>{send(SOLO?{t:"join",solo:true}:{t:"join",room:CODE,name:ME?ME.name:"",token:ME?ME.token:""});send({t:"presence",presence:{name:ME?ME.name:"",page:"poker"}});pk({a:"watch"});
+    if(GO&&!sat&&guestBlocked()){location.replace("/?need=compte");return}
     if(GO&&!sat){sat=true;pk({a:"sit",solo:GO==="solo",fmt:Q.get("fmt")||"10",mise:Q.get("mise")||"20",dec:Q.get("dec")||"30"})}};
   ws.onmessage=e=>{let m;try{m=JSON.parse(e.data)}catch(x){return}
     if(m.t==="error"&&(m.code==="auth"||m.code==="forbidden")){ws.onclose=null;ws.close();location.replace(m.code==="auth"?"/"+CODE:"/?open=salon");return}
     if(m.t==="room"){ROOMNAME=m.name||"";if(ST)render()}
-    if(m.t==="pkst"){PREV=ST;ST=m.st;render()}
+    if(m.t==="pkst"){PREV=ST;ST=m.st;if(!ME&&ST&&ST.started&&!(PREV&&PREV.started)){try{const g=JSON.parse(LS.get("fl-guest-g")||"[]");g.push("pk"+Date.now());LS.set("fl-guest-g",JSON.stringify(g))}catch(e){}}render()}
     else if(m.t==="pkerr"){toast("⚠️",esc(m.msg));if(m.need)setTimeout(openConv,600)}};
   ws.onclose=()=>setTimeout(connect,2000)}
 
@@ -831,10 +835,11 @@ function tick(){if(!ST)return;const left=ST.deadline-(Date.now()+skew);
     if(left<1500&&!window.__autoSent&&$("#pkIn").value){window.__autoSent=true;pk({a:"word",w:$("#pkIn").value})}}else window.__autoSent=false}
 setInterval(tick,250);
 function bindLobby(){const b=id=>$(id);
-  if(b("#lbSolo"))b("#lbSolo").onclick=()=>pk({a:"sit",solo:true,fmt:"10",mise:"20",dec:"30"});
+  const gate=f=>()=>{if(guestBlocked()){location.href="/?need=compte";return}f()};
+  if(b("#lbSolo"))b("#lbSolo").onclick=gate(()=>pk({a:"sit",solo:true,fmt:"10",mise:"20",dec:"30"}));
   if(b("#lbSit"))b("#lbSit").onclick=()=>pk({a:"sit",fmt:"10",mise:"20",dec:"30"});
   if(b("#lbBot"))b("#lbBot").onclick=()=>pk({a:"sit",solo:true});
-  if(b("#lbStart"))b("#lbStart").onclick=()=>pk({a:"start"});
+  if(b("#lbStart"))b("#lbStart").onclick=gate(()=>pk({a:"start"}));
   if(b("#lbAgain"))b("#lbAgain").onclick=()=>pk({a:"sit",solo:ST&&ST.solo,mise:String(ST?ST.buy:20),dec:String(ST?ST.dec:30),fmt:ST&&!ST.maxHands?"last":"10"});
   if(b("#lbShare"))b("#lbShare").onclick=()=>{const link=location.origin+"/"+CODE+"/poker";if(navigator.share)navigator.share({title:"Poker Lettres",text:"Une partie de Poker Lettres ?",url:link}).catch(()=>{});else{(navigator.clipboard?navigator.clipboard.writeText(link):Promise.reject()).then(()=>toast("📋","Lien copié"),()=>toast("🔗",link))}}}
 // ---------- paquet (lettres pas encore vues) ----------

@@ -1040,7 +1040,10 @@ function makeAcctUI(env){
   const say=r=>esc(r.msg||"Serveur injoignable. Réessaie.")+(r.detail?"<br>"+esc(r.detail):"");
   const CHECK="Vérifie les informations saisies.";
   const pinIn=el=>{el.oninput=e=>{e.target.value=e.target.value.replace(/\D/g,"").slice(0,4)}};
-  let LIST=null;                                   // dernière liste reçue du serveur
+  let LIST=null;
+  // parties jouées sans compte : reprises dans le compte créé ou ouvert
+  function guestUpload(name,token){try{const h=JSON.parse(localStorage.getItem("fl-guest-h")||"[]");if(!h.length)return;const by={};h.forEach(x=>(by[x.game]=by[x.game]||[]).push({ref:x.ref,ev:x.ev}));
+    Promise.all(Object.entries(by).map(([game,items])=>env.call("hist",{name,token,game,items:items.slice(-50)}))).then(rs=>{if(rs.every(r=>r.status===200)){["fl-guest-h","fl-guest-g","fl-guest-asked"].forEach(k=>localStorage.removeItem(k))}})}catch(e){}}                                   // dernière liste reçue du serveur
   function rows(L){return L.map(x=>'<button class="sl'+(x.code===env.code()?" here":"")+'" data-c="'+x.code+'"><span class="nm2">'+esc(x.name||"Salon")+'</span>'+(x.role==="owner"?'<span class="live" title="Tu es responsable de ce salon">★</span>':"")+(x.live?'<span class="live">'+x.live+' en ligne</span>':"")+'<span class="code" style="margin-left:auto;letter-spacing:.02em">Ouvrir ›</span></button>').join("")}
   const openRoom=id=>{if(env.open)return env.open(id);location.href="/"+id};
 
@@ -1052,7 +1055,7 @@ function makeAcctUI(env){
       const go=async()=>{if(!RE.test(n.value)){er.innerHTML=CHECK+"<br>Pseudo : 2 à 7 caractères, lettres A-Z, chiffres et @ # _ (sans espace).";n.focus();return}
         if(!/^\d{4}$/.test(c.value)){er.innerHTML=CHECK+"<br>Code secret : exactement 4 chiffres.";c.focus();return}
         const b=p.querySelector("#meGo");b.disabled=true;const r=await env.call("login",{name:n.value,pin:c.value});b.disabled=false;
-        if(r.status===200){env.setME({name:r.name||n.value,token:r.token,salons:r.salons||[]});env.onLogin();openMe(btn)}else{er.innerHTML=say(r);c.value="";c.focus()}};
+        if(r.status===200){env.setME({name:r.name||n.value,token:r.token,salons:r.salons||[]});guestUpload(r.name||n.value,r.token);env.onLogin();openMe(btn)}else{er.innerHTML=say(r);c.value="";c.focus()}};
       p.querySelector("#meGo").onclick=go;c.onkeydown=e=>{if(e.key==="Enter")go()};
       p.querySelector("#meNew").onclick=()=>{
         p.innerHTML='<h4>Créer mon pseudo</h4><input class="in" id="nwName" maxlength="7" placeholder="PSEUDO (2 À 7)" autocomplete="username"><input class="in pin" id="nwPin" type="password" inputmode="numeric" maxlength="4" placeholder="CODE · 4 CHIFFRES" autocomplete="new-password"><div class="note">Ton pseudo s\'affiche dans les parties et te suit sur tous tes appareils. Il ne pourra pas être changé.</div><div class="err" id="nwErr"></div><button class="btn primary" id="nwGo">Créer</button><button class="lnk" id="nwBack">J\'ai déjà un pseudo</button>';
@@ -1061,7 +1064,7 @@ function makeAcctUI(env){
         const go2=async()=>{if(!RE.test(nn.value)){er2.innerHTML=CHECK+"<br>Pseudo : 2 à 7 caractères, lettres A-Z, chiffres et @ # _ (sans espace).";nn.focus();return}
           if(!/^\d{4}$/.test(nc.value)){er2.innerHTML=CHECK+"<br>Code secret : exactement 4 chiffres.";nc.focus();return}
           const b=p.querySelector("#nwGo");b.disabled=true;const r=await env.call("create",{name:nn.value,pin:nc.value});b.disabled=false;
-          if(r.status===200){env.setME({name:r.name||nn.value,token:r.token,salons:[]});env.onLogin();openMe(btn);env.toast("👋","Bienvenue <b>"+esc(r.name||nn.value)+"</b> !")}
+          if(r.status===200){env.setME({name:r.name||nn.value,token:r.token,salons:[]});guestUpload(r.name||nn.value,r.token);env.onLogin();openMe(btn);env.toast("👋","Bienvenue <b>"+esc(r.name||nn.value)+"</b> !")}
           else{er2.innerHTML=say(r);(r.field==="pin"?nc:nn).focus()}};
         p.querySelector("#nwGo").onclick=go2;nc.onkeydown=e=>{if(e.key==="Enter")go2()};setTimeout(()=>nn.focus(),50)}}
     else{const L=ME.salons||[];
@@ -1303,7 +1306,7 @@ function start(){if(PAGE==="poker"||window.SK_HDR){host.dataset.page="poker";D.b
 if(D.readyState==="loading")D.addEventListener("DOMContentLoaded",start);else start();
 })();
 </script>
-<script src="/d/grilles-875a82060d.js"></script>
+<script src="/d/grilles-57e875d450.js"></script>
 <script>// ===== Mots fléchés — moteur branché sur l'écran de l'artefact =====
 (function(){
 "use strict";
@@ -1400,7 +1403,7 @@ function connect(){if(!CODE)return;ws=new WebSocket((location.protocol==="https:
     else if(m.t==="ack"&&acks[m.req]){acks[m.req](m);delete acks[m.req]}};
   ws.onclose=()=>setTimeout(connect,1500)}
 function send(o){if(ws&&ws.readyState===1)ws.send(JSON.stringify(o))}
-function save(){if(!G)return;if(G.solo){LS.set(SOLOKEY,JSON.stringify(G));if(G.done)LS.del("fl-paused-fleches");return}
+function save(){if(!G)return;if(G.solo){G.saved=Date.now();soloPut();LS.set(SOLOKEY,JSON.stringify(G));if(G.done)LS.del("fl-paused-fleches");return}
   G._v=(G._v||0);send({t:"set",id:DOC,data:JSON.parse(JSON.stringify(G)),req:++reqN})}
 let lastAnn="";function announce(force){const s=mySeat();const p={name:ME?ME.name:"",page:"fleches",gid:G?G.gid:null,seat:s,pend:G&&canPlay()?pend:{},sel:canPlay()?sel:null};const j=JSON.stringify(p);if(!force&&j===lastAnn)return;lastAnn=j;send({t:"presence",presence:p})}
 function onSnap(){const d=docs[DOC];
@@ -1468,7 +1471,7 @@ function proposeMyst(){const v=($("#mystIn").value||"").toUpperCase().normalize(
 
 // ---------- affichage ----------
 const SC=["#pA","#pB"];
-function render(){if(!G||!cur)return;const s=mySeat(),play=canPlay(),n=G.players.length;
+function render(){if(!G||!cur)return;setTimeout(guestNote,0);const s=mySeat(),play=canPlay(),n=G.players.length;
   $(".gname").innerHTML='Mots Fléchés <span style="color:#34d399">'+(G.solo?"Solo":"Duo")+'</span> <span class="hpill">'+esc((cur.name||"").replace(/^(Facile|Moyen|Difficile|Moyenne) n°/i,"Grille ")||"Grille "+cur.page)+" • "+LVLN[G.level]+"</span>";
   // joueurs
   SC.forEach((id,i)=>{const e=$(id);const p=G.players[i];if(!p){e.style.display="none";return}e.style.display="";
@@ -1561,8 +1564,8 @@ $("#lvPause").onclick=()=>leave(pauseGame);$("#lvQuit").onclick=()=>leave(quitGa
 
 // ---------- lancement ----------
 const boot={wantShared:false};
-function chooseGrid(level,n){const list=GRIDS.filter(d=>d.lvl===LVLG[level]);if(n&&list[n-1])return list[n-1];
-  let played={};try{played=JSON.parse(LS.get("fl2-played")||"{}")}catch(e){}const fresh=list.filter(d=>!played[d.id]);return (fresh.length?fresh:list)[Math.floor(Math.random()*(fresh.length?fresh.length:list.length))]}
+function chooseGrid(level,n,pl){const list=GRIDS.filter(d=>d.lvl===LVLG[level]);if(n&&list[n-1])return list[n-1];
+  let played={};try{played=JSON.parse(LS.get("fl2-played")||"{}")}catch(e){}const fresh=list.filter(d=>!played[d.id]&&!(pl&&pl.has("fleches:"+d.id)));return (fresh.length?fresh:list)[Math.floor(Math.random()*(fresh.length?fresh.length:list.length))]}
 function newGame(def,names,isSolo,level){const first=isSolo?0:Math.floor(Math.random()*names.length);const filled={};if(level==="facile")(def.paper||[]).forEach(k=>filled[k]=-1);
   return{gid:Math.random().toString(36).slice(2,10),game:"fleches",grid:def.id,solo:isSolo,level,started:Date.now(),players:names.map(n=>({name:n,score:0})),turn:first,turnStart:Date.now(),tour:1,champs:0,filled,letters:{},mystery:null,done:false,wait:!isSolo,msg:isSolo?"À toi de jouer !":"🎲 Tirage au sort : "+names[first]+" commence !"}}
 function open(g){G=g;pend={};sel=null;const def=GRIDS.find(x=>x.id===G.grid);if(!def){location.replace(HOME);return}prep(def);
@@ -1573,8 +1576,7 @@ function again(){const old=G;if(old.solo){const ng=newGame(chooseGrid(old.level)
   const opp=old.players.map(p=>p.name).find(n=>String(n).toUpperCase()!==ME.name)||"Invité";
   drawReq(old.level,0,opp).then(r=>{if(!r.ok)return blockedWin(r.msg);const ng=newGame(GRIDS.find(x=>x.id===r.ref),old.players.map(p=>p.name),false,old.level);ng.prev=old.gid;open(ng);save()})}
 function start(){const go=Q.get("go"),lvl=Q.get("lvl")||"facile",n=Number(Q.get("n"))||0;
-  if(go==="solo"){let g=null;try{g=JSON.parse(LS.get(SOLOKEY)||"null")}catch(e){}if(g&&!g.done&&!n&&g.level===lvl){open(g);return}open(newGame(chooseGrid(lvl,n),[ME?ME.name:"Toi"],true,lvl));save();return}
-  if(go==="resume"&&!CODE){let g=null;try{g=JSON.parse(LS.get(SOLOKEY)||"null")}catch(e){}if(g&&!g.done){open(g);return}location.replace(HOME);return}
+  if(go==="solo"||(go==="resume"&&!CODE)){soloBoot(go,lvl,n);return}
   if(!CODE){let g=null;try{g=JSON.parse(LS.get(SOLOKEY)||"null")}catch(e){}if(g&&!g.done){open(g);return}location.replace("/");return}
   if(!ME){location.replace(HOME+"?need=pseudo");return}
   // à plusieurs : la partie du salon, ou une nouvelle
@@ -1594,12 +1596,29 @@ let drawN=0;const drawCb={};
 function drawReq(level,n,opp){return new Promise(res=>{const req=++drawN;drawCb[req]=res;send({t:"draw",req,game:GAME,level,n:n||0,opp:opp&&opp!=="Invité"?opp:""});setTimeout(()=>{if(drawCb[req]){delete drawCb[req];res({ok:false,msg:"Impossible de vérifier les parties disponibles. Réessaie."})}},8000)})}
 function blockedWin(msg){$("#endT").textContent=msg;$("#endB").innerHTML="";const a=$("#endAgain");if(a)a.style.display="none";$("#endWin").classList.add("on")}
 let lastLaunch=0;function askLaunch(){if(Date.now()-lastLaunch<1500)return;lastLaunch=Date.now();send({t:"launch",id:DOC,gid:G.gid})}
-function histMark(ev){try{if(!G||!ME||!ME.token)return;if(!G.solo&&mySeat()===null)return;const ref=REFOF(G);if(!ref)return;const k="fl-h"+ev+"-"+GAME+"-"+G.gid;if(LS.get(k))return;LS.set(k,"1");
+function histMark(ev){try{if(!G)return;if(!ME||!ME.token){guestRecord(ev);return}if(!G.solo&&mySeat()===null)return;const ref=REFOF(G);if(!ref)return;const k="fl-h"+ev+"-"+GAME+"-"+G.gid;if(LS.get(k))return;LS.set(k,"1");
   const q=JSON.parse(LS.get("fl-hq")||"[]");q.push({u:ME.name,game:GAME,ref,ev});LS.set("fl-hq",JSON.stringify(q.slice(-300)));histFlush()}catch(e){}}
 let hFlying=false;function histFlush(){if(hFlying||!ME||!ME.token)return;let q=[];try{q=JSON.parse(LS.get("fl-hq")||"[]")}catch(e){}const mine=q.filter(x=>x.u===ME.name);if(!mine.length)return;hFlying=true;const by={};mine.forEach(x=>(by[x.game]=by[x.game]||[]).push({ref:x.ref,ev:x.ev}));
   Promise.all(Object.entries(by).map(([game,items])=>fetch("/api/p/hist",{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({name:ME.name,token:ME.token,game,items})}).then(r=>{if(!r.ok)throw 0})))
     .then(()=>{let q2=[];try{q2=JSON.parse(LS.get("fl-hq")||"[]")}catch(e){}const sent=new Set(mine.map(x=>JSON.stringify(x)));LS.set("fl-hq",JSON.stringify(q2.filter(x=>!sent.has(JSON.stringify(x)))))}).catch(()=>{}).finally(()=>{hFlying=false})}
 setTimeout(histFlush,1500);
+const NEWSOLO=(lvl,n,pl)=>{open(newGame(chooseGrid(lvl,n,pl),[ME?ME.name:"Toi"],true,lvl));save()};
+// ---------- partie solo gardée sur le compte (on la poursuit sur un autre appareil) ; sans compte : 3 parties ----------
+const GUEST_MAX=3;
+function guestCount(){try{return JSON.parse(LS.get("fl-guest-g")||"[]").length}catch(e){return 0}}
+function guestRecord(ev){try{if(!G||!G.solo)return;const ref=REFOF(G);const h=JSON.parse(LS.get("fl-guest-h")||"[]");if(!h.some(x=>x.game===GAME&&x.ref===ref&&x.ev===ev))h.push({game:GAME,ref,ev});LS.set("fl-guest-h",JSON.stringify(h.slice(-300)));
+  if(ev==="s"){const g=JSON.parse(LS.get("fl-guest-g")||"[]");if(!g.includes(G.gid)){g.push(G.gid);LS.set("fl-guest-g",JSON.stringify(g))}}}catch(e){}}
+function guestNote(){if(ME||!G||!G.solo||!G.done||guestCount()<GUEST_MAX||document.getElementById("guestNote"))return;const b=$("#endB");if(!b)return;
+  b.insertAdjacentHTML("beforeend",'<div id="guestNote" class="note" style="margin-top:10px">Tu as joué '+GUEST_MAX+' parties sans compte. Crée ton pseudo pour continuer à jouer : tes parties seront gardées.</div><a class="btn primary" href="/?need=compte" style="display:inline-flex;margin-top:8px;text-decoration:none">Créer mon compte</a>')}
+function soloPut(){if(!G||!G.solo||!ME||!ME.token)return;clearTimeout(soloPut.t);const doc=G.done?null:JSON.parse(JSON.stringify(G));soloPut.t=setTimeout(()=>{fetch("/api/p/solo",{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({name:ME.name,token:ME.token,game:GAME,op:"put",doc})}).catch(()=>{})},G.done?0:1500)}
+function soloGet(){if(!ME||!ME.token)return Promise.resolve(null);return Promise.race([fetch("/api/p/solo",{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({name:ME.name,token:ME.token,game:GAME})}).then(r=>r.ok?r.json():null).catch(()=>null),new Promise(r=>setTimeout(()=>r(null),2500))])}
+function soloBoot(go,lvl,n){let loc=null;try{loc=JSON.parse(LS.get(SOLOKEY)||"null")}catch(e){}
+  soloGet().then(r=>{const sv=r&&r.doc;const old=g=>g&&g.solo&&!g.done&&(go==="resume"||(!n&&g.level===lvl));
+    let best=old(loc)?loc:null;if(old(sv)&&(!best||(sv.saved||0)>(best.saved||0)))best=sv;
+    if(best){open(best);save();return}
+    if(go==="resume"){location.replace(HOME);return}
+    if(!ME&&guestCount()>=GUEST_MAX){location.replace("/?need=compte");return}
+    NEWSOLO(lvl,n,new Set((r&&r.played)||[]))})}
 // accès réservé aux tests automatiques sur la copie locale (jamais sur le site en ligne)
 if(location.hostname==="localhost")window.__t=c=>eval(c);
 start();
