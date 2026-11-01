@@ -597,4 +597,32 @@ setInterval(() => {
   const now = Date.now();
   for (const [code, s] of salons) if (!s.sockets.size && now - s.touched > 30 * 24 * 3600e3) { salons.delete(code); scheduleSave(); }
 }, 30000);
-server.listen(PORT, () => console.log("Mots Fléchés Duo en ligne sur http://localhost:" + PORT + (REDIS ? " (stockage Redis actif)" : "")));
+// ---------- remise à zéro demandée par Juvenal (1/11/2026) : comptes, salons, classement ----------
+// Rien n'est effacé : chaque clé est renommée en arch1:<clé> (récupérable). Ne s'exécute qu'une fois (clé reset:arch1).
+const RESET_TAG = "arch1";
+async function resetOnce() {
+  const files = ["players.json", "access.json", "salons.json"].map(f => path.join(DATA_DIR, f));
+  const wipeMem = () => { players.clear(); accs.clear(); codeIdx.clear(); salons.clear(); rankMem.clear(); };
+  if (!REDIS) {
+    const flag = path.join(DATA_DIR, "reset-" + RESET_TAG);
+    if (fs.existsSync(flag)) return;
+    for (const f of files) try { if (fs.existsSync(f)) fs.renameSync(f, f + "." + RESET_TAG); } catch {}
+    wipeMem(); try { fs.mkdirSync(DATA_DIR, { recursive: true }); fs.writeFileSync(flag, String(Date.now())); } catch {}
+    console.log("Remise à zéro faite (fichiers archivés)"); return;
+  }
+  try {
+    if (await redis(["EXISTS", "reset:" + RESET_TAG])) return;
+    let n = 0;
+    for (const pat of ["pl:*", "sa:*", "sc:*", "salon:*"]) {
+      let cur = "0";
+      do { const r = await redis(["SCAN", cur, "MATCH", pat, "COUNT", "200"]); cur = String(r[0]);
+        for (const k of r[1] || []) { await redis(["RENAME", k, RESET_TAG + ":" + k]); n++; } } while (cur !== "0");
+    }
+    if (await redis(["EXISTS", "rank"])) { await redis(["RENAME", "rank", RESET_TAG + ":rank"]); n++; }
+    await redis(["SET", "reset:" + RESET_TAG, String(Date.now())]);
+    for (const f of files) try { if (fs.existsSync(f)) fs.renameSync(f, f + "." + RESET_TAG); } catch {}
+    wipeMem();
+    console.log("Remise à zéro faite : " + n + " clés archivées sous " + RESET_TAG + ":");
+  } catch (e) { console.error("Remise à zéro impossible :", e.message); }
+}
+Promise.all([backupReady, resetOnce()]).then(() => server.listen(PORT, () => console.log("Mots Fléchés Duo en ligne sur http://localhost:" + PORT + (REDIS ? " (stockage Redis actif)" : ""))));
