@@ -438,6 +438,32 @@ button{font:inherit;color:inherit;cursor:pointer}
 
 
 .pkleft .pkact{grid-template-columns:repeat(4,1fr);width:100%}.pkleft .pkcard{flex-direction:row;flex-wrap:wrap;align-items:center}.pkleft .pkcard .flrow{flex:1 1 100%}.pkleft .pkin{flex:1 1 240px;width:auto;order:1}.pkleft #pkBest{flex:0 0 auto;order:2;align-self:stretch;padding:0 22px}.pkleft .pkcalc{flex:1 1 100%;order:3}.pkleft .flinfo{order:4}.pkleft .flinfo{flex:1 1 100%}
+
+/* culture générale */
+.cg2{--p1:#34d399;--p2:#fb7185;display:flex;flex-direction:column;gap:14px;max-width:720px;margin:0 auto}
+:root[data-theme="light"] .cg2{--p1:#059669;--p2:#e11d48}
+.cgst{font-size:.75rem;color:var(--muted);margin-left:4px}.cgst.ok{color:var(--p1);font-weight:700}
+.cgdots{display:flex;gap:5px}.cgdots i{width:9px;height:9px;border-radius:50%;background:rgba(255,255,255,.15);border:1px solid var(--stroke)}
+.cgdots i.ok{background:var(--p1);border-color:transparent}.cgdots i.ko{background:#e5484d;border-color:transparent}.cgdots i.cur{box-shadow:0 0 0 2px var(--accent)}
+.cgcard{padding:22px;display:flex;flex-direction:column;gap:16px}
+.cgtop{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.cgq{font-family:"Playfair Display",serif;font-size:clamp(1.25rem,2.6vw,1.65rem);font-weight:700;line-height:1.3}
+.cgans{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.cgans button{position:relative;text-align:left;min-height:58px;padding:12px 14px 12px 46px;border-radius:16px;border:1px solid var(--stroke);background:var(--glass2);font:700 .98rem Nunito,Inter,sans-serif;color:var(--ink);backdrop-filter:blur(10px);transition:transform .15s,background .2s,box-shadow .2s}
+.cgans button:hover{transform:translateY(-2px);background:rgba(255,255,255,.22)}
+.cgans button::before{content:attr(data-l);position:absolute;left:12px;top:50%;transform:translateY(-50%);width:24px;height:24px;border-radius:8px;display:grid;place-items:center;font-size:.75rem;background:rgba(0,0,0,.25);color:var(--muted)}
+:root[data-theme="light"] .cgans button::before{background:rgba(15,25,40,.08)}
+.cgans button.pick{box-shadow:0 0 0 2px var(--accent)}
+.cgans button.ok{background:linear-gradient(135deg,rgba(16,185,129,.55),rgba(16,185,129,.25));border-color:rgba(16,185,129,.8);color:#fff}
+.cgans button.ko{background:linear-gradient(135deg,rgba(229,72,77,.6),rgba(229,72,77,.3));border-color:#e5484d;color:#fff;animation:clkp .4s}
+.cgans button[disabled]{cursor:default;transform:none}
+.cgans .who{position:absolute;right:10px;top:50%;transform:translateY(-50%);display:flex;gap:3px}
+.cgans .who span{width:20px;height:20px;border-radius:50%;display:grid;place-items:center;font-size:.6rem;font-weight:800;color:#041b1d}
+.cgfact{padding:12px 14px;border-radius:14px;background:rgba(255,200,87,.1);border:1px solid rgba(255,200,87,.45);line-height:1.45;animation:fadein .3s}
+.cgfact b{color:var(--gold)}:root[data-theme="light"] .cgfact b{color:#9a5b00}
+#cgNext{align-self:flex-end}
+#cgP1{--c:var(--p1)}#cgP2{--c:var(--p2)}
+@media (max-width:620px){.cgans{grid-template-columns:1fr}.cgcard{padding:16px}.cg2 .scores2{flex-direction:column}.cg2 .sc{padding:6px 10px}}
 /* en-tête */
 .pop{position:absolute;z-index:60;width:min(340px,calc(100vw - 24px));padding:16px;display:none;flex-direction:column;gap:10px;border-radius:20px;background:var(--glass2);border:1px solid var(--stroke);backdrop-filter:blur(24px) saturate(160%);-webkit-backdrop-filter:blur(24px) saturate(160%);box-shadow:0 18px 50px rgba(0,0,0,.4)}
 .pop.on{display:flex;animation:popin .22s cubic-bezier(.3,1.4,.5,1)}
@@ -677,6 +703,14 @@ table.bar td,table.bar th{padding:5px 6px;border-bottom:1px solid rgba(255,255,2
 @media (max-width:900px){.fl2{grid-template-columns:1fr!important}.flside .flclue{order:2}}
 @media (max-width:620px){.fl2 .flclue{order:2}.fbtns .btn{min-width:38px;padding:6px 8px}}
 .flclue .clueTxt{flex:none!important}
+/* lettres trouvées : bien colorées à la couleur du joueur (vert pour le joueur 1) */
+.fc.jp{background:color-mix(in srgb,var(--fc) 48%,rgba(10,20,40,.55))!important;color:#fff!important;box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--fc) 70%,transparent)}
+.fc.jp .L{color:#fff!important;text-shadow:0 0 10px var(--fc)}
+:root[data-theme="light"] .fc.jp{background:color-mix(in srgb,var(--fc) 40%,#fff)!important}
+:root[data-theme="light"] .fc.jp .L{color:#06281c!important;text-shadow:none}
+.fc.jp.cur{background:color-mix(in srgb,var(--fc) 48%,rgba(10,20,40,.55))!important}
+.fc.okflash{animation:okpop .6s ease both;animation-delay:var(--d,0s)}
+@keyframes okpop{0%{transform:scale(1)}40%{transform:scale(1.12);box-shadow:0 0 18px var(--fc)}100%{transform:scale(1)}}
 /* commun aux pages de jeu */
 .rb2.live{border-style:dashed;opacity:.8}
 .rdclue .fbtns{flex:none}
@@ -685,6 +719,15 @@ table.bar td,table.bar th{padding:5px 6px;border-bottom:1px solid rgba(255,255,2
 .rdboard .count{position:absolute;inset:0;display:none;place-items:center;border-radius:inherit;background:rgba(5,10,20,.35);backdrop-filter:blur(3px)}
 .rdboard .count.on{display:grid}
 @media (max-width:620px){.rdclue .fbtns{flex:1 1 100%}}
+.mmgrid{position:relative}
+.wgrid{position:relative;--s:40px}
+.mc{width:var(--s)!important;height:var(--s)!important;font-size:calc(var(--s)*.46)!important;touch-action:none}
+.mc.wrong{color:#e5484d!important}
+.wgrid svg.caps{position:absolute;left:0;top:0;pointer-events:none;z-index:1;overflow:visible}
+.mmgrid .count{position:absolute;inset:0;display:none;place-items:center;border-radius:inherit;background:rgba(5,10,20,.35);backdrop-filter:blur(3px);z-index:6}
+.mmgrid .count.on{display:grid}
+.mmgrid .fover{border-radius:inherit}
+.mm2 .sc .pi,.endrow .pi{background:rgba(16,185,129,.2)}
 </style>
 <style id="sk-css">/* ---------- habillage du site (maquette validée) ---------- */
 body.sk{--skbg1:#0b1d2a;--skbg2:#1b1440;--skbg3:#0f3b3f;--skglass:rgba(255,255,255,.08);--skglass2:rgba(255,255,255,.14);--skstroke:rgba(255,255,255,.18);--skgold:#ffc857;
@@ -1290,7 +1333,8 @@ function validate(){if(!canPlay())return;const ks=Object.keys(pend).filter(k=>G.
   else{G.msg="Bravo "+p.name+" ! +"+pts+" point"+(pts>1?"s":"")+(done?" ("+done+" mot"+(done>1?"s":"")+")":"")+".";sfx[done?"word":"ok"]();
     if(!G.solo&&!full){G.champs=(G.champs||0)+champsOf(keep);f80();if(G.champs>=3)endTour("3 champs remplis.")}}
   if(full){p.score+=20;finish(p.name+" termine la grille : +20 points de bonus !")}
-  pend={};save();render();announce()}
+  pend={};if(keep.length){const w0=curWord();if(w0&&w0.cells.every(x=>G.filled[x]!==undefined))sel=null}save();render();announce();
+  keep.forEach((k,i)=>{const e=els[k];if(e){e.style.setProperty("--d",(i*.06)+"s");e.classList.remove("okflash");void e.offsetWidth;e.classList.add("okflash")}})}
 function endTourAfterMiss(){nextTurn();G.msg+=" Au tour de "+G.players[G.turn].name+"."}
 function f80(){if(G.f80||G.solo)return;if(fillRatio()>=.8){G.f80=true;sfx.bell();toast("🔔","<b>Grille à 80 %</b> · plus qu'un tour chacun")}}
 function finish(msg){G.done=true;G.ended=Date.now();G.msg=msg;sfx.win();if(!G.solo){const res=G.players.map(p=>({name:p.name,score:p.score}));send({t:"tally",gid:G.gid,game:"fleches",results:res})}scoreToServer()}
