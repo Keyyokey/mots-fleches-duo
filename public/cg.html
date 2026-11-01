@@ -740,6 +740,11 @@ table.bar td,table.bar th{padding:5px 6px;border-bottom:1px solid rgba(255,255,2
 .mmgrid .fover{border-radius:inherit}
 .mm2 .sc .pi,.endrow .pi{background:rgba(16,185,129,.2)}
 .hpill{display:inline-block;white-space:nowrap}
+/* chargement : on n'affiche pas l'écran à moitié construit */
+body.booting .wrap>.view{visibility:hidden}
+#boot{display:none}
+body.booting #boot{display:flex;position:fixed;inset:0;z-index:50;align-items:center;justify-content:center;gap:12px;font:700 1rem Nunito,Inter,sans-serif;color:var(--ink);animation:fadein .4s .25s both}
+#boot .spin{width:22px;height:22px}
 .cgfig[hidden]{display:none!important}
 .cgfig{margin:0;display:flex;flex-direction:column;gap:6px;animation:fadein .3s}
 .cgfig img{display:block;width:100%;height:min(34vh,280px);object-fit:contain;border-radius:14px;background:rgba(0,0,0,.18);border:1px solid var(--stroke)}
@@ -963,9 +968,10 @@ body.sk-fleches.light .c.sel .L{color:#0f131a!important}
 body.sk-fleches.light .c.pp .L{color:#8a93a3!important}
 </style>
 </head>
-<body class="sk-new g-culture">
+<body class="sk-new booting g-culture">
 <div class="blob b1"></div><div class="blob b2"></div><div class="blob b3"></div>
 <div class="wrap">
+<div id="boot"><span class="spin"></span><b>Préparation de la partie…</b></div><script>setTimeout(function(){document.body.classList.remove("booting")},10000)</script>
 <main class="view on" id="v-culture">
   <div class="gtop"><button class="homebtn" title="Retour à l'accueil" aria-label="Retour à l'accueil"><svg viewBox="0 0 24 24"><path d="M3 11.2 12 4l9 7.2" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/><path d="M5.5 10v9.2h4.8v-5.6h3.4v5.6h4.8V10" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linejoin="round"/></svg></button><b class="gname">Culture <span style="color:#71B280">Générale</span> <span class="hpill" id="cgPill">—</span></b></div>
   <div class="cg2">
@@ -1393,7 +1399,7 @@ function scoreSrv(){try{if(!ME||!ME.token)return;const i=G.solo?0:mySeat();const
 
 // ---------- affichage ----------
 let shownEnd=null,drawn="";
-function render(){if(!G)return;setTimeout(guestNote,0);const s=mySeat(),q=curQ();
+function render(){document.body.classList.remove("booting");if(!G)return;setTimeout(guestNote,0);const s=mySeat(),q=curQ();
   $(".gname").innerHTML='Culture <span style="color:#71B280">Générale</span> <span class="hpill" id="cgPill">'+(G.solo?"Solo":"Duo")+" • "+G.qs.length+" questions</span>";
   [["#cgP1",0],["#cgP2",1]].forEach(([id,i])=>{const e=$(id),p=G.players[i];if(!p){e.style.display="none";return}e.style.display="";e.querySelector(".pi").textContent=(p.name||"?")[0].toUpperCase();e.querySelector("b").textContent=p.name+(i===s&&!G.solo?" ·toi":"");e.querySelector(".sv").textContent=p.score});
   if(!q)return endShow();
@@ -1463,7 +1469,7 @@ function start(){const go=Q.get("go");const solo=()=>{try{return JSON.parse(LS.g
 // ---------- tirage par le serveur (multijoueur) et historique du compte ----------
 let drawN=0;const drawCb={};
 function drawReq(level,n,opp){return new Promise(res=>{const req=++drawN;drawCb[req]=res;send({t:"draw",req,game:GAME,level,n:0,opp:opp&&opp!=="Invité"?opp:""});setTimeout(()=>{if(drawCb[req]){delete drawCb[req];res({ok:false,msg:"Impossible de vérifier les questions disponibles. Réessaie."})}},8000)})}
-function blockedWin(msg){$("#endT").textContent=msg;$("#endB").innerHTML="";const a=$("#endAgain");if(a)a.style.display="none";$("#endWin").classList.add("on")}
+function blockedWin(msg){document.body.classList.remove("booting");$("#endT").textContent=msg;$("#endB").innerHTML="";const a=$("#endAgain");if(a)a.style.display="none";$("#endWin").classList.add("on")}
 let lastLaunch=0;function askLaunch(){if(Date.now()-lastLaunch<1500)return;lastLaunch=Date.now();send({t:"launch",id:DOC,gid:G.gid})}
 // une question compte comme « vue » dès qu'on y répond ; elle est reliée au compte (file d'attente si hors ligne)
 function markQ(q,ev){try{if(!G||!q)return;const pl=localSeen();if(!pl[q.id]){pl[q.id]=1;LS.set("fl2-played-culture",JSON.stringify(pl))}
@@ -1484,7 +1490,7 @@ function guestNote(){if(ME||!G||!G.solo||!G.done||guestCount()<GUEST_MAX||docume
 function soloPost(doc){return fetch("/api/p/solo",{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({name:ME.name,token:ME.token,game:GAME,op:"put",doc})}).catch(()=>{})}
 function soloPut(){if(!G||!G.solo||!ME||!ME.token)return;clearTimeout(soloPut.t);const doc=G.done?null:JSON.parse(JSON.stringify(G));soloPut.t=setTimeout(()=>soloPost(doc),G.done?0:1500)}
 function soloDrop(){if(ME&&ME.token){clearTimeout(soloPut.t);soloPost(null)}}
-function soloGet(){if(!ME||!ME.token)return Promise.resolve(null);return Promise.race([fetch("/api/p/solo",{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({name:ME.name,token:ME.token,game:GAME})}).then(r=>r.ok?r.json():null).catch(()=>null),new Promise(r=>setTimeout(()=>r(null),2500))])}
+function soloGet(){if(!ME||!ME.token)return Promise.resolve(null);return Promise.race([fetch("/api/p/solo",{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({name:ME.name,token:ME.token,game:GAME})}).then(r=>r.ok?r.json():null).catch(()=>null),new Promise(r=>setTimeout(()=>r(null),1500))])}
 function soloBoot(go){let loc=null;try{loc=JSON.parse(LS.get(SOLOKEY)||"null")}catch(e){}
   soloGet().then(r=>{const sv=r&&r.doc;const old=g=>g&&g.solo&&!g.done&&Array.isArray(g.qs)&&g.qs.every(id=>BYID[id]);
     let best=old(loc)?loc:null;if(old(sv)&&(!best||(sv.saved||0)>(best.saved||0)))best=sv;

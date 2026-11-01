@@ -740,6 +740,11 @@ table.bar td,table.bar th{padding:5px 6px;border-bottom:1px solid rgba(255,255,2
 .mmgrid .fover{border-radius:inherit}
 .mm2 .sc .pi,.endrow .pi{background:rgba(16,185,129,.2)}
 .hpill{display:inline-block;white-space:nowrap}
+/* chargement : on n'affiche pas l'écran à moitié construit */
+body.booting .wrap>.view{visibility:hidden}
+#boot{display:none}
+body.booting #boot{display:flex;position:fixed;inset:0;z-index:50;align-items:center;justify-content:center;gap:12px;font:700 1rem Nunito,Inter,sans-serif;color:var(--ink);animation:fadein .4s .25s both}
+#boot .spin{width:22px;height:22px}
 </style>
 <style id="sk-css">/* ---------- habillage du site (maquette validée) ---------- */
 body.sk{--skbg1:#0b1d2a;--skbg2:#1b1440;--skbg3:#0f3b3f;--skglass:rgba(255,255,255,.08);--skglass2:rgba(255,255,255,.14);--skstroke:rgba(255,255,255,.18);--skgold:#ffc857;
@@ -955,9 +960,10 @@ body.sk-fleches.light .c.sel .L{color:#0f131a!important}
 body.sk-fleches.light .c.pp .L{color:#8a93a3!important}
 </style>
 </head>
-<body class="sk-new g-meles">
+<body class="sk-new booting g-meles">
 <div class="blob b1"></div><div class="blob b2"></div><div class="blob b3"></div>
 <div class="wrap">
+<div id="boot"><span class="spin"></span><b>Préparation de la partie…</b></div><script>setTimeout(function(){document.body.classList.remove("booting")},10000)</script>
 <main class="view on" id="v-meles">
   <div class="gtop"><button class="homebtn" title="Retour à l'accueil" aria-label="Retour à l'accueil"><svg viewBox="0 0 24 24"><path d="M3 11.2 12 4l9 7.2" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/><path d="M5.5 10v9.2h4.8v-5.6h3.4v5.6h4.8V10" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linejoin="round"/></svg></button><b class="gname">Mots Mêlés <span style="color:#34d399">Duo</span> <span class="hpill">—</span></b></div>
   <div class="mm2">
@@ -1425,7 +1431,7 @@ function scoreSrv(){try{if(!ME||!ME.token)return;const i=G.solo?0:mySeat();const
 
 // ---------- affichage ----------
 let shownEnd=null,fitted=0;
-function render(){if(!G)return;setTimeout(guestNote,0);const s=mySeat();if(G.done&&!G.forfeit)histMark("d");
+function render(){document.body.classList.remove("booting");if(!G)return;setTimeout(guestNote,0);const s=mySeat();if(G.done&&!G.forfeit)histMark("d");
   $(".gname").innerHTML='Mots <span style="color:#34d399">Mêlés</span> '+(G.solo?"Solo":"Duo")+' <span class="hpill">Grille '+esc(String(G.mid||"").replace(/^n/,""))+" • "+esc(G.theme)+"</span>";
   const sc=$$(".mm2 .scores2 .sc");sc.forEach((e,i)=>{const p=G.players[i];if(!p){e.style.display="none";return}e.style.display="";e.querySelector(".pi").textContent=(p.name||"?")[0].toUpperCase();e.querySelector("b").textContent=p.name+(i===s&&!G.solo?" ·toi":"");e.querySelector(".sv").textContent=p.score});
   const n=Object.keys(G.found).length;$(".wlh").innerHTML='Mots à trouver <span style="color:#34d399">'+n+"/"+G.words.length+"</span>";
@@ -1473,7 +1479,7 @@ const GAME="meles",REFOF=g=>g.level+":"+g.mid;
 // puis revérifie juste avant le lancement. L'historique est relié au compte (envoyé au serveur, avec file d'attente si hors ligne).
 let drawN=0;const drawCb={};
 function drawReq(level,n,opp){return new Promise(res=>{const req=++drawN;drawCb[req]=res;send({t:"draw",req,game:GAME,level,n:n||0,opp:opp&&opp!=="Invité"?opp:""});setTimeout(()=>{if(drawCb[req]){delete drawCb[req];res({ok:false,msg:"Impossible de vérifier les parties disponibles. Réessaie."})}},8000)})}
-function blockedWin(msg){$("#endT").textContent=msg;$("#endB").innerHTML="";const a=$("#endAgain");if(a)a.style.display="none";$("#endWin").classList.add("on")}
+function blockedWin(msg){document.body.classList.remove("booting");$("#endT").textContent=msg;$("#endB").innerHTML="";const a=$("#endAgain");if(a)a.style.display="none";$("#endWin").classList.add("on")}
 let lastLaunch=0;function askLaunch(){if(Date.now()-lastLaunch<1500)return;lastLaunch=Date.now();send({t:"launch",id:DOC,gid:G.gid})}
 function histMark(ev){try{if(!G)return;if(!ME||!ME.token){guestRecord(ev);return}if(!G.solo&&mySeat()===null)return;const ref=REFOF(G);if(!ref)return;const k="fl-h"+ev+"-"+GAME+"-"+G.gid;if(LS.get(k))return;LS.set(k,"1");
   const q=JSON.parse(LS.get("fl-hq")||"[]");q.push({u:ME.name,game:GAME,ref,ev});LS.set("fl-hq",JSON.stringify(q.slice(-300)));histFlush()}catch(e){}}
@@ -1490,7 +1496,7 @@ function guestRecord(ev){try{if(!G||!G.solo)return;const ref=REFOF(G);const h=JS
 function guestNote(){if(ME||!G||!G.solo||!G.done||guestCount()<GUEST_MAX||document.getElementById("guestNote"))return;const b=$("#endB");if(!b)return;
   b.insertAdjacentHTML("beforeend",'<div id="guestNote" class="note" style="margin-top:10px">Tu as joué '+GUEST_MAX+' parties sans compte. Crée ton pseudo pour continuer à jouer : tes parties seront gardées.</div><a class="btn primary" href="/?need=compte" style="display:inline-flex;margin-top:8px;text-decoration:none">Créer mon compte</a>')}
 function soloPut(){if(!G||!G.solo||!ME||!ME.token)return;clearTimeout(soloPut.t);const doc=G.done?null:JSON.parse(JSON.stringify(G));soloPut.t=setTimeout(()=>{fetch("/api/p/solo",{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({name:ME.name,token:ME.token,game:GAME,op:"put",doc})}).catch(()=>{})},G.done?0:1500)}
-function soloGet(){if(!ME||!ME.token)return Promise.resolve(null);return Promise.race([fetch("/api/p/solo",{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({name:ME.name,token:ME.token,game:GAME})}).then(r=>r.ok?r.json():null).catch(()=>null),new Promise(r=>setTimeout(()=>r(null),2500))])}
+function soloGet(){if(!ME||!ME.token)return Promise.resolve(null);return Promise.race([fetch("/api/p/solo",{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({name:ME.name,token:ME.token,game:GAME})}).then(r=>r.ok?r.json():null).catch(()=>null),new Promise(r=>setTimeout(()=>r(null),1500))])}
 function soloBoot(go,lvl,n){let loc=null;try{loc=JSON.parse(LS.get(SOLOKEY)||"null")}catch(e){}
   soloGet().then(r=>{const sv=r&&r.doc;const old=g=>g&&g.solo&&!g.done&&(go==="resume"||(!n&&g.level===lvl));
     let best=old(loc)?loc:null;if(old(sv)&&(!best||(sv.saved||0)>(best.saved||0)))best=sv;
