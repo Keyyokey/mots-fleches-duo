@@ -1196,10 +1196,26 @@ const ICO=(()=>{let n=0;
     bulb:mk(["#FFF6B0","#FFD43C","#E89A12"],"#FFC830",'<path fill="url(#B)" d="M24 5a13 13 0 0 0-7.5 23.6c1.3 1 2 2.4 2 4V34h11v-1.4c0-1.6.7-3 2-4A13 13 0 0 0 24 5z"/>','<rect x="18.5" y="36" width="11" height="3.2" rx="1.6" fill="#B9C2D6"/><rect x="20" y="40.5" width="8" height="3" rx="1.5" fill="#B9C2D6"/>'),
     skip:mk(["#C9F4FF","#6CC8F5","#3A7FE0"],"#4BA3F0",'<path fill="url(#B)" d="M7 11.5c0-1.6 1.8-2.6 3.1-1.7l13.4 10.7c1 .8 1 2.4 0 3.2L10.1 34.2C8.8 35.1 7 34.1 7 32.5z"/><path fill="url(#B)" d="M21 11.5c0-1.6 1.8-2.6 3.1-1.7l13.4 10.7c1 .8 1 2.4 0 3.2L24.1 34.2c-1.3.9-3.1-.1-3.1-1.7z"/><rect fill="url(#B)" x="37" y="10" width="5" height="25" rx="2.5"/>'),
     swap:mk(["#B6F5EC","#3CC3BE","#16807F"],"#2DB3AE",'<path fill="none" stroke="url(#B)" stroke-width="4.4" stroke-linecap="round" d="M8 16h28M8 32h28"/><path fill="url(#B)" d="M33 8.5 42 16l-9 7.5zM15 24.5 6 32l9 7.5z"/>'),
+    // saisons
+    snow:mk(["#E6F7FF","#8FD3F5","#3C8FD6"],"#6CC0F0",[0,60,120].map(a=>'<rect fill="url(#B)" x="21.8" y="5" width="4.4" height="38" rx="2.2" transform="rotate('+a+' 24 24)"/>').join("")+[0,60,120,180,240,300].map(a=>'<path fill="url(#B)" d="M24 10.5l-5 -4.2 1.6-2 3.4 2.9 3.4-2.9 1.6 2z" transform="rotate('+a+' 24 24)"/>').join(""),'<circle cx="24" cy="24" r="3.2" fill="#fff" fill-opacity=".85"/>'),
+    flower:mk(["#FFD6EC","#FF7EBF","#D63C8C"],"#FF6FB5",[0,72,144,216,288].map(a=>'<ellipse fill="url(#B)" cx="24" cy="13.5" rx="7" ry="9.5" transform="rotate('+a+' 24 24)"/>').join(""),'<circle cx="24" cy="24" r="5.4" fill="#FFD43C"/><circle cx="22.6" cy="22.6" r="1.6" fill="#fff" fill-opacity=".7"/>'),
+    leaf:mk(["#FFD08A","#F58A2E","#B8461A"],"#F0782A",'<path fill="url(#B)" d="M40 7C22 7 9 15 9 29c0 4 1.2 7.4 3.2 10C15 26 23 19 31 15c-7 6-13 13-16.5 25 2.5 1.4 5.4 2 8.5 2C37 42 41 25 40 7z"/>'),
     grid:mk(["#A8F2EE","#3CC3BE","#16807F"],"#2DB3AE",'<rect fill="url(#B)" x="8" y="8" width="32" height="32" rx="8"/>','<path d="M18.7 12v24M29.3 12v24M12 18.7h24M12 29.3h24" stroke="#fff" stroke-opacity=".55" stroke-width="1.8" stroke-linecap="round"/>')
   }})();
-// décor du moment (mêmes dates qu'avant)
-const SEASON_ICO=(()=>{const d=new Date(),md=(d.getMonth()+1)*100+d.getDate();if(md>=1010&&md<=1102)return"pumpkin";if(md>=1201&&md<=1226)return"tree";if(md>=1227||md<=106)return"cheers";if(md>=207&&md<=215)return"heart";if(md>=621&&md<=831)return"sun";return"grid"})();
+// décor du moment : la saison du calendrier français (équinoxes et solstices, heure de Paris ; source : icalendrier.fr)
+const SAISONS=[["2025-12-21T16:03","hiver"],["2026-03-20T15:45","printemps"],["2026-06-21T10:24","ete"],["2026-09-23T02:05","automne"],["2026-12-21T21:50","hiver"],
+  ["2027-03-20T21:24","printemps"],["2027-06-21T16:10","ete"],["2027-09-23T08:01","automne"],["2027-12-22T03:42","hiver"],
+  ["2028-03-20T03:17","printemps"],["2028-06-20T22:01","ete"],["2028-09-22T13:45","automne"],["2028-12-21T09:19","hiver"],
+  ["2029-03-20T09:01","printemps"],["2029-06-21T03:48","ete"],["2029-09-22T19:38","automne"],["2029-12-21T15:13","hiver"],
+  ["2030-03-20T14:51","printemps"],["2030-06-21T09:31","ete"],["2030-09-23T01:26","automne"],["2030-12-21T21:09","hiver"]];
+const SAISON=(()=>{const now=new Date();let cur=null;for(const [d,k] of SAISONS){if(new Date(d+"+01:00")<=now)cur=k}
+  if(!cur){const md=(now.getMonth()+1)*100+now.getDate();cur=md>=1221||md<320?"hiver":md<621?"printemps":md<923?"ete":"automne"}return cur})();
+const SEASON_ICO={hiver:"snow",printemps:"flower",ete:"sun",automne:"leaf"}[SAISON];
+try{document.documentElement.dataset.saison=SAISON;if(!document.getElementById("saison-css")){const st=document.createElement("style");st.id="saison-css";st.textContent=
+  'html[data-saison=hiver] .b1{background:#7dd3fc}html[data-saison=hiver] .b2{background:#a5b4fc}html[data-saison=hiver] .b3{background:#e0f2fe}'
+  +'html[data-saison=printemps] .b1{background:#4ade80}html[data-saison=printemps] .b2{background:#f472b6}html[data-saison=printemps] .b3{background:#fde047}'
+  +'html[data-saison=ete] .b1{background:#22d3ee}html[data-saison=ete] .b2{background:#fbbf24}html[data-saison=ete] .b3{background:#fb923c}'
+  +'html[data-saison=automne] .b1{background:#f97316}html[data-saison=automne] .b2{background:#b45309}html[data-saison=automne] .b3{background:#dc2626}';document.head.appendChild(st)}}catch(e){}
 
 const UI=makeAcctUI({q,call,esc,toast:(i,h)=>toast(i,h),place,code,homeUrl,getME:()=>ME,setME:o=>{ME=o;store();updPills()},
   show:p=>{p.classList.add("on");dim()},hide:p=>{p.classList.remove("on");dim()},onLogin:()=>updPills(),onLogout:()=>{closePops();updPills()}});
@@ -1611,7 +1627,7 @@ function endOpen(blocked){const s=$("#endSame");if(s)s.style.display=!blocked&&G
 $("#endSame").onclick=()=>{$("#endWin").classList.remove("on");sameAgain()};
 function sameAgain(){const o=G;if(!o||!o.solo)return again();const def=GRIDS.find(x=>x.id===o.grid);if(!def)return again();open(newGame(def,o.players.map(p=>p.name),true,o.level));save()}
 // points d'une grille rejouée : 10 la 2e fois, 3 ensuite (décompte fait par le serveur)
-function repNote(r){if(!r||!r.rep)return;const b=$("#endB");if(!b||document.getElementById("repNote"))return;b.insertAdjacentHTML("beforeend",'<div id="repNote" class="note" style="margin-top:8px">Grille déjà terminée'+(r.rep===1?" une fois : <b>+10 points</b> seulement.":" plusieurs fois : <b>+3 points</b> seulement.")+"</div>")}
+function repNote(r){if(!r||(!r.rep&&!(r.f<1)))return;const b=$("#endB");if(!b||document.getElementById("repNote"))return;const t=r.rep?"Grille déjà terminée"+(r.rep===1?" une fois : <b>+10 points</b> seulement.":" plusieurs fois : <b>+3 points</b> seulement."):r.nth+"e partie de la journée à ce jeu : points à <b>"+Math.round(r.f*100)+" %</b> (+"+r.add+"). Le barème est dégressif : il repart à 100 % demain.";b.insertAdjacentHTML("beforeend",'<div id="repNote" class="note" style="margin-top:8px">'+t+"</div>")}
 
 // bouton maison
 $(".homebtn").onclick=()=>{if(!G||G.done){location.href=HOME;return}
@@ -1727,10 +1743,26 @@ const ICO=(()=>{let n=0;
     bulb:mk(["#FFF6B0","#FFD43C","#E89A12"],"#FFC830",'<path fill="url(#B)" d="M24 5a13 13 0 0 0-7.5 23.6c1.3 1 2 2.4 2 4V34h11v-1.4c0-1.6.7-3 2-4A13 13 0 0 0 24 5z"/>','<rect x="18.5" y="36" width="11" height="3.2" rx="1.6" fill="#B9C2D6"/><rect x="20" y="40.5" width="8" height="3" rx="1.5" fill="#B9C2D6"/>'),
     skip:mk(["#C9F4FF","#6CC8F5","#3A7FE0"],"#4BA3F0",'<path fill="url(#B)" d="M7 11.5c0-1.6 1.8-2.6 3.1-1.7l13.4 10.7c1 .8 1 2.4 0 3.2L10.1 34.2C8.8 35.1 7 34.1 7 32.5z"/><path fill="url(#B)" d="M21 11.5c0-1.6 1.8-2.6 3.1-1.7l13.4 10.7c1 .8 1 2.4 0 3.2L24.1 34.2c-1.3.9-3.1-.1-3.1-1.7z"/><rect fill="url(#B)" x="37" y="10" width="5" height="25" rx="2.5"/>'),
     swap:mk(["#B6F5EC","#3CC3BE","#16807F"],"#2DB3AE",'<path fill="none" stroke="url(#B)" stroke-width="4.4" stroke-linecap="round" d="M8 16h28M8 32h28"/><path fill="url(#B)" d="M33 8.5 42 16l-9 7.5zM15 24.5 6 32l9 7.5z"/>'),
+    // saisons
+    snow:mk(["#E6F7FF","#8FD3F5","#3C8FD6"],"#6CC0F0",[0,60,120].map(a=>'<rect fill="url(#B)" x="21.8" y="5" width="4.4" height="38" rx="2.2" transform="rotate('+a+' 24 24)"/>').join("")+[0,60,120,180,240,300].map(a=>'<path fill="url(#B)" d="M24 10.5l-5 -4.2 1.6-2 3.4 2.9 3.4-2.9 1.6 2z" transform="rotate('+a+' 24 24)"/>').join(""),'<circle cx="24" cy="24" r="3.2" fill="#fff" fill-opacity=".85"/>'),
+    flower:mk(["#FFD6EC","#FF7EBF","#D63C8C"],"#FF6FB5",[0,72,144,216,288].map(a=>'<ellipse fill="url(#B)" cx="24" cy="13.5" rx="7" ry="9.5" transform="rotate('+a+' 24 24)"/>').join(""),'<circle cx="24" cy="24" r="5.4" fill="#FFD43C"/><circle cx="22.6" cy="22.6" r="1.6" fill="#fff" fill-opacity=".7"/>'),
+    leaf:mk(["#FFD08A","#F58A2E","#B8461A"],"#F0782A",'<path fill="url(#B)" d="M40 7C22 7 9 15 9 29c0 4 1.2 7.4 3.2 10C15 26 23 19 31 15c-7 6-13 13-16.5 25 2.5 1.4 5.4 2 8.5 2C37 42 41 25 40 7z"/>'),
     grid:mk(["#A8F2EE","#3CC3BE","#16807F"],"#2DB3AE",'<rect fill="url(#B)" x="8" y="8" width="32" height="32" rx="8"/>','<path d="M18.7 12v24M29.3 12v24M12 18.7h24M12 29.3h24" stroke="#fff" stroke-opacity=".55" stroke-width="1.8" stroke-linecap="round"/>')
   }})();
-// décor du moment (mêmes dates qu'avant)
-const SEASON_ICO=(()=>{const d=new Date(),md=(d.getMonth()+1)*100+d.getDate();if(md>=1010&&md<=1102)return"pumpkin";if(md>=1201&&md<=1226)return"tree";if(md>=1227||md<=106)return"cheers";if(md>=207&&md<=215)return"heart";if(md>=621&&md<=831)return"sun";return"grid"})();
+// décor du moment : la saison du calendrier français (équinoxes et solstices, heure de Paris ; source : icalendrier.fr)
+const SAISONS=[["2025-12-21T16:03","hiver"],["2026-03-20T15:45","printemps"],["2026-06-21T10:24","ete"],["2026-09-23T02:05","automne"],["2026-12-21T21:50","hiver"],
+  ["2027-03-20T21:24","printemps"],["2027-06-21T16:10","ete"],["2027-09-23T08:01","automne"],["2027-12-22T03:42","hiver"],
+  ["2028-03-20T03:17","printemps"],["2028-06-20T22:01","ete"],["2028-09-22T13:45","automne"],["2028-12-21T09:19","hiver"],
+  ["2029-03-20T09:01","printemps"],["2029-06-21T03:48","ete"],["2029-09-22T19:38","automne"],["2029-12-21T15:13","hiver"],
+  ["2030-03-20T14:51","printemps"],["2030-06-21T09:31","ete"],["2030-09-23T01:26","automne"],["2030-12-21T21:09","hiver"]];
+const SAISON=(()=>{const now=new Date();let cur=null;for(const [d,k] of SAISONS){if(new Date(d+"+01:00")<=now)cur=k}
+  if(!cur){const md=(now.getMonth()+1)*100+now.getDate();cur=md>=1221||md<320?"hiver":md<621?"printemps":md<923?"ete":"automne"}return cur})();
+const SEASON_ICO={hiver:"snow",printemps:"flower",ete:"sun",automne:"leaf"}[SAISON];
+try{document.documentElement.dataset.saison=SAISON;if(!document.getElementById("saison-css")){const st=document.createElement("style");st.id="saison-css";st.textContent=
+  'html[data-saison=hiver] .b1{background:#7dd3fc}html[data-saison=hiver] .b2{background:#a5b4fc}html[data-saison=hiver] .b3{background:#e0f2fe}'
+  +'html[data-saison=printemps] .b1{background:#4ade80}html[data-saison=printemps] .b2{background:#f472b6}html[data-saison=printemps] .b3{background:#fde047}'
+  +'html[data-saison=ete] .b1{background:#22d3ee}html[data-saison=ete] .b2{background:#fbbf24}html[data-saison=ete] .b3{background:#fb923c}'
+  +'html[data-saison=automne] .b1{background:#f97316}html[data-saison=automne] .b2{background:#b45309}html[data-saison=automne] .b3{background:#dc2626}';document.head.appendChild(st)}}catch(e){}
 
 const MAP={"🎉":"party","🏆":"trophy","🔁":"replay","🎲":"dice","🏠":"home","⏸":"pause","▶":"play","🚪":"exit","🪙":"coin","⏱":"clock","👤":"person","👥":"people","🧹":"eraser","💡":"bulb","⏭":"skip","🤝":"cheers","⇄":"swap"};
 const RE=new RegExp("("+Object.keys(MAP).map(k=>k.replace(/[.*+?^${}()|[\]\\]/g,"\\$&")).join("|")+")\uFE0F?","g");

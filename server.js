@@ -41,10 +41,13 @@ async function checkStorage() {
   catch (e) { if (storage.ok !== false) { storage.since = new Date().toISOString(); console.error("STOCKAGE KO :", redisDiag.last && redisDiag.last.msg); } storage.ok = false; storage.msg = (redisDiag.last && redisDiag.last.msg || e.message).slice(0, 140); }
 }
 setTimeout(checkStorage, 2000); setInterval(checkStorage, 5 * 60e3);
-async function redis(cmd) {
-  let r;
-  try { r = await fetch(RURL, { method: "POST", headers: { Authorization: "Bearer " + RTOK, "content-type": "application/json" }, body: JSON.stringify(cmd) }); }
-  catch (e) { redisDiag.err++; redisDiag.last = { t: new Date().toISOString(), op: cmd[0], msg: "réseau : " + e.message }; throw e; }
+// lectures : un 2e essai après un incident passager (coupure réseau, erreur 5xx ou 429) ; écritures : jamais rejouées (pas de double écriture)
+const R_READ = new Set(["GET", "MGET", "EXISTS", "SCAN", "ZREVRANGE", "ZREVRANK", "ZSCORE", "PING"]);
+async function redis(cmd, again) {
+  let r; const read = R_READ.has(String(cmd[0]).toUpperCase());
+  try { r = await fetch(RURL, { method: "POST", headers: { Authorization: "Bearer " + RTOK, "content-type": "application/json" }, body: JSON.stringify(cmd), signal: AbortSignal.timeout(8000) }); }
+  catch (e) { redisDiag.err++; redisDiag.last = { t: new Date().toISOString(), op: cmd[0], msg: "réseau : " + e.message }; if (read && !again) { await new Promise(z => setTimeout(z, 200)); return redis(cmd, true); } throw e; }
+  if (read && !again && (r.status >= 500 || r.status === 429)) { redisDiag.err++; redisDiag.last = { t: new Date().toISOString(), op: cmd[0], msg: "HTTP " + r.status + " (2e essai)" }; await new Promise(z => setTimeout(z, 200)); return redis(cmd, true); }
   if (!r.ok) { const txt = (await r.text().catch(() => "")).replace(/[A-Za-z0-9_-]{30,}/g, "…").slice(0, 160); redisDiag.err++; redisDiag.last = { t: new Date().toISOString(), op: cmd[0], msg: "HTTP " + r.status + " " + txt }; throw new Error("redis " + r.status); }
   const j = await r.json(); if (j && j.error) { redisDiag.err++; redisDiag.last = { t: new Date().toISOString(), op: cmd[0], msg: String(j.error).slice(0, 160) }; throw new Error("redis " + j.error); }
   redisDiag.ok++; return j.result;
@@ -326,7 +329,7 @@ function fail(k, max, ms) { const f = fails.get(k) || { n: 0, until: 0, lvl: 0 }
 const normPseudo = v => String(v || "").normalize("NFD").replace(/[\u0300-\u036f]/g, "").trim().toUpperCase();
 const tokOk = (p, t) => !!(p && t && (p.toks || []).includes(sha(String(t))));
 const DUMMY_SALT = crypto.randomBytes(12).toString("hex");
-const creating = new Set();          // pseudos en cours de création (deux demandes simultanées)
+const creating = new Map();          // pseudos en cours de création (deux demandes simultanées) → fin de la création en cours
 function newToken(p) { const t = crypto.randomBytes(24).toString("base64url"); p.toks = [sha(t)].concat(p.toks || []).slice(0, 12); return t; }
 // ---------- accès aux salons (compte ↔ salon) ----------
 // Un salon a trois choses distinctes : son identifiant interne (5 caractères, dans l'adresse),
@@ -514,6 +517,7 @@ const backupReady = backupPlayers();
 const rankMem = new Map();           // pseudo -> total (secours sans Redis)
 const DAYKEY = () => new Date(Date.now() + 3600e3).toISOString().slice(0, 10);
 const SOLO_MULT = { facile: 1, normal: 1.5, moyen: 1.5, difficile: 2 };
+const DEGRESSIF = n => n <= 3 ? 1 : n <= 6 ? 0.75 : n <= 10 ? 0.5 : 0.25;
 // solde du jour (total en fin de journée) : sert au graphique « Total », qui montre aussi les baisses (conversion en jetons)
 function balSnap(p) { p.pts.b = p.pts.b || {}; p.pts.b[DAYKEY()] = p.pts.tot; const k = Object.keys(p.pts.b).sort(); if (k.length > 60) k.slice(0, k.length - 60).forEach(x => delete p.pts.b[x]); }
 const ptsOut = p => { const q = p.pts || { tot: 0, g: {}, d: {} }; return { ...q, ever: !!(q.ever || q.tot > 0 || Object.values(q.g || {}).some(v => v > 0)) }; };
@@ -582,8 +586,10 @@ async function api(req, res, route) {
     const lk = locked("ip:" + ip); if (lk) return tooMany(lk);
     if (!pinOk) return bad("pin", PIN_DETAIL);
     const taken = () => out(409, { error: "pris", field: "name", msg: "Ce pseudonyme n'est pas disponible. Choisis-en un autre ou connecte-toi à ton compte." });
-    if (p || creating.has(name) || players.has(name)) return taken();
-    creating.add(name);
+    if (p || players.has(name)) return taken();
+    // une création du même pseudo est en cours : on attend son issue ; si elle a échoué (stockage), cette demande-ci peut réussir
+    if (creating.has(name)) { await creating.get(name); if (players.has(name) || creating.has(name)) return taken(); }
+    let done; creating.set(name, new Promise(z => done = z));
     try {
       fail("ip:" + ip, 20, 10 * 60e3);
       const salt = crypto.randomBytes(12).toString("hex");
@@ -595,7 +601,7 @@ async function api(req, res, route) {
       players.set(name, np); savePlayer(name);
       return out(200, { name, token, salons: [] });
     } catch (e) { console.error("Création de compte :", e.message); return out(503, { error: "indispo", msg: "Le compte n'a pas pu être enregistré (stockage indisponible). Rien n'a été créé : réessaie plus tard." }); }
-    finally { creating.delete(name); }
+    finally { creating.delete(name); done(); }
   }
   if (route === "login") {
     if (!pinOk) return bad("pin", PIN_DETAIL);
@@ -645,9 +651,14 @@ async function api(req, res, route) {
     }
     if (rep === 1) pts = 10; else if (rep >= 2) pts = 3;
     else if (b.solo) pts = Math.round(pts * (SOLO_MULT[b.level] || 1));
+    // barème dégressif : dans une même journée et pour un même jeu, les parties rapportent de moins en moins
+    // (1re à 3e : 100 %, 4e à 6e : 75 %, 7e à 10e : 50 %, ensuite 25 %) ; le compteur repart à zéro chaque jour
+    const day = DAYKEY(); if (!p.dg || p.dg.d !== day) p.dg = { d: day, n: {} };
+    const nth = (p.dg.n[game] || 0) + 1; p.dg.n[game] = nth;
+    const f = DEGRESSIF(nth); if (rep === 0) pts = Math.round(pts * f);
     p.gids = p.gids.slice(-300).concat(game + gid);
     if (pts) await addPoints(name, p, game, pts);
-    savePlayer(name); return out(200, { ok: true, add: pts, rep, pts: p.pts });
+    savePlayer(name); return out(200, { ok: true, add: pts, rep, nth, f: rep ? 1 : f, pts: p.pts });
   }
   if (route === "pin") { if (!pinOk) return bad("pin", PIN_DETAIL); p.salt = crypto.randomBytes(12).toString("hex"); p.h = hashPin(b.pin, p.salt); savePlayer(name); return out(200, { ok: true }); }
   if (route === "hist") {
