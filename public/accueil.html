@@ -674,6 +674,34 @@ table.bar td,table.bar th{padding:5px 6px;border-bottom:1px solid rgba(255,255,2
 .sl.here{border-color:var(--accent,#00ADB5)}
 #cPeers .note a,#chartSub a{color:var(--accent,#00ADB5)}
 body.nodeco .blob{opacity:.35}
+/* ---- animations des tuiles, sur le modèle de Culture générale : elles vivent en continu, puis s'effacent au survol ---- */
+.tile .vis{animation:vfl 6s ease-in-out infinite}
+@keyframes vfl{0%,100%{translate:0 -3px}50%{translate:0 4px}}
+.tile .vis::after{content:"";position:absolute;width:7px;height:7px;border-radius:50%;background:rgba(255,255,255,.85);box-shadow:0 0 10px rgba(255,255,255,.6);top:-4px;right:-4px;animation:fp 4s ease-in-out infinite;pointer-events:none}
+/* mots fléchés : les lettres s'écrivent l'une après l'autre, puis la grille se vide */
+.fg span.l{animation:fgfill 7s ease-in-out infinite}
+@keyframes fgfill{0%,6%{color:transparent;background:rgba(255,255,255,.14)}12%,78%{color:#fff;background:rgba(167,243,208,.38);box-shadow:0 0 10px rgba(167,243,208,.35)}88%,100%{color:transparent;background:rgba(255,255,255,.14)}}
+.fg span.l:nth-child(2){animation-delay:0s}.fg span.l:nth-child(3){animation-delay:.35s}.fg span.l:nth-child(4){animation-delay:.7s}.fg span.l:nth-child(5){animation-delay:1.05s}.fg span.l:nth-child(7){animation-delay:1.6s}.fg span.l:nth-child(12){animation-delay:1.95s}.fg span.l:nth-child(17){animation-delay:2.3s}
+.fg span.q{animation:qblink 3.5s ease-in-out infinite}.fg span.q:nth-child(6){animation-delay:1.2s}.fg span.q:nth-child(8){animation-delay:2.4s}
+@keyframes qblink{50%{background:rgba(0,0,0,.42);color:#ffd166}}
+/* tourniquet : les bulles tournent autour de la définition, les lettres restent droites */
+.ring .orb{animation:spin2 16s linear infinite}
+.ring .b{animation:spin2 16s linear infinite reverse}
+.ring .b:nth-child(odd){background:rgba(167,243,208,.3)}
+.ring .ctr{animation:ctrp 3s ease-in-out infinite}
+@keyframes ctrp{50%{box-shadow:0 0 0 4px rgba(167,243,208,.25),0 0 22px rgba(167,243,208,.35)}}
+/* mots mêlés : le surligneur balaie le mot trouvé, ses lettres s'allument */
+.hl{animation:hlsweep 5s cubic-bezier(.2,.8,.2,1) infinite}
+@keyframes hlsweep{0%,8%{width:0;opacity:0}14%{opacity:1}42%,78%{width:calc(5*var(--ls) + 4*var(--gap));opacity:1}92%,100%{width:calc(5*var(--ls) + 4*var(--gap));opacity:0}}
+.wg span:nth-child(n+11):nth-child(-n+15){animation:wglow 5s ease-in-out infinite}
+@keyframes wglow{0%,30%{color:inherit}45%,78%{color:#fff;text-shadow:0 0 10px rgba(167,243,208,.9)}92%,100%{color:inherit}}
+/* poker : l'éventail s'ouvre et se referme, les jetons sautillent */
+.fan .cd:nth-child(1){animation:cd1 5s ease-in-out infinite}.fan .cd:nth-child(2){animation:cd2 5s ease-in-out infinite}.fan .cd:nth-child(3){animation:cd3 5s ease-in-out infinite}
+@keyframes cd1{0%,100%{transform:rotate(-8deg)}50%{transform:rotate(-22deg) translateY(-4px)}}
+@keyframes cd2{0%,100%{transform:rotate(0)}50%{transform:translateY(-12px)}}
+@keyframes cd3{0%,100%{transform:rotate(8deg)}50%{transform:rotate(22deg) translateY(-4px)}}
+.fan .chip{animation:fp 3s ease-in-out infinite}.fan .chip+.chip{animation-delay:1.2s}
+@media (prefers-reduced-motion:reduce){.tile *,.tile .vis,.tile .vis::after{animation:none!important}}
 </style>
 </head>
 <body>
@@ -1059,7 +1087,7 @@ $$("#pkFmt button").forEach(b=>b.onclick=()=>$$("#pkFmt button").forEach(x=>x.cl
 function renderResume(){$$(".tile").forEach(t=>{const k=t.dataset.key;let on=false;
   const docs=Object.assign({},(()=>{try{return JSON.parse(LS.get("fl-salon-"+CODE)||"{}").docs||{}}catch(e){return{}}})(),CODE?DOCS:{});
   for(const id in docs){const d=docs[id];if(!d||!d.players||d.done||d.solo)continue;const g=(id==="rond"||id==="meles"||id==="poker")?id:"fleches";if(g===k&&Date.now()-(d.started||0)<7*864e5)on=true}
-  if(k==="fleches"&&LS.get("fl-paused-fleches"))on=true;
+  if(LS.get("fl-paused-"+k))on=true;
   const m=t.querySelector(".modes");let r=m.querySelector('[data-mode="resume"]');
   if(on&&!r){r=document.createElement("button");r.className="abtn";r.dataset.mode="resume";r.innerHTML="<span>▶</span> Reprendre";m.prepend(r);bindMode(r)}if(!on&&r)r.remove()})}
 

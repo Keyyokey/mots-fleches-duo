@@ -757,7 +757,7 @@ const Q=new URLSearchParams(location.search);const GO=Q.get("go");
 // hors salon (ou visiteur sans compte) : table privée contre le robot, sans entrer dans un salon
 const SOLO=!HADCODE||!ME||!/^[A-Z0-9@#_]{2,7}$/.test(ME.name||"");
 try{history.replaceState(null,"",HADCODE?"/"+CODE+"/poker":"/poker")}catch(e){}
-$("#homeLink").href=HADCODE?"/"+CODE:"/";
+const HOMEURL=HADCODE?"/"+CODE:"/";$("#homeLink").href=HOMEURL;
 document.documentElement.dataset.theme=LS.get("fl-theme")||"dark";
 
 // ---------- sons et notifications ----------
@@ -768,7 +768,7 @@ function toast(ic,html){let t=$("#toast");if(!t){t=document.createElement("div")
   t.innerHTML="<span class='ti'>"+ic+"</span><span>"+html+"</span>";t.classList.remove("on");void t.offsetWidth;t.classList.add("on");clearTimeout(t._h);t._h=setTimeout(()=>t.classList.remove("on"),4200)}
 
 // ---------- connexion ----------
-let ws=null,ST=null,PREV=null,sat=false;
+let ws=null,ST=null,PREV=null,sat=false,ROOMNAME="";
 function send(o){if(ws&&ws.readyState===1)ws.send(JSON.stringify(o))}
 function pk(o){send({t:"pk",name:ME?ME.name:"",token:ME?ME.token:"",...o})}
 function connect(){ws=new WebSocket((location.protocol==="https:"?"wss://":"ws://")+location.host+"/ws");
@@ -776,6 +776,7 @@ function connect(){ws=new WebSocket((location.protocol==="https:"?"wss://":"ws:/
     if(GO&&!sat){sat=true;pk({a:"sit",solo:GO==="solo",fmt:Q.get("fmt")||"10",mise:Q.get("mise")||"20",dec:Q.get("dec")||"30"})}};
   ws.onmessage=e=>{let m;try{m=JSON.parse(e.data)}catch(x){return}
     if(m.t==="error"&&(m.code==="auth"||m.code==="forbidden")){ws.onclose=null;ws.close();location.replace(m.code==="auth"?"/"+CODE:"/?open=salon");return}
+    if(m.t==="room"){ROOMNAME=m.name||"";if(ST)render()}
     if(m.t==="pkst"){PREV=ST;ST=m.st;render()}
     else if(m.t==="pkerr"){toast("⚠️",esc(m.msg));if(m.need)setTimeout(openConv,600)}};
   ws.onclose=()=>setTimeout(connect,2000)}
@@ -786,16 +787,16 @@ function card(ch,cls){return '<div class="card-l'+(cls?" "+cls:"")+'">'+(ch?esc(
 function fmt(ms){const s=Math.max(0,Math.ceil(ms/1000));return Math.floor(s/60)+":"+String(s%60).padStart(2,"0")}
 let skew=0;
 function render(){const st=ST;const lob=$("#pkLobby");
-  if(!st){lob.innerHTML='<h3>Poker Lettres</h3><p class="note">Assieds-toi à la table de ce salon. La partie démarre quand vous êtes au moins deux (ou contre le robot en solo).</p><div class="pkrow"><button class="btn primary" id="lbSolo">👤 Jouer contre le robot</button><button class="btn" id="lbSit">👥 M\'asseoir à la table</button></div>';lob.hidden=false;bindLobby();renderDeck(null);return}
+  if(!st){lob.innerHTML='<h3>Poker Lettres</h3><p class="note">Assieds-toi à la table de ce salon. La partie démarre quand vous êtes au moins deux (ou contre le robot en solo).</p><div class="pkrow"><button class="btn primary" id="lbSolo">👤 Jouer contre le robot</button>'+(SOLO?'':'<button class="btn" id="lbSit">👥 M\'asseoir à la table</button>')+'</div>';lob.hidden=false;bindLobby();renderDeck(null);return}
   skew=st.now-Date.now();
   const me=st.me>=0?st.seats[st.me]:null;
   $("#pkMode").textContent=st.maxHands?"Coup "+Math.max(1,st.hand)+"/"+st.maxHands:"Coup "+Math.max(1,st.hand)+" · jusqu'au dernier";
   // salle d'attente / fin
   if(!st.started&&st.phase!=="abattage"){lob.hidden=false;
     const list=st.seats.map(s=>'<div class="lbs"><span class="ava" style="background:'+PCOL[st.seats.indexOf(s)%6]+'">'+esc(s.name[0])+'</span><b>'+esc(s.name)+'</b><span class="note">🪙 '+s.stack+'</span></div>').join("");
-    if(st.phase==="fin")lob.innerHTML='<h3>🏁 '+esc(st.msg)+'</h3><div class="lbl">'+st.seats.slice().sort((a,b)=>b.stack-a.stack).map((s,i)=>'<div class="lbs"><span class="rank">'+(i+1)+'</span><b>'+esc(s.name)+'</b><span class="note">🪙 '+s.stack+'</span></div>').join("")+'</div><p class="note">Tes jetons restants retournent dans ton porte-monnaie.</p><div class="pkrow"><button class="btn primary" id="lbAgain">🔁 Rejouer</button><a class="btn" href="/'+CODE+'">🏠 Accueil</a></div>';
-    else lob.innerHTML='<h3>Table du salon '+CODE+'</h3><p class="note">Mise d\'entrée '+st.buy+' jetons · '+(st.maxHands?st.maxHands+" coups":"jusqu'au dernier")+' · '+st.dec+' s pour décider</p><div class="lbl">'+(list||'<div class="note">Personne pour l\'instant.</div>')+'</div>'
-      +(me?(st.seats.length>=2?'<button class="btn primary" id="lbStart">▶ Lancer la partie</button>':'<p class="note">En attente d\'un autre joueur… Partage le code <b>'+CODE+'</b> ou joue contre le robot.</p><div class="pkrow"><button class="btn" id="lbBot">🤖 Ajouter le robot</button><button class="btn" id="lbShare">📤 Inviter</button></div>')
+    if(st.phase==="fin")lob.innerHTML='<h3>🏁 '+esc(st.msg)+'</h3><div class="lbl">'+st.seats.slice().sort((a,b)=>b.stack-a.stack).map((s,i)=>'<div class="lbs"><span class="rank">'+(i+1)+'</span><b>'+esc(s.name)+'</b><span class="note">🪙 '+s.stack+'</span></div>').join("")+'</div><p class="note">Tes jetons restants retournent dans ton porte-monnaie.</p><div class="pkrow"><button class="btn primary" id="lbAgain">🔁 Rejouer</button><a class="btn" href="'+HOMEURL+'">🏠 Accueil</a></div>';
+    else lob.innerHTML='<h3>'+(SOLO?'Table privée':'Table du salon'+(ROOMNAME?' « '+esc(ROOMNAME)+' »':''))+'</h3><p class="note">Mise d\'entrée '+st.buy+' jetons · '+(st.maxHands?st.maxHands+" coups":"jusqu'au dernier")+' · '+st.dec+' s pour décider</p><div class="lbl">'+(list||'<div class="note">Personne pour l\'instant.</div>')+'</div>'
+      +(me?(st.seats.length>=2?'<button class="btn primary" id="lbStart">▶ Lancer la partie</button>':'<p class="note">'+(SOLO?'Ajoute le robot pour commencer.':'En attente d\'un autre joueur du salon… ou joue contre le robot.')+'</p><div class="pkrow"><button class="btn" id="lbBot">🤖 Ajouter le robot</button>'+(SOLO?'':'<button class="btn" id="lbShare">📤 Inviter</button>')+'</div>')
         :'<div class="pkrow"><button class="btn primary" id="lbSit">👥 M\'asseoir ('+st.buy+' jetons)</button></div>');
     bindLobby()}else lob.hidden=true;
   // places : moi en bas, les autres en haut
@@ -856,7 +857,7 @@ $("#pkWalBtn").onclick=()=>{const o=$("#pkWal").classList.toggle("on");$("#pkWal
 // ---------- porte-monnaie et conversion des points ----------
 let WAL=null;
 async function api(r,b){try{const x=await fetch("/api/p/"+r,{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({name:ME?ME.name:"",token:ME?ME.token:"",...b})});return{status:x.status,...await x.json()}}catch(e){return{status:0}}}
-async function loadWallet(){if(!ME){$(".pkwallet .coins").textContent="🪙 —";$("#pkWalNote").innerHTML='<a href="/'+CODE+'">Connecte-toi</a> avec ton pseudo pour avoir tes jetons. Sans pseudo, tu joues avec des jetons d\'essai.';return}
+async function loadWallet(){if(!ME){$(".pkwallet .coins").textContent="🪙 —";$("#pkWalNote").innerHTML='<a href="'+HOMEURL+'">Connecte-toi</a> avec ton pseudo pour avoir tes jetons. Sans pseudo, tu joues avec des jetons d\'essai.';return}
   const r=await api("wallet",{});if(r.status!==200)return;WAL=r;const c=$(".pkwallet .coins");c.textContent="🪙 "+r.coins;c.classList.toggle("empty",!r.coins);
   $("#pkWalNote").innerHTML="Prochaine allocation lundi : <b>+"+r.allow+" 🪙</b>";cvRender()}
 function cvRender(){const box=$("#cvBox");if(!ME){box.innerHTML='<p class="note">Connecte-toi avec ton pseudo pour convertir tes points.</p>';return}if(!WAL)return;
@@ -868,8 +869,8 @@ function cvRender(){const box=$("#cvBox");if(!ME){box.innerHTML='<p class="note"
 function openConv(){cvRender();$("#cvWin").classList.add("on")}
 $("#pkCvPill").onclick=openConv;$("#cvClose").onclick=()=>$("#cvWin").classList.remove("on");
 // ---------- retour à l'accueil ----------
-$("#homeBtn").onclick=()=>{const me=ST&&ST.me>=0?ST.seats[ST.me]:null;if(ST&&ST.started&&me&&!me.gone){$("#leave").classList.add("on")}else location.href="/"+CODE};
-$("#lvQuit").onclick=()=>{pk({a:"leave"});setTimeout(()=>location.href="/"+CODE,200)};
+$("#homeBtn").onclick=()=>{const me=ST&&ST.me>=0?ST.seats[ST.me]:null;if(ST&&ST.started&&me&&!me.gone){$("#leave").classList.add("on")}else location.href=HOMEURL};
+$("#lvQuit").onclick=()=>{pk({a:"leave"});setTimeout(()=>location.href=HOMEURL,200)};
 $("#lvStay").onclick=()=>$("#leave").classList.remove("on");
 typed();loadWallet();connect();render();
 
