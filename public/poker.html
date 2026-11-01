@@ -906,12 +906,21 @@ typed();loadWallet();connect();render();
 const DEAL={hide:new Set(),run:0};
 const ckEl=k=>document.querySelector('[data-ck="'+k+'"]');
 function applyHide(){DEAL.hide.forEach(k=>{const e=ckEl(k);if(e)e.style.visibility="hidden"})}
-function noise(dur,vol,hp,del){if(!SOUND)return;try{const A=window._ac||(window._ac=new (window.AudioContext||window.webkitAudioContext)());const n=A.currentTime+(del||0);const len=Math.floor(A.sampleRate*dur);const b=A.createBuffer(1,len,A.sampleRate),d=b.getChannelData(0);for(let i=0;i<len;i++)d[i]=(Math.random()*2-1)*(1-i/len);
-  const src=A.createBufferSource(),f=A.createBiquadFilter(),g=A.createGain();src.buffer=b;f.type="highpass";f.frequency.value=hp||2500;g.gain.value=vol||.25;src.connect(f).connect(g).connect(A.destination);src.start(n)}catch(e){}}
-const swish=()=>noise(.11,.22,2200),flipSnd=()=>{noise(.05,.35,3500);tone(1200,.05,.04)};
+// sons de cartes sur le tapis : frottement feutré quand la carte glisse, petit « tap » mat quand elle se pose, « frrt » quand on la retourne
+function noise(dur,vol,type,freq,q,del,attack){if(!SOUND)return;try{const A=window._ac||(window._ac=new (window.AudioContext||window.webkitAudioContext)());const n=A.currentTime+(del||0);const len=Math.max(1,Math.floor(A.sampleRate*dur));
+  const b=A.createBuffer(1,len,A.sampleRate),d=b.getChannelData(0);let last=0;for(let i=0;i<len;i++){const w=Math.random()*2-1;last=last*.6+w*.4;d[i]=last}
+  const src=A.createBufferSource(),f=A.createBiquadFilter(),g=A.createGain();src.buffer=b;f.type=type||"bandpass";f.frequency.value=freq||1800;f.Q.value=q||.8;
+  const at=attack||dur*.35;g.gain.setValueAtTime(0,n);g.gain.linearRampToValueAtTime(vol,n+at);g.gain.exponentialRampToValueAtTime(.0008,n+dur);
+  src.connect(f).connect(g).connect(A.destination);src.start(n);src.stop(n+dur+.02)}catch(e){}}
+// la carte glisse sur le feutre (frottement doux qui monte puis s'éteint)
+const swish=()=>{noise(.26,.32,"bandpass",1500,.7,0,.08);noise(.22,.14,"bandpass",3200,1.2,.03,.06)};
+// la carte se pose : « tap » mat, étouffé par le tapis
+const landSnd=()=>{noise(.07,.5,"lowpass",700,.7,0,.004);noise(.05,.18,"bandpass",2400,1.5,.005,.003)};
+// on retourne la carte : « frrt » de carton (deux frottements rapprochés)
+const flipSnd=()=>{noise(.06,.35,"bandpass",2600,1.1,0,.01);noise(.07,.3,"bandpass",2000,1,.06,.01);noise(.05,.35,"lowpass",800,.7,.12,.004)};
 function deckRect(){const d=$("#pkPile");return d&&d.offsetParent?d.getBoundingClientRect():null}
 function fly(key,delay,o){const run=DEAL.run;return new Promise(res=>setTimeout(()=>{if(run!==DEAL.run)return res();const t=ckEl(key),from=deckRect();
-  const land=()=>{DEAL.hide.delete(key);const e=ckEl(key);if(e){e.style.visibility="";if(o.flip){e.classList.remove("flip");void e.offsetWidth;e.classList.add("flip");flipSnd()}}res()};
+  const land=()=>{DEAL.hide.delete(key);landSnd();const e=ckEl(key);if(e){e.style.visibility="";if(o.flip){e.classList.remove("flip");void e.offsetWidth;e.classList.add("flip");flipSnd()}}res()};
   if(!t||!from||!t.animate){land();return}
   const to=t.getBoundingClientRect(),c=document.createElement("div");c.className="card-l back pkfly";
   c.style.cssText="position:fixed;left:"+from.left+"px;top:"+from.top+"px;width:"+to.width+"px;height:"+to.height+"px;margin:0;z-index:60;pointer-events:none";document.body.appendChild(c);swish();
