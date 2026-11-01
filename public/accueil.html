@@ -1115,9 +1115,9 @@ function share(){const link=location.origin+"/"+(CODE&&ROOM?CODE:"");const own=R
 $$("[data-open=share]").forEach(b=>b.onclick=share);
 
 // ---------- tuiles de jeu et fenêtre de réglages ----------
-const GAMES={fleches:{nm:"Mots fléchés",lv:[["facile","Facile",310],["normal","Normal",314],["difficile","Difficile",293]],t:true},
-  rond:{nm:"Le Tourniquet",lv:[["facile","Facile",220],["moyen","Normal",220],["difficile","Difficile",220]],t:true},
-  meles:{nm:"Mots mêlés",lv:[["facile","Facile",200],["moyen","Normal",200],["difficile","Difficile",200]]},
+const GAMES={fleches:{nm:"Mots fléchés",lv:[["facile","Facile",380],["normal","Normal",384],["difficile","Difficile",353]],t:true},
+  rond:{nm:"Le Tourniquet",lv:[["facile","Facile",287],["moyen","Normal",287],["difficile","Difficile",286]],t:true},
+  meles:{nm:"Mots mêlés",lv:[["facile","Facile",267],["moyen","Normal",267],["difficile","Difficile",267]]},
   poker:{nm:"Poker lettres",lv:[]},culture:{nm:"Culture générale",lv:[]}};
 $$(".tile").forEach(t=>t.addEventListener("click",e=>{if(e.target.closest(".modes"))return;const was=t.classList.contains("lift");$$(".tile").forEach(x=>x.classList.remove("lift"));if(!was)t.classList.add("lift")}));
 document.addEventListener("click",e=>{if(!e.target.closest(".tile"))$$(".tile").forEach(x=>x.classList.remove("lift"))});
