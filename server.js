@@ -29,10 +29,15 @@ const SUPPORT = JSON.stringify({ url: SUPPORT_URL, label: process.env.SUPPORT_LA
 const RURL = (process.env.UPSTASH_REDIS_REST_URL || "").replace(/\/$/, "");
 const RTOK = process.env.UPSTASH_REDIS_REST_TOKEN || "";
 const REDIS = !!(RURL && RTOK);
+// diagnostic : dernière erreur du stockage (statut et message d'Upstash, jamais la commande ni ses valeurs)
+const redisDiag = { ok: 0, err: 0, last: null };
 async function redis(cmd) {
-  const r = await fetch(RURL, { method: "POST", headers: { Authorization: "Bearer " + RTOK, "content-type": "application/json" }, body: JSON.stringify(cmd) });
-  if (!r.ok) throw new Error("redis " + r.status);
-  return (await r.json()).result;
+  let r;
+  try { r = await fetch(RURL, { method: "POST", headers: { Authorization: "Bearer " + RTOK, "content-type": "application/json" }, body: JSON.stringify(cmd) }); }
+  catch (e) { redisDiag.err++; redisDiag.last = { t: new Date().toISOString(), op: cmd[0], msg: "réseau : " + e.message }; throw e; }
+  if (!r.ok) { const txt = (await r.text().catch(() => "")).replace(/[A-Za-z0-9_-]{30,}/g, "…").slice(0, 160); redisDiag.err++; redisDiag.last = { t: new Date().toISOString(), op: cmd[0], msg: "HTTP " + r.status + " " + txt }; throw new Error("redis " + r.status); }
+  const j = await r.json(); if (j && j.error) { redisDiag.err++; redisDiag.last = { t: new Date().toISOString(), op: cmd[0], msg: String(j.error).slice(0, 160) }; throw new Error("redis " + j.error); }
+  redisDiag.ok++; return j.result;
 }
 const loading = new Map();           // code -> Promise (chargement depuis Redis en cours)
 async function loadSalon(code) {
@@ -665,6 +670,11 @@ function sendStatic(req, res, name) {
 }
 const server = http.createServer((req, res) => {
   const url = new URL(req.url, "http://x");
+  if (url.pathname === "/healthz" && url.searchParams.get("redis") === "1") {
+    const t0 = Date.now();
+    return void (REDIS ? redis(["PING"]).then(v => ({ ping: v }), e => ({ ping: "échec", err: e.message })) : Promise.resolve({ ping: "pas de Redis" }))
+      .then(o => { res.writeHead(200, { "content-type": "application/json", "cache-control": "no-store" }); res.end(JSON.stringify({ ...o, ms: Date.now() - t0, depuisDemarrage: redisDiag, comptesEnMemoire: players.size })); });
+  }
   if (url.pathname === "/healthz") { res.writeHead(200, { "content-type": "text/plain" }); return res.end("ok " + salons.size + (REDIS ? " redis" : "")); }
   const am = url.pathname.match(/^\/api\/p\/(create|login|me|pin|logout|rank|score|wallet|conv|salons|sjoin|screate|skick|scode|hist|solo)$/);
   if (am) return void api(req, res, am[1]).catch(e => { console.error(e); try { res.writeHead(500); res.end("{}"); } catch {} });
