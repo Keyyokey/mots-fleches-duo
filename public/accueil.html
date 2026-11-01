@@ -1066,10 +1066,9 @@ let CFG=null;
 function openCfg(t,m,opp){const k=t.dataset.key,G=GAMES[k];
   if(m==="solo"&&!ME&&guestN()>=GUEST_MAX){needAccount();return}
   if(m==="multi"&&(!ME||ME.stale)){needMulti();$("#needT").textContent=G.nm+" à plusieurs";$("#need").dataset.k=k;$("#need").classList.add("on");return}
-  if(k==="culture"){mini("🧠 Culture générale","Le jeu du mois arrive très bientôt !");return}
   CFG={k,m,opp};$("#cfgT").textContent=G.nm+" · "+({solo:"Solo",multi:"Multijoueur",resume:"Reprendre la partie"}[m]);
-  const pk=k==="poker";$(".cfgfl").style.display=pk||m==="resume"?"none":"";$(".cfgpk").style.display=pk&&m!=="resume"?"":"none";
-  if(!pk){const lv=$("#lvl");lv.innerHTML=G.lv.map(([v,l],i)=>'<button data-v="'+v+'" class="'+(i===(LS.get("fl-cfg-lvl-"+k)|0)?"on":"")+'">'+l+'</button>').join("");
+  const pk=k==="poker",cg=k==="culture";$(".cfgfl").style.display=pk||cg||m==="resume"?"none":"";$(".cfgpk").style.display=pk&&m!=="resume"?"":"none";
+  if(!pk&&!cg){const lv=$("#lvl");lv.innerHTML=G.lv.map(([v,l],i)=>'<button data-v="'+v+'" class="'+(i===(LS.get("fl-cfg-lvl-"+k)|0)?"on":"")+'">'+l+'</button>').join("");
     lv.querySelectorAll("button").forEach((b,i)=>b.onclick=()=>{lv.querySelectorAll("button").forEach(x=>x.classList.toggle("on",x===b));LS.set("fl-cfg-lvl-"+k,i);fillNums()});
     fillNums()}
   $("#cfgNote").textContent=m==="resume"?"La partie en cours reprend là où elle s'est arrêtée.":m==="multi"?(opp?"Partie avec "+opp+" : « Suivant » ouvre la table, la partie démarre quand vous êtes deux.":"« Suivant » ouvre la table du salon : invite ton adversaire, la partie démarre quand vous êtes deux."):"« Suivant » lance directement la partie.";
@@ -1081,7 +1080,7 @@ function bindMode(b){b.onclick=e=>{e.stopPropagation();openCfg(b.closest(".tile"
 $$(".modes .abtn").forEach(bindMode);
 $("#cfgX").onclick=()=>$("#cfg").classList.remove("on");
 $("#cfgGo").onclick=()=>{const{k,m,opp}=CFG;$("#cfg").classList.remove("on");
-  const lv=($("#lvl .on")||{}).dataset?.v||"";const q=new URLSearchParams({go:m});if(lv&&m!=="resume")q.set("lvl",lv);const n=$("#gnum").value;if(n&&m!=="resume")q.set("n",n);
+  const lv=k==="culture"?"":($("#lvl .on")||{}).dataset?.v||"";const q=new URLSearchParams({go:m});if(lv&&m!=="resume")q.set("lvl",lv);const n=k==="culture"?"":$("#gnum").value;if(n&&m!=="resume")q.set("n",n);
   if((k==="fleches"||k==="rond")&&m==="multi")q.set("t","-1");if(opp)q.set("opp",opp);
   if(k==="poker"){q.set("fmt",($("#pkFmt .on")||{}).dataset?.v||"10");q.set("mise",$("#pkMise").value);q.set("dec",$("#pkDec").value)}
   if(m==="multi"&&!(CODE&&ROOM)){call("screate",{name:ME.name,token:ME.token,sname:"Salon de "+ME.name}).then(r=>{if(r.status===200)location.href="/"+r.salon.code+"/"+k+"?"+q;else toast("⚠️",esc(r.msg||"Création du salon impossible."))});return}
@@ -1090,7 +1089,7 @@ $$("#pkFmt button").forEach(b=>b.onclick=()=>$$("#pkFmt button").forEach(x=>x.cl
 // « Reprendre » : une partie non terminée est gardée dans le navigateur pour ce salon
 function renderResume(){$$(".tile").forEach(t=>{const k=t.dataset.key;let on=false;
   const docs=Object.assign({},(()=>{try{return JSON.parse(LS.get("fl-salon-"+CODE)||"{}").docs||{}}catch(e){return{}}})(),CODE?DOCS:{});
-  for(const id in docs){const d=docs[id];if(!d||!d.players||d.done||d.solo)continue;const g=(id==="rond"||id==="meles"||id==="poker")?id:"fleches";if(g===k&&Date.now()-(d.started||0)<7*864e5)on=true}
+  for(const id in docs){const d=docs[id];if(!d||!d.players||d.done||d.solo)continue;const g=id==="cg"?"culture":(id==="rond"||id==="meles"||id==="poker")?id:"fleches";if(g===k&&Date.now()-(d.started||0)<7*864e5)on=true}
   if(LS.get("fl-paused-"+k)||SRVSOLO.has(k))on=true;
   const m=t.querySelector(".modes");let r=m.querySelector('[data-mode="resume"]');
   if(on&&!r){r=document.createElement("button");r.className="abtn";r.dataset.mode="resume";r.innerHTML="<span>▶</span> Reprendre";m.prepend(r);bindMode(r)}if(!on&&r)r.remove()})}

@@ -115,6 +115,7 @@ async function handleDraw(ws, s, m) {
   const acc = accs.get(ws.room);
   const names = [ws.user]; const opp = normPseudo(m.opp); if (PSEUDO_RE.test(opp) && opp !== ws.user && acc && acc.members[opp]) names.push(opp);
   let hists; try { hists = await histsOf(names); } catch (e) { return reply({ ok: false, msg: MSG_ERR }); }
+  if (game === "culture") return reply({ ok: true, qs: CAT.drawSet(hists) });
   const adm = CAT.admissible(game, lvl, hists);
   const n = Number(m.n) || 0;
   if (n) { const ref = CAT.byNumber(game, lvl, n); return ref && adm.includes(ref) ? reply({ ok: true, ref, manual: true }) : reply({ ok: false, msg: MSG_NONE }); }
@@ -122,7 +123,7 @@ async function handleDraw(ws, s, m) {
   return reply({ ok: true, ref: CAT.pick(adm) });
 }
 async function handleLaunch(ws, s, m) {
-  const id = String(m.id || ""); const game = { fl: "fleches", rond: "rond", meles: "meles" }[id];
+  const id = String(m.id || ""); const game = { fl: "fleches", rond: "rond", meles: "meles", cg: "culture" }[id];
   if (!game) return;
   return locked1(ws.room, async () => {
     const d = s.docs[id]; if (!d || !d.wait || d.done || d.solo) return;           // déjà lancée, terminée ou solo : rien à faire
@@ -134,13 +135,14 @@ async function handleLaunch(ws, s, m) {
     if (!names.every(n => here.has(n))) return;
     const lvl = CAT.level(game, d.level);
     let hists; try { hists = await histsOf(names); } catch (e) { d.blocked = MSG_ERR; d.blockedAt = Date.now(); return publish(ws.room, s, id, d); }
-    const adm = CAT.admissible(game, lvl, hists); const cur = CAT.refOf(game, d);
+    if (game === "culture") { if (!CAT.setOk(d.qs, hists)) CAT.applyTo(game, d, CAT.drawSet(hists)); }
+    else { const adm = CAT.admissible(game, lvl, hists); const cur = CAT.refOf(game, d);
     if (!adm.includes(cur)) {
       if (d.manual || !adm.length) { d.blocked = MSG_NONE; d.blockedAt = Date.now(); return publish(ws.room, s, id, d); }
       CAT.applyTo(game, d, CAT.pick(adm));                                          // le contenu proposé est devenu exclu : nouveau tirage
-    }
-    delete d.blocked; d.wait = false; d.go = Date.now() + 5600; d.started = d.go; if (game !== "meles") d.turnStart = d.go;
-    d.msg = game === "meles" ? "Le jeu est lancé ! Le premier qui trouve un mot le prend." : "Le jeu est lancé ! " + d.players[d.turn || 0].name + " commence.";
+    } }
+    delete d.blocked; d.wait = false; d.go = Date.now() + 5600; d.started = d.go; if (game !== "meles" && game !== "culture") d.turnStart = d.go; if (game === "culture") { d.qStart = d.go; d.i = 0; }
+    d.msg = game === "culture" ? "Le jeu est lancé ! Répondez en même temps." : game === "meles" ? "Le jeu est lancé ! Le premier qui trouve un mot le prend." : "Le jeu est lancé ! " + d.players[d.turn || 0].name + " commence.";
     publish(ws.room, s, id, d);
   });
 }
@@ -154,7 +156,7 @@ function markHist(p, game, ref, ev) {
 
 // seul le serveur lance une partie multijoueur (après vérification des historiques) ; le contenu d'une partie lancée ne change plus
 function launchOk(id, prev, next) {
-  const game = { fl: "fleches", rond: "rond", meles: "meles" }[id]; if (!game || !next || next.solo || !Array.isArray(next.players)) return true;
+  const game = { fl: "fleches", rond: "rond", meles: "meles", cg: "culture" }[id]; if (!game || !next || next.solo || !Array.isArray(next.players)) return true;
   const same = prev && prev.gid === next.gid;
   if (!same) return !!next.wait || !!next.done;                                     // une nouvelle partie commence toujours en attente
   if (prev.wait && !next.wait && !next.done) return false;                          // lancement réservé au serveur
@@ -246,7 +248,7 @@ async function handle(ws, m) {
     if (JSON.stringify(val).length > 2000) return send(ws, { t: "ack", req: m.req, ok: false, code: "invalid_argument" });
     d[field][key] = val;
     if (id === "meta") return send(ws, { t: "ack", req: m.req, ok: false, code: "permission_denied" });
-    if (m.extra && typeof m.extra === "object") for (const [k, v] of Object.entries(m.extra)) if (/^[a-zA-Z]{1,20}$/.test(k) && !["players", "gid", "_v", "wait", "go", "grid", "pid", "mid", "level", "blocked", "manual", "words", "grid"].includes(k)) d[k] = v;
+    if (m.extra && typeof m.extra === "object") for (const [k, v] of Object.entries(m.extra)) if (/^[a-zA-Z]{1,20}$/.test(k) && !["players", "gid", "_v", "wait", "go", "grid", "pid", "mid", "level", "blocked", "manual", "words", "grid", "qs", "ans", "adv"].includes(k)) d[k] = v;
     if (m.score && Number.isInteger(m.score.i) && d.players && d.players[m.score.i]) d.players[m.score.i].score = (d.players[m.score.i].score || 0) + (Number(m.score.add) || 0);
     d._v = (d._v || 0) + 1; s.touched = Date.now(); scheduleSave(ws.room);
     send(ws, { t: "ack", req: m.req, ok: true });
@@ -696,6 +698,7 @@ const server = http.createServer((req, res) => {
   if (url.pathname === "/mot" || url.pathname === "/mot/") return sendPage(req, res, path.join(__dirname, "public", "mot.html"));
   if (/^\/(?:[A-Za-z0-9]{5}\/)?rond\/?$/.test(url.pathname)) return sendPage(req, res, path.join(__dirname, "public", "rd.html"));
   if (/^\/(?:[A-Za-z0-9]{5}\/)?meles\/?$/.test(url.pathname)) return sendPage(req, res, path.join(__dirname, "public", "mm.html"));
+  if (/^\/(?:[A-Za-z0-9]{5}\/)?culture\/?$/.test(url.pathname)) return sendPage(req, res, path.join(__dirname, "public", "cg.html"));
   if (/^\/(?:[A-Za-z0-9]{5}\/)?fleches\/?$/.test(url.pathname)) return sendPage(req, res, path.join(__dirname, "public", "fl.html"));
   if (/^\/(?:[A-Za-z0-9]{5}\/)?poker\/?$/.test(url.pathname)) return sendPage(req, res, path.join(__dirname, "public", "poker.html"));
   if (url.pathname === "/" || /^\/[A-Za-z0-9]{5}\/?$/.test(url.pathname)) {
@@ -747,4 +750,7 @@ async function resetOnce() {
     console.log("Remise à zéro faite : " + n + " clés archivées sous " + RESET_TAG + ":");
   } catch (e) { console.error("Remise à zéro impossible :", e.message); }
 }
+// une erreur imprévue dans un salon ne doit pas arrêter tout le site (les autres parties continuent) : on la note dans le journal
+process.on("uncaughtException", e => console.error("Erreur imprévue (le serveur continue) :", e && e.stack || e));
+process.on("unhandledRejection", e => console.error("Promesse rejetée (le serveur continue) :", e && e.stack || e));
 Promise.all([backupReady, resetOnce()]).then(() => server.listen(PORT, () => console.log("Mots Fléchés Duo en ligne sur http://localhost:" + PORT + (REDIS ? " (stockage Redis actif)" : ""))));
