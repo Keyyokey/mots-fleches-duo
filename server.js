@@ -431,7 +431,7 @@ function evict(id, who) {
   broadcastPeers(s);
 }
 async function salonApi(route, name, p, b, ip, out, bad) {
-  const ROUTES = ["salons", "sjoin", "screate", "skick", "scode"];
+  const ROUTES = ["salons", "sjoin", "screate", "skick", "scode", "sleave"];
   if (!ROUTES.includes(route)) return undefined;
   try {
     if (route === "salons") return out(200, { salons: await salonList(name, p) });
@@ -463,6 +463,14 @@ async function salonApi(route, name, p, b, ip, out, bad) {
       fails.delete("sj:" + name);
       const had = addMember(m, name, p); if (!had) saveAcc(m); savePlayer(name);
       return out(200, { already: had, msg: had ? "Tu as déjà accès à ce salon." : "Tu as rejoint le salon.", salon: { code: m.id, name: m.name }, salons: await salonList(name, p) });
+    }
+    // un membre quitte un salon : il n'en est plus membre (pour revenir : nom + code d'accès, ou lien du responsable)
+    if (route === "sleave") {
+      const lid = String(b.salon || "").toUpperCase(); const lm = CODE_RE.test(lid) ? await getAcc(lid) : null;
+      if (!lm || !lm.members[name]) { if (p.acc && p.acc[lid]) { delete p.acc[lid]; savePlayer(name); } return out(200, { msg: "Tu n'es plus membre de ce salon.", salons: await salonList(name, p) }); }
+      if (lm.owner === name) return bad("salon", "Tu es le responsable de ce salon : tu ne peux pas le quitter.");
+      delete lm.members[name]; saveAcc(lm); if (p.acc) delete p.acc[lid]; savePlayer(name); evict(lid, name);
+      return out(200, { msg: "Tu as quitté le salon « " + lm.name + " ».", salons: await salonList(name, p) });
     }
     // actions du responsable
     const id = String(b.salon || "").toUpperCase();
@@ -601,7 +609,7 @@ async function api(req, res, route) {
     return out(200, { name, token, salons: list });
   }
   if (!authed()) return out(401, { error: "jeton", msg: "Reconnecte-toi avec ton code secret." });
-  if (["salons", "sjoin", "screate", "skick", "scode"].includes(route)) return void await salonApi(route, name, p, b, ip, out, bad);
+  if (["salons", "sjoin", "screate", "skick", "scode", "sleave"].includes(route)) return void await salonApi(route, name, p, b, ip, out, bad);
   if (route === "me") { let list = null; try { list = await salonList(name, p); } catch {} return out(200, { name, salons: list, pts: ptsOut(p), solo: Object.keys(p.solo || {}) }); }
   if (route === "wallet" || route === "conv") {
     ensureWallet(p); p.cv = (p.cv || []).filter(x => Date.now() - x.t < 2 * 3600e3);
@@ -701,7 +709,7 @@ const server = http.createServer((req, res) => {
   }
   // /healthz répond 503 si le stockage refuse l'accès : UptimeRobot (qui surveille /healthz) envoie alors une alerte par e-mail
   if (url.pathname === "/healthz") { const bad = REDIS && storage.ok === false; res.writeHead(bad ? 503 : 200, { "content-type": "text/plain; charset=utf-8" }); return res.end(bad ? "STOCKAGE KO depuis " + storage.since + " : " + storage.msg : "ok " + salons.size + (REDIS ? " redis" : "")); }
-  const am = url.pathname.match(/^\/api\/p\/(create|login|me|pin|logout|rank|score|wallet|conv|salons|sjoin|screate|skick|scode|hist|solo)$/);
+  const am = url.pathname.match(/^\/api\/p\/(create|login|me|pin|logout|rank|score|wallet|conv|salons|sjoin|screate|skick|scode|sleave|hist|solo)$/);
   if (am) return void api(req, res, am[1]).catch(e => { console.error(e); try { res.writeHead(500); res.end("{}"); } catch {} });
   if (url.pathname.startsWith("/d/")) return sendStatic(req, res, url.pathname.slice(3));
   if (url.pathname === "/maquette" || url.pathname === "/maquette/") return sendPage(req, res, path.join(__dirname, "public", "maquette.html"));

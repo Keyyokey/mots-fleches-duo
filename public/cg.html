@@ -1117,23 +1117,41 @@ function makeAcctUI(env){
       if(r.status===401){ME.stale=true;env.setME(ME);openSalon(btn);return}
       if(r.status!==200||!Array.isArray(r.salons)){p.innerHTML='<h4>Mes salons</h4><div class="err">Impossible de charger tes salons. Réessaie.</div><button class="btn" id="slRe">Réessayer</button>';p.querySelector("#slRe").onclick=()=>openSalon(btn);return}
       LIST=r.salons;ME.salons=r.salons;env.setME(ME);drawList(p,btn,flash)})}
-  function drawList(p,btn,flash){const L=LIST||[];const cur=L.find(x=>x.code===env.code()&&x.role==="owner");
+  function drawList(p,btn,flash){const L=LIST||[];const here=L.find(x=>x.code===env.code());
+    // dans un salon : le salon actuel, « Changer de salon » (aller dans un autre) et « Quitter le salon » (ne plus en être membre)
+    if(here&&!drawList.all){
+      p.innerHTML='<h4>Mes salons</h4>'+(flash?'<div class="note" style="color:var(--accent);font-weight:700">'+esc(flash)+'</div>':"")
+        +'<div class="note">Salon actuel</div><div class="sl here" style="cursor:default"><span class="nm2">'+esc(here.name||"Salon")+'</span>'+(here.role==="owner"?'<span class="live" title="Tu es responsable de ce salon">★</span>':"")+'</div>'
+        +'<div style="display:flex;gap:8px"><button class="btn primary" id="slSwitch" style="flex:1">Changer de salon</button>'+(here.role==="owner"?'':'<button class="btn" id="slLeave" style="flex:1">Quitter le salon</button>')+'</div>'
+        +(here.role==="owner"?'<button class="lnk" id="slMng">Gérer ce salon</button>':"");
+      p.querySelector("#slSwitch").onclick=()=>{drawList.all=true;drawList(p,btn);drawList.all=false};
+      const lv=p.querySelector("#slLeave");if(lv)lv.onclick=()=>leaveForm(p,btn,here);
+      const mg=p.querySelector("#slMng");if(mg)mg.onclick=()=>manage(p,btn,here);return}
+    const cur=L.find(x=>x.code===env.code()&&x.role==="owner");
     p.innerHTML='<h4>Mes salons</h4>'+(flash?'<div class="note" style="color:var(--accent);font-weight:700">'+esc(flash)+'</div>':"")
       +(L.length?'<div class="list" style="max-height:min(46vh,320px);overflow:auto">'+rows(L)+'</div>':'<div class="note">Tu n\'as accès à aucun salon pour le moment. Rejoins un salon avec son nom et son code d\'accès.</div>')
       +'<div style="display:flex;gap:8px"><button class="btn primary" id="slJoin" style="flex:1">Rejoindre un salon</button><button class="btn" id="slNew" style="flex:1">Créer un salon</button></div>'
       +(cur?'<button class="lnk" id="slMng">Gérer ce salon</button>':"");
     p.querySelectorAll(".sl").forEach(b=>b.onclick=()=>openRoom(b.dataset.c));
     p.querySelector("#slJoin").onclick=()=>joinForm(p,btn);p.querySelector("#slNew").onclick=()=>createForm(p,btn);
-    if(cur)p.querySelector("#slMng").onclick=()=>manage(p,btn,cur)}
-  function joinForm(p,btn){const ME=env.getME();
+    if(cur)p.querySelector("#slMng").onclick=()=>manage(p,btn,cur);
+    if(here){p.insertAdjacentHTML("beforeend",'<button class="lnk" id="slBack">Retour</button>');p.querySelector("#slBack").onclick=()=>drawList(p,btn)}}
+  function leaveForm(p,btn,s){const ME=env.getME();
+    p.innerHTML='<h4>Quitter le salon</h4><div class="note">Tu ne seras plus membre de « <b>'+esc(s.name)+'</b> ». Pour revenir, il te faudra son nom et son code d\'accès, ou le lien d\'invitation du responsable.</div><div class="err" id="lvErr"></div><div style="display:flex;gap:8px"><button class="btn" id="lvNo" style="flex:1">Annuler</button><button class="btn primary" id="lvYes" style="flex:1">Quitter le salon</button></div>';
+    p.querySelector("#lvNo").onclick=()=>drawList(p,btn);
+    p.querySelector("#lvYes").onclick=async e=>{e.target.disabled=true;const r=await env.call("sleave",{name:ME.name,token:ME.token,salon:s.code});e.target.disabled=false;
+      if(r.status===200){LIST=r.salons||[];ME.salons=LIST;env.setME(ME);try{sessionStorage.setItem("fl-flash",r.msg||"Tu as quitté le salon.")}catch(x){}location.href="/"}
+      else if(r.status===401){ME.stale=true;env.setME(ME);openMe(btn)}else p.querySelector("#lvErr").innerHTML=say(r)}}
+  function joinForm(p,btn,pre){const ME=env.getME();
     p.innerHTML='<h4>Rejoindre un salon</h4><input class="in" id="jnName" maxlength="40" placeholder="NOM DU SALON" autocomplete="off" style="letter-spacing:.04em"><input class="in" id="jnCode" maxlength="7" placeholder="CODE D\'ACCÈS · 6 CARACTÈRES" autocomplete="off" style="letter-spacing:.2em"><div class="err" id="jnErr"></div><button class="btn primary" id="jnGo">Rejoindre</button><button class="lnk" id="jnBack">Retour</button>';
     const N=p.querySelector("#jnName"),C=p.querySelector("#jnCode"),er=p.querySelector("#jnErr");C.oninput=e=>{e.target.value=cleanCode(e.target.value)};
+    if(pre){N.value=pre.name||"";C.value=cleanCode(pre.code||"");p.querySelector("h4").textContent="Invitation à rejoindre un salon"}
     p.querySelector("#jnBack").onclick=()=>drawList(p,btn);
     const go=async()=>{const n=N.value.trim();
       if(!n){er.innerHTML=CHECK+"<br>Nom du salon : 1 à 40 caractères.";N.focus();return}
       if(!ACODE.test(C.value)){er.innerHTML=CHECK+"<br>Code d'accès : 6 caractères (lettres et chiffres).";C.focus();return}
       const b=p.querySelector("#jnGo");b.disabled=true;const r=await env.call("sjoin",{name:ME.name,token:ME.token,sname:n,scode:C.value});b.disabled=false;
-      if(r.status===200){LIST=r.salons||LIST;ME.salons=LIST;env.setME(ME);drawList(p,btn,r.msg)}
+      if(r.status===200){LIST=r.salons||LIST;ME.salons=LIST;env.setME(ME);if(pre&&r.salon)return openRoom(r.salon.code);drawList.all=true;drawList(p,btn,r.msg);drawList.all=false}
       else if(r.status===401){ME.stale=true;env.setME(ME);openMe(btn)}
       else{er.innerHTML=say(r);if(r.field==="scode")C.focus();else if(r.field==="sname")N.focus()}};
     p.querySelector("#jnGo").onclick=go;C.onkeydown=e=>{if(e.key==="Enter")go()};setTimeout(()=>N.focus(),50)}
@@ -1148,12 +1166,18 @@ function makeAcctUI(env){
       p.querySelector("#nsOpen").onclick=()=>openRoom(s.code)};
     p.querySelector("#nsGo").onclick=go;N.onkeydown=e=>{if(e.key==="Enter")go()};setTimeout(()=>N.focus(),50)}
   function manage(p,btn,s,flash){const ME=env.getME();
-    p.innerHTML='<h4>'+esc(s.name)+'</h4>'+(flash?'<div class="note" style="font-weight:700">'+esc(flash)+'</div>':"")+'<div class="note">Code d\'accès : <b style="letter-spacing:.2em;font-size:1.1em">'+esc(s.acode)+'</b></div><button class="btn" id="mgCode">Créer un nouveau code</button><div class="note">Membres</div><div class="list" style="max-height:200px;overflow:auto">'
+    p.innerHTML='<h4>'+esc(s.name)+'</h4>'+(flash?'<div class="note" style="font-weight:700">'+esc(flash)+'</div>':"")+'<div class="note">Code d\'accès : <b style="letter-spacing:.2em;font-size:1.1em">'+esc(s.acode)+'</b></div><button class="btn primary" id="mgLink">Copier le lien d\'invitation</button><div class="note" id="mgLinkTxt" style="word-break:break-all"></div><button class="btn" id="mgCode">Créer un nouveau code</button><div class="note">Membres</div><div class="list" style="max-height:200px;overflow:auto">'
       +(s.members||[]).map(m=>'<div class="sl"><span class="nm2">'+esc(m)+(m===ME.name?" (toi)":"")+'</span>'+(m===ME.name?"":'<button class="lnk" data-m="'+esc(m)+'" style="margin-left:auto">Retirer</button>')+'</div>').join("")+'</div><div class="err" id="mgErr"></div><button class="lnk" id="mgBack">Retour</button>';
     p.querySelector("#mgBack").onclick=()=>drawList(p,btn);
+    // lien d'invitation : le nom et le code sont après « # » (jamais envoyés au serveur ni gardés dans ses journaux)
+    p.querySelector("#mgLink").onclick=e=>{const link=location.origin+"/#rejoindre="+encodeURIComponent(s.name)+"&code="+encodeURIComponent(s.acode);const t=p.querySelector("#mgLinkTxt");
+      (navigator.clipboard?navigator.clipboard.writeText(link):Promise.reject()).then(()=>{e.target.textContent="Lien copié ✓";t.textContent=link},()=>{t.textContent=link})};
     p.querySelector("#mgCode").onclick=async()=>{const r=await env.call("scode",{name:ME.name,token:ME.token,salon:s.code});if(r.status===200){s.acode=r.acode;manage(p,btn,s,r.msg)}else p.querySelector("#mgErr").innerHTML=say(r)};
     p.querySelectorAll("[data-m]").forEach(b=>b.onclick=async()=>{const r=await env.call("skick",{name:ME.name,token:ME.token,salon:s.code,member:b.dataset.m});if(r.status===200){s.members=r.members;manage(p,btn,s,r.msg)}else p.querySelector("#mgErr").innerHTML=say(r)})}
-  return{openMe,openSalon,list:()=>LIST};
+  // lien d'invitation reçu : fenêtre « Rejoindre » déjà remplie (connexion d'abord si besoin)
+  function openJoin(btn,inv){const ME=env.getME();if(!ME||ME.stale){try{sessionStorage.setItem("fl-invite",JSON.stringify(inv))}catch(e){}openMe(btn);env.toast("👋","Connecte-toi ou crée ton pseudo pour rejoindre le salon « <b>"+esc(inv.name)+"</b> ».");return}
+    try{sessionStorage.removeItem("fl-invite")}catch(e){}const p=env.q("#popSalon");env.hide(env.q("#popMe"));env.place(p,btn);env.show(p);joinForm(p,btn,inv)}
+  return{openMe,openSalon,openJoin,list:()=>LIST};
 }
 
 // ---------- icônes « verre » de l'en-tête (relief, dégradé, reflet, halo) ----------
@@ -1180,6 +1204,25 @@ const ICO=(()=>{let n=0;
     cheers:mk(["#FFF0B0","#F5C952","#D38F1C"],"#E8B33A",'<path fill="url(#B)" d="M9 8h10l-1 11a4 4 0 0 1-8 0z"/><path fill="url(#B)" d="M29 8h10l-1 11a4 4 0 0 1-8 0z"/>',
       '<path d="M14 23v13M10 37h8M34 23v13M30 37h8" stroke="#F5C952" stroke-width="2.2" stroke-linecap="round" fill="none"/><circle cx="24" cy="9" r="1.6" fill="#FFE58A"/><circle cx="21" cy="14" r="1.1" fill="#FFE58A"/><circle cx="27" cy="13" r="1.1" fill="#FFE58A"/>'),
     heart:mk(["#FFB3C7","#FF5C8A","#D92B5E"],"#FF4F80",'<path fill="url(#B)" d="M24 40S7 29.5 7 18.5A8.5 8.5 0 0 1 24 14a8.5 8.5 0 0 1 17 4.5C41 29.5 24 40 24 40z"/>'),
+    // icônes des fenêtres et des boutons de jeu (mêmes reliefs, dégradés et reflets)
+    party:mk(["#FFD3E8","#FF6FB1","#C2337A"],"#FF5FA8",'<path fill="url(#B)" d="M7 41l9-26 17 17z"/>',
+      '<path d="M26 14c3-4 7-4 9-1M31 22c4-2 7 0 8 3" fill="none" stroke="#7BE0FF" stroke-width="2.4" stroke-linecap="round"/><circle cx="36" cy="8" r="2.2" fill="#FFE27A"/><circle cx="41" cy="16" r="1.8" fill="#9CF09F"/><circle cx="22" cy="9" r="1.8" fill="#B79CFF"/><rect x="38" y="30" width="3.4" height="3.4" rx=".8" fill="#FFE27A" transform="rotate(20 39.7 31.7)"/>'),
+    trophy:mk(["#FFF0B0","#F5C952","#D38F1C"],"#E8B33A",'<path fill="url(#B)" d="M14 7h20v10a10 10 0 0 1-20 0z"/><rect fill="url(#B)" x="21" y="26" width="6" height="7" rx="1.5"/><rect fill="url(#B)" x="13" y="33" width="22" height="7" rx="3"/>',
+      '<path d="M14 11H9.5a5 5 0 0 0 5.5 7.5M34 11h4.5a5 5 0 0 1-5.5 7.5" fill="none" stroke="#F5C952" stroke-width="2.6" stroke-linecap="round"/>'),
+    replay:mk(["#B9F6FF","#3FC3E0","#1D79B8"],"#33B4E0",'<path fill="none" stroke="url(#B)" stroke-width="5.2" stroke-linecap="round" d="M37.5 25.5A13.5 13.5 0 1 1 33 14"/><path fill="url(#B)" d="M37 6.5v12.5H24.5z"/>'),
+    dice:mk(["#E2D4FF","#A47CFF","#6A3FD6"],"#9468FF",'<rect fill="url(#B)" x="8" y="8" width="32" height="32" rx="9"/>','<circle cx="17" cy="17" r="3" fill="#fff" fill-opacity=".9"/><circle cx="24" cy="24" r="3" fill="#fff" fill-opacity=".9"/><circle cx="31" cy="31" r="3" fill="#fff" fill-opacity=".9"/>'),
+    home:mk(["#B6F5EC","#3CC3BE","#16807F"],"#2DB3AE",'<path fill="url(#B)" d="M24 6 5.5 21.5H11V41h10V31h6v10h10V21.5h5.5z"/>'),
+    pause:mk(["#FFE9A8","#FFB43C","#E07A12"],"#FFA030",'<rect fill="url(#B)" x="12" y="9" width="9" height="30" rx="3.5"/><rect fill="url(#B)" x="27" y="9" width="9" height="30" rx="3.5"/>'),
+    play:mk(["#B9FFD2","#3FD98A","#169A5A"],"#33CC80",'<path fill="url(#B)" d="M15 9.5c0-2.3 2.5-3.7 4.5-2.5l19 12.5c1.8 1.2 1.8 3.8 0 5L19.5 37c-2 1.3-4.5-.2-4.5-2.5z"/>'),
+    exit:mk(["#FFC9C2","#FF6E5E","#C9372A"],"#FF5B4B",'<rect fill="url(#B)" x="9" y="6" width="20" height="36" rx="3.5"/>','<circle cx="24" cy="25" r="1.8" fill="#fff" fill-opacity=".85"/><path d="M31 24h11m-4.5-4.5L42 24l-4.5 4.5" fill="none" stroke="#FF6E5E" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>'),
+    coin:mk(["#FFF0B0","#F5C952","#D38F1C"],"#E8B33A",'<circle fill="url(#B)" cx="24" cy="24" r="17"/>','<circle cx="24" cy="24" r="11.5" fill="none" stroke="#fff" stroke-opacity=".55" stroke-width="2"/><path d="M24 17v14M20.5 20.5h5.5a2.5 2.5 0 0 1 0 5h-4a2.5 2.5 0 0 0 0 5h5.5" fill="none" stroke="#fff" stroke-opacity=".8" stroke-width="2" stroke-linecap="round"/>'),
+    clock:mk(["#C9F4FF","#6CC8F5","#3A7FE0"],"#4BA3F0",'<circle fill="url(#B)" cx="24" cy="26" r="15.5"/><rect fill="url(#B)" x="20" y="4" width="8" height="5" rx="2"/>','<path d="M24 17v9l6 4" fill="none" stroke="#fff" stroke-opacity=".9" stroke-width="2.8" stroke-linecap="round"/>'),
+    person:mk(["#B6F5EC","#3CC3BE","#16807F"],"#2DB3AE",'<circle fill="url(#B)" cx="24" cy="15" r="8"/><path fill="url(#B)" d="M9 40c0-8.3 6.7-14 15-14s15 5.7 15 14z"/>'),
+    people:mk(["#E2D4FF","#A47CFF","#6A3FD6"],"#9468FF",'<circle fill="url(#B)" cx="17" cy="16" r="7"/><circle fill="url(#B)" cx="32" cy="17.5" r="6"/><path fill="url(#B)" d="M4 40c0-7.5 5.8-12.5 13-12.5S30 32.5 30 40z"/><path fill="url(#B)" d="M28 40c0-4-1.5-7.5-4-9.8 2.2-1.4 4.8-2.2 8-2.2 6.3 0 11 4.5 11 12z"/>'),
+    eraser:mk(["#FFD3E8","#FF6FB1","#C2337A"],"#FF5FA8",'<path fill="url(#B)" d="M27.5 7.5 41 21 22 40H12l-5.5-5.5z"/>','<path d="M17.5 18 31 31.5" stroke="#fff" stroke-opacity=".55" stroke-width="2"/><path d="M22 41h18" stroke="#FF8EC2" stroke-width="2.6" stroke-linecap="round"/>'),
+    bulb:mk(["#FFF6B0","#FFD43C","#E89A12"],"#FFC830",'<path fill="url(#B)" d="M24 5a13 13 0 0 0-7.5 23.6c1.3 1 2 2.4 2 4V34h11v-1.4c0-1.6.7-3 2-4A13 13 0 0 0 24 5z"/>','<rect x="18.5" y="36" width="11" height="3.2" rx="1.6" fill="#B9C2D6"/><rect x="20" y="40.5" width="8" height="3" rx="1.5" fill="#B9C2D6"/>'),
+    skip:mk(["#C9F4FF","#6CC8F5","#3A7FE0"],"#4BA3F0",'<path fill="url(#B)" d="M7 11.5c0-1.6 1.8-2.6 3.1-1.7l13.4 10.7c1 .8 1 2.4 0 3.2L10.1 34.2C8.8 35.1 7 34.1 7 32.5z"/><path fill="url(#B)" d="M21 11.5c0-1.6 1.8-2.6 3.1-1.7l13.4 10.7c1 .8 1 2.4 0 3.2L24.1 34.2c-1.3.9-3.1-.1-3.1-1.7z"/><rect fill="url(#B)" x="37" y="10" width="5" height="25" rx="2.5"/>'),
+    swap:mk(["#B6F5EC","#3CC3BE","#16807F"],"#2DB3AE",'<path fill="none" stroke="url(#B)" stroke-width="4.4" stroke-linecap="round" d="M8 16h28M8 32h28"/><path fill="url(#B)" d="M33 8.5 42 16l-9 7.5zM15 24.5 6 32l9 7.5z"/>'),
     grid:mk(["#A8F2EE","#3CC3BE","#16807F"],"#2DB3AE",'<rect fill="url(#B)" x="8" y="8" width="32" height="32" rx="8"/>','<path d="M18.7 12v24M29.3 12v24M12 18.7h24M12 29.3h24" stroke="#fff" stroke-opacity=".55" stroke-width="1.8" stroke-linecap="round"/>')
   }})();
 // décor du moment (mêmes dates qu'avant)

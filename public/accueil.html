@@ -904,23 +904,41 @@ function makeAcctUI(env){
       if(r.status===401){ME.stale=true;env.setME(ME);openSalon(btn);return}
       if(r.status!==200||!Array.isArray(r.salons)){p.innerHTML='<h4>Mes salons</h4><div class="err">Impossible de charger tes salons. Réessaie.</div><button class="btn" id="slRe">Réessayer</button>';p.querySelector("#slRe").onclick=()=>openSalon(btn);return}
       LIST=r.salons;ME.salons=r.salons;env.setME(ME);drawList(p,btn,flash)})}
-  function drawList(p,btn,flash){const L=LIST||[];const cur=L.find(x=>x.code===env.code()&&x.role==="owner");
+  function drawList(p,btn,flash){const L=LIST||[];const here=L.find(x=>x.code===env.code());
+    // dans un salon : le salon actuel, « Changer de salon » (aller dans un autre) et « Quitter le salon » (ne plus en être membre)
+    if(here&&!drawList.all){
+      p.innerHTML='<h4>Mes salons</h4>'+(flash?'<div class="note" style="color:var(--accent);font-weight:700">'+esc(flash)+'</div>':"")
+        +'<div class="note">Salon actuel</div><div class="sl here" style="cursor:default"><span class="nm2">'+esc(here.name||"Salon")+'</span>'+(here.role==="owner"?'<span class="live" title="Tu es responsable de ce salon">★</span>':"")+'</div>'
+        +'<div style="display:flex;gap:8px"><button class="btn primary" id="slSwitch" style="flex:1">Changer de salon</button>'+(here.role==="owner"?'':'<button class="btn" id="slLeave" style="flex:1">Quitter le salon</button>')+'</div>'
+        +(here.role==="owner"?'<button class="lnk" id="slMng">Gérer ce salon</button>':"");
+      p.querySelector("#slSwitch").onclick=()=>{drawList.all=true;drawList(p,btn);drawList.all=false};
+      const lv=p.querySelector("#slLeave");if(lv)lv.onclick=()=>leaveForm(p,btn,here);
+      const mg=p.querySelector("#slMng");if(mg)mg.onclick=()=>manage(p,btn,here);return}
+    const cur=L.find(x=>x.code===env.code()&&x.role==="owner");
     p.innerHTML='<h4>Mes salons</h4>'+(flash?'<div class="note" style="color:var(--accent);font-weight:700">'+esc(flash)+'</div>':"")
       +(L.length?'<div class="list" style="max-height:min(46vh,320px);overflow:auto">'+rows(L)+'</div>':'<div class="note">Tu n\'as accès à aucun salon pour le moment. Rejoins un salon avec son nom et son code d\'accès.</div>')
       +'<div style="display:flex;gap:8px"><button class="btn primary" id="slJoin" style="flex:1">Rejoindre un salon</button><button class="btn" id="slNew" style="flex:1">Créer un salon</button></div>'
       +(cur?'<button class="lnk" id="slMng">Gérer ce salon</button>':"");
     p.querySelectorAll(".sl").forEach(b=>b.onclick=()=>openRoom(b.dataset.c));
     p.querySelector("#slJoin").onclick=()=>joinForm(p,btn);p.querySelector("#slNew").onclick=()=>createForm(p,btn);
-    if(cur)p.querySelector("#slMng").onclick=()=>manage(p,btn,cur)}
-  function joinForm(p,btn){const ME=env.getME();
+    if(cur)p.querySelector("#slMng").onclick=()=>manage(p,btn,cur);
+    if(here){p.insertAdjacentHTML("beforeend",'<button class="lnk" id="slBack">Retour</button>');p.querySelector("#slBack").onclick=()=>drawList(p,btn)}}
+  function leaveForm(p,btn,s){const ME=env.getME();
+    p.innerHTML='<h4>Quitter le salon</h4><div class="note">Tu ne seras plus membre de « <b>'+esc(s.name)+'</b> ». Pour revenir, il te faudra son nom et son code d\'accès, ou le lien d\'invitation du responsable.</div><div class="err" id="lvErr"></div><div style="display:flex;gap:8px"><button class="btn" id="lvNo" style="flex:1">Annuler</button><button class="btn primary" id="lvYes" style="flex:1">Quitter le salon</button></div>';
+    p.querySelector("#lvNo").onclick=()=>drawList(p,btn);
+    p.querySelector("#lvYes").onclick=async e=>{e.target.disabled=true;const r=await env.call("sleave",{name:ME.name,token:ME.token,salon:s.code});e.target.disabled=false;
+      if(r.status===200){LIST=r.salons||[];ME.salons=LIST;env.setME(ME);try{sessionStorage.setItem("fl-flash",r.msg||"Tu as quitté le salon.")}catch(x){}location.href="/"}
+      else if(r.status===401){ME.stale=true;env.setME(ME);openMe(btn)}else p.querySelector("#lvErr").innerHTML=say(r)}}
+  function joinForm(p,btn,pre){const ME=env.getME();
     p.innerHTML='<h4>Rejoindre un salon</h4><input class="in" id="jnName" maxlength="40" placeholder="NOM DU SALON" autocomplete="off" style="letter-spacing:.04em"><input class="in" id="jnCode" maxlength="7" placeholder="CODE D\'ACCÈS · 6 CARACTÈRES" autocomplete="off" style="letter-spacing:.2em"><div class="err" id="jnErr"></div><button class="btn primary" id="jnGo">Rejoindre</button><button class="lnk" id="jnBack">Retour</button>';
     const N=p.querySelector("#jnName"),C=p.querySelector("#jnCode"),er=p.querySelector("#jnErr");C.oninput=e=>{e.target.value=cleanCode(e.target.value)};
+    if(pre){N.value=pre.name||"";C.value=cleanCode(pre.code||"");p.querySelector("h4").textContent="Invitation à rejoindre un salon"}
     p.querySelector("#jnBack").onclick=()=>drawList(p,btn);
     const go=async()=>{const n=N.value.trim();
       if(!n){er.innerHTML=CHECK+"<br>Nom du salon : 1 à 40 caractères.";N.focus();return}
       if(!ACODE.test(C.value)){er.innerHTML=CHECK+"<br>Code d'accès : 6 caractères (lettres et chiffres).";C.focus();return}
       const b=p.querySelector("#jnGo");b.disabled=true;const r=await env.call("sjoin",{name:ME.name,token:ME.token,sname:n,scode:C.value});b.disabled=false;
-      if(r.status===200){LIST=r.salons||LIST;ME.salons=LIST;env.setME(ME);drawList(p,btn,r.msg)}
+      if(r.status===200){LIST=r.salons||LIST;ME.salons=LIST;env.setME(ME);if(pre&&r.salon)return openRoom(r.salon.code);drawList.all=true;drawList(p,btn,r.msg);drawList.all=false}
       else if(r.status===401){ME.stale=true;env.setME(ME);openMe(btn)}
       else{er.innerHTML=say(r);if(r.field==="scode")C.focus();else if(r.field==="sname")N.focus()}};
     p.querySelector("#jnGo").onclick=go;C.onkeydown=e=>{if(e.key==="Enter")go()};setTimeout(()=>N.focus(),50)}
@@ -935,12 +953,18 @@ function makeAcctUI(env){
       p.querySelector("#nsOpen").onclick=()=>openRoom(s.code)};
     p.querySelector("#nsGo").onclick=go;N.onkeydown=e=>{if(e.key==="Enter")go()};setTimeout(()=>N.focus(),50)}
   function manage(p,btn,s,flash){const ME=env.getME();
-    p.innerHTML='<h4>'+esc(s.name)+'</h4>'+(flash?'<div class="note" style="font-weight:700">'+esc(flash)+'</div>':"")+'<div class="note">Code d\'accès : <b style="letter-spacing:.2em;font-size:1.1em">'+esc(s.acode)+'</b></div><button class="btn" id="mgCode">Créer un nouveau code</button><div class="note">Membres</div><div class="list" style="max-height:200px;overflow:auto">'
+    p.innerHTML='<h4>'+esc(s.name)+'</h4>'+(flash?'<div class="note" style="font-weight:700">'+esc(flash)+'</div>':"")+'<div class="note">Code d\'accès : <b style="letter-spacing:.2em;font-size:1.1em">'+esc(s.acode)+'</b></div><button class="btn primary" id="mgLink">Copier le lien d\'invitation</button><div class="note" id="mgLinkTxt" style="word-break:break-all"></div><button class="btn" id="mgCode">Créer un nouveau code</button><div class="note">Membres</div><div class="list" style="max-height:200px;overflow:auto">'
       +(s.members||[]).map(m=>'<div class="sl"><span class="nm2">'+esc(m)+(m===ME.name?" (toi)":"")+'</span>'+(m===ME.name?"":'<button class="lnk" data-m="'+esc(m)+'" style="margin-left:auto">Retirer</button>')+'</div>').join("")+'</div><div class="err" id="mgErr"></div><button class="lnk" id="mgBack">Retour</button>';
     p.querySelector("#mgBack").onclick=()=>drawList(p,btn);
+    // lien d'invitation : le nom et le code sont après « # » (jamais envoyés au serveur ni gardés dans ses journaux)
+    p.querySelector("#mgLink").onclick=e=>{const link=location.origin+"/#rejoindre="+encodeURIComponent(s.name)+"&code="+encodeURIComponent(s.acode);const t=p.querySelector("#mgLinkTxt");
+      (navigator.clipboard?navigator.clipboard.writeText(link):Promise.reject()).then(()=>{e.target.textContent="Lien copié ✓";t.textContent=link},()=>{t.textContent=link})};
     p.querySelector("#mgCode").onclick=async()=>{const r=await env.call("scode",{name:ME.name,token:ME.token,salon:s.code});if(r.status===200){s.acode=r.acode;manage(p,btn,s,r.msg)}else p.querySelector("#mgErr").innerHTML=say(r)};
     p.querySelectorAll("[data-m]").forEach(b=>b.onclick=async()=>{const r=await env.call("skick",{name:ME.name,token:ME.token,salon:s.code,member:b.dataset.m});if(r.status===200){s.members=r.members;manage(p,btn,s,r.msg)}else p.querySelector("#mgErr").innerHTML=say(r)})}
-  return{openMe,openSalon,list:()=>LIST};
+  // lien d'invitation reçu : fenêtre « Rejoindre » déjà remplie (connexion d'abord si besoin)
+  function openJoin(btn,inv){const ME=env.getME();if(!ME||ME.stale){try{sessionStorage.setItem("fl-invite",JSON.stringify(inv))}catch(e){}openMe(btn);env.toast("👋","Connecte-toi ou crée ton pseudo pour rejoindre le salon « <b>"+esc(inv.name)+"</b> ».");return}
+    try{sessionStorage.removeItem("fl-invite")}catch(e){}const p=env.q("#popSalon");env.hide(env.q("#popMe"));env.place(p,btn);env.show(p);joinForm(p,btn,inv)}
+  return{openMe,openSalon,openJoin,list:()=>LIST};
 }
 
 // ---------- page d'accueil : en-tête, statistiques, jeux ----------
@@ -1058,7 +1082,7 @@ $$(".pop").forEach(p=>p.addEventListener("click",e=>e.stopPropagation()));
 document.addEventListener("click",e=>{if(!e.target.closest(".pop")&&!e.target.closest(".me-pill")&&!e.target.closest(".salon-pill")&&!e.target.closest("#mMenu"))closePops()});
 addEventListener("keydown",e=>{if(e.key==="Escape"){closePops();$$(".overlay.on").forEach(o=>o.classList.remove("on"))}});
 const UI=makeAcctUI({q:s=>$(s),call,esc,toast,place,code:()=>CODE,getME:()=>ME,setME:o=>{ME=o;store();updPills()},
-  show:p=>p.classList.add("on"),hide:p=>p.classList.remove("on"),onLogin:()=>{afterLogin();if(CODE&&!ws)connect()},onLogout:()=>{PTS=null;ROOM=null;if(ws){ws.onclose=null;ws.close();ws=null}updPills();chart(0);renderRank();renderPeers();renderSalon()}});
+  show:p=>p.classList.add("on"),hide:p=>p.classList.remove("on"),onLogin:()=>{afterLogin();if(CODE&&!ws)connect();invite()},onLogout:()=>{PTS=null;ROOM=null;if(ws){ws.onclose=null;ws.close();ws=null}updPills();chart(0);renderRank();renderPeers();renderSalon()}});
 const openMe=UI.openMe,openSalon=UI.openSalon;
 function updPills(){const m=$(".me-pill");m.querySelector(".av-me").textContent=ME?ME.name[0]:"?";m.querySelector("b").textContent=ME?ME.name:"Pseudo";m.querySelector(".sub").textContent=ME?"· Ma page":"· Se connecter";
   $(".salon-pill span").textContent=CODE?(salonName(CODE)||"Salon "+CODE):"Nom du salon"}
@@ -1135,6 +1159,12 @@ $("#dim").addEventListener("click",()=>{closePops();$("#mMenu").classList.remove
 updPills();renderPeers();renderSalon();renderRank();chart(0);renderResume();connect();loadMe();
 if(CODE&&(!ME||ME.stale))setTimeout(()=>{toast("🔒","Connecte-toi pour ouvrir ce salon.");openMe(pillMe())},300);
 if(new URLSearchParams(location.search).get("open")==="salon")setTimeout(()=>openSalon(pillSalon()),300);
+// lien d'invitation d'un responsable : /#rejoindre=NOM&code=CODE → fenêtre « Rejoindre un salon » remplie
+function invite(){let inv=null;try{inv=JSON.parse(sessionStorage.getItem("fl-invite")||"null")}catch(e){}if(inv&&inv.name)setTimeout(()=>UI.openJoin(pillSalon(),inv),300)}
+function readInvite(){const m=location.hash.match(/^#rejoindre=([^&]*)&code=([A-Za-z0-9]{1,8})/);if(!m)return;history.replaceState(null,"",location.pathname+location.search);try{sessionStorage.setItem("fl-invite",JSON.stringify({name:decodeURIComponent(m[1]),code:m[2]}))}catch(e){}invite()}
+addEventListener("hashchange",readInvite);
+(()=>{readInvite();
+  let fl=null;try{fl=sessionStorage.getItem("fl-flash");sessionStorage.removeItem("fl-flash")}catch(e){}if(fl)setTimeout(()=>toast("👋",esc(fl)),400)})();
 
 // ---------- multijoueur sans pseudo : créer un pseudo ou jouer en solo ----------
 $("#needSolo").onclick=()=>{const k=$("#need").dataset.k;$("#need").classList.remove("on");const t=$$(".tile").find(x=>x.dataset.key===k);if(t)openCfg(t,"solo")};
