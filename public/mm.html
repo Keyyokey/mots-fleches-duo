@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
+<script>try{document.documentElement.dataset.theme=localStorage.getItem("fl-theme")||"dark";if(localStorage.getItem("fl-deco")==="off")document.documentElement.classList.add("nodeco")}catch(e){}</script>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Mots mêlés — Mots Fléchés Duo</title>
@@ -713,6 +714,14 @@ table.bar td,table.bar th{padding:5px 6px;border-bottom:1px solid rgba(255,255,2
 .fc.jp.cur{background:color-mix(in srgb,var(--fc) 48%,rgba(10,20,40,.55))!important}
 .fc.okflash{animation:okpop .6s ease both;animation-delay:var(--d,0s)}
 @keyframes okpop{0%{transform:scale(1)}40%{transform:scale(1.12);box-shadow:0 0 18px var(--fc)}100%{transform:scale(1)}}
+
+/* cases : hauteur fixe (--s) ; une grille de plus de 10 colonnes s'élargit au lieu de s'allonger */
+#grid .fc{aspect-ratio:auto;height:var(--s)}
+/* deux définitions dans une case : fine ligne de séparation */
+.fc.q .h~.h{border-top:1px solid rgba(255,255,255,.32)}
+
+/* définition de la case choisie (classe propre : « hl » est déjà prise par le surligneur de l'accueil) */
+.fc.q .h.qsel{background:linear-gradient(135deg,#00ADB5,#A26BFF);color:#fff}
 /* commun aux pages de jeu */
 .rb2.live{border-style:dashed;opacity:.8}
 .rdclue .fbtns{flex:none}
@@ -976,7 +985,8 @@ const D=document,$=id=>D.getElementById(id);
 const LS={get(k){try{return localStorage.getItem(k)}catch(e){return null}},set(k,v){try{localStorage.setItem(k,v)}catch(e){}},del(k){try{localStorage.removeItem(k)}catch(e){}}};
 const esc=s=>String(s==null?"":s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
 const RE=/^[A-Z0-9@#_]{2,7}$/;
-const code=()=>{const m=location.pathname.match(/^\/([A-Za-z0-9]{5})(\/|$)/);return m?m[1].toUpperCase():null};
+// le salon est le 1er segment seulement s'il est suivi du jeu (« /meles » et « /poker » ont aussi 5 lettres)
+const code=()=>{const m=location.pathname.match(/^\/([A-Za-z0-9]{5})\/[a-z]/);return m?m[1].toUpperCase():null};
 const homeUrl=()=>{const c=code();return c?"/"+c:"/"};
 const NAMES=(()=>{try{return JSON.parse(LS.get("fl-salon-names")||"{}")}catch(e){return{}}})();
 let ME=null;try{ME=JSON.parse(LS.get("fl-me")||"null")}catch(e){}if(ME&&!RE.test(ME.name||""))ME=null;
@@ -1353,8 +1363,9 @@ function connect(){if(!CODE)return;ws=new WebSocket((location.protocol==="https:
   ws.onopen=()=>{ws.send(JSON.stringify({t:"join",room:CODE,name:ME?ME.name:"",token:ME?ME.token:""}));announce()};
   ws.onmessage=e=>{let m;try{m=JSON.parse(e.data)}catch(x){return}
     if(m.t==="error"&&(m.code==="auth"||m.code==="forbidden")){ws.onclose=null;ws.close();location.replace(m.code==="auth"?HOME:"/?open=salon");return}
+    if(m.t==="drawn"&&drawCb[m.req]){drawCb[m.req](m);delete drawCb[m.req];return}
     if(m.t==="room"){window.SK_ROOM=m;window.dispatchEvent(new Event("sk-room"));return}
-    if(m.t==="snap"){window.__snapped=1;docs={};(m.docs||[]).forEach(d=>docs[d.id]=d.data);LS.set("fl-salon-"+CODE,JSON.stringify({docs}));const d=docs[DOC];if(G&&!G.solo&&d){if(d.gid===G.gid){G=d;render()}else if(d.prev===G.gid){G=d;build();render();toast("🔁","Nouvelle grille pour le salon")}}}
+    if(m.t==="snap"){window.__snapped=1;docs={};(m.docs||[]).forEach(d=>docs[d.id]=d.data);LS.set("fl-salon-"+CODE,JSON.stringify({docs}));const d=docs[DOC];if(G&&!G.solo&&d){if(d.gid===G.gid){const re=d.mid!==G.mid||d.level!==G.level;G=d;if(re)build();render();if(G.blocked)blockedWin(G.blocked)}else if(d.prev===G.gid){G=d;build();render();toast("🔁","Nouvelle grille pour le salon")}}}
     else if(m.t==="peers"){peers=m.peers||[];if(G&&!G.solo){waitCheck();render()}}
     else if(m.t==="ack"&&acks[m.req]){acks[m.req](m);delete acks[m.req]}};
   ws.onclose=()=>setTimeout(connect,1500)}
@@ -1363,7 +1374,7 @@ function req(o){return new Promise((ok,ko)=>{const n=++reqN;o.req=n;acks[n]=m=>m
 function save(){if(!G)return;if(G.solo){LS.set(SOLOKEY,JSON.stringify(G));if(G.done)LS.del("fl-paused-meles");else LS.set("fl-paused-meles","1");return}send({t:"set",id:DOC,data:JSON.parse(JSON.stringify(G)),req:++reqN})}
 function announce(){send({t:"presence",presence:{name:ME?ME.name:"",page:"meles",gid:G?G.gid:null,seat:mySeat()}})}
 function seatsHere(){const s=new Set();const me=mySeat();if(me!==null)s.add(me);peers.forEach(p=>{const pr=p.presence||{};if(pr.gid===G.gid&&pr.seat!=null&&pr.page==="meles")s.add(Number(pr.seat))});return s}
-function waitCheck(){if(!G||G.solo||G.done||!G.wait||mySeat()===null)return;const s=seatsHere();if(G.players.every((p,i)=>s.has(i))){G.wait=false;G.go=Date.now()+5600;G.started=G.go;G.msg="Le jeu est lancé ! Le premier qui trouve un mot le prend.";save();render()}}
+function waitCheck(){if(!G||G.solo||G.done||!G.wait||mySeat()===null)return;const s=seatsHere();if(G.blocked)return;if(G.players.every((p,i)=>s.has(i)))askLaunch()}
 function claimGuest(){if(!G||G.solo||!ME||mySeat()!==null)return;const i=G.players.findIndex(p=>p.name==="Invité");if(i<0)return;G.players[i].name=ME.name;save();announce()}
 function pauseGame(){if(!G||G.done)return;if(G.solo){save();return}const s=mySeat();if(s===null)return;G.away=G.away||{};if(!away().length)G.pauseAt=Date.now();G.away[s]=Date.now();save()}
 function resumeGame(){if(!G||G.solo||!G.away)return;const s=mySeat();if(s===null||G.away[s]===undefined)return;delete G.away[s];if(!away().length){G.started+=Date.now()-(G.pauseAt||Date.now());delete G.away;delete G.pauseAt}save()}
@@ -1397,7 +1408,7 @@ document.addEventListener("pointerdown",e=>{const t=e.target.closest&&e.target.c
   if(drag&&drag.tap){finish(drag.a,p);drag=null;caps();return}drag={a:p,b:p,moved:false};caps()});
 document.addEventListener("pointermove",e=>{if(!drag||drag.tap)return;const p=pt(e);if(!p)return;if(p[0]!==drag.b[0]||p[1]!==drag.b[1]){drag.b=p;drag.moved=true;const L=line(drag.a,p);if(L)sfx.slide(L.length);caps()}});
 document.addEventListener("pointerup",()=>{if(!drag||drag.tap)return;if(!drag.moved){drag.tap=true;caps();return}finish(drag.a,drag.b);drag=null;caps()});
-function finish(a,b){const L=line(a,b);if(!L||L.length<2)return;const s=L.map(([r,c])=>G.grid[r][c]).join(""),rev=[...s].reverse().join("");
+function finish(a,b){const L=line(a,b);if(!L||L.length<2)return;histMark("s");const s=L.map(([r,c])=>G.grid[r][c]).join(""),rev=[...s].reverse().join("");
   const w=G.words.find(x=>(x.w===s||x.w===rev)&&cellsOf(x).map(p=>p.join()).join()===(x.w===s?L:[...L].reverse()).map(p=>p.join()).join());
   if(!w){sfx.bad();L.forEach(([r,c])=>{const e=$("#m"+r+"-"+c);e.classList.add("wrong");setTimeout(()=>e.classList.remove("wrong"),450)});return}
   if(G.found[w.w]){toast("🙈","Déjà trouvé par "+esc(G.players[G.found[w.w].by].name));return}
@@ -1411,7 +1422,7 @@ function scoreSrv(){try{if(!ME||!ME.token)return;const i=G.solo?0:mySeat();const
 
 // ---------- affichage ----------
 let shownEnd=null,fitted=0;
-function render(){if(!G)return;const s=mySeat();
+function render(){if(!G)return;const s=mySeat();if(G.done&&!G.forfeit)histMark("d");
   $(".gname").innerHTML='Mots <span style="color:#34d399">Mêlés</span> '+(G.solo?"Solo":"Duo")+' <span class="hpill">Grille '+esc(String(G.mid||"").replace(/^n/,""))+" • "+esc(G.theme)+"</span>";
   const sc=$$(".mm2 .scores2 .sc");sc.forEach((e,i)=>{const p=G.players[i];if(!p){e.style.display="none";return}e.style.display="";e.querySelector(".pi").textContent=(p.name||"?")[0].toUpperCase();e.querySelector("b").textContent=p.name+(i===s&&!G.solo?" ·toi":"");e.querySelector(".sv").textContent=p.score});
   const n=Object.keys(G.found).length;$(".wlh").innerHTML='Mots à trouver <span style="color:#34d399">'+n+"/"+G.words.length+"</span>";
@@ -1441,15 +1452,32 @@ $("#lvPause").onclick=()=>leave(pauseGame);$("#lvQuit").onclick=()=>leave(quitGa
 function pickN(level,n){if(n)return n;let pl={};try{pl=JSON.parse(LS.get("fl2-played-meles")||"{}")}catch(e){}const fr=[];for(let i=1;i<=NMELES;i++)if(!pl[level+i])fr.push(i);const L=fr.length?fr:[...Array(NMELES).keys()].map(i=>i+1);return L[Math.floor(Math.random()*L.length)]}
 function newGame(names,isSolo,level,n){const d=melesDef("n"+n,level);const m=makeMeles(d.theme,level,d.seed);return Object.assign({gid:Math.random().toString(36).slice(2,10),game:"meles",solo:isSolo,level,mid:"n"+d.k,started:Date.now(),players:names.map(x=>({name:x,score:0})),turn:0,found:{},done:false,wait:!isSolo,msg:isSolo?m.words.length+" mots à trouver !":m.words.length+" mots à trouver : le premier qui en trouve un le prend !"},m)}
 function open(g){G=g;try{const pl=JSON.parse(LS.get("fl2-played-meles")||"{}");pl[G.level+String(G.mid).slice(1)]=1;LS.set("fl2-played-meles",JSON.stringify(pl))}catch(e){}build();if(!G.solo){claimGuest();const s=mySeat();if(G.away&&s!==null&&G.away[s]>0)resumeGame()}render();announce();history.replaceState(null,"",location.pathname)}
-function again(){const o=G;const ng=newGame(o.players.map(p=>p.name),o.solo,o.level,pickN(o.level));if(!o.solo){ng.prev=o.gid;ng.wait=false;ng.go=Date.now()+5600;ng.started=ng.go}open(ng);save()}
+function again(){const o=G;if(o.solo){open(newGame(o.players.map(p=>p.name),true,o.level,pickN(o.level)));save();return}
+  const opp=o.players.map(p=>p.name).find(n=>String(n).toUpperCase()!==ME.name)||"Invité";
+  drawReq(o.level,0,opp).then(r=>{if(!r.ok)return blockedWin(r.msg);const ng=newGame(o.players.map(p=>p.name),false,o.level,Number(String(r.ref).split(":n")[1]));ng.prev=o.gid;open(ng);save()})}
 function start(){const go=Q.get("go"),lvl=Q.get("lvl")||"facile",n=Number(Q.get("n"))||0;const solo=()=>{try{return JSON.parse(LS.get(SOLOKEY)||"null")}catch(e){return null}};
   if(go==="solo"){const g=solo();if(g&&!g.done&&!n&&g.level===lvl){open(g);return}open(newGame([ME?ME.name:"Toi"],true,lvl,pickN(lvl,n)));save();return}
   if(!CODE){const g=solo();if(g&&!g.done){open(g);return}location.replace("/");return}
   if(!ME){if(go==="resume"){const g=solo();if(g&&!g.done){open(g);return}}location.replace(HOME+"?need=pseudo");return}
   connect();const t0=Date.now();const iv=setInterval(()=>{if(G){clearInterval(iv);return}if(window.__snapped||Object.keys(docs).length||Date.now()-t0>2500){clearInterval(iv);const d=docs[DOC];
     const mine=d&&!d.done&&d.players&&(d.players.some(p=>String(p.name).toUpperCase()===ME.name)||d.players.some(p=>p.name==="Invité"));
-    if(go==="multi"&&!(mine&&!n)){const opp=Q.get("opp")||"Invité";open(newGame([ME.name,opp.toUpperCase()===ME.name?"Invité":opp],false,lvl,pickN(lvl,n)));save();return}
+    if(go==="multi"&&!(mine&&!n)){let opp=Q.get("opp")||"Invité";if(opp.toUpperCase()===ME.name)opp="Invité";
+      drawReq(lvl,n,opp).then(r=>{if(!r.ok)return blockedWin(r.msg);const k=Number(String(r.ref).split(":n")[1]);const g=newGame([ME.name,opp],false,lvl,k);if(r.manual)g.manual=true;open(g);save()});return}
     if(d&&d.players&&!d.solo){open(d);return}const g=solo();if(g&&!g.done){open(g);return}location.replace(HOME)}},100)}
+const GAME="meles",REFOF=g=>g.level+":"+g.mid;
+// ---------- tirage par le serveur (multijoueur) et historique du compte ----------
+// En multijoueur, le serveur tire le contenu parmi ceux qu'aucun participant n'a déjà commencés ou terminés,
+// puis revérifie juste avant le lancement. L'historique est relié au compte (envoyé au serveur, avec file d'attente si hors ligne).
+let drawN=0;const drawCb={};
+function drawReq(level,n,opp){return new Promise(res=>{const req=++drawN;drawCb[req]=res;send({t:"draw",req,game:GAME,level,n:n||0,opp:opp&&opp!=="Invité"?opp:""});setTimeout(()=>{if(drawCb[req]){delete drawCb[req];res({ok:false,msg:"Impossible de vérifier les parties disponibles. Réessaie."})}},8000)})}
+function blockedWin(msg){$("#endT").textContent=msg;$("#endB").innerHTML="";const a=$("#endAgain");if(a)a.style.display="none";$("#endWin").classList.add("on")}
+let lastLaunch=0;function askLaunch(){if(Date.now()-lastLaunch<1500)return;lastLaunch=Date.now();send({t:"launch",id:DOC,gid:G.gid})}
+function histMark(ev){try{if(!G||!ME||!ME.token)return;if(!G.solo&&mySeat()===null)return;const ref=REFOF(G);if(!ref)return;const k="fl-h"+ev+"-"+GAME+"-"+G.gid;if(LS.get(k))return;LS.set(k,"1");
+  const q=JSON.parse(LS.get("fl-hq")||"[]");q.push({u:ME.name,game:GAME,ref,ev});LS.set("fl-hq",JSON.stringify(q.slice(-300)));histFlush()}catch(e){}}
+let hFlying=false;function histFlush(){if(hFlying||!ME||!ME.token)return;let q=[];try{q=JSON.parse(LS.get("fl-hq")||"[]")}catch(e){}const mine=q.filter(x=>x.u===ME.name);if(!mine.length)return;hFlying=true;const by={};mine.forEach(x=>(by[x.game]=by[x.game]||[]).push({ref:x.ref,ev:x.ev}));
+  Promise.all(Object.entries(by).map(([game,items])=>fetch("/api/p/hist",{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({name:ME.name,token:ME.token,game,items})}).then(r=>{if(!r.ok)throw 0})))
+    .then(()=>{let q2=[];try{q2=JSON.parse(LS.get("fl-hq")||"[]")}catch(e){}const sent=new Set(mine.map(x=>JSON.stringify(x)));LS.set("fl-hq",JSON.stringify(q2.filter(x=>!sent.has(JSON.stringify(x)))))}).catch(()=>{}).finally(()=>{hFlying=false})}
+setTimeout(histFlush,1500);
 // accès réservé aux tests automatiques sur la copie locale (jamais sur le site en ligne)
 if(location.hostname==="localhost")window.__t=c=>eval(c);
 start();

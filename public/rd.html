@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
+<script>try{document.documentElement.dataset.theme=localStorage.getItem("fl-theme")||"dark";if(localStorage.getItem("fl-deco")==="off")document.documentElement.classList.add("nodeco")}catch(e){}</script>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Le Tourniquet — Mots Fléchés Duo</title>
@@ -713,6 +714,14 @@ table.bar td,table.bar th{padding:5px 6px;border-bottom:1px solid rgba(255,255,2
 .fc.jp.cur{background:color-mix(in srgb,var(--fc) 48%,rgba(10,20,40,.55))!important}
 .fc.okflash{animation:okpop .6s ease both;animation-delay:var(--d,0s)}
 @keyframes okpop{0%{transform:scale(1)}40%{transform:scale(1.12);box-shadow:0 0 18px var(--fc)}100%{transform:scale(1)}}
+
+/* cases : hauteur fixe (--s) ; une grille de plus de 10 colonnes s'élargit au lieu de s'allonger */
+#grid .fc{aspect-ratio:auto;height:var(--s)}
+/* deux définitions dans une case : fine ligne de séparation */
+.fc.q .h~.h{border-top:1px solid rgba(255,255,255,.32)}
+
+/* définition de la case choisie (classe propre : « hl » est déjà prise par le surligneur de l'accueil) */
+.fc.q .h.qsel{background:linear-gradient(135deg,#00ADB5,#A26BFF);color:#fff}
 /* commun aux pages de jeu */
 .rb2.live{border-style:dashed;opacity:.8}
 .rdclue .fbtns{flex:none}
@@ -979,7 +988,8 @@ const D=document,$=id=>D.getElementById(id);
 const LS={get(k){try{return localStorage.getItem(k)}catch(e){return null}},set(k,v){try{localStorage.setItem(k,v)}catch(e){}},del(k){try{localStorage.removeItem(k)}catch(e){}}};
 const esc=s=>String(s==null?"":s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
 const RE=/^[A-Z0-9@#_]{2,7}$/;
-const code=()=>{const m=location.pathname.match(/^\/([A-Za-z0-9]{5})(\/|$)/);return m?m[1].toUpperCase():null};
+// le salon est le 1er segment seulement s'il est suivi du jeu (« /meles » et « /poker » ont aussi 5 lettres)
+const code=()=>{const m=location.pathname.match(/^\/([A-Za-z0-9]{5})\/[a-z]/);return m?m[1].toUpperCase():null};
 const homeUrl=()=>{const c=code();return c?"/"+c:"/"};
 const NAMES=(()=>{try{return JSON.parse(LS.get("fl-salon-names")||"{}")}catch(e){return{}}})();
 let ME=null;try{ME=JSON.parse(LS.get("fl-me")||"null")}catch(e){}if(ME&&!RE.test(ME.name||""))ME=null;
@@ -1353,6 +1363,7 @@ function connect(){if(!CODE)return;ws=new WebSocket((location.protocol==="https:
   ws.onopen=()=>{ws.send(JSON.stringify({t:"join",room:CODE,name:ME?ME.name:"",token:ME?ME.token:""}));announce(true)};
   ws.onmessage=e=>{let m;try{m=JSON.parse(e.data)}catch(x){return}
     if(m.t==="error"&&(m.code==="auth"||m.code==="forbidden")){ws.onclose=null;ws.close();location.replace(m.code==="auth"?HOME:"/?open=salon");return}
+    if(m.t==="drawn"&&drawCb[m.req]){drawCb[m.req](m);delete drawCb[m.req];return}
     if(m.t==="room"){window.SK_ROOM=m;window.dispatchEvent(new Event("sk-room"));return}
     if(m.t==="snap"){window.__snapped=1;docs={};(m.docs||[]).forEach(d=>docs[d.id]=d.data);LS.set("fl-salon-"+CODE,JSON.stringify({docs}));onSnap()}
     else if(m.t==="peers"){peers=m.peers||[];if(G&&!G.solo){waitCheck();render()}}};
@@ -1361,10 +1372,10 @@ function send(o){if(ws&&ws.readyState===1)ws.send(JSON.stringify(o))}
 function save(){if(!G)return;if(G.solo){LS.set(SOLOKEY,JSON.stringify(G));if(G.done)LS.del("fl-paused-rond");else LS.set("fl-paused-rond","1");return}send({t:"set",id:DOC,data:JSON.parse(JSON.stringify(G)),req:++reqN})}
 let lastAnn="";function announce(force){const p={name:ME?ME.name:"",page:"rond",gid:G?G.gid:null,seat:mySeat(),sel:canPlay()?sel:null,typ:canPlay()?typ:""};const j=JSON.stringify(p);if(!force&&j===lastAnn)return;lastAnn=j;send({t:"presence",presence:p})}
 function onSnap(){const d=docs[DOC];if(!G||G.solo)return;
-  if(d&&d.gid===G.gid){const keep=canPlay();G=d;if(!keep||!canPlay()){if(!canPlay()){sel=null;typ=""}}render()}
+  if(d&&d.gid===G.gid){const keep=canPlay();const re=d.pid!==G.pid;G=d;if(re){sel=null;typ="";P=ROND.find(x=>x.id===G.pid)||P}if(G.blocked)blockedWin(G.blocked);if(!keep||!canPlay()){if(!canPlay()){sel=null;typ=""}}render()}
   else if(d&&d.prev===G.gid){G=d;sel=null;typ="";P=ROND.find(x=>x.id===G.pid)||ROND[0];render();toast("🔁","Nouvelle grille pour le salon")}}
 function seatsHere(){const s=new Set();const me=mySeat();if(me!==null)s.add(me);peers.forEach(p=>{const pr=p.presence||{};if(pr.gid===G.gid&&pr.seat!=null&&pr.page==="rond")s.add(Number(pr.seat))});return s}
-function waitCheck(){if(!G||G.solo||G.done||!G.wait||mySeat()===null)return;const s=seatsHere();if(G.players.every((p,i)=>s.has(i))){G.wait=false;G.go=Date.now()+5600;G.turnStart=G.go;G.started=G.go;G.msg="Le jeu est lancé ! "+G.players[G.turn].name+" commence.";save();render()}}
+function waitCheck(){if(!G||G.solo||G.done||!G.wait||mySeat()===null)return;const s=seatsHere();if(G.blocked)return;if(G.players.every((p,i)=>s.has(i)))askLaunch()}
 function claimGuest(){if(!G||G.solo||!ME||mySeat()!==null)return;const i=G.players.findIndex(p=>p.name==="Invité");if(i<0)return;G.players[i].name=ME.name;save();announce(true)}
 function pauseGame(){if(!G||G.done)return;if(G.solo){save();return}const s=mySeat();if(s===null)return;G.away=G.away||{};if(!away().length)G.pauseRem=Math.max(0,G.turnStart+dur()*1000-Date.now());G.away[s]=Date.now();save()}
 function resumeGame(){if(!G||G.solo||!G.away)return;const s=mySeat();if(s===null||G.away[s]===undefined)return;delete G.away[s];if(!away().length){G.turnStart=Date.now()-(dur()*1000-(G.pauseRem||dur()*1000));delete G.away;delete G.pauseRem}save()}
@@ -1376,7 +1387,7 @@ function awayCheck(force){if(!G||G.solo||G.done||!G.away)return;const now=Date.n
   G.forfeit=true;G.done=true;G.ended=now;delete G.away;if(!force){save();render()}}
 
 // ---------- jeu ----------
-function validate(){if(!canPlay())return;if(!sel){toast("👆","Choisis d'abord une définition.");return}if(typ.length!==6){toast("✍️","Il faut 6 lettres.");return}
+function validate(){if(!canPlay())return;if(!sel){toast("👆","Choisis d'abord une définition.");return}if(typ.length!==6){toast("✍️","Il faut 6 lettres.");return}histMark("s");
   const [c,r]=sel.split("-").map(Number);const W=norm(P.cols[c][r].w);const me=G.solo?0:G.turn;const p=G.players[me];
   if(typ===W){G.found[sel]=me;p.score+=10;const ric=ricochets();ric.forEach(k=>{G.found[k]=me;p.score+=10});
     G.msg="Bravo "+p.name+" ! +10 points."+(ric.length?" Ricochet : "+ric.length+" cercle"+(ric.length>1?"s":"")+" complété"+(ric.length>1?"s":"")+" (+"+10*ric.length+") !":"");
@@ -1388,12 +1399,12 @@ function validate(){if(!canPlay())return;if(!sel){toast("👆","Choisis d'abord 
 function finish(msg){G.done=true;G.ended=Date.now();G.msg=msg;sfx.win();if(!G.solo)send({t:"tally",gid:G.gid,game:"rond",results:G.players.map(p=>({name:p.name,score:p.score}))});
   try{if(ME&&ME.token){const i=G.solo?0:mySeat();const k="fl-sc-rond"+G.gid;if(i!==null&&!LS.get(k)){LS.set(k,"1");fetch("/api/p/score",{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({name:ME.name,token:ME.token,game:"rond",gid:String(G.gid),pts:G.players[i].score,solo:!!G.solo,level:G.level})}).catch(()=>{})}}}catch(e){}}
 function pass(){if(!canPlay()||G.solo)return;const p=G.players[G.turn];sel=null;typ="";nextTurn();G.msg=p.name+" passe. Au tour de "+G.players[G.turn].name+".";save();render()}
-function reveal(){if(!canPlay()||!sel)return;const [c,r]=sel.split("-").map(Number);const W=norm(P.cols[c][r].w);G.found[sel]=-5;G.msg="« "+W+" » révélé (sans points).";sel=null;typ="";if(!G.solo){nextTurn();G.msg+=" Au tour de "+G.players[G.turn].name+"."}
+function reveal(){if(!canPlay()||!sel)return;histMark("s");const [c,r]=sel.split("-").map(Number);const W=norm(P.cols[c][r].w);G.found[sel]=-5;G.msg="« "+W+" » révélé (sans points).";sel=null;typ="";if(!G.solo){nextTurn();G.msg+=" Au tour de "+G.players[G.turn].name+"."}
   if(Object.keys(G.found).length>=total())finish("Grille terminée.");save();render()}
 
 // ---------- affichage ----------
 const SC=["#rP1","#rP2"];let shownEnd=null;
-function render(){if(!G||!P)return;const s=mySeat();
+function render(){if(!G||!P)return;const s=mySeat();if(G.done&&!G.forfeit)histMark("d");
   const n=(String(P.id).match(/(\d+)/)||[])[1];$(".gname").innerHTML='Le <span style="color:#34d399">Tourniquet</span> '+(G.solo?"Solo":"Duo")+' <span class="hpill">Grille '+(n?Number(n):"")+" • "+LVLN[G.level]+"</span>";
   SC.forEach((id,i)=>{const e=$(id),p=G.players[i];if(!p){e.style.display="none";return}e.style.display="";e.querySelector(".pi").textContent=(p.name||"?")[0].toUpperCase();e.querySelector("b").textContent=p.name+(i===s&&!G.solo?" ·toi":"");e.querySelector(".sv").textContent=p.score;
     const on=!G.done&&!G.solo&&!frozen()&&G.turn===i;e.classList.toggle("turn",on||G.solo);e.classList.toggle("idle",!G.solo&&!G.done&&!frozen()&&!on);
@@ -1442,15 +1453,32 @@ function choose(level,n){const list=ROND.filter(d=>d.lvl===level);if(n&&list[n-1
 function newGame(p,names,isSolo,level){const first=isSolo?0:Math.floor(Math.random()*names.length);return{gid:Math.random().toString(36).slice(2,10),game:"rond",pid:p.id,solo:isSolo,level,started:Date.now(),players:names.map(n=>({name:n,score:0})),turn:first,turnStart:Date.now(),tour:1,champs:0,found:{},done:false,wait:!isSolo,msg:isSolo?"À toi de jouer !":"🎲 Tirage au sort : "+names[first]+" commence !"}}
 function open(g){G=g;sel=null;typ="";P=ROND.find(x=>x.id===G.pid);if(!P){location.replace(HOME);return}try{const pl=JSON.parse(LS.get("fl2-played-rond")||"{}");pl[P.id]=1;LS.set("fl2-played-rond",JSON.stringify(pl))}catch(e){}
   if(!G.solo){claimGuest();const s=mySeat();if(G.away&&s!==null&&G.away[s]>0)resumeGame()}render();announce(true);history.replaceState(null,"",location.pathname)}
-function again(){const o=G;const ng=newGame(choose(o.level),o.players.map(p=>p.name),o.solo,o.level);if(!o.solo){ng.prev=o.gid;ng.wait=false;ng.go=Date.now()+5600;ng.turnStart=ng.go;ng.started=ng.go}open(ng);save()}
+function again(){const o=G;if(o.solo){open(newGame(choose(o.level),o.players.map(p=>p.name),true,o.level));save();return}
+  const opp=o.players.map(p=>p.name).find(n=>String(n).toUpperCase()!==ME.name)||"Invité";
+  drawReq(o.level,0,opp).then(r=>{if(!r.ok)return blockedWin(r.msg);const ng=newGame(ROND.find(x=>x.id===r.ref),o.players.map(p=>p.name),false,o.level);ng.prev=o.gid;open(ng);save()})}
 function start(){const go=Q.get("go"),lvl=Q.get("lvl")||"facile",n=Number(Q.get("n"))||0;const solo=()=>{try{return JSON.parse(LS.get(SOLOKEY)||"null")}catch(e){return null}};
   if(go==="solo"){const g=solo();if(g&&!g.done&&!n&&g.level===lvl){open(g);return}open(newGame(choose(lvl,n),[ME?ME.name:"Toi"],true,lvl));save();return}
   if(!CODE){const g=solo();if(g&&!g.done){open(g);return}location.replace("/");return}
   if(!ME){if(go==="resume"){const g=solo();if(g&&!g.done){open(g);return}}location.replace(HOME+"?need=pseudo");return}
   connect();const t0=Date.now();const iv=setInterval(()=>{if(G){clearInterval(iv);return}if(window.__snapped||Object.keys(docs).length||Date.now()-t0>2500){clearInterval(iv);const d=docs[DOC];
     const mine=d&&!d.done&&d.players&&(d.players.some(p=>String(p.name).toUpperCase()===ME.name)||d.players.some(p=>p.name==="Invité"));
-    if(go==="multi"&&!(mine&&!n)){const opp=Q.get("opp")||"Invité";open(newGame(choose(lvl,n),[ME.name,opp.toUpperCase()===ME.name?"Invité":opp],false,lvl));save();return}
+    if(go==="multi"&&!(mine&&!n)){let opp=Q.get("opp")||"Invité";if(opp.toUpperCase()===ME.name)opp="Invité";
+      drawReq(lvl,n,opp).then(r=>{if(!r.ok)return blockedWin(r.msg);const p=ROND.find(x=>x.id===r.ref);if(!p)return blockedWin("Impossible de vérifier les parties disponibles. Réessaie.");const g=newGame(p,[ME.name,opp],false,lvl);if(r.manual)g.manual=true;open(g);save()});return}
     if(d&&d.players&&!d.solo){open(d);return}const g=solo();if(g&&!g.done){open(g);return}location.replace(HOME)}},100)}
+const GAME="rond",REFOF=g=>g.pid;
+// ---------- tirage par le serveur (multijoueur) et historique du compte ----------
+// En multijoueur, le serveur tire le contenu parmi ceux qu'aucun participant n'a déjà commencés ou terminés,
+// puis revérifie juste avant le lancement. L'historique est relié au compte (envoyé au serveur, avec file d'attente si hors ligne).
+let drawN=0;const drawCb={};
+function drawReq(level,n,opp){return new Promise(res=>{const req=++drawN;drawCb[req]=res;send({t:"draw",req,game:GAME,level,n:n||0,opp:opp&&opp!=="Invité"?opp:""});setTimeout(()=>{if(drawCb[req]){delete drawCb[req];res({ok:false,msg:"Impossible de vérifier les parties disponibles. Réessaie."})}},8000)})}
+function blockedWin(msg){$("#endT").textContent=msg;$("#endB").innerHTML="";const a=$("#endAgain");if(a)a.style.display="none";$("#endWin").classList.add("on")}
+let lastLaunch=0;function askLaunch(){if(Date.now()-lastLaunch<1500)return;lastLaunch=Date.now();send({t:"launch",id:DOC,gid:G.gid})}
+function histMark(ev){try{if(!G||!ME||!ME.token)return;if(!G.solo&&mySeat()===null)return;const ref=REFOF(G);if(!ref)return;const k="fl-h"+ev+"-"+GAME+"-"+G.gid;if(LS.get(k))return;LS.set(k,"1");
+  const q=JSON.parse(LS.get("fl-hq")||"[]");q.push({u:ME.name,game:GAME,ref,ev});LS.set("fl-hq",JSON.stringify(q.slice(-300)));histFlush()}catch(e){}}
+let hFlying=false;function histFlush(){if(hFlying||!ME||!ME.token)return;let q=[];try{q=JSON.parse(LS.get("fl-hq")||"[]")}catch(e){}const mine=q.filter(x=>x.u===ME.name);if(!mine.length)return;hFlying=true;const by={};mine.forEach(x=>(by[x.game]=by[x.game]||[]).push({ref:x.ref,ev:x.ev}));
+  Promise.all(Object.entries(by).map(([game,items])=>fetch("/api/p/hist",{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({name:ME.name,token:ME.token,game,items})}).then(r=>{if(!r.ok)throw 0})))
+    .then(()=>{let q2=[];try{q2=JSON.parse(LS.get("fl-hq")||"[]")}catch(e){}const sent=new Set(mine.map(x=>JSON.stringify(x)));LS.set("fl-hq",JSON.stringify(q2.filter(x=>!sent.has(JSON.stringify(x)))))}).catch(()=>{}).finally(()=>{hFlying=false})}
+setTimeout(histFlush,1500);
 // accès réservé aux tests automatiques sur la copie locale (jamais sur le site en ligne)
 if(location.hostname==="localhost")window.__t=c=>eval(c);
 start();

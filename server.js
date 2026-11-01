@@ -9,6 +9,7 @@ const crypto = require("crypto");
 const zlib = require("zlib");
 const { WebSocketServer } = require("ws");
 const makePoker = require("./poker");
+const makeCatalog = require("./catalog");
 
 const PORT = process.env.PORT || 3000;
 const DATA_DIR = process.env.DATA_DIR || path.join(__dirname, "data");
@@ -79,6 +80,74 @@ function snapshot(s) { return Object.entries(s.docs).map(([id, data]) => ({ id, 
 function peers(s) { return [...s.sockets].map(w => ({ id: w.pid, presence: w.presence || {} })); }
 function broadcastPeers(s) { const list = peers(s); for (const w of s.sockets) send(w, { t: "peers", peers: list }); }
 
+// ---------- tirage des contenus et lancement des parties multijoueurs ----------
+// Règle : une nouvelle partie multijoueur exclut tout contenu déjà commencé (1er coup joué) ou terminé par l'un de ses participants,
+// en solo comme en multijoueur. Vérification à la proposition (draw) puis juste avant le lancement (launch), sur le serveur.
+const CAT = makeCatalog(__dirname);
+const MSG_NONE = "Aucune nouvelle partie disponible pour ces paramètres.", MSG_ERR = "Impossible de vérifier les parties disponibles. Réessaie.";
+async function histsOf(names) {               // lève une erreur si un historique ne peut pas être lu
+  const out = [];
+  if (process.env.FL_TEST_FAIL && names.some(n => n.startsWith(process.env.FL_TEST_FAIL))) throw new Error("test : stockage indisponible");
+  for (const n of names) { const p = await getPlayerStrict(n); if (!p) throw new Error("compte introuvable"); out.push(p.hist || {}); }
+  return out;
+}
+const roomLock = new Map();
+function locked1(room, fn) { const prev = roomLock.get(room) || Promise.resolve(); const next = prev.then(fn, fn); roomLock.set(room, next.catch(() => {})); return next; }
+async function handleDraw(ws, s, m) {
+  const game = String(m.game || ""); const reply = o => send(ws, { t: "drawn", req: m.req, ...o });
+  if (!CAT.GAMES.includes(game)) return reply({ ok: false, msg: MSG_ERR });
+  const lvl = CAT.level(game, m.level); if (!lvl) return reply({ ok: false, msg: MSG_NONE });
+  const acc = accs.get(ws.room);
+  const names = [ws.user]; const opp = normPseudo(m.opp); if (PSEUDO_RE.test(opp) && opp !== ws.user && acc && acc.members[opp]) names.push(opp);
+  let hists; try { hists = await histsOf(names); } catch (e) { return reply({ ok: false, msg: MSG_ERR }); }
+  const adm = CAT.admissible(game, lvl, hists);
+  const n = Number(m.n) || 0;
+  if (n) { const ref = CAT.byNumber(game, lvl, n); return ref && adm.includes(ref) ? reply({ ok: true, ref, manual: true }) : reply({ ok: false, msg: MSG_NONE }); }
+  if (!adm.length) return reply({ ok: false, msg: MSG_NONE });
+  return reply({ ok: true, ref: CAT.pick(adm) });
+}
+async function handleLaunch(ws, s, m) {
+  const id = String(m.id || ""); const game = { fl: "fleches", rond: "rond", meles: "meles" }[id];
+  if (!game) return;
+  return locked1(ws.room, async () => {
+    const d = s.docs[id]; if (!d || !d.wait || d.done || d.solo) return;           // déjà lancée, terminée ou solo : rien à faire
+    if (m.gid && d.gid !== m.gid) return;
+    const names = d.players.map(p => String(p.name || "").toUpperCase());
+    // tous les participants doivent être de vrais comptes, présents dans le salon
+    if (names.some(n => !PSEUDO_RE.test(n))) return;
+    const here = new Set([...s.sockets].map(w => w.user));
+    if (!names.every(n => here.has(n))) return;
+    const lvl = CAT.level(game, d.level);
+    let hists; try { hists = await histsOf(names); } catch (e) { d.blocked = MSG_ERR; d.blockedAt = Date.now(); return publish(ws.room, s, id, d); }
+    const adm = CAT.admissible(game, lvl, hists); const cur = CAT.refOf(game, d);
+    if (!adm.includes(cur)) {
+      if (d.manual || !adm.length) { d.blocked = MSG_NONE; d.blockedAt = Date.now(); return publish(ws.room, s, id, d); }
+      CAT.applyTo(game, d, CAT.pick(adm));                                          // le contenu proposé est devenu exclu : nouveau tirage
+    }
+    delete d.blocked; d.wait = false; d.go = Date.now() + 5600; d.started = d.go; if (game !== "meles") d.turnStart = d.go;
+    d.msg = game === "meles" ? "Le jeu est lancé ! Le premier qui trouve un mot le prend." : "Le jeu est lancé ! " + d.players[d.turn || 0].name + " commence.";
+    publish(ws.room, s, id, d);
+  });
+}
+function publish(room, s, id, d) { d._v = (d._v || 0) + 1; s.docs[id] = d; s.touched = Date.now(); scheduleSave(room); const msg = { t: "snap", docs: snapshot(s) }; for (const w of s.sockets) send(w, msg); }
+// historique du joueur : contenu commencé (1er coup joué) ou terminé, relié au compte
+function markHist(p, game, ref, ev) {
+  const c = CAT.cid(game, ref); if (!c) return false;
+  p.hist = p.hist || {}; const h = p.hist[game] = p.hist[game] || {}; const e = h[c] = h[c] || {};
+  if (!e.s) e.s = Date.now(); if (ev === "d" && !e.d) e.d = Date.now(); return true;
+}
+
+// seul le serveur lance une partie multijoueur (après vérification des historiques) ; le contenu d'une partie lancée ne change plus
+function launchOk(id, prev, next) {
+  const game = { fl: "fleches", rond: "rond", meles: "meles" }[id]; if (!game || !next || next.solo || !Array.isArray(next.players)) return true;
+  const same = prev && prev.gid === next.gid;
+  if (!same) return !!next.wait || !!next.done;                                     // une nouvelle partie commence toujours en attente
+  if (prev.wait && !next.wait && !next.done) return false;                          // lancement réservé au serveur
+  if (!prev.wait && next.wait) return false;                                        // copie périmée d'avant le lancement
+  if (!prev.wait && CAT.refOf(game, prev) !== CAT.refOf(game, next)) return false;  // contenu figé une fois lancée
+  if (prev.blocked && !next.blocked) return false;
+  return true;
+}
 // une partie ne peut faire apparaître que le joueur connecté ; une nouvelle partie peut inviter un membre du salon ou « Invité »
 function seatsOk(prev, next, user, acc) {
   const ps = Array.isArray(next.players) ? next.players : null; if (!ps) return true;
@@ -117,6 +186,8 @@ async function handle(ws, m) {
   const s = ws.room && salons.get(ws.room); if (!s) return;
   // chaque action multijoueur revérifie l'accès (un accès retiré coupe immédiatement)
   if (!ws.solo) { const a = accs.get(ws.room); if (!a || !ws.user || !a.members[ws.user]) { s.sockets.delete(ws); ws.room = null; broadcastPeers(s); return send(ws, { t: "error", code: "forbidden", msg: "Tu n'as plus accès à ce salon." }); } }
+  if (m.t === "draw") return handleDraw(ws, s, m);
+  if (m.t === "launch") return handleLaunch(ws, s, m);
   if (m.t === "set") {
     const id = String(m.id || "");
     if (!/^[A-Za-z0-9_-]{1,40}$/.test(id) || typeof m.data !== "object" || !m.data) return send(ws, { t: "ack", req: m.req, ok: false, code: "invalid_argument" });
@@ -126,6 +197,7 @@ async function handle(ws, m) {
     if (id === "meta") return send(ws, { t: "ack", req: m.req, ok: false, code: "permission_denied" });
     const doc = JSON.parse(json);
     if (!ws.solo && !seatsOk(s.docs[id], doc, ws.user, accs.get(ws.room))) return send(ws, { t: "ack", req: m.req, ok: false, code: "permission_denied" });
+    if (!ws.solo && !launchOk(id, s.docs[id], doc)) return send(ws, { t: "ack", req: m.req, ok: false, code: "permission_denied" });
     doc._v = ((s.docs[id] && s.docs[id]._v) || 0) + 1;
     s.docs[id] = doc; s.touched = Date.now(); scheduleSave(ws.room);
     send(ws, { t: "ack", req: m.req, ok: true });
@@ -139,7 +211,7 @@ async function handle(ws, m) {
     for (const d of Array.isArray(m.docs) ? m.docs.slice(0, MAX_DOCS) : []) {
       const id = String(d && d.id || "");
       if (!/^[A-Za-z0-9_-]{1,40}$/.test(id) || id === "meta" || !d.data || typeof d.data !== "object") continue;
-      if (!ws.solo && !seatsOk(s.docs[id], d.data, ws.user, accs.get(ws.room))) continue;
+      if (!ws.solo && (!seatsOk(s.docs[id], d.data, ws.user, accs.get(ws.room)) || !launchOk(id, s.docs[id], d.data))) continue;
       const json = JSON.stringify(d.data); if (json.length > MAX_DOC) continue;
       const cur = s.docs[id]; const v = Number(d.data._v) || 0;
       if (cur ? (Number(cur._v) || 0) < v : Object.keys(s.docs).length < MAX_DOCS) { s.docs[id] = JSON.parse(json); changed = true; }
@@ -159,7 +231,7 @@ async function handle(ws, m) {
     if (JSON.stringify(val).length > 2000) return send(ws, { t: "ack", req: m.req, ok: false, code: "invalid_argument" });
     d[field][key] = val;
     if (id === "meta") return send(ws, { t: "ack", req: m.req, ok: false, code: "permission_denied" });
-    if (m.extra && typeof m.extra === "object") for (const [k, v] of Object.entries(m.extra)) if (/^[a-zA-Z]{1,20}$/.test(k) && !["players", "gid", "_v"].includes(k)) d[k] = v;
+    if (m.extra && typeof m.extra === "object") for (const [k, v] of Object.entries(m.extra)) if (/^[a-zA-Z]{1,20}$/.test(k) && !["players", "gid", "_v", "wait", "go", "grid", "pid", "mid", "level", "blocked", "manual", "words", "grid"].includes(k)) d[k] = v;
     if (m.score && Number.isInteger(m.score.i) && d.players && d.players[m.score.i]) d.players[m.score.i].score = (d.players[m.score.i].score || 0) + (Number(m.score.add) || 0);
     d._v = (d._v || 0) + 1; s.touched = Date.now(); scheduleSave(ws.room);
     send(ws, { t: "ack", req: m.req, ok: true });
@@ -216,6 +288,13 @@ async function getPlayer(name) {
   if (players.has(name)) return players.get(name);
   if (REDIS) { try { const v = await redis(["GET", "pl:" + name]); if (v) { const p = JSON.parse(v); players.set(name, p); return p; } } catch (e) { console.error("Lecture Redis (pseudo) :", e.message); } }
   return null;
+}
+// lecture stricte : une panne de stockage est une erreur, pas un historique vide
+async function getPlayerStrict(name) {
+  if (players.has(name)) return players.get(name);
+  if (!REDIS) return null;
+  const v = await redis(["GET", "pl:" + name]); if (!v) return null;
+  const p = JSON.parse(v); if (!players.has(name)) players.set(name, p); return players.get(name);
 }
 let plTimer = null;
 function savePlayer(name) {
@@ -533,6 +612,12 @@ async function api(req, res, route) {
     savePlayer(name); return out(200, { ok: true, add: pts, pts: p.pts });
   }
   if (route === "pin") { if (!pinOk) return bad("pin", PIN_DETAIL); p.salt = crypto.randomBytes(12).toString("hex"); p.h = hashPin(b.pin, p.salt); savePlayer(name); return out(200, { ok: true }); }
+  if (route === "hist") {
+    const game = String(b.game || ""); if (!CAT.GAMES.includes(game)) return bad("game", "Jeu inconnu.");
+    const refs = Array.isArray(b.items) ? b.items.slice(0, 50) : [{ ref: b.ref, ev: b.ev }];
+    let n = 0; for (const it of refs) if (it && markHist(p, game, String(it.ref || ""), it.ev === "d" ? "d" : "s")) n++;
+    if (n) savePlayer(name); return out(200, { ok: true, n });
+  }
   if (route === "logout") { p.toks = (p.toks || []).filter(t => t !== sha(String(b.token))); savePlayer(name); return out(200, { ok: true }); }
   return out(404, { error: "route" });
 }
@@ -572,7 +657,7 @@ function sendStatic(req, res, name) {
 const server = http.createServer((req, res) => {
   const url = new URL(req.url, "http://x");
   if (url.pathname === "/healthz") { res.writeHead(200, { "content-type": "text/plain" }); return res.end("ok " + salons.size + (REDIS ? " redis" : "")); }
-  const am = url.pathname.match(/^\/api\/p\/(create|login|me|pin|logout|rank|score|wallet|conv|salons|sjoin|screate|skick|scode)$/);
+  const am = url.pathname.match(/^\/api\/p\/(create|login|me|pin|logout|rank|score|wallet|conv|salons|sjoin|screate|skick|scode|hist)$/);
   if (am) return void api(req, res, am[1]).catch(e => { console.error(e); try { res.writeHead(500); res.end("{}"); } catch {} });
   if (url.pathname.startsWith("/d/")) return sendStatic(req, res, url.pathname.slice(3));
   if (url.pathname === "/maquette" || url.pathname === "/maquette/") return sendPage(req, res, path.join(__dirname, "public", "maquette.html"));
