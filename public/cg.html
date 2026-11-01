@@ -1472,7 +1472,7 @@ function next(){if(!G||G.done||!revealed())return;const s=mySeat();if(s===null)r
   const ex=last?{done:true,ended:now}:{i:G.i+1,qStart:now};
   if(G.solo){Object.assign(G,ex);if(last)end();save();render();return}
   req({t:"patch",id:DOC,gid:G.gid,field:"adv",key:String(G.i),value:now,ifAbsent:true,extra:ex}).then(()=>{if(last)setTimeout(tally,300)}).catch(()=>{})}
-function end(){G.done=true;G.ended=G.ended||Date.now();sfx.win();scoreSrv()}
+function end(){G.done=true;G.ended=G.ended||Date.now();scoreSrv()}
 function tally(){if(!G)return;send({t:"tally",gid:G.gid,game:GAME,results:G.players.map(p=>({name:p.name,score:p.score}))});scoreSrv()}
 function scoreSrv(){try{if(!ME||!ME.token)return;const i=G.solo?0:mySeat();const k="fl-sc-culture"+G.gid;if(i===null||LS.get(k))return;LS.set(k,"1");fetch("/api/p/score",{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({name:ME.name,token:ME.token,game:GAME,gid:String(G.gid),pts:G.players[i].score,solo:!!G.solo,level:"all",ref:G.qs.slice().sort().join(","),started:G.started})}).then(r=>r.json()).then(repNote).catch(()=>{})}catch(e){}}
 
@@ -1525,7 +1525,13 @@ $("#cgInfoBtn").onclick=()=>{const i=$("#cgInfo"),on=!i.classList.contains("on")
 document.addEventListener("keydown",e=>{if(!G||e.target.closest("input,textarea"))return;const n="1234".indexOf(e.key)>=0?"1234".indexOf(e.key):"abcd".indexOf(e.key.toLowerCase());
   if(n>=0&&e.key.length===1){const b=$$("#cgA button")[n];if(b&&!b.disabled)b.click()}else if(e.key==="Enter"&&!$("#cgNext").hidden)next()});
 $("#endHome").onclick=()=>{location.href=HOME};$("#endAgain").onclick=()=>{$("#endWin").classList.remove("on");again()};
-function endOpen(blocked){const s=$("#endSame");if(s)s.style.display=!blocked&&G&&G.solo&&G.done&&!G.forfeit?"":"none";const a=$("#endAgain");if(a&&!blocked)a.style.display="";$("#endWin").classList.add("on")}
+// son de fin de partie, joué une fois chez chaque joueur (gagnant : fanfare ; perdant : fin douce ; partie arrêtée : descente)
+function endSound(){if(!G||!G.done||endSound.gid===G.gid)return;endSound.gid=G.gid;const me=G.solo?0:mySeat();
+  if(G.forfeit){[1046,784,523].forEach((f,i)=>tone(f,i*.2,.35,"sine",.1));return}
+  const best=Math.max(...G.players.map(p=>p.score||0));const win=me===null||G.solo||(G.players[me]&&(G.players[me].score||0)>=best);
+  if(win){[523,659,784,1046].forEach((f,i)=>tone(f,i*.12,.3,"triangle",.16));[784,988,1175,1568].forEach((f,i)=>tone(f,.55+i*.07,.35,"sine",.12))}
+  else{[659,587,523,440].forEach((f,i)=>tone(f,i*.16,.35,"sine",.12));tone(330,.7,.6,"triangle",.08)}}
+function endOpen(blocked){if(!blocked)endSound();const s=$("#endSame");if(s)s.style.display=!blocked&&G&&G.solo&&G.done&&!G.forfeit?"":"none";const a=$("#endAgain");if(a&&!blocked)a.style.display="";$("#endWin").classList.add("on")}
 $("#endSame").onclick=()=>{$("#endWin").classList.remove("on");sameAgain()};
 function sameAgain(){const o=G;if(!o||!o.solo)return again();open(newGame(o.players.map(p=>p.name),true,o.qs.slice()));save()}
 // points d'une grille rejouée : 10 la 2e fois, 3 ensuite (décompte fait par le serveur)

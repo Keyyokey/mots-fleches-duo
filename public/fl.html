@@ -1532,7 +1532,7 @@ function validate(){if(!canPlay())return;const ks=Object.keys(pend).filter(k=>G.
   keep.forEach((k,i)=>{const e=els[k];if(e){e.style.setProperty("--d",(i*.06)+"s");e.classList.remove("okflash");void e.offsetWidth;e.classList.add("okflash")}})}
 function endTourAfterMiss(){nextTurn();G.msg+=" Au tour de "+G.players[G.turn].name+"."}
 function f80(){if(G.f80||G.solo)return;if(fillRatio()>=.8){G.f80=true;sfx.bell();toast("🔔","<b>Grille à 80 %</b> · plus qu'un tour chacun")}}
-function finish(msg){G.done=true;G.ended=Date.now();G.msg=msg;sfx.win();if(!G.solo){const res=G.players.map(p=>({name:p.name,score:p.score}));send({t:"tally",gid:G.gid,game:"fleches",results:res})}scoreToServer()}
+function finish(msg){G.done=true;G.ended=Date.now();G.msg=msg;if(!G.solo){const res=G.players.map(p=>({name:p.name,score:p.score}));send({t:"tally",gid:G.gid,game:"fleches",results:res})}scoreToServer()}
 function scoreToServer(){try{if(!G||!G.done||G.revealed||!ME||!ME.token)return;const i=G.solo?0:mySeat();if(i===null)return;const key="fl-sc-fleches"+G.gid;if(LS.get(key))return;LS.set(key,"1");
   fetch("/api/p/score",{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({name:ME.name,token:ME.token,game:"fleches",gid:String(G.gid),pts:Number(G.players[i].score)||0,solo:!!G.solo,level:G.level,ref:String(REFOF(G)),started:G.started})}).then(r=>r.json()).then(repNote).catch(()=>{})}catch(e){}}
 function pass(){if(!canPlay()||G.solo)return;const p=G.players[G.turn];pend={};nextTurn();G.msg=p.name+" passe. Au tour de "+G.players[G.turn].name+".";save();render()}
@@ -1636,7 +1636,13 @@ $(".flbar").onclick=()=>{if(!G||G.done)return;$("#mystWin").classList.add("on");
 $("#mystGo").onclick=proposeMyst;$("#mystIn").onkeydown=e=>{if(e.key==="Enter")proposeMyst()};$("#mystX").onclick=()=>$("#mystWin").classList.remove("on");
 $("#endHome").onclick=()=>{location.href=HOME};
 $("#endAgain").onclick=()=>{$("#endWin").classList.remove("on");again()};
-function endOpen(blocked){const s=$("#endSame");if(s)s.style.display=!blocked&&G&&G.solo&&G.done&&!G.forfeit?"":"none";const a=$("#endAgain");if(a&&!blocked)a.style.display="";$("#endWin").classList.add("on")}
+// son de fin de partie, joué une fois chez chaque joueur (gagnant : fanfare ; perdant : fin douce ; partie arrêtée : descente)
+function endSound(){if(!G||!G.done||endSound.gid===G.gid)return;endSound.gid=G.gid;const me=G.solo?0:mySeat();
+  if(G.forfeit){[1046,784,523].forEach((f,i)=>tone(f,i*.2,.35,"sine",.1));return}
+  const best=Math.max(...G.players.map(p=>p.score||0));const win=me===null||G.solo||(G.players[me]&&(G.players[me].score||0)>=best);
+  if(win){[523,659,784,1046].forEach((f,i)=>tone(f,i*.12,.3,"triangle",.16));[784,988,1175,1568].forEach((f,i)=>tone(f,.55+i*.07,.35,"sine",.12))}
+  else{[659,587,523,440].forEach((f,i)=>tone(f,i*.16,.35,"sine",.12));tone(330,.7,.6,"triangle",.08)}}
+function endOpen(blocked){if(!blocked)endSound();const s=$("#endSame");if(s)s.style.display=!blocked&&G&&G.solo&&G.done&&!G.forfeit?"":"none";const a=$("#endAgain");if(a&&!blocked)a.style.display="";$("#endWin").classList.add("on")}
 $("#endSame").onclick=()=>{$("#endWin").classList.remove("on");sameAgain()};
 function sameAgain(){const o=G;if(!o||!o.solo)return again();const def=GRIDS.find(x=>x.id===o.grid);if(!def)return again();open(newGame(def,o.players.map(p=>p.name),true,o.level));save()}
 // points d'une grille rejouée : 10 la 2e fois, 3 ensuite (décompte fait par le serveur)
