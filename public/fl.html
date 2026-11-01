@@ -1373,11 +1373,14 @@ function build(){const g=$("#grid");g.innerHTML="";g.style.gridTemplateColumns="
   // mot mystère
   const m=$("#myst");m.innerHTML="";const L=(cur.myst||"").length;for(let i=0;i<L;i++)m.appendChild(document.createElement("span"));
   $("#hint").textContent=cur.hint||"";$(".flbar").style.display=cur.myst?"":"none";fit()}
-function fit(){const box=$(".flboard"),g=$("#grid");if(!box||!g)return;const wide=innerWidth>900;let w=box.clientWidth-24;
-  // taille standard : celle d'une grille de 10 colonnes (cases carrées), comme avant
-  const REF=10;if(wide){const h=innerHeight-box.getBoundingClientRect().top-30;w=Math.min(w,Math.floor(h*REF/NR))}
-  const s=Math.floor((w-2*(REF-1))/REF);
-  // grille de plus de 10 colonnes : on garde la hauteur des cases et on élargit la grille (cases plus étroites que hautes interdites)
+function fit(){const box=$(".flboard"),g=$("#grid");if(!box||!g)return;const wide=innerWidth>900,L=$(".fl2");
+  // la grille occupe toute la place disponible : largeur restante à côté du panneau, et hauteur de l'écran (cases carrées)
+  const bs=getComputedStyle(box),pad=parseFloat(bs.paddingLeft)+parseFloat(bs.paddingRight)+8;let availW;
+  if(wide&&L){const side=[...L.children].find(e=>e!==box&&e.offsetWidth>0&&!e.contains(box));availW=L.clientWidth-(side?side.offsetWidth:320)-(parseFloat(getComputedStyle(L).columnGap)||14)-pad}
+  else availW=(L?L.clientWidth:box.clientWidth)-pad;
+  const C=Math.max(NC,10);let s=Math.floor((availW-2*(C-1)-4)/C);
+  if(wide){const h=innerHeight-box.getBoundingClientRect().top-pad-24;s=Math.min(s,Math.floor((h-2*(NR-1)-4)/NR))}
+  s=Math.max(24,Math.min(s,88));
   g.style.setProperty("--s",s+"px");g.style.setProperty("--sw",s+"px");g.style.width=(s*NC+2*(NC-1)+4)+"px";requestAnimationFrame(shrinkClues)}
 // une définition trop longue pour sa case : on réduit sa police (jusqu'à 55 %) au lieu de la couper
 function shrinkClues(){$$(".fc.q .h").forEach(h=>{h.style.fontSize="";const base=parseFloat(getComputedStyle(h).fontSize);if(!base)return;let f=base;while((h.scrollWidth>h.clientWidth+1||h.scrollHeight>h.clientHeight+1)&&f>base*.55){f-=.4;h.style.fontSize=f+"px"}})}
