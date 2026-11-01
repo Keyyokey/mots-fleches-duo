@@ -626,10 +626,20 @@ async function api(req, res, route) {
     p.gids = Array.isArray(p.gids) ? p.gids : [];
     if (p.gids.includes(game + gid)) return out(200, { ok: true, dup: true, pts: p.pts });
     let pts = Math.max(0, Math.min(800, Math.round(Number(b.pts) || 0)));
-    if (b.solo) pts = Math.round(pts * (SOLO_MULT[b.level] || 1));
+    // grille (ou série de questions) rejouée en solo : 10 points la 2e fois, 3 points les fois suivantes
+    let rep = 0;
+    if (b.solo && typeof b.ref === "string" && b.ref && b.ref.length <= 400) {
+      p.reps = p.reps && typeof p.reps === "object" ? p.reps : {};
+      const key = game + ":" + b.ref; let n = p.reps[key] || 0;
+      if (!n) { const c = CAT.GAMES.includes(game) && CAT.cid(game, b.ref); const e = c && p.hist && p.hist[game] && p.hist[game][c]; if (e && e.d && Number(b.started) && e.d < Number(b.started)) n = 1; }
+      rep = n; p.reps[key] = n + 1;
+      const ks = Object.keys(p.reps); if (ks.length > 600) ks.slice(0, ks.length - 600).forEach(k => delete p.reps[k]);
+    }
+    if (rep === 1) pts = 10; else if (rep >= 2) pts = 3;
+    else if (b.solo) pts = Math.round(pts * (SOLO_MULT[b.level] || 1));
     p.gids = p.gids.slice(-300).concat(game + gid);
     if (pts) await addPoints(name, p, game, pts);
-    savePlayer(name); return out(200, { ok: true, add: pts, pts: p.pts });
+    savePlayer(name); return out(200, { ok: true, add: pts, rep, pts: p.pts });
   }
   if (route === "pin") { if (!pinOk) return bad("pin", PIN_DETAIL); p.salt = crypto.randomBytes(12).toString("hex"); p.h = hashPin(b.pin, p.salt); savePlayer(name); return out(200, { ok: true }); }
   if (route === "hist") {
