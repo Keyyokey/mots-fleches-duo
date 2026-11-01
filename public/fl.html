@@ -669,7 +669,7 @@ table.bar td,table.bar th{padding:5px 6px;border-bottom:1px solid rgba(255,255,2
 :root{--p1:#34d399;--p2:#fb7185}
 .sk-hdr #skTop{max-width:1180px;margin:0 auto}
 .sk-hdr .wrap{padding-top:0}
-.fl2{grid-template-columns:minmax(0,1fr) 320px!important;justify-content:stretch}
+.fl2{grid-template-columns:auto 320px!important}
 .flboard{display:flex;justify-content:center;align-items:flex-start;min-width:0}
 .fgrid{--s:44px;width:max-content}
 .fc{font-size:calc(var(--s)*.56)!important;cursor:pointer;user-select:none;-webkit-user-select:none}
@@ -714,11 +714,13 @@ table.bar td,table.bar th{padding:5px 6px;border-bottom:1px solid rgba(255,255,2
 .fc.okflash{animation:okpop .6s ease both;animation-delay:var(--d,0s)}
 @keyframes okpop{0%{transform:scale(1)}40%{transform:scale(1.12);box-shadow:0 0 18px var(--fc)}100%{transform:scale(1)}}
 
-/* cases : hauteur fixe (--s), largeur qui peut grandir (--sw) */
+/* cases : hauteur fixe (--s) ; une grille de plus de 10 colonnes s'élargit au lieu de s'allonger */
 #grid .fc{aspect-ratio:auto;height:var(--s)}
-#grid .fc.q{font-size:calc(min(var(--sw,var(--s)),var(--s)*1.35)*.15)!important}
 /* deux définitions dans une case : fine ligne de séparation */
 .fc.q .h~.h{border-top:1px solid rgba(255,255,255,.32)}
+
+/* définition de la case choisie (classe propre : « hl » est déjà prise par le surligneur de l'accueil) */
+.fc.q .h.qsel{background:linear-gradient(135deg,#00ADB5,#A26BFF);color:#fff}
 /* commun aux pages de jeu */
 .rb2.live{border-style:dashed;opacity:.8}
 .rdclue .fbtns{flex:none}
@@ -1360,12 +1362,12 @@ function build(){const g=$("#grid");g.innerHTML="";g.style.gridTemplateColumns="
   // mot mystère
   const m=$("#myst");m.innerHTML="";const L=(cur.myst||"").length;for(let i=0;i<L;i++)m.appendChild(document.createElement("span"));
   $("#hint").textContent=cur.hint||"";$(".flbar").style.display=cur.myst?"":"none";fit()}
-function fit(){const box=$(".flboard"),g=$("#grid");if(!box||!g)return;const wide=innerWidth>900;const full=box.clientWidth-24;
-  let s=Math.floor((full-2*(NC-1))/NC),sw=s;
-  if(wide){const h=innerHeight-g.getBoundingClientRect().top-24;const sh=Math.floor((h-2*(NR-1)-4)/NR);
-    // la hauteur des cases tient dans l'écran ; la grille ne s'élargit qu'en largeur (cases plus larges, max 1,8×)
-    const s0=Math.floor((Math.min(620,innerHeight-190)-42-2*(NC-1))/NC);s=Math.max(26,Math.min(s,sh,s0));sw=Math.max(s,Math.min(Math.floor((full-2*(NC-1))/NC),Math.round(s*1.8)))}
-  g.style.setProperty("--s",s+"px");g.style.setProperty("--sw",sw+"px");g.style.width=(sw*NC+2*(NC-1)+4)+"px"}
+function fit(){const box=$(".flboard"),g=$("#grid");if(!box||!g)return;const wide=innerWidth>900;let w=box.clientWidth-24;
+  // taille standard : celle d'une grille de 10 colonnes (cases carrées), comme avant
+  const REF=10;if(wide){const h=innerHeight-box.getBoundingClientRect().top-30;w=Math.min(w,Math.floor(h*REF/NR))}
+  const s=Math.floor((w-2*(REF-1))/REF);
+  // grille de plus de 10 colonnes : on garde la hauteur des cases et on élargit la grille (cases plus étroites que hautes interdites)
+  g.style.setProperty("--s",s+"px");g.style.setProperty("--sw",s+"px");g.style.width=(s*NC+2*(NC-1)+4)+"px"}
 addEventListener("resize",()=>{if(cur)fit()});addEventListener("load",()=>{if(cur)fit()});setTimeout(()=>{if(cur)fit()},400);
 
 // ---------- joueurs, places ----------
@@ -1480,7 +1482,7 @@ function render(){if(!G||!cur)return;const s=mySeat(),play=canPlay(),n=G.players
     else{const pp=peerPend[k];if(pp){L.textContent=pp.l;e.classList.add("live");e.style.setProperty("--fc",PC[pp.seat]||PC[1])}else L.textContent=""}}
   if(G.last&&G.last.cells&&!G.done&&(Date.now()-(G.lastSeenAt||0))<1e9)G.last.cells.forEach(k=>{if(els[k]){els[k].classList.add("last");els[k].style.setProperty("--lc",PC[G.last.by]||PC[0])}});
   const w=curWord();if(w&&!G.done)w.cells.forEach(k=>els[k].classList.add("cur"));if(sel&&els[sel]&&!G.done)els[sel].classList.add("caret");
-  $$(".fc.q .h").forEach(h=>h.classList.remove("hl"));if(w){const q=els[w.q];const h=q&&q.querySelector('.h[data-i="'+w.qi+'"]');if(h)h.classList.add("hl")}
+  $$(".fc.q .h").forEach(h=>h.classList.remove("qsel"));if(w){const q=els[w.q];const h=q&&q.querySelector('.h[data-i="'+w.qi+'"]');if(h)h.classList.add("qsel")}
   // définition en cours
   $("#fClue").textContent=w?w.text:"Touche une case ou une définition";$("#fOk").disabled=!play;$("#fOk").textContent=play?"✓ Valider":G.done?"Partie terminée":frozen()?"En attente…":"Pas ton tour";
   $("#fPass").style.display=G.solo?"none":"";
