@@ -65,7 +65,7 @@ module.exports = function (hooks) {
     const show = t.phase === "abattage" || t.phase === "fin";
     return {
       room: t.room, started: t.started, phase: t.phase, hand: t.hand, maxHands: t.maxHands, buy: t.buy, ante: t.ante, dec: t.dec, solo: t.solo,
-      pot: t.pot || 0, carry: 0, bank: t.bank || 0, bet: t.bet || 0, turn: t.turn, deadline: t.deadline, now: Date.now(), commit: t.commit || "", reveal: t.phase === "abattage" || t.phase === "fin" ? t.revealDeck || "" : "",
+      pot: t.pot || 0, carry: 0, dealEnd: t.dealEnd || 0, bank: t.bank || 0, bet: t.bet || 0, turn: t.turn, deadline: t.deadline, now: Date.now(), commit: t.commit || "", reveal: t.phase === "abattage" || t.phase === "fin" ? t.revealDeck || "" : "",
       board: (t.board || []).map((c, i) => i < (t.shown || 0) ? c : null), shown: t.shown || 0,
       deckLeft: me ? leftFor(t, me) : null,
       seats: t.seats.map((s, i) => ({ name: s.name, bot: !!s.bot, stack: s.stack, inPot: s.inPot || 0, roundBet: s.roundBet || 0, folded: !!s.folded, allin: !!s.allin, out: !!s.out, here: s.bot || !!s.ws, gone: !!s.gone,
@@ -101,6 +101,7 @@ module.exports = function (hooks) {
     t.commit = crypto.createHash("sha256").update(t.revealDeck).digest("hex").slice(0, 16);
     for (const s of active(t)) { const a = Math.min(t.ante, s.stack); s.stack -= a; s.inPot += a; t.pot += a; if (!s.stack) s.allin = true; }
     t.shown = 3; t.phase = "mise"; t.round = 1;
+    t.grace = Math.ceil(2 + active(t).length * 2 * 0.45 + 3.5);   // annonce du coup + 2 lettres par joueur + 3 lettres communes
     t.first = (t.hand - 1) % t.seats.length;
     startRound(t);
   }
@@ -112,10 +113,13 @@ module.exports = function (hooks) {
   function nextFrom(t, i) { for (let k = 1; k <= t.seats.length; k++) { const j = (i + k) % t.seats.length; const s = t.seats[j]; if (!s.folded && !s.out && !s.allin) return j; } return -1; }
   function ask(t) {
     const s = t.seats[t.turn];
-    setTimer(t, t.dec, () => act(t, t.turn, (t.bet - (s.roundBet || 0)) > 0 ? "fold" : "call", true));
+    // temps du croupier (distribution, lettres retournées) : le chrono du joueur ne démarre qu'après
+    const g = t.grace || 0; t.grace = 0;
+    setTimer(t, t.dec + g, () => act(t, t.turn, (t.bet - (s.roundBet || 0)) > 0 ? "fold" : "call", true));
+    t.dealEnd = Date.now() + g * 1000;
     broadcast(t);
     const i = t.turn;
-    if (s.bot) later(t, 1200 + rnd(1600), () => botAct(t, i));
+    if (s.bot) later(t, g * 1000 + 1200 + rnd(1600), () => botAct(t, i));
     if (s.gone) later(t, 300, () => act(t, i, "fold", true));
   }
   function act(t, i, a, auto) {
@@ -136,7 +140,7 @@ module.exports = function (hooks) {
     ask(t);
   }
   function nextStreet(t) {
-    if (t.shown < 5) { t.shown++; t.round++; t.msg = (t.shown === 4 ? "4e" : "5e") + " lettre retournée"; return startRound(t); }
+    if (t.shown < 5) { t.shown++; t.round++; t.grace = 4; t.msg = (t.shown === 4 ? "4e" : "5e") + " lettre retournée"; return startRound(t); }
     wordPhase(t);
   }
   function wordPhase(t) {
