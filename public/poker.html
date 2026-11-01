@@ -680,6 +680,20 @@ table.bar td,table.bar th{padding:5px 6px;border-bottom:1px solid rgba(255,255,2
 #cvBox{display:flex;flex-direction:column;gap:8px}#cvBox input[type=range]{width:100%;accent-color:#ffc857}
 .cvlim i{display:block;height:6px;border-radius:99px;background:rgba(0,0,0,.3);margin-top:4px;overflow:hidden}.cvlim i u{display:block;height:100%;background:linear-gradient(90deg,#ffc857,#e8a33d)}
 #pkWalNote a{color:var(--accent,#00ADB5)}
+.pkdealer{display:flex;align-items:center;gap:10px;padding:6px 12px 6px 6px;border-radius:999px;background:rgba(0,0,0,.25);border:1px solid rgba(255,255,255,.18);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);box-shadow:inset 0 1px 0 rgba(255,255,255,.15)}
+.pkdealer .dav{width:44px;height:44px;border-radius:50%;background:radial-gradient(circle at 35% 30%,rgba(255,255,255,.35),rgba(255,255,255,.06));border:1px solid rgba(255,255,255,.3);display:grid;place-items:center;overflow:hidden}
+.pkdealer .dav svg{width:40px;height:40px;margin-top:6px}
+.pkdealer.on .dav{animation:dnod 2.4s ease-in-out infinite}
+@keyframes dnod{0%,100%{transform:rotate(0)}50%{transform:rotate(-4deg)}}
+.pkdealer .dtxt{display:flex;flex-direction:column;line-height:1.15;min-width:120px}.pkdealer .dtxt b{font-size:.78rem;letter-spacing:.06em;text-transform:uppercase;color:#d8f5e6}
+.pkdealer .dsay{font-size:.82rem;color:#fff;font-weight:700}.pkdealer .dsay.on{animation:dsay .5s ease}
+@keyframes dsay{from{opacity:0;transform:translateY(4px)}}
+.pkdealer .pile{position:relative;width:30px;height:42px;margin-left:4px}
+.pkdealer .pile i{position:absolute;inset:0;border-radius:6px;background:repeating-linear-gradient(45deg,#7a2f4c,#7a2f4c 5px,#8f3a5b 5px,#8f3a5b 10px);border:2px solid #fff;box-shadow:0 2px 4px rgba(0,0,0,.35)}
+.pkdealer .pile i:nth-child(2){transform:translate(2px,-2px)}.pkdealer .pile i:nth-child(3){transform:translate(4px,-4px)}
+.card-l.slot{background:rgba(255,255,255,.06);border:2px dashed rgba(255,255,255,.35);box-shadow:none;color:transparent}.card-l.slot small{display:none}
+.pkfly{display:block;box-shadow:0 10px 24px rgba(0,0,0,.45)}
+@media (max-width:600px){.pkdealer{padding:4px 10px 4px 4px;gap:8px}.pkdealer .dav{width:36px;height:36px}.pkdealer .dav svg{width:32px;height:32px}.pkdealer .dtxt{min-width:96px}}
 .pkin:disabled{opacity:.55}
 </style>
 </head>
@@ -702,6 +716,7 @@ table.bar td,table.bar th{padding:5px 6px;border-bottom:1px solid rgba(255,255,2
     <div class="pkleft"><div class="pkfelt">
       <div class="seats pkopp" id="pkOpp"></div>
       <div class="pkmid">
+        <div class="pkdealer" id="pkDealer"><div class="dav" aria-hidden="true"><svg viewBox="0 0 48 48"><defs><linearGradient id="dvg" x1=".2" y1="0" x2=".8" y2="1"><stop offset="0" stop-color="#fef3c7"/><stop offset="1" stop-color="#f59e0b"/></linearGradient><linearGradient id="dvs" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#334155"/><stop offset="1" stop-color="#0f172a"/></linearGradient></defs><path d="M8 46c0-9 7-15 16-15s16 6 16 15z" fill="url(#dvs)"/><path d="M20 31l4 7 4-7z" fill="#fff"/><path d="M19 33.5l5 2.5 5-2.5v4l-5-1.5-5 1.5z" fill="#e11d48"/><circle cx="24" cy="19" r="9.5" fill="url(#dvg)"/><path d="M13.5 15.5c2-6 19-6 21 0l-2 1.5c-4-3-13-3-17 0z" fill="#16a34a"/><rect x="12" y="15" width="24" height="3" rx="1.5" fill="#15803d"/><circle cx="20.5" cy="20" r="1.2" fill="#1f2937"/><circle cx="27.5" cy="20" r="1.2" fill="#1f2937"/><path d="M21 24c2 1.6 4 1.6 6 0" stroke="#1f2937" stroke-width="1.4" fill="none" stroke-linecap="round"/></svg></div><div class="dtxt"><b>Croupier</b><span class="dsay" id="pkDealerSay">Faites vos jeux</span></div><div class="pile" id="pkPile" title="Paquet du croupier"><i></i><i></i><i></i></div></div>
         <div class="pkstage" id="pkStage"><span>3 lettres</span><span>4e lettre</span><span>5e lettre</span></div>
         <div class="cards pkboard" id="pkBoard"></div>
         <div class="pot">Pot : <b id="pkPot">🪙 0</b></div>
@@ -787,7 +802,7 @@ function connect(){ws=new WebSocket((location.protocol==="https:"?"wss://":"ws:/
 
 // ---------- affichage ----------
 const PCOL=["#5ad8ff","#ffa45c","#7cf0a9","#c49bff","#ff8fb1","#ffd166"];
-function card(ch,cls){return '<div class="card-l'+(cls?" "+cls:"")+'">'+(ch?esc(ch)+"<small>"+PV[ch]+"</small>":"")+'</div>'}
+function card(ch,cls,key){return '<div class="card-l'+(cls?" "+cls:"")+'"'+(key?' data-ck="'+key+'"':'')+'>'+(ch?esc(ch)+"<small>"+PV[ch]+"</small>":"")+'</div>'}
 function fmt(ms){const s=Math.max(0,Math.ceil(ms/1000));return Math.floor(s/60)+":"+String(s%60).padStart(2,"0")}
 let skew=0;
 function render(){const st=ST;const lob=$("#pkLobby");
@@ -808,7 +823,7 @@ function render(){const st=ST;const lob=$("#pkLobby");
   $("#pkOpp").innerHTML=opp.map(([s,i])=>seatHTML(st,s,i,false)).join("");
   $("#pkMe").innerHTML=me?seatHTML(st,me,st.me,true):"";
   // milieu
-  $("#pkBoard").innerHTML=(st.board||[]).map((c,i)=>card(c,c?(PREV&&PREV.board&&!PREV.board[i]&&c?"flip":""):"hid")).join("")||[0,1,2,3,4].map(()=>card(null,"hid")).join("");
+  $("#pkBoard").innerHTML=(st.board&&st.board.length?st.board:[null,null,null,null,null]).map((c,i)=>card(c,c?"":"slot","b"+i)).join("");
   $$("#pkStage span").forEach((x,i)=>x.classList.toggle("on",st.shown>=[3,4,5][i]&&st.started));
   $("#pkPot").innerHTML="🪙 "+st.pot+(st.bank?" <small class='carrytag' title='La banque remporte les pots sans mot valide et les restes d\'arrondi'>🏦 banque "+st.bank+"</small>":"");
   // résultats
@@ -822,12 +837,12 @@ function render(){const st=ST;const lob=$("#pkLobby");
   const wp=st.phase==="mot"&&me&&!me.folded;$("#pkWordCard").classList.toggle("wordphase",wp);$("#pkWClk").style.display=wp?"":"none";$("#pkIn").disabled=!(me&&!me.folded&&(st.phase==="mot"||st.phase==="mise"));
   if(PREV&&PREV.phase!=="mot"&&st.phase==="mot"&&me&&!me.folded){toast("✍️","À vous ! <b>45 s</b> pour taper votre mot");bell();setTimeout(()=>$("#pkIn").focus(),100)}
   if(PREV&&PREV.phase!=="abattage"&&st.phase==="abattage"&&st.msg){toast(st.results&&st.results.some(x=>x.win)?"🏆":"🔁",esc(st.msg));bell()}
-  if(PREV&&PREV.started&&PREV.hand===st.hand&&PREV.shown<st.shown&&st.started&&st.phase==="mise")toast("🂠",st.shown+"e lettre retournée : "+esc(st.board[st.shown-1]));
   if(PREV&&PREV.turn!==st.turn&&myTurn)tone(660,.25,.08);
   if((st.phase==="fin"&&PREV&&PREV.phase!=="fin")||(me&&(!PREV||PREV.me<0)))loadWallet();
+  dealer(PREV,st);applyHide();
   renderDeck(st.deckLeft);tick()}
 function seatHTML(st,s,i,mine){const turn=st.phase==="mise"&&st.turn===i;const cls="seat"+(mine?" me":"")+(turn?" turn":st.started&&st.phase==="mise"?" idle":"")+(s.folded||s.out||s.gone?" out":"");
-  const hand=s.hand?s.hand.map(c=>card(c,"mine")).join(""):(st.started&&!s.out?card(null,"back")+card(null,"back"):"");
+  const hand=s.hand?s.hand.map((c,k)=>card(c,"mine","s"+i+"-"+k)).join(""):(st.started&&!s.out?card(null,"back","s"+i+"-0")+card(null,"back","s"+i+"-1"):"");
   return '<div class="'+cls+'" data-i="'+i+'" style="--c:'+(mine?"var(--gold)":PCOL[i%6])+'"><div class="shead"><span class="ava" style="background:'+PCOL[i%6]+'">'+esc(s.name[0])+'</span><b>'+esc(s.name)+'</b>'+(s.bot?" 🤖":"")+'<span class="rclk" data-clk="'+i+'">'+(turn?"":"–")+'</span></div><div class="chips">🪙 '+s.stack+(s.inPot?" · mise "+s.inPot:"")+(s.last?" · "+esc(s.last):"")+(s.gone?" · parti":"")+(st.phase==="mot"&&!s.folded?(s.wordDone?" · ✍️ prêt":" · ✍️…"):"")+'</div><div class="cards'+(mine?"":" sm")+'">'+hand+'</div></div>'}
 function tick(){if(!ST)return;const left=ST.deadline-(Date.now()+skew);
   $$("[data-clk]").forEach(c=>{const i=+c.dataset.clk;const on=ST.phase==="mise"&&ST.turn===i;c.textContent=on?fmt(left):"–";c.classList.toggle("low",on&&left<=10500)});
@@ -878,6 +893,42 @@ $("#homeBtn").onclick=()=>{const me=ST&&ST.me>=0?ST.seats[ST.me]:null;if(ST&&ST.
 $("#lvQuit").onclick=()=>{pk({a:"leave"});setTimeout(()=>location.href=HOMEURL,200)};
 $("#lvStay").onclick=()=>$("#leave").classList.remove("on");
 typed();loadWallet();connect();render();
+
+// ---------- le croupier : il distribue les lettres une à une (2 par joueur, tour de table), « brûle » une carte puis retourne les lettres communes ----------
+const DEAL={hide:new Set(),run:0};
+const ckEl=k=>document.querySelector('[data-ck="'+k+'"]');
+function applyHide(){DEAL.hide.forEach(k=>{const e=ckEl(k);if(e)e.style.visibility="hidden"})}
+function noise(dur,vol,hp,del){if(!SOUND)return;try{const A=window._ac||(window._ac=new (window.AudioContext||window.webkitAudioContext)());const n=A.currentTime+(del||0);const len=Math.floor(A.sampleRate*dur);const b=A.createBuffer(1,len,A.sampleRate),d=b.getChannelData(0);for(let i=0;i<len;i++)d[i]=(Math.random()*2-1)*(1-i/len);
+  const src=A.createBufferSource(),f=A.createBiquadFilter(),g=A.createGain();src.buffer=b;f.type="highpass";f.frequency.value=hp||2500;g.gain.value=vol||.25;src.connect(f).connect(g).connect(A.destination);src.start(n)}catch(e){}}
+const swish=()=>noise(.11,.22,2200),flipSnd=()=>{noise(.05,.35,3500);tone(1200,.05,.04)};
+function deckRect(){const d=$("#pkPile");return d&&d.offsetParent?d.getBoundingClientRect():null}
+function fly(key,delay,o){const run=DEAL.run;return new Promise(res=>setTimeout(()=>{if(run!==DEAL.run)return res();const t=ckEl(key),from=deckRect();
+  const land=()=>{DEAL.hide.delete(key);const e=ckEl(key);if(e){e.style.visibility="";if(o.flip){e.classList.remove("flip");void e.offsetWidth;e.classList.add("flip");flipSnd()}}res()};
+  if(!t||!from||!t.animate){land();return}
+  const to=t.getBoundingClientRect(),c=document.createElement("div");c.className="card-l back pkfly";
+  c.style.cssText="position:fixed;left:"+from.left+"px;top:"+from.top+"px;width:"+to.width+"px;height:"+to.height+"px;margin:0;z-index:60;pointer-events:none";document.body.appendChild(c);swish();
+  const dx=to.left-from.left,dy=to.top-from.top,rot=(Math.random()*14-7).toFixed(1);
+  c.animate([{transform:"translate(0,0) rotate(-30deg) scale(.6)",opacity:.9},{transform:"translate("+dx+"px,"+dy+"px) rotate("+rot+"deg) scale(1)",opacity:1}],{duration:o.board?460:400,easing:"cubic-bezier(.15,.85,.3,1)"}).onfinish=()=>{c.remove();land()}},delay))}
+// carte « brûlée » : le croupier écarte la carte du dessus avant de retourner des lettres communes
+function burn(delay){const run=DEAL.run;setTimeout(()=>{if(run!==DEAL.run)return;const from=deckRect();if(!from)return;const c=document.createElement("div");c.className="card-l back pkfly";
+  c.style.cssText="position:fixed;left:"+from.left+"px;top:"+from.top+"px;width:"+from.width+"px;height:"+from.height+"px;margin:0;z-index:60;pointer-events:none";document.body.appendChild(c);swish();
+  c.animate([{transform:"translate(0,0)",opacity:1},{transform:"translate(-46px,10px) rotate(-18deg)",opacity:.0}],{duration:520,easing:"ease-out"}).onfinish=()=>c.remove()},delay)}
+function talk(t){const b=$("#pkDealerSay");if(!b)return;b.textContent=t;b.classList.remove("on");void b.offsetWidth;b.classList.add("on")}
+function dealer(P,st){if(!P||!st)return;const d=$("#pkDealer");if(d)d.classList.toggle("on",!!st.started);
+  // nouvelle donne
+  if(st.started&&st.phase==="mise"&&P.hand!==st.hand){DEAL.run++;DEAL.hide.clear();const n=st.seats.length,start=Math.max(0,st.turn||0),order=[];
+    for(let r=0;r<2;r++)for(let k=0;k<n;k++){const i=(start+k)%n,s=st.seats[i];if(!(s.hand||!s.out))continue;order.push({key:"s"+i+"-"+r,flip:i===st.me})}
+    const nb=Math.min(3,st.shown||0);for(let b=0;b<nb;b++)order.push({key:"b"+b,flip:true,board:true});
+    order.forEach(o=>DEAL.hide.add(o.key));talk("Coup "+st.hand+" : je distribue…");let t=350;
+    order.forEach(o=>{if(o.board&&o.key==="b0"){burn(t+150);t+=700;setTimeout(()=>talk("Les 3 premières lettres"),t-200)}fly(o.key,t,o);t+=o.board?330:210});
+    setTimeout(()=>{if(st.me>=0&&ST&&ST.turn===st.me&&ST.phase==="mise")talk("À vous de parler")},t+300);return}
+  // nouvelle lettre commune (4e, 5e)
+  if(st.started&&P.hand===st.hand&&(st.shown||0)>(P.shown||0)){const keys=[];for(let b=P.shown||0;b<st.shown;b++)keys.push("b"+b);keys.forEach(k=>DEAL.hide.add(k));
+    talk(st.shown===4?"4e lettre":"5e lettre, la dernière");let t=200;burn(t);t+=600;keys.forEach(k=>{fly(k,t,{flip:true,board:true});t+=380});return}
+  // abattage : les lettres cachées des adversaires se retournent une à une
+  if(P.phase!=="abattage"&&st.phase==="abattage"){talk("Abattage !");let t=150;st.seats.forEach((s,i)=>{if(i===st.me||!s.hand)return;[0,1].forEach(r=>{setTimeout(()=>{const e=ckEl("s"+i+"-"+r);if(e){e.classList.remove("flip");void e.offsetWidth;e.classList.add("flip");flipSnd()}},t);t+=260})})}
+  if(P.phase!=="mot"&&st.phase==="mot")talk("Faites vos mots !");
+  if(st.phase==="fin"&&P.phase!=="fin")talk("Partie terminée, merci !")}
 
 </script>
 <script>// ---------- fenêtres et boutons : icônes « verre » à la place des émojis, croix de fermeture sur chaque fenêtre ----------
