@@ -1495,7 +1495,7 @@ function waitCheck(){if(!G||G.solo||G.done||!G.wait||mySeat()===null)return;
 function claimGuest(){if(!G||G.solo||!ME||mySeat()!==null)return;const i=G.players.findIndex(p=>p.name==="Invité");if(i<0)return;G.players[i].name=ME.name;save();announce(true);render()}
 
 // ---------- pause / quitter (5 min max en duo) ----------
-function pauseGame(){if(!G||G.done)return;if(G.solo){LS.set("fl-paused-fleches","1");save();return}const s=mySeat();if(s===null)return;G.away=G.away||{};if(!away().length)G.pauseRem=Math.max(0,G.turnStart+dur()*1000-Date.now());G.away[s]=Date.now();save()}
+function pauseGame(){if(!G||G.done)return;if(G.solo){LS.set("fl-paused-fleches","1");save();G.pauseAt=G.saved;LS.set(SOLOKEY,JSON.stringify(G));soloPut();return}const s=mySeat();if(s===null)return;G.away=G.away||{};if(!away().length)G.pauseRem=Math.max(0,G.turnStart+dur()*1000-Date.now());G.away[s]=Date.now();save()}
 function resumeGame(){if(!G||G.solo||!G.away)return;const s=mySeat();if(s===null||G.away[s]===undefined)return;delete G.away[s];if(!away().length){G.turnStart=Date.now()-(dur()*1000-(G.pauseRem||dur()*1000));delete G.away;delete G.pauseRem}save();render()}
 function quitGame(){if(!G)return;if(G.solo){LS.del(SOLOKEY);LS.del("fl-paused-fleches");return}const s=mySeat();if(s===null||G.done)return;G.away=G.away||{};if(!away().length)G.pauseRem=Math.max(0,G.turnStart+dur()*1000-Date.now());G.away[s]=0;G.quitBy=G.players[s].name;awayCheck(true);save()}
 function awayCheck(force){if(!G||G.solo||G.done||!G.away)return;const now=Date.now();if(!Object.keys(G.away).some(k=>G.away[k]===0||now-G.away[k]>=300000))return;
@@ -1508,7 +1508,13 @@ function awayCheck(force){if(!G||G.solo||G.done||!G.away)return;const now=Date.n
 function pick(k){if(!G)return;sel=k;sfx.pop();if(G.filled[k]!==undefined){const w=curWord();const f=w&&w.cells.find(x=>G.filled[x]===undefined);if(f)sel=f}render();focusKb()}
 function curWord(){return sel&&cellWords[sel]?(cellWords[sel][dir]||cellWords[sel].h||cellWords[sel].v):null}
 function step(d){const w=curWord();if(!w)return;let i=w.cells.indexOf(sel)+d;while(i>=0&&i<w.cells.length&&G.filled[w.cells[i]]!==undefined)i+=d;if(i>=0&&i<w.cells.length)sel=w.cells[i]}
-function typeL(l){if(!canPlay()||!sel)return;if(G.filled[sel]!==undefined){step(1);if(G.filled[sel]!==undefined)return}pend[sel]=l;step(1);sfx.type();render();announce()}
+function typeL(l){if(!canPlay()||!sel)return;
+  // case déjà remplie (lettre fournie au niveau facile ou mot trouvé) : taper la même lettre la « valide » et on avance d'une case ;
+  // une autre lettre va dans la case vide suivante du mot
+  if(G.filled[sel]!==undefined){const have=(G.letters&&G.letters[sel])||SOL[sel];if(have===l){step1();sfx.type();render();announce();return}step(1);if(G.filled[sel]!==undefined)return}
+  pend[sel]=l;step1();sfx.type();render();announce()}
+// avance d'une case dans le mot, sans sauter les lettres déjà en place (on peut les retaper)
+function step1(){const w=curWord();if(!w)return;const i=w.cells.indexOf(sel)+1;if(i>0&&i<w.cells.length)sel=w.cells[i]}
 function erase(){if(!canPlay()||!sel)return;sfx.del();if(pend[sel]){delete pend[sel]}else{const w=curWord();if(w){const i=w.cells.indexOf(sel);if(i>0){sel=w.cells[i-1];delete pend[sel]}}}render();announce()}
 function validate(){if(!canPlay())return;const ks=Object.keys(pend).filter(k=>G.filled[k]===undefined);
   if(!ks.length){toast("✍️","Écris au moins une lettre avant de valider.");return}
@@ -1706,9 +1712,15 @@ function guestNote(){if(ME||!G||!G.solo||!G.done||guestCount()<GUEST_MAX||docume
 function soloPut(){if(!G||!G.solo||!ME||!ME.token)return;clearTimeout(soloPut.t);const doc=G.done?null:JSON.parse(JSON.stringify(G));soloPut.t=setTimeout(()=>{fetch("/api/p/solo",{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({name:ME.name,token:ME.token,game:GAME,op:"put",doc})}).catch(()=>{})},G.done?0:1500)}
 function soloGet(){if(!ME||!ME.token)return Promise.resolve(null);return Promise.race([fetch("/api/p/solo",{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({name:ME.name,token:ME.token,game:GAME})}).then(r=>r.ok?r.json():null).catch(()=>null),new Promise(r=>setTimeout(()=>r(null),1500))])}
 function soloBoot(go,lvl,n){let loc=null;try{loc=JSON.parse(LS.get(SOLOKEY)||"null")}catch(e){}
-  soloGet().then(r=>{const sv=r&&r.doc;const old=g=>g&&g.solo&&!g.done&&(go==="resume"||(!n&&g.level===lvl));
+  const old=g=>g&&g.solo&&!g.done&&(go==="resume"||(!n&&g.level===lvl));
+  // le chrono du solo ne compte pas le temps passé hors de la partie (pause, page fermée)
+  const thaw=g=>{const t=g.pauseAt||g.saved;if(g.started&&t&&Date.now()>t)g.started+=Date.now()-t;delete g.pauseAt;return g};
+  // « Reprendre » : la partie gardée sur cet appareil s'ouvre tout de suite ; celle du compte la remplace seulement si elle est plus récente
+  if(go==="resume"&&old(loc)){const t0=loc.saved||0;open(thaw(loc));save();
+    soloGet().then(r=>{const sv=r&&r.doc;if(old(sv)&&(sv.saved||0)>t0&&sv.gid!==G.gid){open(thaw(sv));save()}});return}
+  soloGet().then(r=>{const sv=r&&r.doc;
     let best=old(loc)?loc:null;if(old(sv)&&(!best||(sv.saved||0)>(best.saved||0)))best=sv;
-    if(best){open(best);save();return}
+    if(best){open(thaw(best));save();return}
     if(go==="resume"){location.replace(HOME);return}
     if(!ME&&guestCount()>=GUEST_MAX){location.replace("/?need=compte");return}
     NEWSOLO(lvl,n,new Set((r&&r.played)||[]))})}

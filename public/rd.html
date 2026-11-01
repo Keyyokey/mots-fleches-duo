@@ -1570,9 +1570,15 @@ function guestNote(){if(ME||!G||!G.solo||!G.done||guestCount()<GUEST_MAX||docume
 function soloPut(){if(!G||!G.solo||!ME||!ME.token)return;clearTimeout(soloPut.t);const doc=G.done?null:JSON.parse(JSON.stringify(G));soloPut.t=setTimeout(()=>{fetch("/api/p/solo",{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({name:ME.name,token:ME.token,game:GAME,op:"put",doc})}).catch(()=>{})},G.done?0:1500)}
 function soloGet(){if(!ME||!ME.token)return Promise.resolve(null);return Promise.race([fetch("/api/p/solo",{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({name:ME.name,token:ME.token,game:GAME})}).then(r=>r.ok?r.json():null).catch(()=>null),new Promise(r=>setTimeout(()=>r(null),1500))])}
 function soloBoot(go,lvl,n){let loc=null;try{loc=JSON.parse(LS.get(SOLOKEY)||"null")}catch(e){}
-  soloGet().then(r=>{const sv=r&&r.doc;const old=g=>g&&g.solo&&!g.done&&(go==="resume"||(!n&&g.level===lvl));
+  const old=g=>g&&g.solo&&!g.done&&(go==="resume"||(!n&&g.level===lvl));
+  // le chrono du solo ne compte pas le temps passé hors de la partie (pause, page fermée)
+  const thaw=g=>{const t=g.pauseAt||g.saved;if(g.started&&t&&Date.now()>t)g.started+=Date.now()-t;delete g.pauseAt;return g};
+  // « Reprendre » : la partie gardée sur cet appareil s'ouvre tout de suite ; celle du compte la remplace seulement si elle est plus récente
+  if(go==="resume"&&old(loc)){const t0=loc.saved||0;open(thaw(loc));save();
+    soloGet().then(r=>{const sv=r&&r.doc;if(old(sv)&&(sv.saved||0)>t0&&sv.gid!==G.gid){open(thaw(sv));save()}});return}
+  soloGet().then(r=>{const sv=r&&r.doc;
     let best=old(loc)?loc:null;if(old(sv)&&(!best||(sv.saved||0)>(best.saved||0)))best=sv;
-    if(best){open(best);save();return}
+    if(best){open(thaw(best));save();return}
     if(go==="resume"){location.replace(HOME);return}
     if(!ME&&guestCount()>=GUEST_MAX){location.replace("/?need=compte");return}
     NEWSOLO(lvl,n,new Set((r&&r.played)||[]))})}
