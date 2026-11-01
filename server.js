@@ -727,6 +727,8 @@ const server = http.createServer((req, res) => {
   if (url.pathname === "/mot" || url.pathname === "/mot/") return sendPage(req, res, path.join(__dirname, "public", "mot.html"));
   if (/^\/(?:[A-Za-z0-9]{5}\/)?rond\/?$/.test(url.pathname)) return sendPage(req, res, path.join(__dirname, "public", "rd.html"));
   if (/^\/(?:[A-Za-z0-9]{5}\/)?meles\/?$/.test(url.pathname)) return sendPage(req, res, path.join(__dirname, "public", "mm.html"));
+  // icône du site (onglet du navigateur)
+  if (url.pathname === "/favicon.ico" || url.pathname === "/favicon.svg") { res.writeHead(200, { "content-type": "image/svg+xml", "cache-control": "public, max-age=604800" }); return res.end('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#00ADB5"/><stop offset="1" stop-color="#A26BFF"/></linearGradient></defs><rect width="64" height="64" rx="14" fill="url(#g)"/><text x="32" y="46" font-family="Arial,sans-serif" font-size="40" font-weight="800" text-anchor="middle" fill="#fff">M</text></svg>'); }
   if (/^\/(?:[A-Za-z0-9]{5}\/)?culture\/?$/.test(url.pathname)) return sendPage(req, res, path.join(__dirname, "public", "cg.html"));
   if (/^\/(?:[A-Za-z0-9]{5}\/)?fleches\/?$/.test(url.pathname)) return sendPage(req, res, path.join(__dirname, "public", "fl.html"));
   if (/^\/(?:[A-Za-z0-9]{5}\/)?poker\/?$/.test(url.pathname)) return sendPage(req, res, path.join(__dirname, "public", "poker.html"));
