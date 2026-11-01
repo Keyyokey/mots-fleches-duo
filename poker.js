@@ -101,7 +101,7 @@ module.exports = function (hooks) {
     t.commit = crypto.createHash("sha256").update(t.revealDeck).digest("hex").slice(0, 16);
     for (const s of active(t)) { const a = Math.min(t.ante, s.stack); s.stack -= a; s.inPot += a; t.pot += a; if (!s.stack) s.allin = true; }
     t.shown = 3; t.phase = "mise"; t.round = 1;
-    t.grace = Math.ceil(3.6 + active(t).length * 2 * 0.6 + 7);   // annonce du coup + 2 lettres par joueur + 3 lettres communes
+    t.grace = Math.ceil(4 + active(t).length * 1.1 + 8.5);   // annonce du coup + 2 lettres par joueur + 3 lettres communes
     t.first = (t.hand - 1) % t.seats.length;
     startRound(t);
   }
