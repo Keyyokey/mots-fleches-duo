@@ -969,24 +969,37 @@ async function renderRank(){const r=await call("rank",{name:ME?ME.name:""});cons
 
 // ---------- ma progression : points cumulés jour après jour ----------
 let PTS=null;const CHG=["fleches","rond","meles","poker"];
-function chart(i){const box=$("#chart"),sub=$("#chartSub");
-  if(!ME){box.innerHTML="";sub.innerHTML='<a href="#" id="chLogin">Connecte-toi</a> pour suivre tes points jour après jour.';$("#chLogin").onclick=e=>{e.preventDefault();openMe($(".me-pill"))};return}
-  if(!PTS){box.innerHTML="";sub.textContent="Chargement…";return}
+function chart(i){const box=$("#chart"),sub=$("#chartSub"),tabs=$("#chartTabs");
+  const hide=on=>{box.style.display=on?"none":"";tabs.style.display=on?"none":""};
+  if(!ME||ME.stale){hide(true);box.innerHTML="";sub.textContent="Veuillez vous connecter pour accéder à vos stats.";return}
+  if(!PTS){hide(true);box.innerHTML="";sub.textContent="Chargement…";return}
+  // statistiques établies seulement après une première accumulation de points ; ensuite elles restent, même à zéro
+  if(!PTS.ever){hide(true);box.innerHTML="";sub.textContent="Tes statistiques apparaîtront dès tes premiers points.";return}
+  hide(false);
   const days=14,end=new Date(),key=k=>{const d=new Date(end);d.setDate(end.getDate()-(days-1-k));return new Date(d.getTime()+3600e3).toISOString().slice(0,10)};
-  const daily=Array.from({length:days},(_,k)=>((PTS.d||{})[key(k)]||{})[CHG[i]]||0);let c=0;const cum=daily.map(v=>c+=v);
+  let daily,cum;
+  if(i==="t"){const b=PTS.b||{},bk=Object.keys(b).sort();
+    // solde réel jour par jour (dernier total connu) ; avant le premier relevé : 0, sauf compte sans relevé → total actuel
+    cum=Array.from({length:days},(_,k)=>{const d=key(k);let v=bk.length?0:(PTS.tot||0);for(const x of bk){if(x<=d)v=b[x];else break}return Math.max(0,Math.round(v))});
+    daily=cum.map((v,k)=>k?v-cum[k-1]:0)}
+  else{daily=Array.from({length:days},(_,k)=>((PTS.d||{})[key(k)]||{})[CHG[i]]||0);let c=0;cum=daily.map(v=>c+=v)}
   const W=300,H=118,L=34,B=18,T=16;const mx=Math.max(100,Math.ceil(Math.max(...cum)*1.1/100)*100);
   const dt=k=>key(k).slice(8,10)+"/"+key(k).slice(5,7);const X=k=>L+k*(W-L-6)/(days-1),Y=v=>H-B-(v/mx)*(H-B-T);const line=cum.map((v,k)=>X(k)+","+Y(v)).join(" ");
   let g='<defs><linearGradient id="cg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#00ADB5" stop-opacity=".45"/><stop offset="1" stop-color="#00ADB5" stop-opacity="0"/></linearGradient></defs>';
   for(let t=0;t<=2;t++){const v=mx*t/2,y=Y(v);g+='<line x1="'+L+'" x2="'+(W-4)+'" y1="'+y+'" y2="'+y+'" stroke="currentColor" stroke-opacity=".12"/><text x="'+(L-5)+'" y="'+(y+3)+'" text-anchor="end" font-size="9" fill="currentColor" opacity=".7">'+v+'</text>'}
   [0,Math.floor((days-1)/2),days-1].forEach(k=>{g+='<text x="'+X(k)+'" y="'+(H-4)+'" text-anchor="'+(k===0?"start":k===days-1?"end":"middle")+'" font-size="9" fill="currentColor" opacity=".7">'+dt(k)+'</text>'});
   g+='<polygon points="'+X(0)+','+(H-B)+' '+line+' '+X(days-1)+','+(H-B)+'" fill="url(#cg)"/><polyline points="'+line+'" fill="none" stroke="#A26BFF" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/>';
-  cum.forEach((v,k)=>{g+='<circle cx="'+X(k)+'" cy="'+Y(v)+'" r="'+(k===days-1?4.5:2.6)+'" fill="#A26BFF"><title>'+dt(k)+' : '+v+' pts (+'+daily[k]+')</title></circle>'});
+  cum.forEach((v,k)=>{g+='<circle cx="'+X(k)+'" cy="'+Y(v)+'" r="'+(k===days-1?4.5:2.6)+'" fill="#A26BFF"><title>'+dt(k)+' : '+v+' pts ('+(daily[k]>=0?"+":"")+daily[k]+')</title></circle>'});
   const last=cum[days-1];g+='<text x="'+(X(days-1)-6)+'" y="'+(Y(last)-8)+'" text-anchor="end" font-size="11" font-weight="800" fill="currentColor">'+last+'</text>';
-  box.innerHTML=g;sub.textContent="Points cumulés sur 14 jours · +"+daily[days-1]+" aujourd'hui · total "+fmtN((PTS.g||{})[CHG[i]]||0)}
-$$("#chartTabs button").forEach(b=>b.onclick=()=>{$$("#chartTabs button").forEach(x=>x.classList.toggle("on",x===b));chart(+b.dataset.c)});
+  box.innerHTML=g;
+  sub.textContent=i==="t"?"Total de tes points sur 14 jours · aujourd'hui "+fmtN(PTS.tot||0):"Points cumulés sur 14 jours · +"+daily[days-1]+" aujourd'hui · total "+fmtN((PTS.g||{})[CHG[i]]||0)}
+// onglet « Total » : le solde réel du compte (montre aussi un retour à zéro)
+(function(){const t=$("#chartTabs");if(t&&!t.querySelector('[data-c="t"]')){const b=document.createElement("button");b.dataset.c="t";b.textContent="Total";t.appendChild(b)}})();
+const curTab=()=>{const b=$("#chartTabs .on");const c=b?b.dataset.c:"0";return c==="t"?"t":+c};
+$$("#chartTabs button").forEach(b=>b.onclick=()=>{$$("#chartTabs button").forEach(x=>x.classList.toggle("on",x===b));chart(curTab())});
 async function loadMe(){if(!ME)return;const r=await call("me",{name:ME.name,token:ME.token});
-  if(r.status===200){if(Array.isArray(r.salons))ME.salons=r.salons;store();updPills();PTS=r.pts;chart(+($("#chartTabs .on")||{dataset:{c:0}}).dataset.c)}
-  else if(r.status===401){ME.stale=true;store();$("#chartSub").textContent="Reconnecte-toi avec ton code secret pour voir ta progression."}}
+  if(r.status===200){if(Array.isArray(r.salons))ME.salons=r.salons;store();updPills();PTS=r.pts;chart(curTab())}
+  else if(r.status===401){ME.stale=true;store();chart(curTab())}}
 
 // ---------- fenêtres Pseudo et Salon ----------
 function place(pop,btn){const r=btn.getBoundingClientRect();const w=Math.min(340,innerWidth-24);let x=r.left+scrollX+r.width/2-w/2;x=Math.max(12,Math.min(x,innerWidth-w-12));pop.style.left=x+"px";pop.style.top=(r.bottom+scrollY+12)+"px";pop.style.setProperty("--ax",(r.left+r.width/2-x-7)+"px")}

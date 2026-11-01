@@ -410,10 +410,15 @@ const backupReady = backupPlayers();
 const rankMem = new Map();           // pseudo -> total (secours sans Redis)
 const DAYKEY = () => new Date(Date.now() + 3600e3).toISOString().slice(0, 10);
 const SOLO_MULT = { facile: 1, normal: 1.5, moyen: 1.5, difficile: 2 };
+// solde du jour (total en fin de journée) : sert au graphique « Total », qui montre aussi les baisses (conversion en jetons)
+function balSnap(p) { p.pts.b = p.pts.b || {}; p.pts.b[DAYKEY()] = p.pts.tot; const k = Object.keys(p.pts.b).sort(); if (k.length > 60) k.slice(0, k.length - 60).forEach(x => delete p.pts.b[x]); }
+const ptsOut = p => { const q = p.pts || { tot: 0, g: {}, d: {} }; return { ...q, ever: !!(q.ever || q.tot > 0 || Object.values(q.g || {}).some(v => v > 0)) }; };
 async function addPoints(name, p, game, pts) {
   p.pts = p.pts || { tot: 0, g: {}, d: {} };
   p.pts.tot += pts; p.pts.g[game] = (p.pts.g[game] || 0) + pts;
+  if (pts > 0) p.pts.ever = 1;                       // a déjà accumulé des points (reste vrai même si le total revient à zéro)
   const day = DAYKEY(); const d = p.pts.d[day] || {}; d[game] = (d[game] || 0) + pts; p.pts.d[day] = d;
+  balSnap(p);
   const days = Object.keys(p.pts.d).sort(); if (days.length > 60) days.slice(0, days.length - 60).forEach(k => delete p.pts.d[k]);
   rankMem.set(name, p.pts.tot);
   if (REDIS) redis(["ZADD", "rank", String(p.pts.tot), name]).catch(e => console.error("Classement Redis :", e.message));
@@ -498,7 +503,7 @@ async function api(req, res, route) {
   }
   if (!authed()) return out(401, { error: "jeton", msg: "Reconnecte-toi avec ton code secret." });
   if (["salons", "sjoin", "screate", "skick", "scode"].includes(route)) return void await salonApi(route, name, p, b, ip, out, bad);
-  if (route === "me") { let list = null; try { list = await salonList(name, p); } catch {} return out(200, { name, salons: list, pts: p.pts || { tot: 0, g: {}, d: {} } }); }
+  if (route === "me") { let list = null; try { list = await salonList(name, p); } catch {} return out(200, { name, salons: list, pts: ptsOut(p) }); }
   if (route === "wallet" || route === "conv") {
     ensureWallet(p); p.cv = (p.cv || []).filter(x => Date.now() - x.t < 2 * 3600e3);
     const used = p.cv.reduce((a, x) => a + x.n, 0);
@@ -507,7 +512,7 @@ async function api(req, res, route) {
       if (n <= 0) return out(400, { error: "pts", msg: "Choisis un nombre de points." });
       if (n > 500 - used) return out(400, { error: "limite", msg: "Limite de 500 points toutes les 2 heures." });
       if (n > tot) return out(400, { error: "pts", msg: "Tu n'as pas assez de points." });
-      p.pts.tot -= n; p.coins += n / 4; p.cv.push({ t: Date.now(), n });
+      p.pts.tot -= n; p.coins += n / 4; p.cv.push({ t: Date.now(), n }); balSnap(p);
       rankMem.set(name, p.pts.tot); if (REDIS) redis(["ZADD", "rank", String(p.pts.tot), name]).catch(() => {});
       savePlayer(name);
     }
