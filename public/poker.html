@@ -686,21 +686,26 @@ table.bar td,table.bar th{padding:5px 6px;border-bottom:1px solid rgba(255,255,2
 .pkdealer.on .dav{animation:dnod 2.4s ease-in-out infinite}
 @keyframes dnod{0%,100%{transform:rotate(0)}50%{transform:rotate(-4deg)}}
 .pkdealer .dtxt{display:flex;flex-direction:column;line-height:1.15;min-width:120px}.pkdealer .dtxt b{font-size:.78rem;letter-spacing:.06em;text-transform:uppercase;color:#d8f5e6}
-.pkdealer .dsay{font-size:.82rem;color:#fff;font-weight:700}.pkdealer .dsay.on{animation:dsay .5s ease}
+.pkdealer .dsay{font-size:.82rem;color:#fff;font-weight:700}
 @keyframes dsay{from{opacity:0;transform:translateY(4px)}}
 .pkdealer .pile{position:relative;width:30px;height:42px;margin-left:4px}
 .pkdealer .pile i{position:absolute;inset:0;border-radius:6px;background:repeating-linear-gradient(45deg,#7a2f4c,#7a2f4c 5px,#8f3a5b 5px,#8f3a5b 10px);border:2px solid #fff;box-shadow:0 2px 4px rgba(0,0,0,.35)}
 .pkdealer .pile i:nth-child(2){transform:translate(2px,-2px)}.pkdealer .pile i:nth-child(3){transform:translate(4px,-4px)}
 .card-l.slot{background:rgba(255,255,255,.06);border:2px dashed rgba(255,255,255,.35);box-shadow:none;color:transparent}.card-l.slot small{display:none}
 .pkfly{display:block;box-shadow:0 10px 24px rgba(0,0,0,.45)}
-.pkann{position:absolute;left:50%;top:50%;z-index:6;transform:translate(-50%,-50%) scale(.6);opacity:0;pointer-events:none;display:flex;flex-direction:column;align-items:center;gap:4px;padding:16px 30px;border-radius:22px;text-align:center;
-  background:linear-gradient(135deg,rgba(255,200,87,.28),rgba(162,107,255,.22));border:1px solid rgba(255,255,255,.35);backdrop-filter:blur(14px) saturate(160%);-webkit-backdrop-filter:blur(14px) saturate(160%);box-shadow:0 18px 50px rgba(0,0,0,.45),inset 0 1px 0 rgba(255,255,255,.35);transition:transform .45s cubic-bezier(.2,1.5,.4,1),opacity .35s}
+.pkann{position:absolute;left:50%;top:50%;z-index:6;transform:translate(-50%,calc(-50% + 14px)) scale(.94);opacity:0;pointer-events:none;display:flex;flex-direction:column;align-items:center;gap:4px;padding:16px 30px;border-radius:22px;text-align:center;
+  background:linear-gradient(135deg,rgba(255,200,87,.28),rgba(162,107,255,.22));border:1px solid rgba(255,255,255,.35);backdrop-filter:blur(14px) saturate(160%);-webkit-backdrop-filter:blur(14px) saturate(160%);box-shadow:0 18px 50px rgba(0,0,0,.45),inset 0 1px 0 rgba(255,255,255,.35);transition:transform .9s cubic-bezier(.22,.8,.3,1),opacity .8s ease}
 .pkann.on{opacity:1;transform:translate(-50%,-50%) scale(1)}
 .pkann b{font:800 clamp(1.6rem,4vw,2.4rem) "Playfair Display",serif;color:#fff;text-shadow:0 2px 10px rgba(0,0,0,.4);white-space:nowrap}
 .pkann span{font:700 .9rem Nunito,Inter,sans-serif;color:#ffe7a8;letter-spacing:.04em;text-transform:uppercase}
 .pkann.sm b{font-size:clamp(1.2rem,3vw,1.7rem)}
-.pkann.on::after{content:"";position:absolute;inset:-6px;border-radius:26px;border:2px solid rgba(255,200,87,.6);animation:annRing 1.2s ease-out}
-@keyframes annRing{from{opacity:1;transform:scale(.9)}to{opacity:0;transform:scale(1.25)}}
+.pkann.on::after{content:"";position:absolute;inset:-6px;border-radius:26px;border:2px solid rgba(255,200,87,.45);animation:annRing 2.2s ease-out .3s both}
+@keyframes annRing{from{opacity:.9;transform:scale(.97)}to{opacity:0;transform:scale(1.12)}}
+.card-l.flip{animation:flipSoft .9s cubic-bezier(.3,.7,.3,1) both!important}
+@keyframes flipSoft{0%{transform:perspective(500px) rotateY(90deg) scale(.96);filter:brightness(.7)}60%{transform:perspective(500px) rotateY(-6deg) scale(1.02)}100%{transform:perspective(500px) rotateY(0) scale(1);filter:none}}
+.pkres .rv{opacity:0;animation:resIn .8s cubic-bezier(.25,.8,.3,1) forwards}
+@keyframes resIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+.pkdealer .dsay.on{animation:dsay .9s ease}
 @media (max-width:600px){.pkdealer{padding:4px 10px 4px 4px;gap:8px}.pkdealer .dav{width:36px;height:36px}.pkdealer .dav svg{width:32px;height:32px}.pkdealer .dtxt{min-width:96px}}
 .pkin:disabled{opacity:.55}
 </style>
@@ -794,7 +799,7 @@ function toast(ic,html){let t=$("#toast");if(!t){t=document.createElement("div")
   t.innerHTML="<span class='ti'>"+ic+"</span><span>"+html+"</span>";t.classList.remove("on");void t.offsetWidth;t.classList.add("on");clearTimeout(t._h);t._h=setTimeout(()=>t.classList.remove("on"),4200)}
 
 // ---------- connexion ----------
-let ws=null,ST=null,PREV=null,sat=false,ROOMNAME="";
+let RES0=0,ws=null,ST=null,PREV=null,sat=false,ROOMNAME="";
 function send(o){if(ws&&ws.readyState===1)ws.send(JSON.stringify(o))}
 function pk(o){send({t:"pk",name:ME?ME.name:"",token:ME?ME.token:"",...o})}
 function connect(){ws=new WebSocket((location.protocol==="https:"?"wss://":"ws://")+location.host+"/ws");
@@ -813,7 +818,7 @@ const PCOL=["#5ad8ff","#ffa45c","#7cf0a9","#c49bff","#ff8fb1","#ffd166"];
 function card(ch,cls,key){return '<div class="card-l'+(cls?" "+cls:"")+'"'+(key?' data-ck="'+key+'"':'')+'>'+(ch?esc(ch)+"<small>"+PV[ch]+"</small>":"")+'</div>'}
 function fmt(ms){const s=Math.max(0,Math.ceil(ms/1000));return Math.floor(s/60)+":"+String(s%60).padStart(2,"0")}
 let skew=0;
-function render(){const st=ST;const lob=$("#pkLobby");
+function render(){const st=ST;const lob=$("#pkLobby");if(st&&PREV&&PREV.phase!=="abattage"&&st.phase==="abattage")RES0=Date.now();if(st&&st.phase!=="abattage")DEAL.down.clear();
   if(!st){lob.innerHTML='<h3>Poker Lettres</h3><p class="note">Assieds-toi à la table de ce salon. La partie démarre quand vous êtes au moins deux (ou contre le robot en solo).</p><div class="pkrow"><button class="btn primary" id="lbSolo">👤 Jouer contre le robot</button>'+(SOLO?'':'<button class="btn" id="lbSit">👥 M\'asseoir à la table</button>')+'</div>';lob.hidden=false;bindLobby();renderDeck(null);return}
   skew=st.now-Date.now();
   const me=st.me>=0?st.seats[st.me]:null;
@@ -835,7 +840,8 @@ function render(){const st=ST;const lob=$("#pkLobby");
   $$("#pkStage span").forEach((x,i)=>x.classList.toggle("on",st.shown>=[3,4,5][i]&&st.started));
   $("#pkPot").innerHTML="🪙 "+st.pot+(st.bank?" <small class='carrytag' title='La banque remporte les pots sans mot valide et les restes d\'arrondi'>🏦 banque "+st.bank+"</small>":"");
   // résultats
-  let r=$("#pkRes");if(st.results&&st.phase==="abattage"){r.hidden=false;r.innerHTML=st.results.map(x=>'<div class="'+(x.win?"win":x.ok===false?"lose":"")+'"><span>'+(x.win?"🏆 ":"")+esc(x.name)+(x.word?' · '+(x.ok?"<b>"+esc(x.word)+"</b>":"<s>"+esc(x.word)+"</s> ✗ "+esc(x.why||"")):x.why?' · '+esc(x.why):"")+'</span><span>'+(x.ok?(x.pts-5)+" + 5 = <b>"+x.pts+"</b>":x.gain?"+"+x.gain:"<b>perdu</b>")+'</span></div>').join("")}else r.hidden=true;
+  let r=$("#pkRes");if(st.results&&st.phase==="abattage"){r.hidden=false;const opp=st.seats.filter((x,i)=>i!==st.me&&x.hand).length*2,base=1600+opp*650+500,el=Date.now()-(RES0||0);
+    r.innerHTML=st.results.map((x,j)=>'<div style="animation-delay:'+Math.max(0,base+j*900-el)+'ms" class="rv '+(x.win?"win":x.ok===false?"lose":"")+'"><span>'+(x.win?"🏆 ":"")+esc(x.name)+(x.word?' · '+(x.ok?"<b>"+esc(x.word)+"</b>":"<s>"+esc(x.word)+"</s> ✗ "+esc(x.why||"")):x.why?' · '+esc(x.why):"")+'</span><span>'+(x.ok?(x.pts-5)+" + 5 = <b>"+x.pts+"</b>":x.gain?"+"+x.gain:"<b>perdu</b>")+'</span></div>').join("")}else r.hidden=true;
   // actions
   const myTurn=me&&st.phase==="mise"&&st.turn===st.me;const owe=me?Math.max(0,st.bet-me.roundBet):0;
   $$(".pkact .btn").forEach(b=>b.disabled=!myTurn);
@@ -903,9 +909,12 @@ $("#lvStay").onclick=()=>$("#leave").classList.remove("on");
 typed();loadWallet();connect();render();
 
 // ---------- le croupier : il distribue les lettres une à une (2 par joueur, tour de table), « brûle » une carte puis retourne les lettres communes ----------
-const DEAL={hide:new Set(),run:0};
+const DEAL={hide:new Set(),down:new Set(),run:0};
 const ckEl=k=>document.querySelector('[data-ck="'+k+'"]');
-function applyHide(){DEAL.hide.forEach(k=>{const e=ckEl(k);if(e)e.style.visibility="hidden"})}
+function applyHide(){DEAL.hide.forEach(k=>{const e=ckEl(k);if(e)e.style.visibility="hidden"});
+  // lettres des adversaires encore face cachée à l'abattage, jusqu'à ce que le croupier les retourne
+  DEAL.down.forEach(k=>{const e=ckEl(k);if(e&&!e.classList.contains("back")){e.dataset.face=e.innerHTML;e.innerHTML="";e.classList.add("back")}})}
+function faceUp(k){DEAL.down.delete(k);const e=ckEl(k);if(e&&e.classList.contains("back")&&e.dataset.face!==undefined){e.innerHTML=e.dataset.face;e.classList.remove("back")}return e}
 // sons de cartes sur le tapis : frottement feutré quand la carte glisse, petit « tap » mat quand elle se pose, « frrt » quand on la retourne
 function noise(dur,vol,type,freq,q,del,attack){if(!SOUND)return;try{const A=window._ac||(window._ac=new (window.AudioContext||window.webkitAudioContext)());const n=A.currentTime+(del||0);const len=Math.max(1,Math.floor(A.sampleRate*dur));
   const b=A.createBuffer(1,len,A.sampleRate),d=b.getChannelData(0);let last=0;for(let i=0;i<len;i++){const w=Math.random()*2-1;last=last*.6+w*.4;d[i]=last}
@@ -924,12 +933,14 @@ function fly(key,delay,o){const run=DEAL.run;return new Promise(res=>setTimeout(
   if(!t||!from||!t.animate){land();return}
   const to=t.getBoundingClientRect(),c=document.createElement("div");c.className="card-l back pkfly";
   c.style.cssText="position:fixed;left:"+from.left+"px;top:"+from.top+"px;width:"+to.width+"px;height:"+to.height+"px;margin:0;z-index:60;pointer-events:none";document.body.appendChild(c);swish();
-  const dx=to.left-from.left,dy=to.top-from.top,rot=(Math.random()*14-7).toFixed(1);
-  c.animate([{transform:"translate(0,0) rotate(-30deg) scale(.6)",opacity:.9},{transform:"translate("+dx+"px,"+dy+"px) rotate("+rot+"deg) scale(1)",opacity:1}],{duration:o.board?760:680,easing:"cubic-bezier(.15,.85,.3,1)"}).onfinish=()=>{c.remove();land()}},delay))}
+  const dx=to.left-from.left,dy=to.top-from.top,rot=(Math.random()*8-4).toFixed(1),lift=-Math.min(40,Math.abs(dx)*.15+14);
+  c.animate([{transform:"translate(0,0) rotate(-12deg) scale(.82)",opacity:0},{transform:"translate("+dx*.12+"px,"+(dy*.12+lift*.4)+"px) rotate(-8deg) scale(.88)",opacity:1,offset:.15},
+    {transform:"translate("+dx*.6+"px,"+(dy*.6+lift)+"px) rotate("+(rot/2)+"deg) scale(.96)",offset:.62},{transform:"translate("+dx+"px,"+dy+"px) rotate("+rot+"deg) scale(1)",opacity:1}],
+    {duration:o.board?1050:950,easing:"cubic-bezier(.45,.05,.3,1)"}).onfinish=()=>{c.remove();land()}},delay))}
 // carte « brûlée » : le croupier écarte la carte du dessus avant de retourner des lettres communes
 function burn(delay){const run=DEAL.run;setTimeout(()=>{if(run!==DEAL.run)return;const from=deckRect();if(!from)return;const c=document.createElement("div");c.className="card-l back pkfly";
   c.style.cssText="position:fixed;left:"+from.left+"px;top:"+from.top+"px;width:"+from.width+"px;height:"+from.height+"px;margin:0;z-index:60;pointer-events:none";document.body.appendChild(c);swish();
-  c.animate([{transform:"translate(0,0)",opacity:1},{transform:"translate(-46px,10px) rotate(-18deg)",opacity:.0}],{duration:800,easing:"ease-out"}).onfinish=()=>c.remove()},delay)}
+  c.animate([{transform:"translate(0,0)",opacity:1},{transform:"translate(-40px,8px) rotate(-14deg)",opacity:0}],{duration:1100,easing:"cubic-bezier(.4,0,.2,1)"}).onfinish=()=>c.remove()},delay)}
 function talk(t){const b=$("#pkDealerSay");if(!b)return;b.textContent=t;b.classList.remove("on");void b.offsetWidth;b.classList.add("on")}
 function dealer(P,st){if(!P||!st)return;const d=$("#pkDealer");if(d)d.classList.toggle("on",!!st.started);
   // nouvelle donne
@@ -937,22 +948,22 @@ function dealer(P,st){if(!P||!st)return;const d=$("#pkDealer");if(d)d.classList.
     for(let r=0;r<2;r++)for(let k=0;k<n;k++){const i=(start+k)%n,s=st.seats[i];if(!(s.hand||!s.out))continue;order.push({key:"s"+i+"-"+r,flip:i===st.me})}
     const nb=Math.min(3,st.shown||0);for(let b=0;b<nb;b++)order.push({key:"b"+b,flip:true,board:true});
     order.forEach(o=>DEAL.hide.add(o.key));applyHide();
-    announce("Coup "+st.hand+(st.maxHands?" / "+st.maxHands:""),st.hand>1?"Nouvelle donne":"La partie commence");setTimeout(()=>talk("Coup "+st.hand+" : je distribue…"),1500);let t=1900;
-    order.forEach(o=>{if(o.board&&o.key==="b0"){t+=300;setTimeout(()=>{talk("Les 3 premières lettres");announce("1er tour de mise","3 lettres communes",true)},t-200);t+=900;burn(t);t+=1100}fly(o.key,t,o);t+=o.board?620:430});
+    announce("Coup "+st.hand+(st.maxHands?" / "+st.maxHands:""),st.hand>1?"Nouvelle donne":"La partie commence");setTimeout(()=>talk("Coup "+st.hand+" : je distribue…"),2300);let t=2700;
+    order.forEach(o=>{if(o.board&&o.key==="b0"){t+=500;setTimeout(()=>{talk("Les 3 premières lettres");announce("1er tour de mise","3 lettres communes",true)},t-200);t+=1500;burn(t);t+=1300}fly(o.key,t,o);t+=o.board?820:600});
     setTimeout(()=>{if(st.me>=0&&ST&&ST.turn===st.me&&ST.phase==="mise")talk("À vous de parler")},t+300);return}
   // nouvelle lettre commune (4e, 5e)
   if(st.started&&P.hand===st.hand&&(st.shown||0)>(P.shown||0)){const keys=[];for(let b=P.shown||0;b<st.shown;b++)keys.push("b"+b);keys.forEach(k=>DEAL.hide.add(k));
-    talk(st.shown===4?"4e lettre":"5e lettre, la dernière");announce((st.shown===4?"2e":"3e")+" tour de mise",st.shown===4?"4e lettre":"5e et dernière lettre");let t=1500;burn(t);t+=1000;keys.forEach(k=>{fly(k,t,{flip:true,board:true});t+=650});return}
+    talk(st.shown===4?"4e lettre":"5e lettre, la dernière");announce((st.shown===4?"2e":"3e")+" tour de mise",st.shown===4?"4e lettre":"5e et dernière lettre");let t=2200;burn(t);t+=1300;keys.forEach(k=>{fly(k,t,{flip:true,board:true});t+=850});return}
   // abattage : les lettres cachées des adversaires se retournent une à une
-  if(P.phase!=="abattage"&&st.phase==="abattage"){talk("Abattage !");announce("Abattage","Les lettres se dévoilent",true);let t=900;st.seats.forEach((s,i)=>{if(i===st.me||!s.hand)return;[0,1].forEach(r=>{setTimeout(()=>{const e=ckEl("s"+i+"-"+r);if(e){e.classList.remove("flip");void e.offsetWidth;e.classList.add("flip");flipSnd()}},t);t+=260})})}
+  if(P.phase!=="abattage"&&st.phase==="abattage"){DEAL.down.clear();st.seats.forEach((s,i)=>{if(i!==st.me&&s.hand)[0,1].forEach(r=>DEAL.down.add("s"+i+"-"+r))});talk("Abattage !");announce("Abattage","Les lettres se dévoilent",true);let t=1600;st.seats.forEach((s,i)=>{if(i===st.me||!s.hand)return;[0,1].forEach(r=>{setTimeout(()=>{const e=faceUp("s"+i+"-"+r);if(e){e.classList.remove("flip");void e.offsetWidth;e.classList.add("flip");flipSnd()}},t);t+=650})})}
   if(P.phase!=="mot"&&st.phase==="mot"){talk("Faites vos mots !");announce("Faites vos mots","45 secondes",true)}
   if(st.phase==="fin"&&P.phase!=="fin")talk("Partie terminée, merci !")}
 
 // annonce au centre de la table : nouveau coup, nouveau tour de mise, abattage
 function announce(t,sub,small){const f=document.querySelector(".pkfelt");if(!f)return;let a=$("#pkAnn");if(!a){a=document.createElement("div");a.id="pkAnn";f.appendChild(a)}
   a.className="pkann"+(small?" sm":"");a.innerHTML="<b></b><span></span>";a.querySelector("b").textContent=t;a.querySelector("span").textContent=sub||"";void a.offsetWidth;a.classList.add("on");
-  clearTimeout(announce.h);announce.h=setTimeout(()=>a.classList.remove("on"),small?1500:1900);
-  if(SOUND){tone(523,.18,.1);tone(659,.18,.1,.12);tone(small?784:1046,.3,.11,.24)}}
+  clearTimeout(announce.h);announce.h=setTimeout(()=>a.classList.remove("on"),small?2300:2700);
+  if(SOUND){tone(523,.35,.05);tone(659,.35,.05,.18);tone(small?784:1046,.6,.06,.36)}}
 
 </script>
 <script>// ---------- fenêtres et boutons : icônes « verre » à la place des émojis, croix de fermeture sur chaque fenêtre ----------

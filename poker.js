@@ -101,7 +101,7 @@ module.exports = function (hooks) {
     t.commit = crypto.createHash("sha256").update(t.revealDeck).digest("hex").slice(0, 16);
     for (const s of active(t)) { const a = Math.min(t.ante, s.stack); s.stack -= a; s.inPot += a; t.pot += a; if (!s.stack) s.allin = true; }
     t.shown = 3; t.phase = "mise"; t.round = 1;
-    t.grace = Math.ceil(2 + active(t).length * 2 * 0.45 + 3.5);   // annonce du coup + 2 lettres par joueur + 3 lettres communes
+    t.grace = Math.ceil(3.6 + active(t).length * 2 * 0.6 + 7);   // annonce du coup + 2 lettres par joueur + 3 lettres communes
     t.first = (t.hand - 1) % t.seats.length;
     startRound(t);
   }
@@ -140,7 +140,7 @@ module.exports = function (hooks) {
     ask(t);
   }
   function nextStreet(t) {
-    if (t.shown < 5) { t.shown++; t.round++; t.grace = 4; t.msg = (t.shown === 4 ? "4e" : "5e") + " lettre retournée"; return startRound(t); }
+    if (t.shown < 5) { t.shown++; t.round++; t.grace = 5; t.msg = (t.shown === 4 ? "4e" : "5e") + " lettre retournée"; return startRound(t); }
     wordPhase(t);
   }
   function wordPhase(t) {
@@ -188,7 +188,7 @@ module.exports = function (hooks) {
     t.msg = !W.length ? "Personne n'a de mot valide : la banque remporte le pot (" + t.pot + ")"
       : (W.length > 1 ? "Partage : " + W.map(s => s.name + " +" + gain[t.seats.indexOf(s)]).join(", ") : W[0].name + " gagne " + gain[t.seats.indexOf(W[0])]) + (toBank ? " · banque +" + toBank : "");
     t.results = res.map(s => ({ name: s.name, ...s.result })); t.pot = 0;
-    broadcast(t); later(t, 7000, () => afterHand(t));
+    broadcast(t); later(t, 5000 + res.length * 2200, () => afterHand(t));   // le temps de voir les lettres se retourner et les mots de chacun
   }
   function afterHand(t) {
     if (!live(t) || t.phase !== "abattage") return;
