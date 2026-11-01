@@ -669,7 +669,7 @@ table.bar td,table.bar th{padding:5px 6px;border-bottom:1px solid rgba(255,255,2
 :root{--p1:#34d399;--p2:#fb7185}
 .sk-hdr #skTop{max-width:1180px;margin:0 auto}
 .sk-hdr .wrap{padding-top:0}
-.fl2{grid-template-columns:auto 320px!important}
+.fl2{grid-template-columns:minmax(0,1fr) 320px!important;justify-content:stretch}
 .flboard{display:flex;justify-content:center;align-items:flex-start;min-width:0}
 .fgrid{--s:44px;width:max-content}
 .fc{font-size:calc(var(--s)*.56)!important;cursor:pointer;user-select:none;-webkit-user-select:none}
@@ -713,6 +713,12 @@ table.bar td,table.bar th{padding:5px 6px;border-bottom:1px solid rgba(255,255,2
 .fc.jp.cur{background:color-mix(in srgb,var(--fc) 48%,rgba(10,20,40,.55))!important}
 .fc.okflash{animation:okpop .6s ease both;animation-delay:var(--d,0s)}
 @keyframes okpop{0%{transform:scale(1)}40%{transform:scale(1.12);box-shadow:0 0 18px var(--fc)}100%{transform:scale(1)}}
+
+/* cases : hauteur fixe (--s), largeur qui peut grandir (--sw) */
+#grid .fc{aspect-ratio:auto;height:var(--s)}
+#grid .fc.q{font-size:calc(min(var(--sw,var(--s)),var(--s)*1.35)*.15)!important}
+/* deux définitions dans une case : fine ligne de séparation */
+.fc.q .h~.h{border-top:1px solid rgba(255,255,255,.32)}
 /* commun aux pages de jeu */
 .rb2.live{border-style:dashed;opacity:.8}
 .rdclue .fbtns{flex:none}
@@ -1354,10 +1360,13 @@ function build(){const g=$("#grid");g.innerHTML="";g.style.gridTemplateColumns="
   // mot mystère
   const m=$("#myst");m.innerHTML="";const L=(cur.myst||"").length;for(let i=0;i<L;i++)m.appendChild(document.createElement("span"));
   $("#hint").textContent=cur.hint||"";$(".flbar").style.display=cur.myst?"":"none";fit()}
-function fit(){const box=$(".flboard");if(!box)return;const wide=innerWidth>900;let w=box.clientWidth-24;
-  if(wide){const h=innerHeight-box.getBoundingClientRect().top-30;w=Math.min(w,Math.floor(h*NC/NR))}
-  const s=Math.floor((w-2*(NC-1))/NC);$("#grid").style.setProperty("--s",s+"px");$("#grid").style.width=(s*NC+2*(NC-1)+4)+"px"}
-addEventListener("resize",()=>{if(cur)fit()});
+function fit(){const box=$(".flboard"),g=$("#grid");if(!box||!g)return;const wide=innerWidth>900;const full=box.clientWidth-24;
+  let s=Math.floor((full-2*(NC-1))/NC),sw=s;
+  if(wide){const h=innerHeight-g.getBoundingClientRect().top-24;const sh=Math.floor((h-2*(NR-1)-4)/NR);
+    // la hauteur des cases tient dans l'écran ; la grille ne s'élargit qu'en largeur (cases plus larges, max 1,8×)
+    const s0=Math.floor((Math.min(620,innerHeight-190)-42-2*(NC-1))/NC);s=Math.max(26,Math.min(s,sh,s0));sw=Math.max(s,Math.min(Math.floor((full-2*(NC-1))/NC),Math.round(s*1.8)))}
+  g.style.setProperty("--s",s+"px");g.style.setProperty("--sw",sw+"px");g.style.width=(sw*NC+2*(NC-1)+4)+"px"}
+addEventListener("resize",()=>{if(cur)fit()});addEventListener("load",()=>{if(cur)fit()});setTimeout(()=>{if(cur)fit()},400);
 
 // ---------- joueurs, places ----------
 function mySeat(){if(!G)return null;if(G.solo)return 0;if(!ME)return null;const i=G.players.findIndex(p=>String(p.name).toUpperCase()===ME.name);return i<0?null:i}
@@ -1460,11 +1469,12 @@ function render(){if(!G||!cur)return;const s=mySeat(),play=canPlay(),n=G.players
     const st=e.querySelector(".note");st.style.display=G.wait?"":"none";if(G.wait)st.textContent=seatsHere().has(i)?"présent":"en route…";
     const dt=e.querySelector(".tdots");dt.style.display=G.solo||G.wait?"none":"";if(!G.solo){const mt=maxTours();dt.innerHTML=[1,2].slice(0,mt).map(t=>"<i"+(on&&t<=(G.tour||1)?' class="on"':"")+"></i>").join("")}});
   $("#pB").style.display=G.solo?"none":"";
-  // grille
+  // grille ; une lettre déjà imprimée (ou révélée) prend la couleur du joueur dès que son mot est complet
+  const own={};words.forEach(w=>{if(!w.cells.length||!w.cells.every(x=>G.filled[x]!==undefined))return;const by=w.cells.map(x=>G.filled[x]).filter(v=>v>=0);if(by.length)w.cells.forEach(x=>{if(G.filled[x]<0&&own[x]===undefined)own[x]=by[0]})});
   for(const k of ALL){const e=els[k],L=e.querySelector(".L"),f=G.filled[k];e.className="fc";if(cur.nums&&cur.nums[k])void 0;
     (cur.dash||[]).forEach(([r,c,x])=>{if(r+","+c===k)e.classList.add(x==="b"?"db":"dr")});
     e.style.removeProperty("--fc");
-    if(f!==undefined){L.textContent=(G.letters&&G.letters[k])||SOL[k];if(f>=0){e.classList.add("jp");e.style.setProperty("--fc",PC[f])}else e.classList.add(f===-1?"paper":"rv")}
+    if(f!==undefined){L.textContent=(G.letters&&G.letters[k])||SOL[k];if(f>=0){e.classList.add("jp");e.style.setProperty("--fc",PC[f])}else if(own[k]!==undefined){e.classList.add("jp");e.style.setProperty("--fc",PC[own[k]])}else e.classList.add(f===-1?"paper":"rv")}
     else if(G.done){L.textContent=SOL[k];e.classList.add("rv")}
     else if(pend[k]){L.textContent=pend[k];e.classList.add("pend")}
     else{const pp=peerPend[k];if(pp){L.textContent=pp.l;e.classList.add("live");e.style.setProperty("--fc",PC[pp.seat]||PC[1])}else L.textContent=""}}
