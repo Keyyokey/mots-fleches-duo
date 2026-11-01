@@ -551,7 +551,9 @@ async function api(req, res, route) {
   if (route === "rank") return out(200, await topRank(PSEUDO_RE.test(name) ? name : null));
   const bad = (field, detail) => out(400, { error: "saisie", field, msg: "Vérifie les informations saisies.", detail });
   if (!PSEUDO_RE.test(name)) return bad("name", "Pseudo : 2 à 7 caractères, lettres A-Z, chiffres et @ # _ (sans espace).");
-  let p; try { p = await getPlayer(name); } catch { return out(503, { error: "indispo", msg: "Serveur occupé, réessaie dans un instant." }); }
+  // lecture stricte : si le stockage ne répond pas, on le dit (on ne répond pas « identifiants incorrects »)
+  const DOWN = "Le site ne peut pas accéder aux comptes pour le moment. Réessaie plus tard.";
+  let p; try { p = await getPlayerStrict(name); } catch (e) { console.error("Lecture du compte :", e.message); return out(503, { error: "indispo", msg: DOWN }); }
   const authed = () => tokOk(p, b.token);
   const pinOk = /^\d{4}$/.test(String(b.pin || ""));
   const PIN_DETAIL = "Code secret : exactement 4 chiffres.";
@@ -572,7 +574,7 @@ async function api(req, res, route) {
       if (players.has(name)) return taken();
       players.set(name, np); savePlayer(name);
       return out(200, { name, token, salons: [] });
-    } catch (e) { console.error("Création de compte :", e.message); return out(503, { error: "indispo", msg: "Serveur occupé, réessaie dans un instant." }); }
+    } catch (e) { console.error("Création de compte :", e.message); return out(503, { error: "indispo", msg: "Le compte n'a pas pu être enregistré (stockage indisponible). Rien n'a été créé : réessaie plus tard." }); }
     finally { creating.delete(name); }
   }
   if (route === "login") {
