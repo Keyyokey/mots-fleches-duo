@@ -769,6 +769,9 @@ body.booting #boot{display:flex;position:fixed;inset:0;z-index:50;align-items:ce
   .cgans{grid-template-columns:1fr 1fr}
   .cgans button{min-height:50px}
 }
+/* écrans moyens et téléphones : la photo s'adapte à la hauteur pour que les réponses restent visibles sans défiler */
+@media (max-width:899px){.cgfig img{height:clamp(90px,calc(100vh - 560px),240px)}.cg2 .cgcard{padding:16px;gap:12px}}
+@media (max-width:600px){.cgfig img{height:clamp(70px,calc(100vh - 610px),200px)}.cgans{grid-template-columns:1fr 1fr!important;gap:8px}.cgans button{min-height:48px;padding:8px 8px 8px 36px;font-size:.88rem;line-height:1.2}.cgans button::before{left:8px;width:22px;height:22px}.cgq{font-size:1.1rem}.cg2{gap:10px}.cg2 .cgcard{padding:12px;gap:10px}.cgside .rdtop{padding:10px 12px}.cgside .scores2 .sc{padding:4px 8px}}
 </style>
 <style id="sk-css">/* ---------- habillage du site (maquette validée) ---------- */
 body.sk{--skbg1:#0b1d2a;--skbg2:#1b1440;--skbg3:#0f3b3f;--skglass:rgba(255,255,255,.08);--skglass2:rgba(255,255,255,.14);--skstroke:rgba(255,255,255,.18);--skgold:#ffc857;
