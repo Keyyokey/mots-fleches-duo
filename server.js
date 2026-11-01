@@ -33,6 +33,14 @@ const RTOK = envClean(process.env.UPSTASH_REDIS_REST_TOKEN);
 const REDIS = !!(RURL && RTOK);
 // diagnostic : dernière erreur du stockage (statut et message d'Upstash, jamais la commande ni ses valeurs)
 const redisDiag = { ok: 0, err: 0, last: null };
+// vérification du stockage toutes les 5 minutes (et au démarrage)
+const storage = { ok: null, since: null, msg: "" };
+async function checkStorage() {
+  if (!REDIS) return;
+  try { await redis(["PING"]); if (storage.ok === false) console.log("Stockage de nouveau accessible"); storage.ok = true; storage.since = null; storage.msg = ""; }
+  catch (e) { if (storage.ok !== false) { storage.since = new Date().toISOString(); console.error("STOCKAGE KO :", redisDiag.last && redisDiag.last.msg); } storage.ok = false; storage.msg = (redisDiag.last && redisDiag.last.msg || e.message).slice(0, 140); }
+}
+setTimeout(checkStorage, 2000); setInterval(checkStorage, 5 * 60e3);
 async function redis(cmd) {
   let r;
   try { r = await fetch(RURL, { method: "POST", headers: { Authorization: "Bearer " + RTOK, "content-type": "application/json" }, body: JSON.stringify(cmd) }); }
@@ -679,7 +687,8 @@ const server = http.createServer((req, res) => {
     return void (REDIS ? redis(["PING"]).then(v => ({ ping: v }), e => ({ ping: "échec", err: e.message })) : Promise.resolve({ ping: "pas de Redis" }))
       .then(o => { res.writeHead(200, { "content-type": "application/json", "cache-control": "no-store" }); res.end(JSON.stringify({ ...o, ms: Date.now() - t0, depuisDemarrage: redisDiag, comptesEnMemoire: players.size })); });
   }
-  if (url.pathname === "/healthz") { res.writeHead(200, { "content-type": "text/plain" }); return res.end("ok " + salons.size + (REDIS ? " redis" : "")); }
+  // /healthz répond 503 si le stockage refuse l'accès : UptimeRobot (qui surveille /healthz) envoie alors une alerte par e-mail
+  if (url.pathname === "/healthz") { const bad = REDIS && storage.ok === false; res.writeHead(bad ? 503 : 200, { "content-type": "text/plain; charset=utf-8" }); return res.end(bad ? "STOCKAGE KO depuis " + storage.since + " : " + storage.msg : "ok " + salons.size + (REDIS ? " redis" : "")); }
   const am = url.pathname.match(/^\/api\/p\/(create|login|me|pin|logout|rank|score|wallet|conv|salons|sjoin|screate|skick|scode|hist|solo)$/);
   if (am) return void api(req, res, am[1]).catch(e => { console.error(e); try { res.writeHead(500); res.end("{}"); } catch {} });
   if (url.pathname.startsWith("/d/")) return sendStatic(req, res, url.pathname.slice(3));
