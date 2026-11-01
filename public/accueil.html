@@ -440,6 +440,32 @@ button{font:inherit;color:inherit;cursor:pointer}
 
 
 .pkleft .pkact{grid-template-columns:repeat(4,1fr);width:100%}.pkleft .pkcard{flex-direction:row;flex-wrap:wrap;align-items:center}.pkleft .pkcard .flrow{flex:1 1 100%}.pkleft .pkin{flex:1 1 240px;width:auto;order:1}.pkleft #pkBest{flex:0 0 auto;order:2;align-self:stretch;padding:0 22px}.pkleft .pkcalc{flex:1 1 100%;order:3}.pkleft .flinfo{order:4}.pkleft .flinfo{flex:1 1 100%}
+
+/* culture générale */
+.cg2{--p1:#34d399;--p2:#fb7185;display:flex;flex-direction:column;gap:14px;max-width:720px;margin:0 auto}
+:root[data-theme="light"] .cg2{--p1:#059669;--p2:#e11d48}
+.cgst{font-size:.75rem;color:var(--muted);margin-left:4px}.cgst.ok{color:var(--p1);font-weight:700}
+.cgdots{display:flex;gap:5px}.cgdots i{width:9px;height:9px;border-radius:50%;background:rgba(255,255,255,.15);border:1px solid var(--stroke)}
+.cgdots i.ok{background:var(--p1);border-color:transparent}.cgdots i.ko{background:#e5484d;border-color:transparent}.cgdots i.cur{box-shadow:0 0 0 2px var(--accent)}
+.cgcard{padding:22px;display:flex;flex-direction:column;gap:16px}
+.cgtop{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.cgq{font-family:"Playfair Display",serif;font-size:clamp(1.25rem,2.6vw,1.65rem);font-weight:700;line-height:1.3}
+.cgans{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.cgans button{position:relative;text-align:left;min-height:58px;padding:12px 14px 12px 46px;border-radius:16px;border:1px solid var(--stroke);background:var(--glass2);font:700 .98rem Nunito,Inter,sans-serif;color:var(--ink);backdrop-filter:blur(10px);transition:transform .15s,background .2s,box-shadow .2s}
+.cgans button:hover{transform:translateY(-2px);background:rgba(255,255,255,.22)}
+.cgans button::before{content:attr(data-l);position:absolute;left:12px;top:50%;transform:translateY(-50%);width:24px;height:24px;border-radius:8px;display:grid;place-items:center;font-size:.75rem;background:rgba(0,0,0,.25);color:var(--muted)}
+:root[data-theme="light"] .cgans button::before{background:rgba(15,25,40,.08)}
+.cgans button.pick{box-shadow:0 0 0 2px var(--accent)}
+.cgans button.ok{background:linear-gradient(135deg,rgba(16,185,129,.55),rgba(16,185,129,.25));border-color:rgba(16,185,129,.8);color:#fff}
+.cgans button.ko{background:linear-gradient(135deg,rgba(229,72,77,.6),rgba(229,72,77,.3));border-color:#e5484d;color:#fff;animation:clkp .4s}
+.cgans button[disabled]{cursor:default;transform:none}
+.cgans .who{position:absolute;right:10px;top:50%;transform:translateY(-50%);display:flex;gap:3px}
+.cgans .who span{width:20px;height:20px;border-radius:50%;display:grid;place-items:center;font-size:.6rem;font-weight:800;color:#041b1d}
+.cgfact{padding:12px 14px;border-radius:14px;background:rgba(255,200,87,.1);border:1px solid rgba(255,200,87,.45);line-height:1.45;animation:fadein .3s}
+.cgfact b{color:var(--gold)}:root[data-theme="light"] .cgfact b{color:#9a5b00}
+#cgNext{align-self:flex-end}
+#cgP1{--c:var(--p1)}#cgP2{--c:var(--p2)}
+@media (max-width:620px){.cgans{grid-template-columns:1fr}.cgcard{padding:16px}.cg2 .scores2{flex-direction:column}.cg2 .sc{padding:6px 10px}}
 /* en-tête */
 .pop{position:absolute;z-index:60;width:min(340px,calc(100vw - 24px));padding:16px;display:none;flex-direction:column;gap:10px;border-radius:20px;background:var(--glass2);border:1px solid var(--stroke);backdrop-filter:blur(24px) saturate(160%);-webkit-backdrop-filter:blur(24px) saturate(160%);box-shadow:0 18px 50px rgba(0,0,0,.4)}
 .pop.on{display:flex;animation:popin .22s cubic-bezier(.3,1.4,.5,1)}
@@ -746,6 +772,96 @@ body.nodeco .blob{opacity:.35}
 <div class="overlay" id="mini"><div class="glass sheet"><h3 id="miniT"></h3><div class="note" id="miniB"></div><button class="btn primary" id="miniX">Fermer</button></div></div>
 
 <script>
+// ---------- fenêtres Pseudo et Salon (partagées par l'accueil et l'en-tête des jeux) ----------
+// env : q(sel) · call(route,body) · getME() · setME(o) · esc · toast · place(pop,btn) · show(pop) · hide(pop) · code() · room() · onLogin() · onLogout()
+function makeAcctUI(env){
+  const RE=/^[A-Z0-9@#_]{2,7}$/,ACODE=/^[A-HJ-NP-Z2-9]{6}$/;
+  const esc=env.esc;
+  const clean=v=>String(v||"").normalize("NFD").replace(/[̀-ͯ]/g,"").toUpperCase().replace(/[^A-Z0-9@#_]/g,"").slice(0,7);
+  const cleanCode=v=>String(v||"").toUpperCase().replace(/[^A-Z0-9]/g,"").slice(0,6);
+  const say=r=>esc(r.msg||"Serveur injoignable. Réessaie.")+(r.detail?"<br>"+esc(r.detail):"");
+  const CHECK="Vérifie les informations saisies.";
+  const pinIn=el=>{el.oninput=e=>{e.target.value=e.target.value.replace(/\D/g,"").slice(0,4)}};
+  let LIST=null;                                   // dernière liste reçue du serveur
+  function rows(L){return L.map(x=>'<button class="sl'+(x.code===env.code()?" here":"")+'" data-c="'+x.code+'"><span class="nm2">'+esc(x.name||"Salon")+'</span>'+(x.role==="owner"?'<span class="live" title="Tu es responsable de ce salon">★</span>':"")+(x.live?'<span class="live">'+x.live+' en ligne</span>':"")+'<span class="code" style="margin-left:auto;letter-spacing:.02em">Ouvrir ›</span></button>').join("")}
+  const openRoom=id=>{location.href="/"+id};
+
+  // ----- Pseudo -----
+  function openMe(btn){const p=env.q("#popMe");const ME=env.getME();
+    if(!ME||ME.stale){const pre=ME?ME.name:"";
+      p.innerHTML='<h4>'+(ME?"Reconnecte-toi":"Accéder à ma page")+'</h4><input class="in" id="meName" maxlength="7" placeholder="PSEUDO" autocomplete="username" value="'+esc(pre)+'"><input class="in pin" id="mePin" type="password" inputmode="numeric" maxlength="4" placeholder="CODE · 4 CHIFFRES" autocomplete="current-password"><div class="err" id="meErr"></div><button class="btn primary" id="meGo">Entrer</button><button class="lnk" id="meNew">Créer mon pseudo</button>';
+      const n=p.querySelector("#meName"),c=p.querySelector("#mePin"),er=p.querySelector("#meErr");n.oninput=e=>{e.target.value=clean(e.target.value)};pinIn(c);
+      const go=async()=>{if(!RE.test(n.value)){er.innerHTML=CHECK+"<br>Pseudo : 2 à 7 caractères, lettres A-Z, chiffres et @ # _ (sans espace).";n.focus();return}
+        if(!/^\d{4}$/.test(c.value)){er.innerHTML=CHECK+"<br>Code secret : exactement 4 chiffres.";c.focus();return}
+        const b=p.querySelector("#meGo");b.disabled=true;const r=await env.call("login",{name:n.value,pin:c.value});b.disabled=false;
+        if(r.status===200){env.setME({name:r.name||n.value,token:r.token,salons:r.salons||[]});env.onLogin();openMe(btn)}else{er.innerHTML=say(r);c.value="";c.focus()}};
+      p.querySelector("#meGo").onclick=go;c.onkeydown=e=>{if(e.key==="Enter")go()};
+      p.querySelector("#meNew").onclick=()=>{
+        p.innerHTML='<h4>Créer mon pseudo</h4><input class="in" id="nwName" maxlength="7" placeholder="PSEUDO (2 À 7)" autocomplete="username"><input class="in pin" id="nwPin" type="password" inputmode="numeric" maxlength="4" placeholder="CODE · 4 CHIFFRES" autocomplete="new-password"><div class="note">Ton pseudo s\'affiche dans les parties et te suit sur tous tes appareils. Il ne pourra pas être changé.</div><div class="err" id="nwErr"></div><button class="btn primary" id="nwGo">Créer</button><button class="lnk" id="nwBack">J\'ai déjà un pseudo</button>';
+        const nn=p.querySelector("#nwName"),nc=p.querySelector("#nwPin"),er2=p.querySelector("#nwErr");nn.oninput=e=>{e.target.value=clean(e.target.value)};pinIn(nc);
+        p.querySelector("#nwBack").onclick=()=>openMe(btn);
+        const go2=async()=>{if(!RE.test(nn.value)){er2.innerHTML=CHECK+"<br>Pseudo : 2 à 7 caractères, lettres A-Z, chiffres et @ # _ (sans espace).";nn.focus();return}
+          if(!/^\d{4}$/.test(nc.value)){er2.innerHTML=CHECK+"<br>Code secret : exactement 4 chiffres.";nc.focus();return}
+          const b=p.querySelector("#nwGo");b.disabled=true;const r=await env.call("create",{name:nn.value,pin:nc.value});b.disabled=false;
+          if(r.status===200){env.setME({name:r.name||nn.value,token:r.token,salons:[]});env.onLogin();openMe(btn);env.toast("👋","Bienvenue <b>"+esc(r.name||nn.value)+"</b> !")}
+          else{er2.innerHTML=say(r);(r.field==="pin"?nc:nn).focus()}};
+        p.querySelector("#nwGo").onclick=go2;nc.onkeydown=e=>{if(e.key==="Enter")go2()};setTimeout(()=>nn.focus(),50)}}
+    else{const L=ME.salons||[];
+      p.innerHTML='<h4>Bonjour '+esc(ME.name)+' 👋</h4><div class="note">Mes salons</div><div class="list">'+(L.length?rows(L):'<div class="note">Tu n\'as accès à aucun salon pour le moment.</div>')+'</div>'+(env.homeUrl?'<button class="btn" id="meHome">🏠 Accueil</button>':"")+'<button class="lnk" id="meOut">Se déconnecter</button>';
+      p.querySelectorAll(".sl").forEach(b=>b.onclick=()=>openRoom(b.dataset.c));
+      const h=p.querySelector("#meHome");if(h)h.onclick=()=>{location.href=env.homeUrl()};
+      p.querySelector("#meOut").onclick=async()=>{await env.call("logout",{name:ME.name,token:ME.token});env.setME(null);env.hide(p);env.onLogout()}}
+    env.hide(env.q("#popSalon"));env.place(p,btn);env.show(p);const f=p.querySelector("input");if(f)setTimeout(()=>f.focus(),50)}
+
+  // ----- Salon -----
+  function openSalon(btn,flash){const p=env.q("#popSalon");const ME=env.getME();
+    env.hide(env.q("#popMe"));env.place(p,btn);env.show(p);
+    if(!ME||ME.stale){p.innerHTML='<h4>Mes salons</h4><div class="note">Connecte-toi pour consulter tes salons personnels.</div><button class="btn primary" id="slLog">Se connecter</button>';
+      p.querySelector("#slLog").onclick=()=>openMe(btn);return}
+    p.innerHTML='<h4>Mes salons</h4><div class="note">Chargement…</div>';
+    env.call("salons",{name:ME.name,token:ME.token}).then(r=>{
+      if(r.status===401){ME.stale=true;env.setME(ME);openSalon(btn);return}
+      if(r.status!==200||!Array.isArray(r.salons)){p.innerHTML='<h4>Mes salons</h4><div class="err">Impossible de charger tes salons. Réessaie.</div><button class="btn" id="slRe">Réessayer</button>';p.querySelector("#slRe").onclick=()=>openSalon(btn);return}
+      LIST=r.salons;ME.salons=r.salons;env.setME(ME);drawList(p,btn,flash)})}
+  function drawList(p,btn,flash){const L=LIST||[];const cur=L.find(x=>x.code===env.code()&&x.role==="owner");
+    p.innerHTML='<h4>Mes salons</h4>'+(flash?'<div class="note" style="color:var(--ok,#7cf0a9);font-weight:700">'+esc(flash)+'</div>':"")
+      +(L.length?'<div class="list" style="max-height:min(46vh,320px);overflow:auto">'+rows(L)+'</div>':'<div class="note">Tu n\'as accès à aucun salon pour le moment. Rejoins un salon avec son nom et son code d\'accès.</div>')
+      +'<div style="display:flex;gap:8px"><button class="btn primary" id="slJoin" style="flex:1">Rejoindre un salon</button><button class="btn" id="slNew" style="flex:1">Créer un salon</button></div>'
+      +(cur?'<button class="lnk" id="slMng">Gérer ce salon</button>':"");
+    p.querySelectorAll(".sl").forEach(b=>b.onclick=()=>openRoom(b.dataset.c));
+    p.querySelector("#slJoin").onclick=()=>joinForm(p,btn);p.querySelector("#slNew").onclick=()=>createForm(p,btn);
+    if(cur)p.querySelector("#slMng").onclick=()=>manage(p,btn,cur)}
+  function joinForm(p,btn){const ME=env.getME();
+    p.innerHTML='<h4>Rejoindre un salon</h4><input class="in" id="jnName" maxlength="40" placeholder="NOM DU SALON" autocomplete="off" style="letter-spacing:.04em"><input class="in" id="jnCode" maxlength="7" placeholder="CODE D\'ACCÈS · 6 CARACTÈRES" autocomplete="off" style="letter-spacing:.2em"><div class="err" id="jnErr"></div><button class="btn primary" id="jnGo">Rejoindre</button><button class="lnk" id="jnBack">Retour</button>';
+    const N=p.querySelector("#jnName"),C=p.querySelector("#jnCode"),er=p.querySelector("#jnErr");C.oninput=e=>{e.target.value=cleanCode(e.target.value)};
+    p.querySelector("#jnBack").onclick=()=>drawList(p,btn);
+    const go=async()=>{const n=N.value.trim();
+      if(!n){er.innerHTML=CHECK+"<br>Nom du salon : 1 à 40 caractères.";N.focus();return}
+      if(!ACODE.test(C.value)){er.innerHTML=CHECK+"<br>Code d'accès : 6 caractères (lettres et chiffres).";C.focus();return}
+      const b=p.querySelector("#jnGo");b.disabled=true;const r=await env.call("sjoin",{name:ME.name,token:ME.token,sname:n,scode:C.value});b.disabled=false;
+      if(r.status===200){LIST=r.salons||LIST;ME.salons=LIST;env.setME(ME);drawList(p,btn,r.msg)}
+      else if(r.status===401){ME.stale=true;env.setME(ME);openMe(btn)}
+      else{er.innerHTML=say(r);if(r.field==="scode")C.focus();else if(r.field==="sname")N.focus()}};
+    p.querySelector("#jnGo").onclick=go;C.onkeydown=e=>{if(e.key==="Enter")go()};setTimeout(()=>N.focus(),50)}
+  function createForm(p,btn){const ME=env.getME();
+    p.innerHTML='<h4>Créer un salon</h4><input class="in" id="nsName" maxlength="40" placeholder="NOM DU SALON" style="letter-spacing:.04em"><div class="note">Un code d\'accès est créé automatiquement. Tu en es le responsable : donne le nom et le code à tes amis.</div><div class="err" id="nsErr"></div><button class="btn primary" id="nsGo">Créer le salon</button><button class="lnk" id="nsBack">Retour</button>';
+    const N=p.querySelector("#nsName"),er=p.querySelector("#nsErr");p.querySelector("#nsBack").onclick=()=>drawList(p,btn);
+    const go=async()=>{const n=N.value.trim();if(!n){er.innerHTML=CHECK+"<br>Nom du salon : 1 à 40 caractères.";N.focus();return}
+      const b=p.querySelector("#nsGo");b.disabled=true;const r=await env.call("screate",{name:ME.name,token:ME.token,sname:n});b.disabled=false;
+      if(r.status!==200){er.innerHTML=say(r);return}
+      LIST=r.salons||LIST;ME.salons=LIST;env.setME(ME);const s=r.salon;
+      p.innerHTML='<h4>Salon créé ✓</h4><div class="note">Nom : <b>'+esc(s.name)+'</b></div><div class="note">Code d\'accès : <b style="letter-spacing:.2em;font-size:1.15em">'+esc(s.acode)+'</b></div><div class="note">Pour rejoindre, tes amis saisissent ce nom et ce code dans « Rejoindre un salon ».</div><button class="btn primary" id="nsOpen">Ouvrir le salon</button>';
+      p.querySelector("#nsOpen").onclick=()=>openRoom(s.code)};
+    p.querySelector("#nsGo").onclick=go;N.onkeydown=e=>{if(e.key==="Enter")go()};setTimeout(()=>N.focus(),50)}
+  function manage(p,btn,s,flash){const ME=env.getME();
+    p.innerHTML='<h4>'+esc(s.name)+'</h4>'+(flash?'<div class="note" style="font-weight:700">'+esc(flash)+'</div>':"")+'<div class="note">Code d\'accès : <b style="letter-spacing:.2em;font-size:1.1em">'+esc(s.acode)+'</b></div><button class="btn" id="mgCode">Créer un nouveau code</button><div class="note">Membres</div><div class="list" style="max-height:200px;overflow:auto">'
+      +(s.members||[]).map(m=>'<div class="sl"><span class="nm2">'+esc(m)+(m===ME.name?" (toi)":"")+'</span>'+(m===ME.name?"":'<button class="lnk" data-m="'+esc(m)+'" style="margin-left:auto">Retirer</button>')+'</div>').join("")+'</div><div class="err" id="mgErr"></div><button class="lnk" id="mgBack">Retour</button>';
+    p.querySelector("#mgBack").onclick=()=>drawList(p,btn);
+    p.querySelector("#mgCode").onclick=async()=>{const r=await env.call("scode",{name:ME.name,token:ME.token,salon:s.code});if(r.status===200){s.acode=r.acode;manage(p,btn,s,r.msg)}else p.querySelector("#mgErr").innerHTML=say(r)};
+    p.querySelectorAll("[data-m]").forEach(b=>b.onclick=async()=>{const r=await env.call("skick",{name:ME.name,token:ME.token,salon:s.code,member:b.dataset.m});if(r.status===200){s.members=r.members;manage(p,btn,s,r.msg)}else p.querySelector("#mgErr").innerHTML=say(r)})}
+  return{openMe,openSalon,list:()=>LIST};
+}
+
 // ---------- page d'accueil : en-tête, statistiques, jeux ----------
 const $=s=>document.querySelector(s),$$=s=>[...document.querySelectorAll(s)];
 const LS={get(k){try{return localStorage.getItem(k)}catch(e){return null}},set(k,v){try{localStorage.setItem(k,v)}catch(e){}},del(k){try{localStorage.removeItem(k)}catch(e){}}};
@@ -760,7 +876,8 @@ function store(){if(ME)LS.set("fl-me",JSON.stringify(ME));else LS.del("fl-me")}
 async function call(route,body){try{const r=await fetch("/api/p/"+route,{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify(body||{})});let j={};try{j=await r.json()}catch(e){}return{status:r.status,...j}}catch(e){return{status:0,msg:"Pas de connexion au serveur. Réessaie dans un instant."}}}
 function clean(v){return String(v||"").normalize("NFD").replace(/[̀-ͯ]/g,"").toUpperCase().replace(/[^A-Z0-9@#_]/g,"").slice(0,7)}
 function newCode(){const CH="ABCDEFGHJKMNPQRSTUVWXYZ23456789";const a=new Uint32Array(5);crypto.getRandomValues(a);return[...a].map(x=>CH[x%CH.length]).join("")}
-function salonName(c){return(c===CODE&&DOCS.meta&&DOCS.meta.name)||NAMES[c]||""}
+function salonName(c){if(c===CODE&&ROOM)return ROOM.name;const x=(ME&&ME.salons||[]).find(s=>s.code===c);return x?x.name:""}
+let ROOM=null;                                      // salon ouvert : nom, rôle (envoyés par le serveur après vérification de l'accès)
 
 // ---------- thème, décor, son (mêmes réglages que dans les jeux) ----------
 function applyTheme(m){document.documentElement.dataset.theme=m;$("#themeBtn").textContent=m==="light"?"☀️":"🌙";LS.set("fl-theme",m)}
@@ -782,18 +899,22 @@ $("#miniX").onclick=()=>$("#mini").classList.remove("on");
 
 // ---------- salon en direct (joueurs connectés, classement du salon) ----------
 let DOCS={},PEERS=[],ws=null,MYID=null;
-function connect(){if(!CODE)return;ws=new WebSocket((location.protocol==="https:"?"wss://":"ws://")+location.host+"/ws");
-  ws.onopen=()=>{ws.send(JSON.stringify({t:"join",room:CODE}));ws.send(JSON.stringify({t:"presence",presence:{name:ME?ME.name:"",page:"accueil"}}));
-    const nm=new URLSearchParams(location.search).get("nom");if(nm){ws.send(JSON.stringify({t:"set",id:"meta",data:{name:nm.slice(0,40)}}));NAMES[CODE]=nm.slice(0,40);saveNames();history.replaceState(null,"",location.pathname)}};
+function connect(){if(!CODE||!ME||ME.stale)return;ws=new WebSocket((location.protocol==="https:"?"wss://":"ws://")+location.host+"/ws");let refused=false;
+  ws.onopen=()=>{ws.send(JSON.stringify({t:"join",room:CODE,name:ME.name,token:ME.token}));ws.send(JSON.stringify({t:"presence",presence:{name:ME.name,page:"accueil"}}))};
   ws.onmessage=e=>{let m;try{m=JSON.parse(e.data)}catch(x){return}
     if(m.t==="hello")MYID=m.id;
-    else if(m.t==="snap"){DOCS={};(m.docs||[]).forEach(d=>DOCS[d.id]=d.data);if(DOCS.meta&&DOCS.meta.name){NAMES[CODE]=DOCS.meta.name;saveNames()}renderSalon();updPills();renderResume()}
-    else if(m.t==="peers"){PEERS=m.peers||[];renderPeers()}};
-  ws.onclose=()=>setTimeout(connect,3000)}
+    else if(m.t==="room"){ROOM=m;updPills()}
+    else if(m.t==="snap"){DOCS={};(m.docs||[]).forEach(d=>DOCS[d.id]=d.data);renderSalon();updPills();renderResume()}
+    else if(m.t==="peers"){PEERS=m.peers||[];renderPeers()}
+    else if(m.t==="error"&&(m.code==="auth"||m.code==="forbidden")){refused=true;ws.close();
+      if(m.code==="auth"){ME.stale=true;store();updPills();openMe(pillMe())}
+      else{history.replaceState(null,"","/");toast("🔒",esc(m.msg));setTimeout(()=>openSalon(pillSalon()),300)}}};
+  ws.onclose=()=>{if(!refused)setTimeout(connect,3000)}}
+const pillMe=()=>window.innerWidth<=620?$("#mBtn"):$(".me-pill"),pillSalon=()=>window.innerWidth<=620?$("#mBtn"):$(".salon-pill");
 const PCOL=["#5ad8ff","#ffa45c","#7cf0a9","#c49bff","#ff8fb1","#ffd166"];
 const colOf=n=>PCOL[[...String(n)].reduce((a,c)=>a+c.charCodeAt(0),0)%PCOL.length];
 const GAMEL={accueil:"à l'accueil",fleches:"aux mots fléchés",rond:"au Tourniquet",meles:"aux mots mêlés",poker:"au poker",mot:"au mot du jour"};
-function renderPeers(){const box=$("#cPeers");if(!CODE){box.innerHTML='<div class="note">Rejoins ou crée un salon (bouton 🛋️) pour voir qui est connecté et jouer à plusieurs.</div>';return}
+function renderPeers(){const box=$("#cPeers");if(!CODE||!ROOM){box.innerHTML='<div class="note">Rejoins ou crée un salon (bouton 🛋️) pour voir qui est connecté et jouer à plusieurs.</div>';return}
   const seen=new Set(),rows=[];PEERS.forEach(p=>{const pr=p.presence||{};const n=(pr.name||"").trim();const me=p.id===MYID;const key=n||p.id;if(seen.has(key))return;seen.add(key);rows.push({n:n||"Invité",me,where:pr.page||(pr.gid?"fleches":"")})});
   rows.sort((a,b)=>b.me-a.me);
   box.innerHTML=rows.map(r=>'<div class="row'+(r.me?" me":"")+'"><span class="dot"></span><span class="av" style="background:'+colOf(r.n)+'">'+esc(r.n[0])+'</span><span class="nm">'+esc(r.n)+(r.where&&GAMEL[r.where]&&!r.me?' <small class="note">'+GAMEL[r.where]+'</small>':"")+'</span>'+(r.me?"":'<button class="plus" title="Proposer une partie" data-n="'+esc(r.n)+'">+</button>')+'</div>').join("")
@@ -801,7 +922,7 @@ function renderPeers(){const box=$("#cPeers");if(!CODE){box.innerHTML='<div clas
   box.querySelectorAll(".plus").forEach(b=>b.onclick=()=>{const t=$$(".tile").find(x=>x.dataset.key==="fleches");openCfg(t,"multi",b.dataset.n)});
   const il=$("#invLink");if(il)il.onclick=e=>{e.preventDefault();share()}}
 function rankRows(list,meName){return list.map((r,i)=>'<div class="row'+(meName&&r.name.toUpperCase()===meName?" me":"")+'"><span class="rank'+(r.rank<=3||i<3?" "+["g","s","b"][(r.rank||i+1)-1]:"")+'">'+(r.rank||i+1)+'</span><span class="nm">'+esc(r.name)+'</span><span class="pts">'+fmtN(r.pts)+'</span></div>').join("")}
-function renderSalon(){const box=$("#cSalon");if(!CODE){box.innerHTML='<div class="note">Le classement apparaît ici dès que tu joues dans un salon.</div>';return}
+function renderSalon(){const box=$("#cSalon");if(!CODE||!ROOM){box.innerHTML='<div class="note">Le classement apparaît ici dès que tu joues dans un salon.</div>';return}
   const st=DOCS.stats&&DOCS.stats.players?Object.values(DOCS.stats.players):[];
   if(!st.length){box.innerHTML='<div class="note">Pas encore de partie terminée dans ce salon.</div>';return}
   const list=st.sort((a,b)=>b.points-a.points).map(p=>({name:p.name,pts:p.points}));
@@ -830,7 +951,7 @@ function chart(i){const box=$("#chart"),sub=$("#chartSub");
   box.innerHTML=g;sub.textContent="Points cumulés sur 14 jours · +"+daily[days-1]+" aujourd'hui · total "+fmtN((PTS.g||{})[CHG[i]]||0)}
 $$("#chartTabs button").forEach(b=>b.onclick=()=>{$$("#chartTabs button").forEach(x=>x.classList.toggle("on",x===b));chart(+b.dataset.c)});
 async function loadMe(){if(!ME)return;const r=await call("me",{name:ME.name,token:ME.token});
-  if(r.status===200){ME.salons=r.salons;(r.salons||[]).forEach(s=>{if(s.name)NAMES[s.code]=s.name});saveNames();store();PTS=r.pts;chart(+($("#chartTabs .on")||{dataset:{c:0}}).dataset.c)}
+  if(r.status===200){if(Array.isArray(r.salons))ME.salons=r.salons;store();updPills();PTS=r.pts;chart(+($("#chartTabs .on")||{dataset:{c:0}}).dataset.c)}
   else if(r.status===401){ME.stale=true;store();$("#chartSub").textContent="Reconnecte-toi avec ton code secret pour voir ta progression."}}
 
 // ---------- fenêtres Pseudo et Salon ----------
@@ -839,40 +960,9 @@ function closePops(){$$(".pop").forEach(p=>p.classList.remove("on"))}
 $$(".pop").forEach(p=>p.addEventListener("click",e=>e.stopPropagation()));
 document.addEventListener("click",e=>{if(!e.target.closest(".pop")&&!e.target.closest(".me-pill")&&!e.target.closest(".salon-pill")&&!e.target.closest("#mMenu"))closePops()});
 addEventListener("keydown",e=>{if(e.key==="Escape"){closePops();$$(".overlay.on").forEach(o=>o.classList.remove("on"))}});
-function myList(){const m=new Map();(ME&&ME.salons||[]).forEach(s=>m.set(s.code,{code:s.code,live:s.live||0,t:s.t}));
-  try{const o=JSON.parse(LS.get("fl-salons")||"{}");Object.keys(o).forEach(c=>{if(/^[A-Z0-9]{5}$/.test(c)&&!m.has(c))m.set(c,{code:c,live:0,t:o[c]})})}catch(e){}
-  return[...m.values()].sort((a,b)=>(b.t||0)-(a.t||0))}
-function openMe(btn){const p=$("#popMe");
-  if(!ME||ME.stale){const pre=ME?ME.name:"";p.innerHTML='<h4>'+(ME?"Reconnecte-toi":"Accéder à ma page")+'</h4><input class="in" id="meName" maxlength="7" placeholder="PSEUDO" autocomplete="off" value="'+esc(pre)+'"><input class="in pin" id="mePin" type="password" inputmode="numeric" maxlength="4" placeholder="CODE · 4 chiffres"><div class="err" id="meErr"></div><button class="btn primary" id="meGo">Entrer</button><button class="lnk" id="meNew">Créer mon pseudo</button>';
-    $("#meName").oninput=e=>{e.target.value=clean(e.target.value)};$("#mePin").oninput=e=>{e.target.value=e.target.value.replace(/\D/g,"").slice(0,4)};
-    const go=async()=>{const n=$("#meName").value,c=$("#mePin").value;if(!RE.test(n)){$("#meErr").textContent="Pseudo : 2 à 7 caractères.";return}if(!/^\d{4}$/.test(c)){$("#meErr").textContent="Le code fait 4 chiffres.";return}
-      $("#meGo").disabled=true;const r=await call("login",{name:n,pin:c});$("#meGo").disabled=false;
-      if(r.status===200){ME={name:n,token:r.token,salons:r.salons||[]};store();LS.set("fl-names",JSON.stringify([n]));afterLogin();openMe(btn)}else $("#meErr").textContent=r.msg||"Connexion impossible."};
-    $("#meGo").onclick=go;$("#mePin").onkeydown=e=>{if(e.key==="Enter")go()};
-    $("#meNew").onclick=()=>{p.innerHTML='<h4>Créer mon pseudo</h4><input class="in" id="nwName" maxlength="7" placeholder="PSEUDO (2 à 7)"><input class="in pin" id="nwPin" type="password" inputmode="numeric" maxlength="4" placeholder="CODE · 4 chiffres"><div class="note">Ton pseudo s\'affiche dans les parties et te suit sur tous tes appareils. Il ne pourra pas être changé.</div><div class="err" id="nwErr"></div><button class="btn primary" id="nwGo">Créer</button><button class="lnk" id="nwBack">J\'ai déjà un pseudo</button>';
-      $("#nwName").oninput=e=>{e.target.value=clean(e.target.value)};$("#nwPin").oninput=e=>{e.target.value=e.target.value.replace(/\D/g,"").slice(0,4)};
-      $("#nwBack").onclick=()=>{ME=ME&&ME.stale?ME:null;openMe(btn)};
-      $("#nwGo").onclick=async()=>{const n=$("#nwName").value,c=$("#nwPin").value;if(!RE.test(n)){$("#nwErr").textContent="Pseudo : 2 à 7 caractères (lettres, chiffres, @ # _).";return}if(!/^\d{4}$/.test(c)){$("#nwErr").textContent="Le code fait 4 chiffres.";return}
-        $("#nwGo").disabled=true;const r=await call("create",{name:n,pin:c});$("#nwGo").disabled=false;
-        if(r.status===200){ME={name:n,token:r.token,salons:[]};store();LS.set("fl-names",JSON.stringify([n]));if(CODE)call("link",{name:n,token:r.token,salon:CODE});afterLogin();openMe(btn);toast("👋","Bienvenue <b>"+esc(n)+"</b> !")}else $("#nwErr").textContent=r.msg||"Création impossible."};
-      setTimeout(()=>$("#nwName").focus(),50)}}
-  else{const L=myList();p.innerHTML='<h4>Bonjour '+esc(ME.name)+' 👋</h4><div class="note">Ma page · '+(PTS?fmtN(PTS.tot)+" points":"")+'</div><div class="note">Mes salons</div><div class="list">'+(L.length?L.map(x=>'<button class="sl" data-c="'+x.code+'"><span class="code">'+x.code+'</span><span class="nm2">'+esc(salonName(x.code)||"Salon")+'</span>'+(x.live?'<span class="live">'+x.live+' en ligne</span>':"")+'</button>').join(""):'<div class="note">Aucun salon pour l\'instant.</div>')+'</div><button class="lnk" id="meOut">Se déconnecter</button>';
-    p.querySelectorAll(".sl").forEach(b=>b.onclick=()=>{location.href="/"+b.dataset.c});
-    $("#meOut").onclick=async()=>{await call("logout",{name:ME.name,token:ME.token});ME=null;PTS=null;store();closePops();updPills();chart(0);renderRank()}}
-  $("#popSalon").classList.remove("on");place(p,btn);p.classList.add("on");const f=p.querySelector("input");if(f)setTimeout(()=>f.focus(),50)}
-function goSalon(c,nom){c=String(c||"").toUpperCase().replace(/[^A-Z0-9]/g,"");if(!/^[A-Z0-9]{5}$/.test(c))return false;LS.set("fl-ok-"+c,"1");
-  if(ME&&!ME.stale)call("link",{name:ME.name,token:ME.token,salon:c});location.href="/"+c+(nom?"?nom="+encodeURIComponent(nom):"");return true}
-function openSalon(btn){const p=$("#popSalon");
-  p.innerHTML='<h4>Mes salons</h4><input class="in" id="slQ" placeholder="CODE OU NOM DU SALON" autocomplete="off" style="letter-spacing:.04em"><div class="list" id="slL"></div><div class="err" id="slErr"></div><div style="display:flex;gap:8px"><button class="btn primary" id="slGo" style="flex:1">Rejoindre</button><button class="btn" id="slNew" style="flex:1">Créer</button></div>';
-  const draw=()=>{const q=$("#slQ").value.trim().toLowerCase();const L=myList().filter(x=>!q||x.code.toLowerCase().includes(q)||salonName(x.code).toLowerCase().includes(q));
-    $("#slL").innerHTML=L.slice(0,8).map(x=>'<button class="sl'+(x.code===CODE?" here":"")+'" data-c="'+x.code+'"><span class="code">'+x.code+'</span><span class="nm2">'+esc(salonName(x.code)||"Salon")+'</span>'+(x.live?'<span class="live">'+x.live+' en ligne</span>':"")+'</button>').join("")||(q?"":'<div class="note">Tape le code (5 caractères) d\'un salon pour le rejoindre, ou crée le tien.</div>');
-    $("#slL").querySelectorAll(".sl").forEach(b=>b.onclick=()=>goSalon(b.dataset.c))};
-  $("#slQ").oninput=draw;draw();
-  $("#slGo").onclick=()=>{const q=$("#slQ").value.trim();const byName=myList().find(x=>salonName(x.code).toLowerCase()===q.toLowerCase());if(byName)return goSalon(byName.code);if(!goSalon(q))$("#slErr").textContent="Un code de salon fait 5 caractères (lettres et chiffres)."};
-  $("#slQ").onkeydown=e=>{if(e.key==="Enter")$("#slGo").click()};
-  $("#slNew").onclick=()=>{p.innerHTML='<h4>Créer un salon</h4><input class="in" id="nsName" maxlength="40" placeholder="NOM DU SALON" style="letter-spacing:.04em"><div class="note">Un code d\'accès est créé automatiquement : partage-le à tes amis.</div><button class="btn primary" id="nsGo">Créer le salon</button>';
-    $("#nsGo").onclick=()=>{const n=$("#nsName").value.trim()||"Mon salon";goSalon(newCode(),n)};$("#nsName").onkeydown=e=>{if(e.key==="Enter")$("#nsGo").click()};setTimeout(()=>$("#nsName").focus(),50)};
-  $("#popMe").classList.remove("on");place(p,btn);p.classList.add("on");setTimeout(()=>$("#slQ").focus(),50)}
+const UI=makeAcctUI({q:s=>$(s),call,esc,toast,place,code:()=>CODE,getME:()=>ME,setME:o=>{ME=o;store();updPills()},
+  show:p=>p.classList.add("on"),hide:p=>p.classList.remove("on"),onLogin:()=>{afterLogin();if(CODE&&!ws)connect()},onLogout:()=>{PTS=null;ROOM=null;if(ws){ws.onclose=null;ws.close();ws=null}updPills();chart(0);renderRank();renderPeers();renderSalon()}});
+const openMe=UI.openMe,openSalon=UI.openSalon;
 function updPills(){const m=$(".me-pill");m.querySelector(".av-me").textContent=ME?ME.name[0]:"?";m.querySelector("b").textContent=ME?ME.name:"Pseudo";m.querySelector(".sub").textContent=ME?"· Ma page":"· Se connecter";
   $(".salon-pill span").textContent=CODE?(salonName(CODE)||"Salon "+CODE):"Nom du salon"}
 $(".me-pill").onclick=e=>{e.stopPropagation();if($("#popMe").classList.contains("on"))return closePops();openMe(e.currentTarget)};
@@ -880,10 +970,11 @@ $(".salon-pill").onclick=e=>{e.stopPropagation();if($("#popSalon").classList.con
 function afterLogin(){updPills();loadMe();renderRank();renderSalon();renderPeers();if(ws&&ws.readyState===1)ws.send(JSON.stringify({t:"presence",presence:{name:ME?ME.name:"",page:"accueil"}}))}
 
 // ---------- partager ----------
-function share(){const link=location.origin+"/"+(CODE||"");const txt=CODE?"On fait une partie ? Rejoins mon salon « "+(salonName(CODE)||CODE)+" » : "+link:"Viens jouer aux mots fléchés avec moi : "+link;
+function share(){const link=location.origin+"/"+(CODE&&ROOM?CODE:"");const own=ROOM&&ROOM.role==="owner";
+  const txt=CODE&&ROOM?"On fait une partie ? Rejoins mon salon « "+ROOM.name+" » sur "+link+(own?" — dans « Rejoindre un salon », saisis le nom et le code d'accès "+ROOM.acode:""):"Viens jouer aux mots fléchés avec moi : "+link;
   if(navigator.share){navigator.share({title:"Mots Fléchés Duo",text:txt,url:link}).catch(()=>{});return}
-  mini("📤 Partager",(CODE?"Code du salon : <b style='letter-spacing:.15em'>"+CODE+"</b><br>":"")+"<a class='btn' style='display:inline-flex;margin:8px 0' target='_blank' rel='noopener' href='https://wa.me/?text="+encodeURIComponent(txt)+"'>WhatsApp</a> <button class='btn' id='cpLink'>Copier le lien</button>");
-  $("#cpLink").onclick=e=>{(navigator.clipboard?navigator.clipboard.writeText(link):Promise.reject()).then(()=>e.target.textContent="Copié ✓",()=>e.target.textContent=link)}}
+  mini("📤 Partager",(own?"Nom du salon : <b>"+esc(ROOM.name)+"</b><br>Code d'accès : <b style='letter-spacing:.15em'>"+esc(ROOM.acode)+"</b><br>":CODE&&ROOM?"Pour entrer, il faut le nom du salon et son code d'accès, que seul le responsable connaît.<br>":"")+"<a class='btn' style='display:inline-flex;margin:8px 0' target='_blank' rel='noopener' href='https://wa.me/?text="+encodeURIComponent(txt)+"'>WhatsApp</a> <button class='btn' id='cpLink'>Copier le message</button>");
+  $("#cpLink").onclick=e=>{(navigator.clipboard?navigator.clipboard.writeText(txt):Promise.reject()).then(()=>e.target.textContent="Copié ✓",()=>e.target.textContent=txt)}}
 $$("[data-open=share]").forEach(b=>b.onclick=share);
 
 // ---------- tuiles de jeu et fenêtre de réglages ----------
@@ -895,7 +986,7 @@ $$(".tile").forEach(t=>t.addEventListener("click",e=>{if(e.target.closest(".mode
 document.addEventListener("click",e=>{if(!e.target.closest(".tile"))$$(".tile").forEach(x=>x.classList.remove("lift"))});
 let CFG=null;
 function openCfg(t,m,opp){const k=t.dataset.key,G=GAMES[k];
-  if(m==="multi"&&(!ME||ME.stale)&&k!=="poker"){$("#needT").textContent=G.nm+" à plusieurs";$("#need").dataset.k=k;$("#need").classList.add("on");return}
+  if(m==="multi"&&(!ME||ME.stale)){$("#needT").textContent=G.nm+" à plusieurs";$("#need").dataset.k=k;$("#need").classList.add("on");return}
   if(k==="culture"){mini("🧠 Culture générale","Le jeu du mois arrive très bientôt !");return}
   CFG={k,m,opp};$("#cfgT").textContent=G.nm+" · "+({solo:"Solo",multi:"Multijoueur",resume:"Reprendre la partie"}[m]);
   const pk=k==="poker";$(".cfgfl").style.display=pk||m==="resume"?"none":"";$(".cfgpk").style.display=pk&&m!=="resume"?"":"none";
@@ -914,7 +1005,8 @@ $("#cfgGo").onclick=()=>{const{k,m,opp}=CFG;$("#cfg").classList.remove("on");
   const lv=($("#lvl .on")||{}).dataset?.v||"";const q=new URLSearchParams({go:m});if(lv&&m!=="resume")q.set("lvl",lv);const n=$("#gnum").value;if(n&&m!=="resume")q.set("n",n);
   if((k==="fleches"||k==="rond")&&m==="multi")q.set("t","-1");if(opp)q.set("opp",opp);
   if(k==="poker"){q.set("fmt",($("#pkFmt .on")||{}).dataset?.v||"10");q.set("mise",$("#pkMise").value);q.set("dec",$("#pkDec").value)}
-  const base=CODE?"/"+CODE+"/"+k:(m==="multi"?"/"+newCode()+"/"+k:"/"+k);location.href=base+"?"+q}
+  if(m==="multi"&&!(CODE&&ROOM)){call("screate",{name:ME.name,token:ME.token,sname:"Salon de "+ME.name}).then(r=>{if(r.status===200)location.href="/"+r.salon.code+"/"+k+"?"+q;else toast("⚠️",esc(r.msg||"Création du salon impossible."))});return}
+  location.href=(CODE?"/"+CODE+"/"+k:"/"+k)+"?"+q}
 $$("#pkFmt button").forEach(b=>b.onclick=()=>$$("#pkFmt button").forEach(x=>x.classList.toggle("on",x===b)));
 // « Reprendre » : une partie non terminée est gardée dans le navigateur pour ce salon
 function renderResume(){$$(".tile").forEach(t=>{const k=t.dataset.key;let on=false;
@@ -944,7 +1036,8 @@ $("#dim").addEventListener("click",()=>{closePops();$("#mMenu").classList.remove
 
 // ---------- démarrage ----------
 updPills();renderPeers();renderSalon();renderRank();chart(0);renderResume();connect();loadMe();
-if(CODE){LS.set("fl-ok-"+CODE,"1");try{const all=JSON.parse(LS.get("fl-salons")||"{}");all[CODE]=Date.now();LS.set("fl-salons",JSON.stringify(all))}catch(e){}if(ME&&!ME.stale)call("link",{name:ME.name,token:ME.token,salon:CODE})}
+if(CODE&&(!ME||ME.stale))setTimeout(()=>{toast("🔒","Connecte-toi pour ouvrir ce salon.");openMe(pillMe())},300);
+if(new URLSearchParams(location.search).get("open")==="salon")setTimeout(()=>openSalon(pillSalon()),300);
 
 // ---------- multijoueur sans pseudo : créer un pseudo ou jouer en solo ----------
 $("#needSolo").onclick=()=>{const k=$("#need").dataset.k;$("#need").classList.remove("on");const t=$$(".tile").find(x=>x.dataset.key===k);if(t)openCfg(t,"solo")};

@@ -59,12 +59,13 @@ try {
 } catch { /* premier démarrage */ }
 let saveTimer = null;
 function scheduleSave(code) {
+  if (code && code[0] === "~") return;
   if (code) dirty.add(code);
   if (saveTimer) return;
   saveTimer = setTimeout(() => {
     saveTimer = null;
     const out = {};
-    for (const [code, s] of salons) if (Object.keys(s.docs).length) out[code] = { docs: s.docs, touched: s.touched };
+    for (const [code, s] of salons) if (code[0] !== "~" && Object.keys(s.docs).length) out[code] = { docs: s.docs, touched: s.touched };
     try { fs.mkdirSync(DATA_DIR, { recursive: true }); fs.writeFileSync(SAVE_FILE + ".tmp", JSON.stringify(out)); fs.renameSync(SAVE_FILE + ".tmp", SAVE_FILE); }
     catch (e) { console.error("Sauvegarde impossible :", e.message); }
     if (REDIS) for (const code of [...dirty]) { dirty.delete(code); const sl = salons.get(code); if (!sl) continue;
@@ -78,24 +79,54 @@ function snapshot(s) { return Object.entries(s.docs).map(([id, data]) => ({ id, 
 function peers(s) { return [...s.sockets].map(w => ({ id: w.pid, presence: w.presence || {} })); }
 function broadcastPeers(s) { const list = peers(s); for (const w of s.sockets) send(w, { t: "peers", peers: list }); }
 
+// une partie ne peut faire apparaître que le joueur connecté ; une nouvelle partie peut inviter un membre du salon ou « Invité »
+function seatsOk(prev, next, user, acc) {
+  const ps = Array.isArray(next.players) ? next.players : null; if (!ps) return true;
+  const fresh = !prev || prev.gid !== next.gid;
+  const old = new Set(fresh ? [] : (Array.isArray(prev.players) ? prev.players : []).map(x => x && x.name));
+  for (const pl of ps) {
+    const n = String(pl && pl.name || "");
+    if (old.has(n) || n === user || /^invit/i.test(n)) continue;
+    if (fresh && acc && acc.members[n.toUpperCase()]) continue;
+    return false;
+  }
+  return true;
+}
 async function handle(ws, m) {
   if (m.t === "join") {
+    if (ws.room) { const old = salons.get(ws.room); if (old) { old.sockets.delete(ws); broadcastPeers(old); if (ws.solo) salons.delete(ws.room); } ws.room = null; }
+    // partie solo (poker contre le robot…) : table privée à cette connexion, jamais partagée ni sauvegardée
+    if (m.solo) { ws.solo = true; ws.room = "~" + ws.pid; const s = salon(ws.room); s.sockets.add(ws); send(ws, { t: "snap", docs: [] }); return; }
+    ws.solo = false;
     const code = String(m.room || "").toUpperCase();
     if (!CODE_RE.test(code)) return send(ws, { t: "error", code: "invalid_argument", msg: "Code de salon invalide." });
+    // le pseudo vient du compte (jeton vérifié ici), jamais du navigateur
+    const nm = normPseudo(m.name);
+    let p = null, acc = null;
+    try { p = PSEUDO_RE.test(nm) ? await getPlayer(nm) : null; if (tokOk(p, m.token)) { await migratePlayer(nm, p); acc = await getAcc(code); } }
+    catch (e) { return send(ws, { t: "error", code: "unavailable", msg: "Serveur occupé, réessaie dans un instant." }); }
+    if (!tokOk(p, m.token)) return send(ws, { t: "error", code: "auth", msg: "Connecte-toi pour ouvrir ce salon." });
+    if (!acc || !acc.members[nm]) return send(ws, { t: "error", code: "forbidden", msg: "Impossible de rejoindre ce salon. Vérifie le nom et le code, ou contacte le responsable." });
+    acc.members[nm].o = Date.now(); saveAcc(acc);
     await loadSalon(code);
-    if (ws.room) { const old = salons.get(ws.room); if (old) { old.sockets.delete(ws); broadcastPeers(old); } }
-    const s = salon(code); ws.room = code; s.sockets.add(ws); s.touched = Date.now();
+    const s = salon(code); ws.room = code; ws.user = nm; s.sockets.add(ws); s.touched = Date.now();
+    send(ws, { t: "room", id: code, name: acc.name, role: acc.owner === nm ? "owner" : "member", me: nm, ...(acc.owner === nm ? { acode: acc.code } : {}) });
     send(ws, { t: "snap", docs: snapshot(s) });
     return broadcastPeers(s);
   }
   const s = ws.room && salons.get(ws.room); if (!s) return;
+  // chaque action multijoueur revérifie l'accès (un accès retiré coupe immédiatement)
+  if (!ws.solo) { const a = accs.get(ws.room); if (!a || !ws.user || !a.members[ws.user]) { s.sockets.delete(ws); ws.room = null; broadcastPeers(s); return send(ws, { t: "error", code: "forbidden", msg: "Tu n'as plus accès à ce salon." }); } }
   if (m.t === "set") {
     const id = String(m.id || "");
     if (!/^[A-Za-z0-9_-]{1,40}$/.test(id) || typeof m.data !== "object" || !m.data) return send(ws, { t: "ack", req: m.req, ok: false, code: "invalid_argument" });
     const json = JSON.stringify(m.data);
     if (json.length > MAX_DOC) return send(ws, { t: "ack", req: m.req, ok: false, code: "invalid_argument" });
     if (!s.docs[id] && Object.keys(s.docs).length >= MAX_DOCS) return send(ws, { t: "ack", req: m.req, ok: false, code: "quota_exceeded" });
-    const doc = JSON.parse(json); doc._v = ((s.docs[id] && s.docs[id]._v) || 0) + 1;
+    if (id === "meta") return send(ws, { t: "ack", req: m.req, ok: false, code: "permission_denied" });
+    const doc = JSON.parse(json);
+    if (!ws.solo && !seatsOk(s.docs[id], doc, ws.user, accs.get(ws.room))) return send(ws, { t: "ack", req: m.req, ok: false, code: "permission_denied" });
+    doc._v = ((s.docs[id] && s.docs[id]._v) || 0) + 1;
     s.docs[id] = doc; s.touched = Date.now(); scheduleSave(ws.room);
     send(ws, { t: "ack", req: m.req, ok: true });
     const msg = { t: "snap", docs: snapshot(s) };
@@ -107,7 +138,8 @@ async function handle(ws, m) {
     let changed = false;
     for (const d of Array.isArray(m.docs) ? m.docs.slice(0, MAX_DOCS) : []) {
       const id = String(d && d.id || "");
-      if (!/^[A-Za-z0-9_-]{1,40}$/.test(id) || !d.data || typeof d.data !== "object") continue;
+      if (!/^[A-Za-z0-9_-]{1,40}$/.test(id) || id === "meta" || !d.data || typeof d.data !== "object") continue;
+      if (!ws.solo && !seatsOk(s.docs[id], d.data, ws.user, accs.get(ws.room))) continue;
       const json = JSON.stringify(d.data); if (json.length > MAX_DOC) continue;
       const cur = s.docs[id]; const v = Number(d.data._v) || 0;
       if (cur ? (Number(cur._v) || 0) < v : Object.keys(s.docs).length < MAX_DOCS) { s.docs[id] = JSON.parse(json); changed = true; }
@@ -126,6 +158,7 @@ async function handle(ws, m) {
     const val = JSON.parse(JSON.stringify(m.value === undefined ? null : m.value));
     if (JSON.stringify(val).length > 2000) return send(ws, { t: "ack", req: m.req, ok: false, code: "invalid_argument" });
     d[field][key] = val;
+    if (id === "meta") return send(ws, { t: "ack", req: m.req, ok: false, code: "permission_denied" });
     if (m.extra && typeof m.extra === "object") for (const [k, v] of Object.entries(m.extra)) if (/^[a-zA-Z]{1,20}$/.test(k) && !["players", "gid", "_v"].includes(k)) d[k] = v;
     if (m.score && Number.isInteger(m.score.i) && d.players && d.players[m.score.i]) d.players[m.score.i].score = (d.players[m.score.i].score || 0) + (Number(m.score.add) || 0);
     d._v = (d._v || 0) + 1; s.touched = Date.now(); scheduleSave(ws.room);
@@ -157,12 +190,14 @@ async function handle(ws, m) {
   }
   if (m.t === "pk") {
     let who = null; const nm = String(m.name || "").toUpperCase();
-    if (PSEUDO_RE.test(nm) && m.token) { const p = await getPlayer(nm); if (p && (p.toks || []).includes(sha(String(m.token)))) { who = nm; ensureWallet(p); } }
+    if (PSEUDO_RE.test(nm) && m.token && (ws.solo || nm === ws.user)) { const p = await getPlayer(nm); if (tokOk(p, m.token)) { who = nm; ensureWallet(p); } }
+    if (!ws.solo && !who) return send(ws, { t: "pkerr", msg: "Connecte-toi pour jouer dans ce salon." });
     return poker.handle(ws, m, who);
   }
   if (m.t === "presence") {
     const p = m.presence && typeof m.presence === "object" ? m.presence : {};
     if (JSON.stringify(p).length > 4000) return;
+    if (!ws.solo) p.name = ws.user;            // le nom affiché aux autres est celui du compte
     ws.presence = p; return broadcastPeers(s);
   }
 }
@@ -189,17 +224,188 @@ function savePlayer(name) {
   clearTimeout(plTimer); plTimer = setTimeout(() => { try { fs.mkdirSync(DATA_DIR, { recursive: true }); fs.writeFileSync(PLAYERS_FILE, JSON.stringify(Object.fromEntries(players))); } catch {} }, 1500);
 }
 const fails = new Map();             // pseudo ou ip -> { n, until }
-function locked(k) { const f = fails.get(k); return f && f.until > Date.now(); }
-function fail(k, max, ms) { const f = fails.get(k) || { n: 0, until: 0 }; f.n++; if (f.n >= max) { f.until = Date.now() + ms; f.n = 0; } fails.set(k, f); }
+// blocage progressif : max erreurs → blocage ms, puis 2×, 4×… (24 h au plus) tant que les erreurs continuent
+function locked(k) { const f = fails.get(k); return f && f.until > Date.now() ? Math.ceil((f.until - Date.now()) / 60e3) : 0; }
+function fail(k, max, ms) { const f = fails.get(k) || { n: 0, until: 0, lvl: 0 }; f.n++; if (f.n >= max) { f.until = Date.now() + Math.min(ms * 2 ** f.lvl, 24 * 3600e3); f.lvl++; f.n = 0; } fails.set(k, f); }
+const normPseudo = v => String(v || "").normalize("NFD").replace(/[\u0300-\u036f]/g, "").trim().toUpperCase();
+const tokOk = (p, t) => !!(p && t && (p.toks || []).includes(sha(String(t))));
+const DUMMY_SALT = crypto.randomBytes(12).toString("hex");
+const creating = new Set();          // pseudos en cours de création (deux demandes simultanées)
 function newToken(p) { const t = crypto.randomBytes(24).toString("base64url"); p.toks = [sha(t)].concat(p.toks || []).slice(0, 12); return t; }
-function salonList(p) {
-  return Object.entries(p.salons || {}).sort((a, b) => b[1] - a[1]).slice(0, 30).map(([code, t]) => {
-    const s = salons.get(code); let live = 0, open = 0;
-    if (s) { live = s.sockets.size; for (const id in s.docs) { const d = s.docs[id]; if (d && d.players && !d.solo && !d.done) open++; } }
-    const nm = s && s.docs.meta && typeof s.docs.meta.name === "string" ? s.docs.meta.name.slice(0, 40) : "";
-    return { code, t, live, open, name: nm };
-  });
+// ---------- accès aux salons (compte ↔ salon) ----------
+// Un salon a trois choses distinctes : son identifiant interne (5 caractères, dans l'adresse),
+// son nom affiché et son code d'accès (6 caractères, connu du seul responsable). Rejoindre = nom + code vérifiés ici.
+// Redis : sa:ID = { id, name, code, owner, members:{PSEUDO:{t,o}}, c }   sc:CODE = ID
+const ACC_FILE = path.join(DATA_DIR, "access.json");
+const accs = new Map();              // id -> fiche du salon
+const codeIdx = new Map();           // code d'accès -> id
+try { const o = JSON.parse(fs.readFileSync(ACC_FILE, "utf8")); for (const id in o) { accs.set(id, o[id]); if (o[id].code) codeIdx.set(o[id].code, id); } } catch {}
+const ACODE_CH = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";   // sans I, O, 0, 1 (faciles à confondre)
+const ACODE_RE = /^[A-HJ-NP-Z2-9]{6}$/;
+const rndStr = (n, ch) => { const a = crypto.randomBytes(n); return [...a].map(x => ch[x % ch.length]).join(""); };
+const normName = v => String(v || "").normalize("NFD").replace(/[̀-ͯ]/g, "").replace(/\s+/g, " ").trim().toLowerCase();
+const cleanName = v => String(v || "").replace(/[\u0000-\u001f<>]/g, "").replace(/\s+/g, " ").trim();
+async function getAcc(id) {               // lève une erreur si Redis ne répond pas (≠ salon inexistant)
+  if (accs.has(id)) return accs.get(id);
+  if (!REDIS) return null;
+  const v = await redis(["GET", "sa:" + id]);
+  if (!v) return null;
+  const m = JSON.parse(v); if (!accs.has(id)) { accs.set(id, m); if (m.code) codeIdx.set(m.code, id); }
+  return accs.get(id);
 }
+let accTimer = null;
+function saveAcc(m) {
+  accs.set(m.id, m);
+  if (REDIS) redis(["SET", "sa:" + m.id, JSON.stringify(m)]).catch(e => console.error("Écriture Redis (salon) :", e.message));
+  clearTimeout(accTimer); accTimer = setTimeout(() => { try { fs.mkdirSync(DATA_DIR, { recursive: true }); fs.writeFileSync(ACC_FILE, JSON.stringify(Object.fromEntries(accs))); } catch {} }, 1500);
+}
+async function idByCode(code) {
+  if (codeIdx.has(code)) return codeIdx.get(code);
+  if (!REDIS) return null;
+  return await redis(["GET", "sc:" + code]);
+}
+async function reserveCode(id) {          // code d'accès unique (réservation atomique)
+  for (let i = 0; i < 20; i++) {
+    const c = rndStr(6, ACODE_CH);
+    if (codeIdx.has(c)) continue;
+    if (REDIS && (await redis(["SET", "sc:" + c, id, "NX"])) !== "OK") continue;
+    codeIdx.set(c, id); return c;
+  }
+  throw new Error("code");
+}
+const accCreating = new Map();            // id -> Promise (création en cours)
+async function createAcc(id, name, owner) {
+  if (accCreating.has(id)) return accCreating.get(id);
+  const pr = (async () => {
+    const ex = await getAcc(id); if (ex) return { m: ex, created: false };
+    const m = { id, name: cleanName(name).slice(0, 40) || "Salon " + id, code: null, owner: owner || null, members: {}, c: Date.now() };
+    if (REDIS && (await redis(["SET", "sa:" + id, JSON.stringify(m), "NX"])) !== "OK") return { m: await getAcc(id), created: false };
+    m.code = await reserveCode(id); saveAcc(m); return { m, created: true };
+  })();
+  accCreating.set(id, pr);
+  try { return await pr; } finally { accCreating.delete(id); }
+}
+function addMember(m, name, p) {          // sans doublon : une seule entrée par pseudo
+  const now = Date.now(); const had = !!m.members[name];
+  if (!had) m.members[name] = { t: now, o: now };
+  p.acc = p.acc || {}; p.acc[m.id] = p.acc[m.id] || now;
+  return had;
+}
+// Reprise des anciens salons : les salons déjà liés au compte deviennent des accès (une seule fois par compte).
+async function migratePlayer(name, p) {
+  if (p.migS) return;
+  await backupReady;
+  for (const [id, t] of Object.entries(p.salons || {})) {
+    if (!CODE_RE.test(id)) continue;
+    let m = await getAcc(id);
+    if (!m) {
+      await loadSalon(id); const s = salons.get(id);
+      if (!s || !Object.keys(s.docs).length) continue;            // salon vide ou expiré : rien à reprendre
+      const nm = s.docs.meta && typeof s.docs.meta.name === "string" ? s.docs.meta.name : "";
+      m = (await createAcc(id, nm, null)).m;
+    }
+    if (!m.members[name]) { m.members[name] = { t: Date.now(), o: Number(t) || Date.now() }; saveAcc(m); }
+    p.acc = p.acc || {}; p.acc[id] = Number(t) || Date.now();
+  }
+  p.migS = 1; savePlayer(name);
+}
+function liveInfo(id) {
+  const s = salons.get(id); let live = 0, open = 0;
+  if (s) { live = s.sockets.size; for (const k in s.docs) { const d = s.docs[k]; if (d && d.players && !d.solo && !d.done) open++; } }
+  return { live, open };
+}
+// liste complète des salons accessibles, du plus récemment ouvert au plus ancien
+async function salonList(name, p) {
+  await migratePlayer(name, p);
+  const ids = Object.keys(p.acc || {});
+  const ms = await Promise.all(ids.map(id => getAcc(id)));
+  const list = []; let changed = false;
+  ms.forEach((m, i) => {
+    if (!m || !m.members[name]) { delete p.acc[ids[i]]; changed = true; return; }   // accès retiré
+    const own = m.owner === name;
+    list.push({ code: m.id, name: m.name, o: m.members[name].o || 0, role: own ? "owner" : "member", ...(own ? { acode: m.code, members: Object.keys(m.members) } : {}), ...liveInfo(m.id) });
+  });
+  if (changed) savePlayer(name);
+  return list.sort((a, b) => b.o - a.o);
+}
+// fermer les connexions d'un joueur qui n'a plus accès
+function evict(id, who) {
+  const s = salons.get(id); if (!s) return;
+  for (const w of [...s.sockets]) if (w.user === who) { send(w, { t: "error", code: "forbidden", msg: "Tu n'as plus accès à ce salon." }); s.sockets.delete(w); w.room = null; }
+  broadcastPeers(s);
+}
+async function salonApi(route, name, p, b, ip, out, bad) {
+  const ROUTES = ["salons", "sjoin", "screate", "skick", "scode"];
+  if (!ROUTES.includes(route)) return undefined;
+  try {
+    if (route === "salons") return out(200, { salons: await salonList(name, p) });
+    if (route === "screate") {
+      const nm = cleanName(b.sname);
+      if (!nm || nm.length > 40) return bad("sname", "Nom du salon : 1 à 40 caractères.");
+      let id = null;
+      for (let i = 0; i < 20 && !id; i++) {
+        const c = rndStr(5, ACODE_CH);
+        if (salons.has(c) || accs.has(c)) continue;
+        if (REDIS && await redis(["EXISTS", "salon:" + c])) continue;
+        const r = await createAcc(c, nm, name); if (r.created) id = c;
+      }
+      if (!id) return out(503, { error: "indispo", msg: "Serveur occupé, réessaie dans un instant." });
+      const m = accs.get(id); addMember(m, name, p); saveAcc(m); savePlayer(name);
+      return out(200, { msg: "Salon créé.", salon: { code: id, name: m.name, role: "owner", acode: m.code }, salons: await salonList(name, p) });
+    }
+    if (route === "sjoin") {
+      const nm = cleanName(b.sname); const code = String(b.scode || "").toUpperCase().replace(/[\s-]/g, "");
+      if (!nm || nm.length > 40) return bad("sname", "Nom du salon : 1 à 40 caractères.");
+      if (!ACODE_RE.test(code)) return bad("scode", "Code d'accès : 6 caractères (lettres et chiffres).");
+      const lk = locked("sj:" + name) || locked("sjip:" + ip);
+      if (lk) return out(429, { error: "trop", msg: "Trop d'essais. Réessaie dans " + lk + " min." });
+      const id = await idByCode(code); const m = id ? await getAcc(id) : null;
+      if (!m || m.code !== code || normName(m.name) !== normName(nm)) {
+        fail("sj:" + name, 5, 15 * 60e3); fail("sjip:" + ip, 30, 15 * 60e3);
+        return out(403, { error: "refus", msg: "Impossible de rejoindre ce salon. Vérifie le nom et le code, ou contacte le responsable." });
+      }
+      fails.delete("sj:" + name);
+      const had = addMember(m, name, p); if (!had) saveAcc(m); savePlayer(name);
+      return out(200, { already: had, msg: had ? "Tu as déjà accès à ce salon." : "Tu as rejoint le salon.", salon: { code: m.id, name: m.name }, salons: await salonList(name, p) });
+    }
+    // actions du responsable
+    const id = String(b.salon || "").toUpperCase();
+    const m = CODE_RE.test(id) ? await getAcc(id) : null;
+    if (!m || m.owner !== name) return out(403, { error: "droits", msg: "Seul le responsable du salon peut faire cela." });
+    if (route === "skick") {
+      const who = normPseudo(b.member);
+      if (who === name) return bad("member", "Le responsable ne peut pas se retirer lui-même.");
+      if (!m.members[who]) return out(200, { msg: "Ce joueur n'a pas accès à ce salon.", members: Object.keys(m.members) });
+      delete m.members[who]; saveAcc(m);
+      const q = await getPlayer(who); if (q && q.acc) { delete q.acc[id]; savePlayer(who); }
+      evict(id, who);
+      return out(200, { msg: "Accès retiré.", members: Object.keys(m.members) });
+    }
+    if (route === "scode") {
+      const old = m.code; m.code = await reserveCode(id); saveAcc(m);
+      codeIdx.delete(old); if (REDIS) redis(["DEL", "sc:" + old]).catch(() => {});
+      return out(200, { msg: "Nouveau code créé. L'ancien ne fonctionne plus.", acode: m.code });
+    }
+  } catch (e) {
+    console.error("Salons :", e.message);   // jamais de code d'accès dans les journaux
+    return out(503, { error: "indispo", msg: route === "salons" ? "Impossible de charger tes salons. Réessaie." : "Serveur occupé, réessaie dans un instant." });
+  }
+}
+// Sauvegarde avant la reprise des comptes : copie unique de tous les comptes (pl:*) dans bak:pl:AAAAMMJJ.
+async function backupPlayers() {
+  const tag = new Date().toISOString().slice(0, 10).replace(/-/g, "");
+  if (!REDIS) { try { if (fs.existsSync(PLAYERS_FILE) && !fs.existsSync(PLAYERS_FILE + ".bak-acces")) fs.copyFileSync(PLAYERS_FILE, PLAYERS_FILE + ".bak-acces"); } catch {} return; }
+  try {
+    if (await redis(["EXISTS", "bak:pl:done"])) return;
+    const all = {}; let cur = "0";
+    do { const r = await redis(["SCAN", cur, "MATCH", "pl:*", "COUNT", "200"]); cur = String(r[0]); const keys = r[1] || [];
+      if (keys.length) { const vals = await redis(["MGET", ...keys]); keys.forEach((k, i) => { if (vals[i]) all[k] = vals[i]; }); } } while (cur !== "0");
+    await redis(["SET", "bak:pl:" + tag, JSON.stringify(all)]);
+    await redis(["SET", "bak:pl:done", tag]);
+    console.log("Sauvegarde des comptes faite : bak:pl:" + tag + " (" + Object.keys(all).length + " comptes)");
+  } catch (e) { console.error("Sauvegarde des comptes impossible :", e.message); }
+}
+const backupReady = backupPlayers();
 // ---------- points des joueurs (classement général, progression) ----------
 const rankMem = new Map();           // pseudo -> total (secours sans Redis)
 const DAYKEY = () => new Date(Date.now() + 3600e3).toISOString().slice(0, 10);
@@ -251,30 +457,48 @@ async function api(req, res, route) {
   let body = ""; for await (const ch of req) { body += ch; if (body.length > 4096) return out(413, { error: "trop long" }); }
   let b; try { b = JSON.parse(body || "{}"); } catch { return out(400, { error: "json" }); }
   const ip = String(req.headers["x-forwarded-for"] || req.socket.remoteAddress || "").split(",")[0].trim();
-  const name = String(b.name || "").toUpperCase();
+  const name = normPseudo(b.name);
   if (route === "rank") return out(200, await topRank(PSEUDO_RE.test(name) ? name : null));
-  if (!PSEUDO_RE.test(name)) return out(400, { error: "pseudo", msg: "Pseudo invalide : 2 à 7 caractères (A-Z, 0-9, @ # _)." });
+  const bad = (field, detail) => out(400, { error: "saisie", field, msg: "Vérifie les informations saisies.", detail });
+  if (!PSEUDO_RE.test(name)) return bad("name", "Pseudo : 2 à 7 caractères, lettres A-Z, chiffres et @ # _ (sans espace).");
   let p; try { p = await getPlayer(name); } catch { return out(503, { error: "indispo", msg: "Serveur occupé, réessaie dans un instant." }); }
-  const authed = () => p && b.token && (p.toks || []).includes(sha(String(b.token)));
+  const authed = () => tokOk(p, b.token);
   const pinOk = /^\d{4}$/.test(String(b.pin || ""));
-  if (route === "check") return out(200, { exists: !!p });
+  const PIN_DETAIL = "Code secret : exactement 4 chiffres.";
+  const tooMany = mn => out(429, { error: "trop", msg: "Trop d'essais. Réessaie dans " + mn + " min." });
   if (route === "create") {
-    if (locked("ip:" + ip)) return out(429, { error: "trop", msg: "Trop d'essais. Patiente quelques minutes." });
-    if (!pinOk) return out(400, { error: "pin", msg: "Le code secret fait 4 chiffres." });
-    if (p) return out(409, { error: "pris", msg: "Ce pseudo est déjà pris." });
-    fail("ip:" + ip, 20, 10 * 60e3);
-    const salt = crypto.randomBytes(12).toString("hex");
-    p = { h: hashPin(b.pin, salt), salt, toks: [], salons: {}, c: Date.now() }; players.set(name, p);
-    const token = newToken(p); savePlayer(name); return out(200, { token, salons: [] });
+    const lk = locked("ip:" + ip); if (lk) return tooMany(lk);
+    if (!pinOk) return bad("pin", PIN_DETAIL);
+    const taken = () => out(409, { error: "pris", field: "name", msg: "Ce pseudonyme n'est pas disponible. Choisis-en un autre ou connecte-toi à ton compte." });
+    if (p || creating.has(name) || players.has(name)) return taken();
+    creating.add(name);
+    try {
+      fail("ip:" + ip, 20, 10 * 60e3);
+      const salt = crypto.randomBytes(12).toString("hex");
+      const np = { h: hashPin(b.pin, salt), salt, toks: [], salons: {}, acc: {}, migS: 1, c: Date.now() };
+      const token = newToken(np);
+      // réservation atomique : si deux créations arrivent en même temps, une seule obtient le pseudo
+      if (REDIS) { const r = await redis(["SET", "pl:" + name, JSON.stringify(np), "NX"]); if (r !== "OK") return taken(); }
+      if (players.has(name)) return taken();
+      players.set(name, np); savePlayer(name);
+      return out(200, { name, token, salons: [] });
+    } catch (e) { console.error("Création de compte :", e.message); return out(503, { error: "indispo", msg: "Serveur occupé, réessaie dans un instant." }); }
+    finally { creating.delete(name); }
   }
   if (route === "login") {
-    if (!p) return out(404, { error: "inconnu", msg: "Ce pseudo n'existe pas encore." });
-    if (locked("pl:" + name) || locked("ip:" + ip)) return out(429, { error: "trop", msg: "Trop d'essais. Réessaie dans 10 minutes." });
-    if (!pinOk || hashPin(b.pin, p.salt) !== p.h) { fail("pl:" + name, 5, 10 * 60e3); fail("ip:" + ip, 30, 10 * 60e3); return out(401, { error: "pin", msg: "Code secret incorrect." }); }
-    fails.delete("pl:" + name); const token = newToken(p); savePlayer(name); return out(200, { token, salons: salonList(p) });
+    if (!pinOk) return bad("pin", PIN_DETAIL);
+    const lk = locked("pl:" + name) || locked("ip:" + ip); if (lk) return tooMany(lk);
+    // même calcul et même message que le pseudo existe ou non : on ne révèle pas lequel est faux
+    const h = hashPin(b.pin, p ? p.salt : DUMMY_SALT);
+    const ok = !!p && h.length === p.h.length && crypto.timingSafeEqual(Buffer.from(h), Buffer.from(p.h));
+    if (!ok) { fail("pl:" + name, 5, 15 * 60e3); fail("ip:" + ip, 30, 15 * 60e3); return out(401, { error: "ident", msg: "Identifiants incorrects." }); }
+    fails.delete("pl:" + name); const token = newToken(p); savePlayer(name);
+    let list = null; try { list = await salonList(name, p); } catch {}
+    return out(200, { name, token, salons: list });
   }
   if (!authed()) return out(401, { error: "jeton", msg: "Reconnecte-toi avec ton code secret." });
-  if (route === "me") return out(200, { salons: salonList(p), pts: p.pts || { tot: 0, g: {}, d: {} } });
+  if (["salons", "sjoin", "screate", "skick", "scode"].includes(route)) return void await salonApi(route, name, p, b, ip, out, bad);
+  if (route === "me") { let list = null; try { list = await salonList(name, p); } catch {} return out(200, { name, salons: list, pts: p.pts || { tot: 0, g: {}, d: {} } }); }
   if (route === "wallet" || route === "conv") {
     ensureWallet(p); p.cv = (p.cv || []).filter(x => Date.now() - x.t < 2 * 3600e3);
     const used = p.cv.reduce((a, x) => a + x.n, 0);
@@ -303,13 +527,7 @@ async function api(req, res, route) {
     if (pts) await addPoints(name, p, game, pts);
     savePlayer(name); return out(200, { ok: true, add: pts, pts: p.pts });
   }
-  if (route === "link") {
-    const code = String(b.salon || "").toUpperCase(); if (!CODE_RE.test(code)) return out(400, { error: "salon" });
-    p.salons = p.salons || {}; if (b.remove) delete p.salons[code]; else p.salons[code] = Date.now();
-    const keys = Object.keys(p.salons); if (keys.length > 60) keys.sort((a, c) => p.salons[a] - p.salons[c]).slice(0, keys.length - 60).forEach(k => delete p.salons[k]);
-    savePlayer(name); return out(200, { salons: salonList(p) });
-  }
-  if (route === "pin") { if (!pinOk) return out(400, { error: "pin", msg: "Le code secret fait 4 chiffres." }); p.salt = crypto.randomBytes(12).toString("hex"); p.h = hashPin(b.pin, p.salt); savePlayer(name); return out(200, { ok: true }); }
+  if (route === "pin") { if (!pinOk) return bad("pin", PIN_DETAIL); p.salt = crypto.randomBytes(12).toString("hex"); p.h = hashPin(b.pin, p.salt); savePlayer(name); return out(200, { ok: true }); }
   if (route === "logout") { p.toks = (p.toks || []).filter(t => t !== sha(String(b.token))); savePlayer(name); return out(200, { ok: true }); }
   return out(404, { error: "route" });
 }
@@ -349,7 +567,7 @@ function sendStatic(req, res, name) {
 const server = http.createServer((req, res) => {
   const url = new URL(req.url, "http://x");
   if (url.pathname === "/healthz") { res.writeHead(200, { "content-type": "text/plain" }); return res.end("ok " + salons.size + (REDIS ? " redis" : "")); }
-  const am = url.pathname.match(/^\/api\/p\/(check|create|login|me|link|pin|logout|rank|score|wallet|conv)$/);
+  const am = url.pathname.match(/^\/api\/p\/(create|login|me|pin|logout|rank|score|wallet|conv|salons|sjoin|screate|skick|scode)$/);
   if (am) return void api(req, res, am[1]).catch(e => { console.error(e); try { res.writeHead(500); res.end("{}"); } catch {} });
   if (url.pathname.startsWith("/d/")) return sendStatic(req, res, url.pathname.slice(3));
   if (url.pathname === "/maquette" || url.pathname === "/maquette/") return sendPage(req, res, path.join(__dirname, "public", "maquette.html"));
@@ -371,7 +589,7 @@ wss.on("connection", ws => {
   ws.pid = crypto.randomUUID(); ws.isAlive = true;
   ws.on("pong", () => (ws.isAlive = true));
   ws.on("message", raw => { let m; try { m = JSON.parse(raw); } catch { return; } ws.q = (ws.q || Promise.resolve()).then(() => handle(ws, m)).catch(e => console.error(e)); });
-  ws.on("close", () => { poker.gone(ws); const s = ws.room && salons.get(ws.room); if (s) { s.sockets.delete(ws); broadcastPeers(s); } });
+  ws.on("close", () => { poker.gone(ws); const s = ws.room && salons.get(ws.room); if (s) { s.sockets.delete(ws); broadcastPeers(s); if (ws.solo && !s.sockets.size) salons.delete(ws.room); } });
   send(ws, { t: "hello", id: ws.pid });
 });
 setInterval(() => {
