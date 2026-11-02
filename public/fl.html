@@ -1775,6 +1775,7 @@ window.FLINV=function(docs,opt){opt=opt||{};const M=me(),C=code();if(!M||!C||!do
     const names=d.players.map(p=>String(p.name||"").toUpperCase());const host=d.players[0]&&d.players[0].name;const mine=names.indexOf(M);
     if(mine===0)continue;                                             // c'est moi qui propose
     const lv=LV[d.level]?" ("+LV[d.level]+")":"";const [path,nm]=GAMES[id];let text=null;
+    if(new RegExp("/"+path+"/?$").test(location.pathname))continue;   // déjà sur la page de ce jeu : la partie s'y rejoint toute seule (le bandeau cachait la grille)
     if(mine>0)text="<b>"+esc(host)+"</b> t'invite à une partie de "+nm+lv+". Tu viens ?";
     else if(names.includes("INVITÉ"))text="<b>"+esc(host)+"</b> propose une partie de "+nm+lv+" : une place est libre. Tu viens ?";
     if(!text)continue;

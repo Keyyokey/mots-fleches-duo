@@ -16,6 +16,9 @@ const DATA_DIR = process.env.DATA_DIR || path.join(__dirname, "data");
 const SAVE_FILE = path.join(DATA_DIR, "salons.json");
 const PAGE = path.join(__dirname, "public", "index.html");
 const HOME = path.join(__dirname, "public", "accueil.html");
+// adresse du joueur : en ligne, l'en-tête posé par le relais de Render (Cloudflare) fait foi ; X-Forwarded-For seulement à défaut (le navigateur peut l'inventer)
+function clientIp(req) { const h = req.headers, cf = h["cf-connecting-ip"] || h["true-client-ip"]; if (cf) return String(cf).trim().slice(0, 64); return String(h["x-forwarded-for"] || req.socket.remoteAddress || "").split(",")[0].trim().slice(0, 64); }
+function ipSource(req) { const h = req.headers; return { cf: !!h["cf-connecting-ip"], tci: !!h["true-client-ip"], xri: !!h["x-real-ip"], xff: String(h["x-forwarded-for"] || "").split(",").filter(Boolean).length }; }
 const MAX_DOC = 300 * 1024;          // taille max d'une partie
 const MAX_DOCS = 40;                 // parties max par salon
 const CODE_RE = /^[A-Z0-9]{5}$/;
@@ -182,6 +185,7 @@ function seatsOk(prev, next, user, acc) {
   return true;
 }
 async function handle(ws, m) {
+  if (!m || typeof m !== "object" || Array.isArray(m) || typeof m.t !== "string") return;   // message malformé : ignoré
   if (m.t === "join") {
     if (ws.room) { const old = salons.get(ws.room); if (old) { old.sockets.delete(ws); broadcastPeers(old); if (ws.solo) salons.delete(ws.room); } ws.room = null; }
     // partie solo (poker contre le robot…) : table privée à cette connexion, jamais partagée ni sauvegardée
@@ -204,6 +208,8 @@ async function handle(ws, m) {
     return broadcastPeers(s);
   }
   const s = ws.room && salons.get(ws.room); if (!s) return;
+  // table solo (poker contre le robot) : rien d'autre n'y est stocké — sinon une connexion sans compte pourrait remplir la mémoire du serveur
+  if (ws.solo && m.t !== "pk" && m.t !== "presence") return send(ws, { t: "ack", req: m.req, ok: false, code: "permission_denied" });
   // chaque action multijoueur revérifie l'accès (un accès retiré coupe immédiatement)
   if (!ws.solo) { const a = accs.get(ws.room); if (!a || !ws.user || !a.members[ws.user]) { s.sockets.delete(ws); ws.room = null; broadcastPeers(s); return send(ws, { t: "error", code: "forbidden", msg: "Tu n'as plus accès à ce salon." }); } }
   if (m.t === "draw") return handleDraw(ws, s, m);
@@ -244,15 +250,18 @@ async function handle(ws, m) {
     const id = String(m.id || ""), field = String(m.field || ""), key = String(m.key || "");
     const d = s.docs[id];
     if (!d || !/^[a-zA-Z]{1,20}$/.test(field) || !/^[A-Za-z0-9_-]{1,40}$/.test(key)) return send(ws, { t: "ack", req: m.req, ok: false, code: "invalid_argument" });
+    if (id === "meta") return send(ws, { t: "ack", req: m.req, ok: false, code: "permission_denied" });
     if (m.gid && d.gid !== m.gid) return send(ws, { t: "ack", req: m.req, ok: false, code: "stale" });
     d[field] = d[field] && typeof d[field] === "object" ? d[field] : {};
     if (m.ifAbsent && d[field][key] !== undefined) return send(ws, { t: "ack", req: m.req, ok: false, code: "taken" });
     const val = JSON.parse(JSON.stringify(m.value === undefined ? null : m.value));
     if (JSON.stringify(val).length > 2000) return send(ws, { t: "ack", req: m.req, ok: false, code: "invalid_argument" });
+    if (key === "__proto__" || key === "constructor" || key === "prototype") return send(ws, { t: "ack", req: m.req, ok: false, code: "invalid_argument" });
+    const backup = JSON.stringify(d);
     d[field][key] = val;
-    if (id === "meta") return send(ws, { t: "ack", req: m.req, ok: false, code: "permission_denied" });
     if (m.extra && typeof m.extra === "object") for (const [k, v] of Object.entries(m.extra)) if (/^[a-zA-Z]{1,20}$/.test(k) && !["players", "gid", "_v", "wait", "go", "grid", "pid", "mid", "level", "blocked", "manual", "words", "grid", "qs", "ans", "adv"].includes(k)) d[k] = v;
     if (m.score && Number.isInteger(m.score.i) && d.players && d.players[m.score.i]) d.players[m.score.i].score = (d.players[m.score.i].score || 0) + (Number(m.score.add) || 0);
+    if (JSON.stringify(d).length > MAX_DOC) { s.docs[id] = JSON.parse(backup); return send(ws, { t: "ack", req: m.req, ok: false, code: "quota_exceeded" }); }   // une partie ne grossit pas sans fin
     d._v = (d._v || 0) + 1; s.touched = Date.now(); scheduleSave(ws.room);
     send(ws, { t: "ack", req: m.req, ok: true });
     const msg = { t: "snap", docs: snapshot(s) }; for (const w of s.sockets) send(w, msg);
@@ -570,7 +579,7 @@ async function api(req, res, route) {
   const MAXB = route === "solo" ? 96 * 1024 : 4096;
   let body = ""; for await (const ch of req) { body += ch; if (body.length > MAXB) return out(413, { error: "trop long" }); }
   let b; try { b = JSON.parse(body || "{}"); } catch { return out(400, { error: "json" }); }
-  const ip = String(req.headers["x-forwarded-for"] || req.socket.remoteAddress || "").split(",")[0].trim();
+  const ip = clientIp(req);
   const name = normPseudo(b.name);
   if (route === "rank") return out(200, await topRank(PSEUDO_RE.test(name) ? name : null));
   const bad = (field, detail) => out(400, { error: "saisie", field, msg: "Vérifie les informations saisies.", detail });
@@ -719,6 +728,7 @@ const server = http.createServer((req, res) => {
       .then(o => { res.writeHead(200, { "content-type": "application/json", "cache-control": "no-store" }); res.end(JSON.stringify({ ...o, ms: Date.now() - t0, depuisDemarrage: redisDiag, comptesEnMemoire: players.size })); });
   }
   // /healthz répond 503 si le stockage refuse l'accès : UptimeRobot (qui surveille /healthz) envoie alors une alerte par e-mail
+  if (url.pathname === "/healthz" && url.searchParams.get("ip") === "1") { res.writeHead(200, { "content-type": "application/json", "cache-control": "no-store" }); return res.end(JSON.stringify(ipSource(req))); }   // quels en-têtes d'adresse arrivent (sans les valeurs)
   if (url.pathname === "/healthz") { const bad = REDIS && storage.ok === false; res.writeHead(bad ? 503 : 200, { "content-type": "text/plain; charset=utf-8" }); return res.end(bad ? "STOCKAGE KO depuis " + storage.since + " : " + storage.msg : "ok " + salons.size + (REDIS ? " redis" : "")); }
   const am = url.pathname.match(/^\/api\/p\/(create|login|me|pin|logout|rank|score|wallet|conv|salons|sjoin|screate|skick|scode|sleave|hist|solo)$/);
   if (am) return void api(req, res, am[1]).catch(e => { console.error(e); try { res.writeHead(500); res.end("{}"); } catch {} });
@@ -741,11 +751,27 @@ const server = http.createServer((req, res) => {
   res.end('<!doctype html><html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Salon introuvable</title><style>body{margin:0;min-height:100vh;display:grid;place-items:center;background:#121214;color:#ECEDF2;font-family:system-ui,sans-serif;padding:16px}main{max-width:380px;text-align:center;display:flex;flex-direction:column;gap:12px}h1{margin:0;font-size:1.4rem}p{color:#8B8C99;margin:0}form{display:flex;gap:8px}input{flex:1;min-width:0;font-size:1.3rem;font-weight:800;letter-spacing:.2em;text-transform:uppercase;text-align:center;padding:10px;border-radius:12px;border:1px solid #2f2f39;background:#1E1E24;color:#ECEDF2}button,a{font:inherit;font-weight:700;padding:12px 16px;border-radius:12px;border:none;background:#00ADB5;color:#041b1d;text-decoration:none;cursor:pointer}</style></head><body><main><h1>Ce salon n\'existe pas</h1><p>Un code de salon fait 5 caractères (lettres et chiffres). Vérifie celui qu\'on t\'a envoyé.</p><form onsubmit="event.preventDefault();var v=this.c.value.toUpperCase().replace(/[^A-Z0-9]/g,\'\');if(v.length===5)location.href=\'/\'+v"><input name="c" maxlength="5" placeholder="CODE" aria-label="Code du salon"><button>Rejoindre</button></form><a href="/">Créer un nouveau salon</a></main></body></html>');
 });
 const wss = new WebSocketServer({ server, path: "/ws", maxPayload: MAX_DOC + 4096 });
-wss.on("connection", ws => {
-  ws.pid = crypto.randomUUID(); ws.isAlive = true;
+// garde-fous (test de charge du 2/11/2026) : connexions par adresse, total, et débit de messages par connexion
+const WS_PER_IP = 24, WS_TOTAL = 4000, MSG_RATE = 25, MSG_BURST = 80;
+const wsByIp = new Map();
+wss.on("connection", (ws, req) => {
+  ws.pid = crypto.randomUUID(); ws.isAlive = true; ws.ip = clientIp(req);
+  const n = (wsByIp.get(ws.ip) || 0) + 1;
+  if (n > WS_PER_IP || wss.clients.size > WS_TOTAL) { if (process.env.WSDBG) console.log("refus connexion", ws.ip, n); try { ws.close(1013, "Trop de connexions"); } catch {} return; }
+  wsByIp.set(ws.ip, n); ws.counted = true;
+  ws.tok = MSG_BURST; ws.tokAt = Date.now(); ws.drop = 0;
   ws.on("pong", () => (ws.isAlive = true));
-  ws.on("message", raw => { let m; try { m = JSON.parse(raw); } catch { return; } ws.q = (ws.q || Promise.resolve()).then(() => handle(ws, m)).catch(e => console.error(e)); });
-  ws.on("close", () => { poker.gone(ws); const s = ws.room && salons.get(ws.room); if (s) { s.sockets.delete(ws); broadcastPeers(s); if (ws.solo && !s.sockets.size) salons.delete(ws.room); } });
+  ws.on("message", raw => {
+    const now = Date.now(); ws.tok = Math.min(MSG_BURST, ws.tok + (now - ws.tokAt) * MSG_RATE / 1000); ws.tokAt = now;
+    if (ws.tok < 1) { if (process.env.WSDBG && !ws.drop) console.log("débit dépassé", ws.ip, ws.user); if (++ws.drop > 400) { try { ws.close(1008, "Trop de messages"); } catch {} } return; }   // rafale : messages ignorés, puis connexion coupée
+    ws.tok -= 1; if (ws.drop) ws.drop = Math.max(0, ws.drop - 1);
+    if (ws.busy > 200) return;                                       // file d'attente pleine : on n'empile pas sans fin
+    let m; try { m = JSON.parse(raw); } catch { return; }
+    ws.busy = (ws.busy || 0) + 1;
+    ws.q = (ws.q || Promise.resolve()).then(() => handle(ws, m)).catch(e => console.error(e)).finally(() => { ws.busy--; });
+  });
+  ws.on("close", () => {
+    if (ws.counted) { ws.counted = false; const k = (wsByIp.get(ws.ip) || 1) - 1; if (k > 0) wsByIp.set(ws.ip, k); else wsByIp.delete(ws.ip); } poker.gone(ws); const s = ws.room && salons.get(ws.room); if (s) { s.sockets.delete(ws); broadcastPeers(s); if (ws.solo && !s.sockets.size) salons.delete(ws.room); } });
   send(ws, { t: "hello", id: ws.pid });
 });
 setInterval(() => {
