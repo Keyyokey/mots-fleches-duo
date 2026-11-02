@@ -1,0 +1,710 @@
+[
+{
+"t": "Littérature",
+"q": "Quel détective belge, créé par Agatha Christie, est célèbre pour ses « petites cellules grises » ?",
+"a": [
+"Hercule Poirot",
+"Jules Maigret",
+"Arsène Lupin",
+"Sherlock Holmes"
+],
+"x": "Hercule Poirot apparaît dès « La mystérieuse affaire de Styles » (1920), le tout premier roman d'Agatha Christie.",
+"s": "Ta bibliothèque"
+},
+{
+"t": "Littérature",
+"q": "Dans quel village anglais vit Miss Marple ?",
+"a": [
+"St Mary Mead",
+"Chipping Cleghorn",
+"Market Basing",
+"Little Hampton"
+],
+"x": "Jane Marple, vieille demoiselle à l'œil acéré, résout les crimes depuis son village de St Mary Mead.",
+"s": "Ta bibliothèque"
+},
+{
+"t": "Littérature",
+"q": "Quel est le premier roman publié d'Agatha Christie ?",
+"a": [
+"La mystérieuse affaire de Styles",
+"Le crime de l'Orient-Express",
+"Mort sur le Nil",
+"Le meurtre de Roger Ackroyd"
+],
+"x": "Publié en 1920, il introduit Hercule Poirot et son ami le capitaine Hastings.",
+"s": "Ta bibliothèque"
+},
+{
+"t": "Littérature",
+"q": "Dans « Le crime de l'Orient-Express », où le train est-il bloqué ?",
+"a": [
+"Dans la neige",
+"Dans un tunnel",
+"À la frontière",
+"En gare de Venise"
+],
+"x": "Une congère immobilise le train dans les Balkans : le meurtrier est forcément à bord.",
+"s": "Ta bibliothèque"
+},
+{
+"t": "Littérature",
+"q": "Quel ami fidèle accompagne souvent Hercule Poirot ?",
+"a": [
+"Le capitaine Hastings",
+"Le docteur Watson",
+"L'inspecteur Lestrade",
+"Le sergent Lucas"
+],
+"x": "Arthur Hastings est le narrateur de plusieurs enquêtes de Poirot.",
+"s": "Ta bibliothèque"
+},
+{
+"t": "Littérature",
+"q": "Comment s'appelle le couple d'enquêteurs de « Mr. Brown » et « N ou M ? » d'Agatha Christie ?",
+"a": [
+"Tommy et Tuppence",
+"Nick et Nora",
+"Bonnie et Clyde",
+"Hastings et Lemon"
+],
+"x": "Tommy et Tuppence Beresford vieillissent au fil des livres, de 1922 à 1973.",
+"s": "Ta bibliothèque"
+},
+{
+"t": "Littérature",
+"q": "Dans quel roman d'Agatha Christie le narrateur s'avère-t-il être le meurtrier ?",
+"a": [
+"Le meurtre de Roger Ackroyd",
+"Cartes sur table",
+"Les Pendules",
+"Le train bleu"
+],
+"x": "Ce retournement de 1926 a fait scandale et reste l'un des plus célèbres du roman policier.",
+"s": "Ta bibliothèque"
+},
+{
+"t": "Littérature",
+"q": "Sur quel fleuve se déroule « Mort sur le Nil » ?",
+"a": [
+"Le Nil",
+"Le Danube",
+"L'Euphrate",
+"Le Tigre"
+],
+"x": "Le crime a lieu à bord du bateau à vapeur Karnak, en croisière en Égypte.",
+"s": "Ta bibliothèque"
+},
+{
+"t": "Littérature",
+"q": "Quelle dernière enquête met en scène la mort d'Hercule Poirot ?",
+"a": [
+"Poirot quitte la scène",
+"Le Noël d'Hercule Poirot",
+"Les Quatre",
+"Une mémoire d'éléphant"
+],
+"x": "Écrit dans les années 1940, ce roman ne fut publié qu'en 1975, peu avant la mort de l'autrice.",
+"s": "Ta bibliothèque"
+},
+{
+"t": "Littérature",
+"q": "Agatha Christie est souvent surnommée…",
+"a": [
+"La reine du crime",
+"La dame de fer",
+"La comtesse du suspense",
+"La lady du mystère"
+],
+"x": "C'est l'autrice de fiction la plus vendue de l'histoire, avec plus de 2 milliards d'exemplaires.",
+"s": "Ta bibliothèque"
+},
+{
+"t": "Littérature",
+"q": "Dans quelle pièce d'Agatha Christie, jouée sans interruption à Londres depuis 1952, retrouve-t-on « Trois souris » ?",
+"a": [
+"La Souricière",
+"Témoin à charge",
+"La toile d'araignée",
+"Black Coffee"
+],
+"x": "« La Souricière » est tirée de la nouvelle « Trois souris ». C'est la pièce la plus longtemps jouée au monde.",
+"s": "Ta bibliothèque"
+},
+{
+"t": "Littérature",
+"q": "Combien d'invités sont réunis sur l'île dans « Ils étaient dix » d'Agatha Christie ?",
+"a": [
+"Dix",
+"Huit",
+"Douze",
+"Sept"
+],
+"x": "Dix inconnus sont attirés sur une île et disparaissent un à un, comme dans la comptine.",
+"s": "Ta bibliothèque"
+},
+{
+"t": "Littérature",
+"q": "Combien de lois de la robotique Isaac Asimov a-t-il énoncées à l'origine ?",
+"a": [
+"Trois",
+"Deux",
+"Quatre",
+"Cinq"
+],
+"x": "Première loi : un robot ne peut porter atteinte à un être humain. Une « loi zéro » s'ajoutera plus tard.",
+"s": "Ta bibliothèque"
+},
+{
+"t": "Littérature",
+"q": "Dans le cycle « Fondation », quelle science permet de prédire l'avenir des foules ?",
+"a": [
+"La psychohistoire",
+"La chronologie",
+"La cosmogonie",
+"La robopsychologie"
+],
+"x": "Hari Seldon invente la psychohistoire pour abréger l'âge sombre qui suit la chute de l'Empire galactique.",
+"s": "Ta bibliothèque"
+},
+{
+"t": "Littérature",
+"q": "Qui est le fondateur de la psychohistoire dans « Fondation » ?",
+"a": [
+"Hari Seldon",
+"Salvor Hardin",
+"Elijah Baley",
+"Le Mulet"
+],
+"x": "Hari Seldon apparaît sous forme d'hologramme aux moments de crise prévus.",
+"s": "Ta bibliothèque"
+},
+{
+"t": "Littérature",
+"q": "Comment s'appelle le robot partenaire de l'inspecteur Elijah Baley dans « Les cavernes d'acier » ?",
+"a": [
+"R. Daneel Olivaw",
+"R. Giskard",
+"Robbie",
+"Andrew"
+],
+"x": "R. Daneel Olivaw traverse ensuite toute l'œuvre d'Asimov, jusqu'à « Terre et Fondation ».",
+"s": "Ta bibliothèque"
+},
+{
+"t": "Littérature",
+"q": "Quel mutant menace le plan Seldon dans « Fondation et Empire » ?",
+"a": [
+"Le Mulet",
+"Le Lézard",
+"L'Ombre",
+"Le Masque"
+],
+"x": "Capable de modifier les émotions, le Mulet n'avait pas été prévu par la psychohistoire.",
+"s": "Ta bibliothèque"
+},
+{
+"t": "Littérature",
+"q": "Isaac Asimov était aussi…",
+"a": [
+"Professeur de biochimie",
+"Pilote de chasse",
+"Astronome à la NASA",
+"Diplomate"
+],
+"x": "Asimov enseignait la biochimie à l'université de Boston et a écrit ou dirigé près de 500 livres.",
+"s": "Ta bibliothèque"
+},
+{
+"t": "Littérature",
+"q": "Quelle est la première phrase de « L'Étranger » d'Albert Camus ?",
+"a": [
+"Aujourd'hui, maman est morte.",
+"Longtemps, je me suis couché de bonne heure.",
+"Il était une fois.",
+"Je suis né à Alger."
+],
+"x": "Le roman de 1942 suit Meursault, condamné moins pour son crime que pour son indifférence.",
+"s": "Ta bibliothèque"
+},
+{
+"t": "Littérature",
+"q": "Comment s'appelle le personnage principal de « L'Étranger » ?",
+"a": [
+"Meursault",
+"Rieux",
+"Clamence",
+"Tarrou"
+],
+"x": "Meursault tue un Arabe sur une plage d'Alger, « à cause du soleil ».",
+"s": "Ta bibliothèque"
+},
+{
+"t": "Littérature",
+"q": "Dans quelle ville se déroule « La Peste » de Camus ?",
+"a": [
+"Oran",
+"Alger",
+"Constantine",
+"Tunis"
+],
+"x": "Le docteur Rieux y combat l'épidémie ; beaucoup y lisent une allégorie de l'Occupation.",
+"s": "Ta bibliothèque"
+},
+{
+"t": "Littérature",
+"q": "En quelle année Albert Camus a-t-il reçu le prix Nobel de littérature ?",
+"a": [
+"1957",
+"1947",
+"1964",
+"1952"
+],
+"x": "À 44 ans, il est l'un des plus jeunes lauréats. Son « Discours de Suède » date de cette remise.",
+"s": "Ta bibliothèque"
+},
+{
+"t": "Littérature",
+"q": "Quel mythe grec Camus utilise-t-il pour parler de l'absurde ?",
+"a": [
+"Sisyphe",
+"Prométhée",
+"Icare",
+"Narcisse"
+],
+"x": "« Il faut imaginer Sisyphe heureux » conclut « Le Mythe de Sisyphe » (1942).",
+"s": "Ta bibliothèque"
+},
+{
+"t": "Littérature",
+"q": "Dans quelle ville se confesse Jean-Baptiste Clamence dans « La Chute » ?",
+"a": [
+"Amsterdam",
+"Bruxelles",
+"Venise",
+"Londres"
+],
+"x": "Ce « juge-pénitent » se raconte dans un bar du port d'Amsterdam, le Mexico-City.",
+"s": "Ta bibliothèque"
+},
+{
+"t": "Littérature",
+"q": "Quel empereur romain est le héros d'une pièce de Camus ?",
+"a": [
+"Caligula",
+"Néron",
+"Auguste",
+"Marc Aurèle"
+],
+"x": "« Caligula » (1944) montre un empereur qui pousse la logique de l'absurde jusqu'au crime.",
+"s": "Ta bibliothèque"
+},
+{
+"t": "Littérature",
+"q": "Dans quel pays Albert Camus est-il né ?",
+"a": [
+"Algérie",
+"France",
+"Maroc",
+"Tunisie"
+],
+"x": "Né à Mondovi (aujourd'hui Dréan) en 1913, il a grandi dans un quartier populaire d'Alger.",
+"s": "Ta bibliothèque"
+},
+{
+"t": "Littérature",
+"q": "Quel nom Balzac a-t-il donné à l'ensemble de ses romans ?",
+"a": [
+"La Comédie humaine",
+"Les Rougon-Macquart",
+"Les Misérables",
+"À la recherche du temps perdu"
+],
+"x": "Plus de 90 romans et nouvelles qui se répondent, avec des personnages qui reviennent d'un livre à l'autre.",
+"s": "Ta bibliothèque"
+},
+{
+"t": "Littérature",
+"q": "Quel jeune ambitieux lance « À nous deux maintenant ! » à Paris à la fin du « Père Goriot » ?",
+"a": [
+"Eugène de Rastignac",
+"Lucien de Rubempré",
+"Julien Sorel",
+"Frédéric Moreau"
+],
+"x": "Depuis le cimetière du Père-Lachaise, Rastignac défie la capitale. Son nom est devenu un mot commun.",
+"s": "Ta bibliothèque"
+},
+{
+"t": "Littérature",
+"q": "Dans « La Peau de chagrin », que fait la peau à chaque vœu exaucé ?",
+"a": [
+"Elle rétrécit",
+"Elle grandit",
+"Elle change de couleur",
+"Elle brûle"
+],
+"x": "Raphaël de Valentin voit sa vie raccourcir à mesure que ses désirs se réalisent.",
+"s": "Ta bibliothèque"
+},
+{
+"t": "Littérature",
+"q": "Quel père avare, tonnelier à Saumur, est au cœur d'un roman de Balzac ?",
+"a": [
+"Le père Grandet",
+"Le père Goriot",
+"Harpagon",
+"Gobseck"
+],
+"x": "« Eugénie Grandet » (1833) peint l'avarice d'un ancien tonnelier enrichi.",
+"s": "Ta bibliothèque"
+},
+{
+"t": "Littérature",
+"q": "Quel officier de Napoléon, laissé pour mort à Eylau, revient réclamer son nom ?",
+"a": [
+"Le colonel Chabert",
+"Le capitaine Fracasse",
+"Le général Hulot",
+"Le commandant Genestas"
+],
+"x": "Personne ne veut reconnaître ce revenant, ni sa femme remariée, ni la justice.",
+"s": "Ta bibliothèque"
+},
+{
+"t": "Littérature",
+"q": "Comment s'appelle le criminel génial, alias Vautrin, de « La Comédie humaine » ?",
+"a": [
+"Jacques Collin",
+"Jean Valjean",
+"Fantômas",
+"Rocambole"
+],
+"x": "Surnommé « Trompe-la-Mort », il finira chef de la police de sûreté.",
+"s": "Ta bibliothèque"
+},
+{
+"t": "Littérature",
+"q": "Dans quelle région se déroule « Les Chouans » de Balzac ?",
+"a": [
+"La Bretagne",
+"La Provence",
+"L'Alsace",
+"La Corse"
+],
+"x": "Premier roman signé de son nom (1829), il raconte l'insurrection royaliste de l'Ouest.",
+"s": "Ta bibliothèque"
+},
+{
+"t": "Littérature",
+"q": "Quelle boisson Balzac consommait-il en quantité pour écrire la nuit ?",
+"a": [
+"Le café",
+"Le thé",
+"L'absinthe",
+"Le chocolat"
+],
+"x": "On lui prête des dizaines de tasses par jour, ce qui aurait abîmé sa santé.",
+"s": "Ta bibliothèque"
+},
+{
+"t": "Littérature",
+"q": "Dans quel pays se déroulent la plupart des romans d'aventure de Wilbur Smith ?",
+"a": [
+"En Afrique",
+"En Australie",
+"Au Canada",
+"En Inde"
+],
+"x": "Né en Rhodésie du Nord (actuelle Zambie), Wilbur Smith a situé ses sagas des Courtney et des Ballantyne en Afrique.",
+"s": "Ta bibliothèque"
+},
+{
+"t": "Littérature",
+"q": "Quel esclave narrateur raconte « Le Dieu fleuve » de Wilbur Smith ?",
+"a": [
+"Taita",
+"Imhotep",
+"Moïse",
+"Sinouhé"
+],
+"x": "Eunuque, médecin et artiste, Taita sert la reine Lostris dans l'Égypte ancienne.",
+"s": "Ta bibliothèque"
+},
+{
+"t": "Littérature",
+"q": "Quelle grande famille traverse plusieurs générations dans les romans de Wilbur Smith ?",
+"a": [
+"Les Courtney",
+"Les Forsyte",
+"Les Buddenbrook",
+"Les Thibault"
+],
+"x": "La saga des Courtney commence avec « Le destin du lion » et suit la famille du XVIIe siècle au XXe.",
+"s": "Ta bibliothèque"
+},
+{
+"t": "Littérature",
+"q": "Quel inspecteur, aristocrate et comte d'Asherton, enquête dans les romans d'Elizabeth George ?",
+"a": [
+"Thomas Lynley",
+"Adam Dalgliesh",
+"Jack Frost",
+"John Rebus"
+],
+"x": "Il fait équipe avec le sergent Barbara Havers, issue d'un milieu modeste.",
+"s": "Ta bibliothèque"
+},
+{
+"t": "Littérature",
+"q": "Comment s'appelle la coéquipière de l'inspecteur Lynley ?",
+"a": [
+"Barbara Havers",
+"Jane Tennison",
+"Vera Stanhope",
+"Kate Fansler"
+],
+"x": "Le duo Lynley-Havers est né en 1988 avec « Enquête dans le brouillard ».",
+"s": "Ta bibliothèque"
+},
+{
+"t": "Littérature",
+"q": "Elizabeth George, qui écrit des polars très anglais, est de nationalité…",
+"a": [
+"Américaine",
+"Anglaise",
+"Écossaise",
+"Irlandaise"
+],
+"x": "Née dans l'Ohio, elle vit en Californie et a longtemps enseigné l'anglais.",
+"s": "Ta bibliothèque"
+},
+{
+"t": "Littérature",
+"q": "Dans « Oscar et la dame rose » d'Éric-Emmanuel Schmitt, à qui Oscar écrit-il ses lettres ?",
+"a": [
+"À Dieu",
+"À sa mère",
+"À Mamie-Rose",
+"Au Père Noël"
+],
+"x": "Sur le conseil de Mamie-Rose, Oscar, 10 ans, vit chaque jour comme dix années.",
+"s": "Ta bibliothèque"
+},
+{
+"t": "Littérature",
+"q": "Dans « Monsieur Ibrahim et les fleurs du Coran », quel est le métier de Monsieur Ibrahim ?",
+"a": [
+"Épicier",
+"Libraire",
+"Boulanger",
+"Horloger"
+],
+"x": "L'épicier « arabe » de la rue Bleue, à Paris, devient le père de cœur du jeune Momo.",
+"s": "Ta bibliothèque"
+},
+{
+"t": "Littérature",
+"q": "Quel cycle d'Éric-Emmanuel Schmitt rassemble des récits sur les spiritualités ?",
+"a": [
+"Le cycle de l'Invisible",
+"La Comédie humaine",
+"Le cycle des Robots",
+"Les Thibault"
+],
+"x": "Il comprend « Milarepa », « Monsieur Ibrahim », « Oscar et la dame rose », « L'Enfant de Noé »…",
+"s": "Ta bibliothèque"
+},
+{
+"t": "Littérature",
+"q": "Dans quelle ville belge se déroule « La rêveuse d'Ostende » ?",
+"a": [
+"Ostende",
+"Bruges",
+"Liège",
+"Namur"
+],
+"x": "Le titre le dit : cette nouvelle d'Éric-Emmanuel Schmitt se passe sur la côte belge.",
+"s": "Ta bibliothèque"
+},
+{
+"t": "Littérature",
+"q": "Quelle autrice a écrit « Le crime de l'Orient-Express » ?",
+"a": [
+"Agatha Christie",
+"Dorothy L. Sayers",
+"P.D. James",
+"Ruth Rendell"
+],
+"x": "Publié en 1934, le roman s'inspire en partie de l'enlèvement du bébé Lindbergh.",
+"s": "Ta bibliothèque"
+},
+{
+"t": "Littérature",
+"q": "Qui a écrit « Fondation » ?",
+"a": [
+"Isaac Asimov",
+"Arthur C. Clarke",
+"Ray Bradbury",
+"Frank Herbert"
+],
+"x": "Le premier volume paraît en 1951 ; le cycle sera complété jusqu'en 1993.",
+"s": "Ta bibliothèque"
+},
+{
+"t": "Littérature",
+"q": "Qui a écrit « Le Père Goriot » ?",
+"a": [
+"Honoré de Balzac",
+"Émile Zola",
+"Gustave Flaubert",
+"Stendhal"
+],
+"x": "Publié en 1835, il est l'un des piliers de « La Comédie humaine ».",
+"s": "Ta bibliothèque"
+},
+{
+"t": "Littérature",
+"q": "Qui a écrit « La Peste » ?",
+"a": [
+"Albert Camus",
+"Jean-Paul Sartre",
+"André Malraux",
+"Marguerite Duras"
+],
+"x": "Paru en 1947, le roman connaît un immense succès dès sa sortie.",
+"s": "Ta bibliothèque"
+},
+{
+"t": "Littérature",
+"q": "Qui a écrit « Oscar et la dame rose » ?",
+"a": [
+"Éric-Emmanuel Schmitt",
+"Marc Levy",
+"Guillaume Musso",
+"Anna Gavalda"
+],
+"x": "Ce court roman de 2002 a été adapté au théâtre et au cinéma.",
+"s": "Ta bibliothèque"
+},
+{
+"t": "Littérature",
+"q": "Qui a écrit « Le Dieu fleuve » ?",
+"a": [
+"Wilbur Smith",
+"Christian Jacq",
+"Ken Follett",
+"Bernard Cornwell"
+],
+"x": "Paru en 1993, il ouvre le cycle égyptien de Wilbur Smith.",
+"s": "Ta bibliothèque"
+},
+{
+"t": "Littérature",
+"q": "Dans « Le crime de l'Orient-Express », combien de coups de couteau a reçus la victime ?",
+"a": [
+"Douze",
+"Six",
+"Trois",
+"Vingt"
+],
+"x": "Douze coups, comme les douze jurés… un indice clé du dénouement.",
+"s": "Ta bibliothèque"
+},
+{
+"t": "Littérature",
+"q": "Comment s'appelle la secrétaire très efficace d'Hercule Poirot ?",
+"a": [
+"Miss Lemon",
+"Miss Felicity",
+"Mrs Hudson",
+"Miss Moneypenny"
+],
+"x": "Felicity Lemon tient le bureau de Poirot avec un sens maniaque du classement.",
+"s": "Ta bibliothèque"
+},
+{
+"t": "Littérature",
+"q": "Quelle romancière de polars a aussi publié des romans sous le nom de Mary Westmacott ?",
+"a": [
+"Agatha Christie",
+"Elizabeth George",
+"P.D. James",
+"Patricia Highsmith"
+],
+"x": "Six romans psychologiques, loin du crime, ont paru sous ce pseudonyme.",
+"s": "Ta bibliothèque"
+},
+{
+"t": "Littérature",
+"q": "Dans « Les Justes » d'Albert Camus, quel attentat préparent les révolutionnaires ?",
+"a": [
+"Contre un grand-duc",
+"Contre un pape",
+"Contre un roi",
+"Contre une banque"
+],
+"x": "Inspirée de faits réels de 1905, la pièce interroge les limites de la violence politique.",
+"s": "Ta bibliothèque"
+},
+{
+"t": "Littérature",
+"q": "Dans « La fin de l'Éternité » d'Asimov, que peuvent faire les Éternels ?",
+"a": [
+"Modifier l'histoire",
+"Lire les pensées",
+"Devenir invisibles",
+"Vivre sous l'eau"
+],
+"x": "Hors du temps, ils retouchent le passé pour éviter les catastrophes… et les grandes aventures.",
+"s": "Ta bibliothèque"
+},
+{
+"t": "Littérature",
+"q": "Quel est le nom du mari d'Agatha Christie, archéologue, qui l'emmena en Mésopotamie ?",
+"a": [
+"Max Mallowan",
+"Howard Carter",
+"Leonard Woolley",
+"Archibald Christie"
+],
+"x": "Leurs séjours sur les chantiers de fouilles ont inspiré « Meurtre en Mésopotamie ».",
+"s": "Ta bibliothèque"
+},
+{
+"t": "Littérature",
+"q": "Dans « Le Colonel Chabert », lors de quelle bataille le colonel a-t-il été laissé pour mort ?",
+"a": [
+"Eylau",
+"Austerlitz",
+"Waterloo",
+"Wagram"
+],
+"x": "Enseveli parmi les morts en 1807, il réussit à s'extraire de la fosse.",
+"s": "Ta bibliothèque"
+},
+{
+"t": "Littérature",
+"q": "Quel animal donne son nom à la maison de commerce d'une nouvelle de Balzac ?",
+"a": [
+"Le chat",
+"Le lion",
+"Le coq",
+"Le cheval"
+],
+"x": "« La Maison du chat-qui-pelote » (1830) ouvre « La Comédie humaine ».",
+"s": "Ta bibliothèque"
+},
+{
+"t": "Littérature",
+"q": "Dans « Illusions perdues », de quelle ville de province vient Lucien de Rubempré ?",
+"a": [
+"Angoulême",
+"Tours",
+"Saumur",
+"Limoges"
+],
+"x": "Le jeune poète monte à Paris pour la gloire… et y perd ses illusions.",
+"s": "Ta bibliothèque"
+}
+]

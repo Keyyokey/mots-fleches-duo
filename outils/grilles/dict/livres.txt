@@ -1,0 +1,738 @@
+COULOIR|Passage étroit dans une maison
+MYSTERE|Énigme à résoudre
+MEURTRE|Crime d'un roman policier
+CADAVRE|Corps sans vie
+ASSASSIN|Coupable du meurtre
+INTRIGUE|Trame d'un roman
+SINISTRE|Qui fait froid dans le dos
+AMERTUME|Rancœur tenace
+ILLUSION|Apparence trompeuse
+HALEINE|Souffle de la bouche
+SOUPCON|Doute sur quelqu'un
+INDIVIDU|Personne quelconque
+REMORDS|Regret d'une faute
+EMBARRAS|Gêne visible
+ORGUEIL|Fierté excessive
+STUPEUR|Étonnement qui paralyse
+CACHETTE|Lieu où l'on se dissimule
+VELOURS|Tissu doux au toucher
+SAGESSE|Qualité du vieux sage
+MONNAIE|Pièces dans la poche
+OBSTACLE|Ce qui barre la route
+ARDEUR|Énergie passionnée
+SCANDALE|Affaire qui fait du bruit
+GAIETE|Bonne humeur
+ANXIETE|Inquiétude profonde
+ELEGANCE|Chic naturel
+SURSAUT|Mouvement brusque de surprise
+CENDRES|Restes du feu
+CRUAUTE|Méchanceté sans pitié
+TRAGEDIE|Pièce qui finit mal
+COUTUME|Usage établi
+RAPIDITE|Grande vitesse
+SONNETTE|On la tire ou on la presse à la porte
+ROUTINE|Habitudes répétées
+FERMETE|Solidité du caractère
+AMBITION|Désir de réussir
+RIGUEUR|Grande exactitude
+DEDAIN|Mépris affiché
+JUSTESSE|Exactitude du ton
+BOISSON|Ce qu'on boit
+BOUFFEE|Souffle soudain
+LEGUMES|Ils poussent au potager
+REGISTRE|Livre où l'on inscrit
+FARDEAU|Charge lourde à porter
+LOYAUTE|Fidélité sans faille
+LIAISON|Relation secrète
+COLLEGUE|Compagnon de bureau
+HABILETE|Adresse des mains
+TOURNURE|Façon dont tournent les choses
+CELLULE|Pièce de prison
+SERENITE|Calme intérieur
+EFFROI|Grande frayeur
+VANITE|Orgueil futile
+TACTIQUE|Art de mener le combat
+COIFFURE|Arrangement des cheveux
+ANCETRES|Ceux qui nous ont précédés
+DEBRIS|Morceaux brisés
+RACINES|Elles tiennent l'arbre au sol
+PARQUET|Sol en lattes de bois
+FRACAS|Bruit violent
+LOISIR|Temps libre
+COUSSINS|Ils garnissent le canapé
+FROIDEUR|Manque de chaleur humaine
+HARMONIE|Accord parfait
+FRACTION|Partie d'un tout
+GARDIEN|Il surveille le lieu
+BONNET|Couvre-chef de laine
+PALIER|Plateforme de l'escalier
+FOUDRE|Éclair qui frappe
+RUMEURS|Bruits qui courent
+ENTREVUE|Rencontre arrangée
+AGONIE|Derniers instants
+VIVACITE|Promptitude d'esprit
+NUANCES|Subtiles différences
+LEGERETE|Absence de poids
+FANTOMES|Revenants
+VERNIS|Il fait briller le bois
+ETOFFE|Tissu
+EXTASE|Ravissement total
+MODESTIE|Absence de vanité
+CHAPITRE|Partie d'un livre
+APLOMB|Assurance tranquille
+QUERELLE|Dispute
+VACARME|Tapage assourdissant
+ECARLATE|Rouge vif
+MOBILIER|Ensemble des meubles
+HOTESSE|Elle accueille les invités
+BENEFICE|Gain obtenu
+AMATEUR|Il n'est pas professionnel
+SURNOM|Nom donné par les amis
+PISTOLET|Arme de poing
+DETENTE|Elle déclenche le tir
+PAVILLON|Petite maison
+FILLETTE|Petite fille
+LECTEUR|Il lit ce livre
+VALET|Domestique
+REQUETE|Demande officielle
+CHANTAGE|Menace contre argent
+CHARITE|Aide aux pauvres
+COLONEL|Officier supérieur
+REVOLVER|Pistolet à barillet
+GALERIE|Long couloir d'exposition
+ECRIVAIN|Auteur de romans
+GRAISSE|Matière grasse
+FIDELITE|Constance en amour
+BARREAUX|Ils ferment la fenêtre d'une cellule
+CHIFFON|Bout de tissu pour essuyer
+TABLIER|Il protège le cuisinier
+CLINIQUE|Hôpital privé
+NOBLESSE|Classe des aristocrates
+TORCHE|Lampe portative
+EDIFICE|Grand bâtiment
+LAMBEAUX|Morceaux déchirés
+DESARROI|Grand trouble
+POIGNARD|Arme blanche courte
+VITRINE|On y expose la marchandise
+FINESSE|Délicatesse
+FERVEUR|Ardeur religieuse
+AUDIENCE|Séance du tribunal
+ESQUISSE|Premier croquis
+BESOGNE|Travail pénible
+SILLAGE|Trace du bateau
+SUPPLICE|Torture
+DIPLOME|Titre universitaire
+CONSIGNE|Ordre à respecter
+SCRUPULE|Hésitation morale
+ANONYME|Sans nom
+DESSEIN|Intention, projet
+VOYAGEUR|Il parcourt le monde
+GOUFFRE|Abîme profond
+MONTURE|Cheval du cavalier
+MIGRAINE|Mal de tête
+FALAISE|Côte à pic
+TROUPEAU|Groupe de moutons
+GRAVIER|Petits cailloux
+SERVEUR|Il apporte les plats
+VERDICT|Décision du jury
+PORTION|Part de nourriture
+FISSURE|Fente dans le mur
+HERITIER|Il reçoit la succession
+BOUCHON|Il ferme la bouteille
+ROUILLE|Oxyde du fer
+TUMULTE|Agitation bruyante
+UNISSON|Ensemble, d'une seule voix
+AUBERGE|Hôtel de campagne
+SERVANTE|Domestique
+LISIERE|Bord de la forêt
+COCKTAIL|Mélange de boissons
+EVASION|Fuite de prison
+IVRESSE|État d'ébriété
+BATISSE|Grande construction
+TORPEUR|Engourdissement
+FACULTE|Aptitude ou université
+BLOUSE|Vêtement de travail
+CROCHET|Pièce recourbée
+CADENCE|Rythme régulier
+TROUSSE|Étui à crayons
+PUDEUR|Retenue, discrétion
+HEROINE|Personnage principal féminin
+PROPRETE|Absence de saleté
+SECOUSSE|Choc brusque
+SARCASME|Ironie mordante
+HUMILITE|Modestie sincère
+RUISSEAU|Petit cours d'eau
+ROBINET|Il fait couler l'eau
+PUNITION|Sanction
+CORRIDOR|Couloir
+CLOISON|Mur intérieur
+CARRURE|Largeur des épaules
+CLOTURE|Barrière autour du jardin
+FAISCEAU|Rayon de lumière
+MUSEAU|Nez de l'animal
+CISEAUX|Ils coupent le papier
+REBELLE|Insoumis
+POURPRE|Rouge foncé
+ACAJOU|Bois précieux rougeâtre
+EGOISME|Amour exclusif de soi
+COMPLOT|Conspiration
+FRAYEUR|Peur soudaine
+MENTEUR|Il ne dit pas la vérité
+COUPURE|Petite blessure
+PIQURE|Injection
+SORCIERE|Elle prépare des potions
+POUBELLE|On y jette les déchets
+GUERISON|Retour à la santé
+MANEGE|Attraction de fête foraine
+ARTIFICE|Feu de fête
+OXYGENE|Gaz vital
+TABLETTE|Petite planche ou plaquette
+BOURREAU|Exécuteur
+VOCATION|Appel intérieur
+FACTURE|Note à payer
+VEDETTE|Star
+RANCUNE|Ressentiment
+BORDURE|Ce qui borde
+ROUSSEUR|Tache sur la peau
+PEINTRE|Artiste du pinceau
+SCENARIO|Trame d'un film
+AVIDITE|Désir insatiable
+LACHETE|Manque de courage
+SALETE|Crasse
+FLAQUE|Eau stagnante sur le sol
+COCHON|Animal de la ferme
+VITALITE|Énergie de vivre
+BOUCLIER|Protection du guerrier
+COUTURE|Art de coudre
+BONSOIR|Salut du soir
+ESTRADE|Plancher surélevé
+CHANTIER|Travaux en cours
+LARGEUR|Dimension
+LEVIER|Barre pour soulever
+SPIRALE|Courbe qui s'enroule
+DEVOTION|Piété fervente
+ETALAGE|Exposition de marchandises
+CROYANCE|Conviction
+NAIVETE|Candeur
+BREUVAGE|Boisson
+NETTETE|Clarté
+BRECHE|Ouverture dans un mur
+CACHET|Comprimé ou sceau
+EVENTAIL|On l'agite quand il fait chaud
+TUNIQUE|Long vêtement
+PEIGNOIR|On le porte au sortir du bain
+AMPOULE|Elle éclaire la pièce
+AVERSION|Répugnance
+CERCUEIL|Bière du défunt
+FOULARD|Carré de soie
+BOUILLIE|Purée claire
+SEMELLE|Dessous de la chaussure
+CONTOUR|Limite extérieure
+EQUIPAGE|Marins du navire
+GOBELET|Verre sans pied
+RUELLE|Petite rue
+AUTOPSIE|Examen du corps
+CITOYEN|Membre de la cité
+EMERAUDE|Pierre verte
+LUSTRE|Lampe suspendue à branches
+MACABRE|Qui évoque la mort
+FOUGUE|Enthousiasme ardent
+PERRUQUE|Faux cheveux
+JUMEAUX|Nés le même jour
+DILEMME|Choix difficile
+RENFORT|Aide supplémentaire
+LABEUR|Travail pénible
+FUNEBRE|Lié aux obsèques
+STATURE|Taille d'une personne
+CELESTE|Du ciel
+NOTAIRE|Officier des testaments
+BARBARE|Cruel
+CUVETTE|Bassine
+MURAILLE|Haut rempart
+CHOUETTE|Rapace de nuit
+BUISSON|Arbrisseau touffu
+DEMENCE|Folie
+EUPHORIE|Joie intense
+VERGOGNE|Sans elle, on est effronté
+BATTERIE|Instrument à percussion
+MOQUETTE|Tapis collé au sol
+VESTON|Veste d'homme
+COGNAC|Eau-de-vie charentaise
+ARGILE|Terre à modeler
+TORCHON|Linge de cuisine
+CONVOI|File de véhicules
+FANTASME|Rêve éveillé
+RIPOSTE|Réponse vive
+HYSTERIE|Excitation incontrôlée
+DEVISE|Maxime ou monnaie
+AUGURE|Présage
+CHAPELLE|Petite église
+TOMBEAU|Sépulture
+MILLIER|Mille environ
+SENTENCE|Jugement
+AGILITE|Souplesse
+FRENESIE|Exaltation
+SPECIMEN|Exemplaire
+MUTISME|Silence obstiné
+COTTAGE|Maison de campagne anglaise
+CRINIERE|Poils du cou du lion
+DANSEUSE|Ballerine
+HANGAR|Abri pour avions
+ESPION|Agent secret
+CADRAN|Face de la montre
+EXIGENCE|Demande ferme
+FAILLITE|Ruine d'une entreprise
+LAIDEUR|Contraire de beauté
+INVASION|Arrivée de l'ennemi
+DELUGE|Pluie diluvienne
+SYLLABE|Son d'un mot
+GROTTE|Caverne
+PANCARTE|Écriteau
+HORAIRE|Emploi du temps
+COQUETTE|Soucieuse de plaire
+EFFUSION|Démonstration de tendresse
+PARUTION|Sortie d'un livre
+ARDOISE|Pierre du toit
+PARADE|Défilé
+POTEAU|Pieu planté
+FICHIER|Document numérique
+REMPART|Muraille de défense
+TEXTURE|Aspect d'une matière
+MOELLE|Elle est dans l'os
+DERISION|Moquerie
+CORTEGE|Défilé solennel
+COIFFEUR|Il coupe les cheveux
+CITATION|Phrase reprise
+COUREUR|Athlète de vitesse
+EMPHASE|Exagération du ton
+TIRADE|Longue réplique au théâtre
+GUERRIER|Combattant
+COFFRET|Petit coffre
+CASIER|Rangement à cases
+RAFALE|Coup de vent
+JAMBON|Charcuterie
+SPECTRE|Fantôme
+REFRAIN|Il revient dans la chanson
+MORALITE|Leçon de la fable
+DECENCE|Bienséance
+CAVERNE|Grotte
+SOUCOUPE|Petite assiette sous la tasse
+SOUCHE|Bas du tronc
+MENTHE|Plante aromatique
+THEIERE|Pour servir le thé
+TOUFFE|Bouquet de poils
+MORSURE|Blessure de dents
+CADETTE|Plus jeune sœur
+SYMETRIE|Reflet en miroir
+GRIFFE|Ongle du chat
+SEVERITE|Rigueur
+SIFFLET|Instrument de l'arbitre
+NOMBRIL|Il est au milieu du ventre
+ECLIPSE|La Lune cache le Soleil
+PILIER|Colonne
+HAMECON|Crochet de pêche
+MALLETTE|Petite valise
+BRIQUET|Il allume la cigarette
+VOLUPTE|Plaisir des sens
+TYRANNIE|Pouvoir despotique
+FRACTURE|Os cassé
+PELUCHE|Doudou
+CYNISME|Mépris des conventions
+TRANSE|État second
+FUGITIF|En fuite
+COMEDIEN|Acteur
+PASTEUR|Ministre protestant
+ALTITUDE|Hauteur
+CUISSON|Passage au four
+IVROGNE|Buveur invétéré
+VERDURE|Végétation
+INERTIE|Absence de mouvement
+ECHEANCE|Date limite
+TAPAGE|Bruit
+MESSAGER|Porteur de nouvelles
+ATTENTAT|Acte terroriste
+HOMICIDE|Meurtre
+ANOMALIE|Bizarrerie
+CARNAGE|Massacre
+CARAFE|Pichet d'eau
+FRANGE|Cheveux sur le front
+BOSQUET|Petit bois
+MESSE|Office catholique
+SACHET|Petit sac
+CHRETIEN|Fidèle du Christ
+CREATEUR|Auteur d'une œuvre
+MAJESTE|Titre royal
+DOUBLURE|Tissu intérieur
+SERMON|Prêche
+LESSIVE|Linge à laver
+OPTIQUE|Science de la lumière
+ESCAPADE|Petite fugue
+CANDEUR|Ingénuité
+COLLET|Piège à lapin
+CLASSEUR|Range-feuilles
+INDIGENE|Natif du pays
+MISSIVE|Lettre
+IDOLE|Star adorée
+NOVICE|Débutant
+ANATOMIE|Étude du corps
+FACTION|Clan
+ETHIQUE|Morale
+BANALITE|Lieu commun
+ORDURE|Déchet
+PORTIER|Gardien de l'entrée
+BAPTEME|Sacrement de l'eau
+POCHETTE|Petit étui
+BEGUIN|Amourette
+VISIERE|Elle protège les yeux du soleil
+DEDALE|Labyrinthe
+PLATINE|Métal précieux
+BRASIER|Grand feu
+FOURNEAU|Cuisinière
+JARGON|Langage de spécialiste
+EBAUCHE|Premier jet
+DUCHESSE|Épouse du duc
+RENTE|Revenu régulier
+EPIDEMIE|Maladie qui se propage
+COLOSSE|Géant
+PELOTE|Boule de laine
+BALLET|Spectacle de danse
+EQUATION|Problème à inconnue
+LICENCE|Diplôme ou permis
+PAUPIERE|Elle couvre l'œil
+HANDICAP|Désavantage
+PARESSE|Fainéantise
+PRESAGE|Signe annonciateur
+ECAILLE|Plaque du poisson
+HYGIENE|Propreté
+SAUVEUR|Il vient en aide
+SOMMAIRE|Table des matières
+INSOMNIE|Nuit blanche
+BANQUIER|Homme de la finance
+PAROISSE|Territoire du curé
+TOISON|Laine du mouton
+BOUILLON|Soupe claire
+PALETTE|Plaque du peintre
+CUPIDITE|Avidité d'argent
+EPICIER|Petit commerçant
+EMPRUNT|Prêt à rembourser
+RUSTIQUE|De la campagne
+ARSENAL|Stock d'armes
+ADJOINT|Second du maire
+ENTREPOT|Lieu de stockage
+GOURDE|Bouteille du randonneur
+BARMAN|Il sert au comptoir
+BUTTE|Petite colline
+PANACHE|Bouquet de plumes ou bravoure
+VIPERE|Serpent venimeux
+PROVERBE|Dicton
+MINUTIE|Soin du détail
+QUIETUDE|Tranquillité
+CAPUCHE|Bonnet du sweat
+PROPHETE|Il annonce l'avenir
+REPAIRE|Antre
+CALIBRE|Diamètre du canon
+ANECDOTE|Petite histoire
+PIGEON|Oiseau des villes
+COULISSE|Derrière la scène
+BOUDOIR|Petit salon
+CYLINDRE|Rouleau
+SANGLE|Courroie
+ASPIRINE|Contre le mal de tête
+ABDOMEN|Ventre
+PRODIGE|Enfant surdoué
+ODORAT|Sens de l'odeur
+VESTIGE|Reste du passé
+ENTRAVE|Obstacle
+MOQUERIE|Raillerie
+OURAGAN|Tempête violente
+RECUEIL|Livre de poèmes
+MORGUE|Lieu des corps non réclamés
+PARTERRE|Massif de fleurs
+OFFRANDE|Don aux dieux
+OUTRAGE|Offense grave
+MARTYR|Il meurt pour sa foi
+SACOCHE|Sac de cuir
+ENCOLURE|Tour du cou
+BILLARD|Jeu de queues et de boules
+CANNELLE|Épice en bâton
+TUTEUR|Il guide la plante ou l'enfant
+NAUFRAGE|Perte du navire
+VINAIGRE|Il assaisonne la salade
+COUETTE|Édredon
+CONSTAT|Rapport d'accident
+ORPHELIN|Sans parents
+MOLLET|Arrière de la jambe
+FATALITE|Destin
+MIETTE|Petit morceau de pain
+PAGAILLE|Désordre
+PAQUEBOT|Grand navire
+CENDRIER|Pour les mégots
+DIAMETRE|Largeur du cercle
+CAVITE|Creux
+CLAUSE|Article du contrat
+CLOCHER|Tour de l'église
+CHAPELET|Grains de prière
+CARAPACE|Abri de la tortue
+JOYAUX|Bijoux précieux
+MOUTARDE|Condiment piquant
+TOXIQUE|Poison
+APTITUDE|Capacité
+DECALAGE|Écart
+PREJUGE|Idée reçue
+CORNICHE|Route en bord de falaise
+MAGICIEN|Illusionniste
+SERINGUE|Pour les piqûres
+GUICHET|Comptoir de vente
+CRUCHE|Pot à eau
+CONFRERE|Collègue
+PERIPLE|Long voyage
+LIQUEUR|Digestif sucré
+CENTIME|Centième d'euro
+TURBAN|Coiffure enroulée
+DOCTRINE|Théorie
+DIVINITE|Dieu
+MUSICIEN|Il joue d'un instrument
+NACRE|Intérieur de l'huître
+OPULENCE|Richesse
+CONCORDE|Entente
+FOURREAU|Étui de l'épée
+ETALON|Cheval reproducteur
+PUPILLE|Centre de l'œil
+ESCALE|Arrêt d'un voyage
+PUPITRE|Bureau d'écolier
+FILATURE|Surveillance discrète
+TAMPON|Cachet
+TOURISTE|Vacancier
+BITUME|Asphalte
+RIVALITE|Concurrence
+ERUPTION|Colère du volcan
+FAMINE|Manque de nourriture
+ACHETEUR|Client
+CARAVANE|Roulotte
+RANCON|Prix de la libération
+VANILLE|Gousse parfumée
+ZENITH|Point le plus haut
+HEROISME|Grand courage
+POTAGER|Jardin de légumes
+ANGUILLE|Poisson serpentiforme
+VITRAUX|Verrières de cathédrale
+PIQUET|Pieu de tente
+ANALOGIE|Ressemblance
+LEZARD|Reptile au soleil
+HUBLOT|Fenêtre du bateau
+BRIGADE|Unité de gendarmes
+AUTRUCHE|Oiseau qui ne vole pas
+CAPUCHON|Bouchon de stylo
+TIREUR|Celui qui fait feu
+GOUDRON|Revêtement de route
+BOUQUIN|Livre, familièrement
+POTENCE|Gibet
+AURORE|Lever du jour
+BUCHER|Tas de bois enflammé
+PEDALE|Elle fait avancer le vélo
+PILULE|Comprimé
+TONALITE|Son de la ligne téléphonique
+BLOUSON|Veste courte
+FOURCHE|Outil à dents
+CIVIERE|Brancard
+LATITUDE|Distance à l'équateur
+GIRON|Les genoux d'une personne assise
+AMANDE|Fruit sec
+SUSPENSE|Attente angoissée
+SYMPTOME|Signe d'une maladie
+CAPSULE|Bouchon de bouteille
+ARSENIC|Poison des romans d'Agatha Christie
+GARNISON|Troupes d'une ville
+CUILLER|Pour la soupe
+ADOPTION|Elle crée une famille
+ANARCHIE|Absence de gouvernement
+BANNIERE|Étendard
+FONTE|Métal de la poêle
+LEURRE|Appât trompeur
+COMPTEUR|Il mesure la vitesse
+PHALANGE|Os du doigt
+ECOLIER|Élève
+SOURDINE|Elle atténue le son
+ATTIRAIL|Équipement encombrant
+ACCROC|Déchirure
+LAQUE|Fixateur à cheveux
+ECHAFAUD|Plateforme d'exécution
+BROCHURE|Petit livret
+SEVE|Sang de l'arbre
+STEAK|Tranche de bœuf
+PIOCHE|Outil du terrassier
+KLAXON|Avertisseur
+CORONER|Il enquête sur les morts suspectes
+CARBONE|Élément de base de la vie
+MEGOT|Bout de cigarette
+VAGABOND|Errant
+GRILLAGE|Clôture métallique
+ORATEUR|Il fait un discours
+ROYAUTE|Monarchie
+ANNUAIRE|Liste des abonnés
+VESSIE|Réservoir d'urine
+GRUE|Engin de chantier ou oiseau
+CAUTION|Garantie
+BONBON|Friandise
+OMISSION|Oubli
+ECHELON|Degré
+RUBRIQUE|Section du journal
+FAUBOURG|Quartier périphérique
+BIOLOGIE|Science du vivant
+JOGGING|Course à pied
+ADHESIF|Ruban collant
+CLOITRE|Galerie du monastère
+SOUFRE|Élément jaune
+VOYOU|Petit délinquant
+CHROME|Métal brillant
+PRELUDE|Introduction musicale
+REGAIN|Retour de vigueur
+ENTORSE|Cheville tordue
+OISIVETE|Inaction
+LUGUBRE|Sinistre
+HUMBLE|Modeste
+CHAUVE|Sans cheveux
+ODIEUX|Abominable
+COMIQUE|Drôle
+STRICT|Sévère
+INFIME|Minuscule
+INERTE|Immobile
+FURTIF|Discret et rapide
+ROBUSTE|Solide
+AUSTERE|Sévère et dépouillé
+INSENSE|Fou
+LIMPIDE|Clair comme l'eau
+IGNOBLE|Infâme
+RIGIDE|Raide
+INSOLITE|Inhabituel
+MEDIOCRE|Moyen, sans éclat
+FEBRILE|Agité
+MOROSE|Triste
+SUBLIME|Magnifique
+PRIMITIF|Des origines
+THEATRAL|Exagéré
+LUXUEUX|Somptueux
+PROPICE|Favorable
+EXQUISE|Délicieuse
+INTEGRE|Honnête
+SUBTILE|Fine
+INSTABLE|Changeant
+CYNIQUE|Sans scrupules
+INFIRME|Handicapé
+JUVENILE|De jeunesse
+PRECAIRE|Fragile
+TENACE|Obstiné
+INDEMNE|Sans blessure
+SORDIDE|Sale et misérable
+HEROIQUE|Courageux
+INFERNAL|Diabolique
+TYPIQUE|Caractéristique
+PLACIDE|Calme
+ESPIEGLE|Malicieux
+CRASSEUX|Très sale
+PIETRE|Médiocre
+PALPABLE|Tangible
+IMMACULE|Sans tache
+VENIMEUX|Qui a du venin
+TANGIBLE|Concret
+EPHEMERE|De courte durée
+INGRAT|Sans reconnaissance
+MOELLEUX|Doux et souple
+EXOTIQUE|Venu d'ailleurs
+OBLIQUE|En biais
+TACITE|Sous-entendu
+OPPORTUN|Qui tombe à point
+ACERBE|Mordant
+INFAME|Honteux
+OBSCENE|Indécent
+PITEUX|Pitoyable
+COSTAUD|Robuste
+CRUCIAL|Décisif
+HIDEUX|Très laid
+PRODIGUE|Dépensier
+GLORIEUX|Plein de gloire
+RUGUEUX|Rêche
+TORRIDE|Brûlant
+IMMUABLE|Qui ne change pas
+CHATAIN|Brun clair
+VERTUEUX|Honnête
+OPAQUE|Qui ne laisse pas passer la lumière
+HAUTAIN|Arrogant
+FUTILE|Sans importance
+SINUEUX|Plein de courbes
+CORDIAL|Chaleureux
+IMMONDE|Répugnant
+FUNESTE|Fatal
+MORBIDE|Malsain
+PUERIL|Enfantin
+FABULEUX|Extraordinaire
+FERTILE|Fécond
+FLASQUE|Mou
+RAFFINE|Élégant
+ROCHEUX|Plein de rochers
+CANDIDE|Naïf
+FACTICE|Artificiel
+ATOMIQUE|Nucléaire
+SUPERFLU|Inutile
+FOUGUEUX|Plein d'ardeur
+CORIACE|Dur à cuire
+ANODINE|Sans importance
+LUCRATIF|Rentable
+ILLICITE|Interdit
+NOTOIRE|Connu de tous
+MESQUIN|Petit d'esprit
+NEFASTE|Nuisible
+PRECOCE|En avance
+SPACIEUX|Vaste
+VISQUEUX|Gluant
+UNANIME|D'un commun accord
+IMPULSIF|Spontané
+DEMODE|Passé de mode
+SOMBRER|Couler
+ESQUIVER|Éviter adroitement
+DEROBER|Voler
+TRADUIRE|Passer d'une langue à l'autre
+REVIVRE|Vivre à nouveau
+PEINDRE|Manier le pinceau
+CROITRE|Grandir
+DENONCER|Accuser publiquement
+EVACUER|Vider les lieux
+ANNULER|Supprimer
+DECEVOIR|Désappointer
+EMOUVOIR|Toucher le cœur
+DEPLOYER|Étendre
+CALCULER|Compter
+DELIVRER|Libérer
+MEDITER|Réfléchir longuement
+TAQUINER|Agacer gentiment
+BOUILLIR|Atteindre cent degrés
+ABRITER|Protéger
+TORTURER|Faire souffrir
+CUEILLIR|Ramasser des fleurs
+DEMOLIR|Détruire
+ENQUETER|Mener l'investigation
+SCRUTER|Observer attentivement
+HARCELER|Tourmenter
+GRONDER|Réprimander
+PLEUVOIR|Tomber du ciel
+NAVIGUER|Voguer
+ANEANTIR|Détruire complètement
+DOMPTER|Dresser
+EPLUCHER|Ôter la peau
+DEGUSTER|Savourer
+GLANER|Ramasser après la récolte
+AMADOUER|Flatter pour obtenir
+ELUCIDER|Éclaircir un mystère
+PREDIRE|Annoncer l'avenir
+FUSILLER|Exécuter par balles
+BROYER|Écraser
+TOUSSER|Se racler la gorge
+SIFFLER|Imiter le merle
+ABOYER|Crier comme le chien
+COUDRE|Manier l'aiguille
+HISSER|Lever le drapeau
+FLIRTER|Conter fleurette
+RINCER|Passer à l'eau claire
+DEMENTIR|Nier
+ESCORTER|Accompagner
+SUCCEDER|Prendre la suite

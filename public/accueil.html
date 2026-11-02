@@ -668,7 +668,8 @@ table.bar td,table.bar th{padding:5px 6px;border-bottom:1px solid rgba(255,255,2
 @media (max-width:620px){.stats{grid-template-columns:1fr}.g-top,.g-bot{grid-template-columns:1fr}.tile{--ls:22px!important;--gap:4px!important;min-height:200px;flex-direction:column;align-items:flex-start;padding:20px}.tile .vis{position:absolute;right:16px;top:18px;padding:8px}.tile .txt,.g-bot .tile .txt{margin-top:auto;padding-top:64px}.g-bot .tile .vis{right:16px;top:18px;padding:8px}.tile h2{font-size:1.9rem!important}.fan{transform:scale(.62);transform-origin:top right;width:200px;height:130px;margin:-6px -6px -50px -76px}.qz{width:120px;gap:4px}.qz .qq{height:34px;font-size:1.1rem}.qz .ans{padding:3px 8px;font-size:.66rem}.ring{width:88px;height:88px}.daily{display:none}}
 </style>
 <style>
-.cfgfl .seg button{flex:1}.chartTabs{flex-wrap:wrap}
+.cfgfl .seg button{flex:1}
+.gpick{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:12px 0}.gpick button{all:unset;box-sizing:border-box;cursor:pointer;display:flex;flex-direction:column;gap:3px;padding:14px 12px;border-radius:16px;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.2);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);transition:transform .15s,background .2s}.gpick button:hover,.gpick button:focus-visible{transform:translateY(-2px);background:rgba(255,255,255,.18);outline:none}.gpick b{font:800 1rem Nunito,Inter,sans-serif}.gpick small{opacity:.75;font-size:.78rem}.gpick button:last-child:nth-child(odd){grid-column:1/-1}[data-theme=light] .gpick button{background:rgba(255,255,255,.7);border-color:rgba(15,25,40,.12)}.chartTabs{flex-wrap:wrap}
 .lnk{all:unset;cursor:pointer;color:var(--accent,#00ADB5);font-size:.85rem;text-align:center;font-weight:600}
 .err{color:#fb7185;font-size:.82rem;min-height:1em}
 .sl.here{border-color:var(--accent,#00ADB5)}
@@ -786,6 +787,12 @@ body.nodeco .blob{opacity:.35}
 <div class="pop" id="popMe" role="dialog" aria-label="Accéder à ma page"></div>
 <div class="pop" id="popSalon" role="dialog" aria-label="Mes salons"></div>
 <div class="overlay" id="need"><div class="glass sheet qbox"><div class="ico-big">👥</div><h3 id="needT">Jouer à plusieurs</h3><div class="note">Pour jouer avec d'autres joueurs, il te faut un pseudo : c'est lui qui te place dans la partie et compte tes points.</div><button class="btn primary" id="needMe">Créer mon pseudo</button><button class="btn" id="needSolo">Jouer en solo</button><button class="btn" id="needX" style="background:transparent">Annuler</button></div></div>
+<div class="overlay" id="pickG"><div class="glass sheet">
+  <h3 id="pickT">Proposer une partie</h3>
+  <div class="note">Choisis d'abord le jeu, puis ses réglages.</div>
+  <div class="gpick" id="pickL"></div>
+  <button class="btn" id="pickX">Annuler</button>
+</div></div>
 <div class="overlay" id="cfg"><div class="glass sheet">
   <h3 id="cfgT">Mots fléchés · Solo</h3>
   <div class="cfgfl"><div class="seg" id="lvl"></div>
@@ -1043,7 +1050,7 @@ function renderPeers(){const box=$("#cPeers");if(!CODE||!ROOM){box.innerHTML='<d
   rows.sort((a,b)=>b.me-a.me);
   box.innerHTML=rows.map(r=>'<div class="row'+(r.me?" me":"")+'"><span class="dot"></span><span class="av" style="background:'+colOf(r.n)+'">'+esc(r.n[0])+'</span><span class="nm">'+esc(r.n)+(r.where&&GAMEL[r.where]&&!r.me?' <small class="note">'+GAMEL[r.where]+'</small>':"")+'</span>'+(r.me?"":'<button class="plus" title="Proposer une partie" data-n="'+esc(r.n)+'">+</button>')+'</div>').join("")
     +(rows.length<2?'<div class="row"><span class="dot" style="background:var(--muted);box-shadow:none"></span><span class="nm note">En attente d\'un joueur… <a href="#" id="invLink">inviter</a></span></div>':"");
-  box.querySelectorAll(".plus").forEach(b=>b.onclick=()=>{const t=$$(".tile").find(x=>x.dataset.key==="fleches");openCfg(t,"multi",b.dataset.n)});
+  box.querySelectorAll(".plus").forEach(b=>b.onclick=()=>pickGame(b.dataset.n));
   const il=$("#invLink");if(il)il.onclick=e=>{e.preventDefault();share()}}
 function rankRows(list,meName){return list.map((r,i)=>'<div class="row'+(meName&&r.name.toUpperCase()===meName?" me":"")+'"><span class="rank'+(r.rank<=3||i<3?" "+["g","s","b"][(r.rank||i+1)-1]:"")+'">'+(r.rank||i+1)+'</span><span class="nm">'+esc(r.name)+'</span><span class="pts">'+fmtN(r.pts)+'</span></div>').join("")}
 function renderSalon(){const box=$("#cSalon");if(!CODE||!ROOM){box.innerHTML='<div class="note">Le classement apparaît ici dès que tu joues dans un salon.</div>';return}
@@ -1115,9 +1122,9 @@ function share(){const link=location.origin+"/"+(CODE&&ROOM?CODE:"");const own=R
 $$("[data-open=share]").forEach(b=>b.onclick=share);
 
 // ---------- tuiles de jeu et fenêtre de réglages ----------
-const GAMES={fleches:{nm:"Mots fléchés",lv:[["facile","Facile",380],["normal","Normal",384],["difficile","Difficile",353]],t:true},
-  rond:{nm:"Le Tourniquet",lv:[["facile","Facile",287],["moyen","Normal",287],["difficile","Difficile",286]],t:true},
-  meles:{nm:"Mots mêlés",lv:[["facile","Facile",267],["moyen","Normal",267],["difficile","Difficile",267]]},
+const GAMES={fleches:{nm:"Mots fléchés",lv:[["facile","Facile",414],["normal","Normal",417],["difficile","Difficile",386]],t:true},
+  rond:{nm:"Le Tourniquet",lv:[["facile","Facile",321],["moyen","Normal",320],["difficile","Difficile",319]],t:true},
+  meles:{nm:"Mots mêlés",lv:[["facile","Facile",297],["moyen","Normal",297],["difficile","Difficile",297]]},
   poker:{nm:"Poker lettres",lv:[]},culture:{nm:"Culture générale",lv:[]}};
 $$(".tile").forEach(t=>t.addEventListener("click",e=>{if(e.target.closest(".modes"))return;const was=t.classList.contains("lift");$$(".tile").forEach(x=>x.classList.remove("lift"));if(!was)t.classList.add("lift")}));
 document.addEventListener("click",e=>{if(!e.target.closest(".tile"))$$(".tile").forEach(x=>x.classList.remove("lift"))});
@@ -1133,6 +1140,12 @@ function openCfg(t,m,opp){const k=t.dataset.key,G=GAMES[k];
   $("#cfgNote").textContent=m==="resume"?"La partie en cours reprend là où elle s'est arrêtée.":m==="multi"?(opp?"Partie avec "+opp+" : « Suivant » ouvre la table, la partie démarre quand vous êtes deux.":"« Suivant » ouvre la table du salon : invite ton adversaire, la partie démarre quand vous êtes deux."):"« Suivant » lance directement la partie.";
   if(m==="multi"&&!CODE&&!pk)$("#cfgNote").textContent+=" Un salon sera créé pour vous.";
   $("#cfg").classList.add("on")}
+// bouton + des joueurs connectés : on choisit d'abord le jeu (5 jeux), puis ses réglages
+const PICK=[["fleches","Mots fléchés","Grille à deux"],["rond","Le Tourniquet","Six mots en rond"],["meles","Mots mêlés","Le plus rapide gagne"],["poker","Poker lettres","Mots et jetons"],["culture","Culture générale","10 questions en duel"]];
+function pickGame(opp){$("#pickT").textContent="Proposer une partie à "+opp;const L=$("#pickL");
+  L.innerHTML=PICK.map(([k,n,d])=>'<button type="button" data-k="'+k+'"><b>'+n+'</b><small>'+d+'</small></button>').join("");
+  L.querySelectorAll("button").forEach(b=>b.onclick=()=>{$("#pickG").classList.remove("on");const t=$$(".tile").find(x=>x.dataset.key===b.dataset.k);if(t)openCfg(t,"multi",opp)});
+  $("#pickX").onclick=()=>$("#pickG").classList.remove("on");$("#pickG").classList.add("on");setTimeout(()=>{const f=L.querySelector("button");if(f)f.focus()},50)}
 function fillNums(){const G=GAMES[CFG.k];const i=[...$$("#lvl button")].findIndex(b=>b.classList.contains("on"));const n=(G.lv[i]||G.lv[0])[2];
   const g=$("#gnum");g.innerHTML='<option value="">Grille suivante (au hasard parmi les non jouées)</option>'+Array.from({length:n},(_,j)=>'<option value="'+(j+1)+'">Grille '+(j+1)+'</option>').join("")}
 function bindMode(b){b.onclick=e=>{e.stopPropagation();openCfg(b.closest(".tile"),b.dataset.mode)}}
