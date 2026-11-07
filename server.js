@@ -734,6 +734,12 @@ const server = http.createServer((req, res) => {
   if (am) return void api(req, res, am[1]).catch(e => { console.error(e); try { res.writeHead(500); res.end("{}"); } catch {} });
   if (url.pathname.startsWith("/d/")) return sendStatic(req, res, url.pathname.slice(3));
   if (url.pathname === "/maquette" || url.pathname === "/maquette/") return sendPage(req, res, path.join(__dirname, "public", "maquette.html"));
+  // prototype de la nouvelle accueil (Canvas) : page à part, le site actuel n'est pas touché
+  if (url.pathname === "/proto" || url.pathname === "/proto/") return sendPage(req, res, path.join(__dirname, "public", "proto", "index.html"));
+  if (url.pathname === "/proto/style.css" || url.pathname === "/proto/game.js") {
+    const f = path.join(__dirname, "public", "proto", path.basename(url.pathname)); let p; try { p = page(f, false); } catch { res.writeHead(404); return res.end(); }
+    return sendBody(req, res, p, url.pathname.endsWith(".css") ? "text/css; charset=utf-8" : "text/javascript; charset=utf-8", "no-cache");
+  }
   if (url.pathname === "/mot" || url.pathname === "/mot/") return sendPage(req, res, path.join(__dirname, "public", "mot.html"));
   if (/^\/(?:[A-Za-z0-9]{5}\/)?rond\/?$/.test(url.pathname)) return sendPage(req, res, path.join(__dirname, "public", "rd.html"));
   if (/^\/(?:[A-Za-z0-9]{5}\/)?meles\/?$/.test(url.pathname)) return sendPage(req, res, path.join(__dirname, "public", "mm.html"));
