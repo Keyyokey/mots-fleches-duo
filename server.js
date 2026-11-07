@@ -630,7 +630,7 @@ async function api(req, res, route) {
   }
   if (!authed()) return out(401, { error: "jeton", msg: "Reconnecte-toi avec ton code secret." });
   if (["salons", "sjoin", "screate", "skick", "scode", "sleave"].includes(route)) return void await salonApi(route, name, p, b, ip, out, bad);
-  if (route === "me") { let list = null; try { list = await salonList(name, p); } catch {} return out(200, { name, salons: list, pts: ptsOut(p), solo: Object.keys(p.solo || {}) }); }
+  if (route === "me") { let list = null; try { list = await salonList(name, p); } catch {} return out(200, { name, salons: list, pts: ptsOut(p), solo: Object.keys(p.solo || {}), coins: ensureWallet(p).coins }); }
   if (route === "wallet" || route === "conv") {
     ensureWallet(p); p.cv = (p.cv || []).filter(x => Date.now() - x.t < 2 * 3600e3);
     const used = p.cv.reduce((a, x) => a + x.n, 0);
