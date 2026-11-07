@@ -31,14 +31,36 @@ const TK1=Object.keys(THEMES),TK2=Object.keys(THEMES2),TK3=Object.keys(THEMES3);
 function melesDef(id,level){const k=Number(String(id).replace(/^n/,""))||1;const off={facile:0,moyen:5,difficile:11}[level]||0;
   return{k,theme:k<=200?TK1[(k-1+off)%TK1.length]:k<=267?TK2[(k-201+off)%TK2.length]:TK3[(k-268+off)%TK3.length],seed:(k*7919+({facile:1,moyen:2,difficile:3}[level]||0)*104729)>>>0}}
 const FREQ="EEEEEEEAAAAASSSSIIIIINNNNTTTTRRRRUUUULLLOOOODDDCCCMMMPPGBVHFQYXJKWZ";
-function rng(seed){let s=seed>>>0||1;return()=>{s^=s<<13;s^=s>>>17;s^=s<<5;return((s>>>0)%100000)/100000}}
-function makeMeles(theme,level,seed){const cfg={facile:{n:10,k:8,dirs:[[0,1],[1,0]]},moyen:{n:12,k:11,dirs:[[0,1],[1,0],[1,1],[-1,1]]},difficile:{n:14,k:15,dirs:[[0,1],[1,0],[1,1],[-1,1],[0,-1],[-1,0],[-1,-1],[1,-1]]}}[level];
-  const R=rng(seed||(Date.now()^Math.floor(Math.random()*1e9)));const pool=THEMES[theme].map(norm).filter(w=>w.length>=3&&w.length<=cfg.n);
-  for(let attempt=0;attempt<60;attempt++){const g=Array.from({length:cfg.n},()=>Array(cfg.n).fill(""));const ws=[];const cand=[...pool].sort(()=>R()-.5).sort((a,b)=>b.length-a.length);
-    for(const w of cand){if(ws.length>=cfg.k)break;let placed=false;for(let t=0;t<150&&!placed;t++){const [dr,dc]=cfg.dirs[Math.floor(R()*cfg.dirs.length)];const r0=Math.floor(R()*cfg.n),c0=Math.floor(R()*cfg.n);const r1=r0+dr*(w.length-1),c1=c0+dc*(w.length-1);if(r1<0||r1>=cfg.n||c1<0||c1>=cfg.n)continue;
-      let ok=true;for(let i=0;i<w.length;i++){const ch=g[r0+dr*i][c0+dc*i];if(ch&&ch!==w[i]){ok=false;break}}if(!ok)continue;
-      for(let i=0;i<w.length;i++)g[r0+dr*i][c0+dc*i]=w[i];ws.push({w,r:r0,c:c0,dr,dc});placed=true}}
-    if(ws.length<Math.min(cfg.k,pool.length)-1)continue;
-    for(let r=0;r<cfg.n;r++)for(let c=0;c<cfg.n;c++)if(!g[r][c])g[r][c]=FREQ[Math.floor(R()*FREQ.length)];
-    return{theme,size:cfg.n,grid:g.map(x=>x.join("")),words:ws.sort((a,b)=>a.w.localeCompare(b.w))}}
-  throw new Error("grille impossible")}
+function rng(seed){let s=seed>>>0||1;return()=>{s=(s+0x6D2B79F5)>>>0;let t=s;t=Math.imul(t^(t>>>15),t|1);t^=t+Math.imul(t^(t>>>7),t|61);return((t^(t>>>14))>>>0)/4294967296}}
+// Répartition des sens (8/11/2026) : chaque grille partage ses mots à parts égales entre les familles de sens
+// (horizontal, vertical, diagonales), au plus 1 mot d'écart entre deux familles ; dans une famille, endroit/envers à 50 %.
+// Placement : parmi toutes les positions possibles, on préfère celle où peu de lettres sont déjà posées autour (mots dispersés dans toute la grille),
+// ou qui croise un autre mot sur une lettre commune ; les mots sont tirés au hasard dans le thème.
+const MFAM={H:[[0,1],[0,-1]],V:[[1,0],[-1,0]],D:[[1,1],[-1,-1]],A:[[-1,1],[1,-1]]};
+function makeMeles(theme,level,seed){const cfg={facile:{n:10,k:8,fam:["H","V","D"],rev:false},moyen:{n:12,k:11,fam:["H","V","D","A"],rev:false},difficile:{n:14,k:15,fam:["H","V","D","A"],rev:true}}[level];
+  const R=rng(seed||(Date.now()^Math.floor(Math.random()*1e9)));const pool=THEMES[theme].map(norm).filter(w=>w.length>=3&&w.length<=cfg.n);const N=cfg.n;
+  const shuf=a=>{for(let i=a.length-1;i>0;i--){const j=Math.floor(R()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a};
+  let keep=null;
+  for(let attempt=0;attempt<120;attempt++){const g=Array.from({length:N},()=>Array(N).fill(""));const ws=[];const sh=shuf([...pool]);const cand=sh.slice(0,cfg.k).sort((a,b)=>b.length-a.length).concat(sh.slice(cfg.k));   /* mots tirés au hasard (pas seulement les plus longs), posés du plus long au plus court */
+    const k=Math.min(cfg.k,cand.length),F=cfg.fam.length;const quota={};shuf([...cfg.fam]).forEach((f,i)=>quota[f]=Math.floor(k/F)+(i<k%F?1:0));
+    let revLeft=cfg.rev?Math.floor(k/2):0;
+    for(const w of cand){if(ws.length>=k)break;
+      const order=shuf(cfg.fam.filter(f=>quota[f]>0)).sort((a,b)=>quota[b]-quota[a]||((b==="D"||b==="A")-(a==="D"||a==="A")));let done=false;   /* à égalité, les diagonales (plus dures à caser) d'abord */
+      for(const f of order.concat(shuf(cfg.fam.filter(x=>!order.includes(x))))){
+        const back=cfg.rev&&revLeft>0&&R()<revLeft/Math.max(1,k-ws.length);const [dr,dc]=MFAM[f][back?1:0];const L=w.length;
+        let best=null,bs=-1;
+        for(let r0=0;r0<N;r0++)for(let c0=0;c0<N;c0++){const r1=r0+dr*(L-1),c1=c0+dc*(L-1);if(r1<0||r1>=N||c1<0||c1>=N)continue;
+          let ok=true,cross=0;for(let i=0;i<L;i++){const ch=g[r0+dr*i][c0+dc*i];if(ch&&ch!==w[i]){ok=false;break}if(ch)cross++}if(!ok)continue;
+          // dispersion : on compte les lettres déjà posées autour des cases du mot ; moins il y en a, mieux c'est
+          let dens=0;for(let i=0;i<L;i++){const y=r0+dr*i,x=c0+dc*i;for(let a=-1;a<=1;a++)for(let b=-1;b<=1;b++){const yy=y+a,xx=x+b;if(yy>=0&&yy<N&&xx>=0&&xx<N&&g[yy][xx])dens++}}
+          const sc=-dens/L+0.9*cross+R()*0.6;if(sc>bs){bs=sc;best=[r0,c0]}}   /* un croisement (lettre partagée) laisse de la place aux mots suivants */
+        if(!best)continue;
+        for(let i=0;i<L;i++)g[best[0]+dr*i][best[1]+dc*i]=w[i];ws.push({w,r:best[0],c:best[1],dr,dc});
+        if(quota[f]>0)quota[f]--;if(back)revLeft--;done=true;break}
+    }
+    // écart entre la famille la plus remplie et la moins remplie : 0 ou 1 = réparti à parts égales
+    const cnt=cfg.fam.map(f=>ws.filter(x=>MFAM[f].some(([a,b])=>a===x.dr&&b===x.dc)).length);const gap=Math.max(...cnt)-Math.min(...cnt)+10*(Math.min(cfg.k,pool.length)-ws.length);   /* un mot manquant compte bien plus qu'un déséquilibre */
+    if(!keep||gap<keep.gap)keep={gap,g:g.map(x=>[...x]),ws:[...ws]};if(gap<=1)break}
+  if(!keep||!keep.ws.length)throw new Error("grille impossible");const g=keep.g;
+  for(let r=0;r<N;r++)for(let c=0;c<N;c++)if(!g[r][c])g[r][c]=FREQ[Math.floor(R()*FREQ.length)];
+  return{theme,size:N,grid:g.map(x=>x.join("")),words:keep.ws.sort((a,b)=>a.w.localeCompare(b.w))}}
