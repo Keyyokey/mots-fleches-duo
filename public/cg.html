@@ -991,6 +991,7 @@ body.sk-fleches.light .c.sel{background:color-mix(in srgb,#059669 25%,#fff)!impo
 body.sk-fleches.light .c.sel .L{color:#0f131a!important}
 body.sk-fleches.light .c.pp .L{color:#8a93a3!important}
 </style>
+<style id="lis">.cgtbar{height:7px;border-radius:9px;background:rgba(255,255,255,.12);overflow:hidden;margin:-4px 0 4px}.cgtbar i{display:block;height:100%;border-radius:9px;background:linear-gradient(90deg,#22BD92,#F4BE4D);transition:width .25s linear}.cgtbar.low i{background:#ff5d7a}.cgtbar[hidden]{display:none}@media (max-width:899px){.cgtbar{display:none!important}}</style>
 </head>
 <body class="sk-new booting g-culture">
 <div id="skTop" class="skph"></div>
@@ -1736,4 +1737,5 @@ const go=()=>{scan();mo.observe(document.body,{subtree:true,childList:true,chara
 if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",go);else go();
 })();
 </script>
+<script>(function(){var card=document.querySelector(".cgcard"),tl=document.getElementById("cgTl"),fact=document.getElementById("cgFact");if(!card||!tl||!fact)return;var b=document.createElement("div");b.className="cgtbar";b.setAttribute("role","progressbar");b.setAttribute("aria-label","Temps restant");b.innerHTML="<i></i>";var top=card.querySelector(".cgtop");card.insertBefore(b,top?top.nextSibling:card.firstChild);function sync(){var w=parseFloat(tl.style.width);b.firstChild.style.width=(isNaN(w)?100:w)+"%";b.classList.toggle("low",w<26);b.hidden=!fact.hidden||!document.querySelector("#cgA button:not([disabled])")}new MutationObserver(sync).observe(tl,{attributes:true,attributeFilter:["style"]});new MutationObserver(sync).observe(fact,{attributes:true,attributeFilter:["hidden"]});new MutationObserver(sync).observe(document.getElementById("cgA"),{childList:true,subtree:true,attributes:true});sync()})();</script>
 </body></html>

@@ -1471,7 +1471,7 @@ let N=10;
 function build(){N=G.size;const g=$(".wgrid");g.innerHTML="";g.style.gridTemplateColumns="repeat("+N+",1fr)";g.style.setProperty("--n",N);
   for(let r=0;r<N;r++)for(let c=0;c<N;c++){const e=document.createElement("div");e.className="mc";e.dataset.r=r;e.dataset.c=c;e.id="m"+r+"-"+c;e.textContent=G.grid[r][c];g.appendChild(e)}
   const sv=document.createElementNS("http://www.w3.org/2000/svg","svg");sv.setAttribute("class","caps");g.appendChild(sv);fit()}
-function fit(){const g=$(".wgrid");if(!g)return;const w=Math.min($(".mmgrid").clientWidth-28,innerWidth>900?innerHeight-$(".mmgrid").getBoundingClientRect().top-40:9999);const s=Math.max(22,Math.min(46,Math.floor(w/N)));g.style.setProperty("--s",s+"px");caps()}
+function fit(){const g=$(".wgrid");if(!g)return;let s=Math.floor(($(".mmgrid").clientWidth-28)/N);if(innerWidth>900)s=Math.min(s,Math.max(36,Math.floor((innerHeight-$(".mmgrid").getBoundingClientRect().top-40)/N)));s=Math.max(16,Math.min(48,s));g.style.setProperty("--s",s+"px");caps()}
 addEventListener("resize",()=>{if(G)fit()});
 function caps(){const g=$(".wgrid"),sv=g&&g.querySelector("svg.caps");if(!sv||!G)return;const cs=getComputedStyle(document.querySelector(".mm2"));
   sv.setAttribute("width",g.clientWidth);sv.setAttribute("height",g.clientHeight);let h="";

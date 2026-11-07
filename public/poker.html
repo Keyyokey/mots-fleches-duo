@@ -725,6 +725,7 @@ table.bar td,table.bar th{padding:5px 6px;border-bottom:1px solid rgba(255,255,2
 @media (max-width:600px){.pkdealer{padding:4px 10px 4px 4px;gap:8px}.pkdealer .dav{width:36px;height:36px}.pkdealer .dav svg{width:32px;height:32px}.pkdealer .dtxt{min-width:96px}}
 .pkin:disabled{opacity:.55}
 </style>
+<style id="lis">.pkact.myturn .btn:not(:disabled){box-shadow:0 0 0 2px rgba(244,190,77,.85),0 0 18px rgba(244,190,77,.3)}#pkRisk .yt{color:#F4BE4D}#pkRisk{font-size:1rem}</style>
 </head>
 <body>
 <div class="blob b1"></div><div class="blob b2"></div><div class="blob b3"></div>
@@ -877,7 +878,7 @@ function render(){const st=ST;const lob=$("#pkLobby");if(st&&PREV&&st.hand!==PRE
   const minTo=st.bet+(st.minInc||st.ante*2),maxTo=me?me.roundBet+me.stack:0;
   $('[data-a="raise"]').textContent=me&&maxTo>st.bet?"Relancer…":"Relancer";$('[data-a="raise"]').disabled=!myTurn||maxTo<=st.bet;
   $('[data-a="allin"]').textContent=me&&me.stack?"Tapis ("+me.stack+")":"Tapis";$('[data-a="allin"]').disabled=!myTurn||!me||!me.stack;
-  $("#pkRisk").innerHTML=myTurn?(owe?"À payer : <b>"+Math.min(owe,me.stack)+"</b>":"Rien à payer")+" · ton solde <b>"+me.stack+"</b> · pot <b>"+st.pot+"</b>"+(owe>=me.stack?" · <span class='warn'>suivre = tapis</span>":""):"";
+  $(".pkact").classList.toggle("myturn",!!myTurn);$("#pkRisk").innerHTML=myTurn?"<b class='yt'>▶ À toi de jouer</b> · "+(owe?"À payer : <b>"+Math.min(owe,me.stack)+"</b>":"Rien à payer")+" · ton solde <b>"+me.stack+"</b> · pot <b>"+st.pot+"</b>"+(owe>=me.stack?" · <span class='warn'>suivre = tapis</span>":""):(st.phase==="mise"&&st.seats&&st.seats[st.turn]?"⏳ Tour de <b>"+esc(st.seats[st.turn].name)+"</b> · pot <b>"+st.pot+"</b>":"");
   if(!myTurn){$("#pkRaise").hidden=true;$("#pkAllin").hidden=true}else RZ={min:Math.min(minTo,maxTo),max:maxTo,pot:st.pot,bet:st.bet,owe};
   // phase « mot »
   const wp=st.phase==="mot"&&me&&!me.folded;$("#pkWordCard").classList.toggle("wordphase",wp);$("#pkWClk").style.display=wp?"":"none";$("#pkIn").disabled=!!LOCKED||!(me&&!me.folded&&(st.phase==="mot"||st.phase==="mise"));
