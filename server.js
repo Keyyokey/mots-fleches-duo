@@ -530,6 +530,28 @@ const DEGRESSIF = n => n <= 3 ? 1 : n <= 6 ? 0.75 : n <= 10 ? 0.5 : 0.25;
 // solde du jour (total en fin de journée) : sert au graphique « Total », qui montre aussi les baisses (conversion en jetons)
 function balSnap(p) { p.pts.b = p.pts.b || {}; p.pts.b[DAYKEY()] = p.pts.tot; const k = Object.keys(p.pts.b).sort(); if (k.length > 60) k.slice(0, k.length - 60).forEach(x => delete p.pts.b[x]); }
 const ptsOut = p => { const q = p.pts || { tot: 0, g: {}, d: {} }; return { ...q, ever: !!(q.ever || q.tot > 0 || Object.values(q.g || {}).some(v => v > 0)) }; };
+// ---------- contrôle des points envoyés par le navigateur ----------
+// solo : la partie doit avoir été vue par le serveur (ticket posé à sa 1re sauvegarde) depuis au moins 20 s ; 40 tickets par heure au plus
+const SOLO_MIN_MS = Number(process.env.SOLO_MIN_MS) || 20e3, TICKETS_H = 40;
+function soloTicket(p, game, gid) {
+  gid = String(gid || ""); if (!/^[A-Za-z0-9_-]{3,40}$/.test(gid)) return;
+  p.tk = p.tk && typeof p.tk === "object" ? p.tk : {}; const k = game + ":" + gid; if (p.tk[k]) return;
+  const now = Date.now(); for (const [x, t] of Object.entries(p.tk)) if (now - t > 24 * 3600e3) delete p.tk[x];
+  if (Object.values(p.tk).filter(t => now - t < 3600e3).length >= TICKETS_H) return;
+  p.tk[k] = now;
+}
+// multijoueur : le score retenu est celui de la partie gardée par le serveur, pas celui annoncé par le navigateur
+const DOCID = { fleches: "fl", rond: "rond", meles: "meles", culture: "cg" };
+function multiScore(game, gid, name) {
+  const id = DOCID[game]; if (!id) return null;
+  for (const s of salons.values()) {
+    const d = s.docs && s.docs[id]; if (!d || d.solo || String(d.gid) !== gid || !Array.isArray(d.players)) continue;
+    const me = d.players.find(x => x && String(x.name).toUpperCase() === name.toUpperCase());
+    if (!me) return { pts: 0 };
+    return { pts: d.done ? Math.max(0, Number(me.score) || 0) : 0, done: !!d.done };
+  }
+  return null;
+}
 async function addPoints(name, p, game, pts) {
   p.pts = p.pts || { tot: 0, g: {}, d: {} };
   p.pts.tot += pts; p.pts.g[game] = (p.pts.g[game] || 0) + pts;
@@ -654,6 +676,18 @@ async function api(req, res, route) {
     p.gids = Array.isArray(p.gids) ? p.gids : [];
     if (p.gids.includes(game + gid)) return out(200, { ok: true, dup: true, pts: p.pts });
     let pts = Math.max(0, Math.min(800, Math.round(Number(b.pts) || 0)));
+    if (game === "poker" || game === "mot") return out(200, { ok: true, add: 0, refus: "points non attribués par cette voie", pts: p.pts });   // aucun de ces jeux n'envoie de points ici
+    if (b.solo) {
+      const k = game + ":" + gid, t = p.tk && p.tk[k];
+      if (!t || Date.now() - t < SOLO_MIN_MS) return out(200, { ok: true, add: 0, refus: "partie non vérifiée", pts: p.pts });
+      delete p.tk[k];
+    } else if (!b.solo && DOCID[game]) {
+      let ms = multiScore(game, gid, name);
+      for (let i = 0; i < 8 && ms && !ms.done; i++) { await new Promise(r => setTimeout(r, 500)); ms = multiScore(game, gid, name); }   // la fin de partie peut arriver juste après
+      if (!ms || !ms.done) return out(200, { ok: true, add: 0, refus: "partie introuvable", pts: p.pts });
+      pts = Math.min(pts, Math.round(ms.pts));
+    }
+    if (p.gids.includes(game + gid)) return out(200, { ok: true, dup: true, pts: p.pts });   // deux envois simultanés : un seul compte
     // grille (ou série de questions) rejouée en solo : 10 points la 2e fois, 3 points les fois suivantes
     let rep = 0;
     if (b.solo && typeof b.ref === "string" && b.ref && b.ref.length <= 400) {
@@ -685,7 +719,7 @@ async function api(req, res, route) {
   if (route === "solo") {
     const game = String(b.game || ""); if (!CAT.GAMES.includes(game)) return bad("game", "Jeu inconnu.");
     p.solo = p.solo || {};
-    if (b.op === "put") { const d = b.doc; if (d && typeof d === "object" && d.solo && !d.done) p.solo[game] = { t: Date.now(), doc: d }; else delete p.solo[game]; savePlayer(name); return out(200, { ok: true }); }
+    if (b.op === "put") { const d = b.doc; if (d && typeof d === "object" && d.solo && !d.done) { p.solo[game] = { t: Date.now(), doc: d }; soloTicket(p, game, d.gid); } else delete p.solo[game]; savePlayer(name); return out(200, { ok: true }); }
     const h = (p.hist && p.hist[game]) || {};
     return out(200, { ok: true, doc: p.solo[game] ? p.solo[game].doc : null, t: p.solo[game] ? p.solo[game].t : 0, played: Object.keys(h) });
   }
