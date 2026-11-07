@@ -667,6 +667,18 @@ table.bar td,table.bar th{padding:5px 6px;border-bottom:1px solid rgba(255,255,2
 @media (max-width:620px){.stats{grid-template-columns:1fr}.g-top,.g-bot{grid-template-columns:1fr}.tile{--ls:22px!important;--gap:4px!important;min-height:200px;flex-direction:column;align-items:flex-start;padding:20px}.tile .vis{position:absolute;right:16px;top:18px;padding:8px}.tile .txt,.g-bot .tile .txt{margin-top:auto;padding-top:64px}.g-bot .tile .vis{right:16px;top:18px;padding:8px}.tile h2{font-size:1.9rem!important}.fan{transform:scale(.62);transform-origin:top right;width:200px;height:130px;margin:-6px -6px -50px -76px}.qz{width:120px;gap:4px}.qz .qq{height:34px;font-size:1.1rem}.qz .ans{padding:3px 8px;font-size:.66rem}.ring{width:88px;height:88px}.daily{display:none}}
 </style>
 <style>
+/* Poker V2 : relance au choix, risque, cagnotte, Mot Max, robot Léo */
+.pkrisk{min-height:1.3em;font-size:.86rem;color:#d8f5e6;text-align:center;margin:2px 0 6px}.pkrisk b{color:var(--gold)}.pkrisk .warn,.pkcalc .warn{color:#fca5a5;font-weight:700}
+.pkraise{margin-top:8px;padding:10px 12px;border-radius:14px;background:rgba(0,0,0,.28);border:1px solid rgba(255,255,255,.18);display:flex;flex-direction:column;gap:8px}.pkraise[hidden]{display:none}
+.pkraise .rzhead{display:flex;justify-content:space-between;align-items:baseline;gap:8px;flex-wrap:wrap}.pkraise .rzhead b{color:var(--gold);font-size:1.15rem}
+.pkraise input[type=range]{width:100%;accent-color:#ffc857;min-height:28px}
+.rzq,.rzgo{display:flex;gap:6px;flex-wrap:wrap}.rzq .btn{flex:1;min-width:64px;padding:8px 6px;font-size:.85rem}.rzgo .btn{flex:1}
+.botb{font:800 .62rem Nunito,sans-serif;text-transform:uppercase;letter-spacing:.06em;padding:2px 6px;border-radius:99px;background:rgba(162,107,255,.35);border:1px solid rgba(255,255,255,.25);vertical-align:2px}
+.carrytag.jp{background:linear-gradient(135deg,rgba(255,200,87,.25),rgba(232,163,61,.18));border:1px solid rgba(255,200,87,.45);padding:2px 8px;border-radius:99px;color:#ffe6a8}
+.rv.mmax{border:1px dashed rgba(255,200,87,.6);background:rgba(255,200,87,.08)}.jpw{color:var(--gold)}
+.pklv{display:flex;gap:4px;justify-content:center}.pklv button{padding:7px 10px;border-radius:10px;border:1px solid rgba(255,255,255,.22);background:rgba(0,0,0,.25);color:inherit;font:700 .8rem Nunito,sans-serif;cursor:pointer}.pklv button.on{background:linear-gradient(135deg,#00ADB5,#A26BFF);border-color:transparent;color:#fff}
+.rver{font-size:.72rem;opacity:.75}
+@media (max-width:620px){.pk2{grid-template-columns:minmax(0,1fr)!important}.pkleft,.pkfelt,.pkcard,.pkcard>*{min-width:0;max-width:100%}.pkdh{white-space:normal}}
 .pkfelt{position:relative}
 .pklobby{position:absolute;inset:0;z-index:5;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;text-align:center;padding:24px;border-radius:inherit;background:rgba(5,20,12,.55);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);color:#fff}
 .pklobby[hidden]{display:none}
@@ -743,14 +755,22 @@ table.bar td,table.bar th{padding:5px 6px;border-bottom:1px solid rgba(255,255,2
       <div class="pklobby" id="pkLobby" hidden></div>
       </div>
       <div class="glass pkcard">
+        <div class="pkrisk" id="pkRisk" aria-live="polite"></div>
         <div class="pkact"><button class="btn" data-a="fold">Se coucher</button><button class="btn" data-a="call">Suivre</button><button class="btn primary" data-a="raise">Relancer</button><button class="btn gold" data-a="allin">Tapis</button></div>
+        <div class="pkraise" id="pkRaise" hidden>
+          <div class="rzhead"><span>Relancer à <b id="rzTo">0</b></span><span class="note" id="rzSub"></span></div>
+          <input type="range" id="rzRange" min="0" max="0" step="1" aria-label="Montant de la relance">
+          <div class="rzq"><button class="btn sm" data-q="min">Min</button><button class="btn sm" data-q="half">½ pot</button><button class="btn sm" data-q="pot">Pot</button><button class="btn sm" data-q="max">Tapis</button></div>
+          <div class="rzgo"><button class="btn" id="rzCancel">Annuler</button><button class="btn primary" id="rzOk">Relancer</button></div>
+        </div>
+        <div class="pkraise" id="pkAllin" hidden><div class="rzhead"><span>Tapis : tu mises <b id="aiN">0</b> jetons, tout ton solde.</span></div><div class="rzgo"><button class="btn" id="aiNo">Annuler</button><button class="btn gold" id="aiOk">Confirmer le tapis</button></div></div>
       </div>
       <div class="glass pkcard" id="pkWordCard">
         <div class="flrow"><span class="tag2">Ton mot</span><span class="rclk pkwclk" id="pkWClk" style="display:none">0:45</span><button class="infobtn" id="pkInfoBtn" aria-expanded="false" title="Règles">i</button></div>
-        <div class="note flinfo" id="pkInfo"><b>Règles du Poker Lettres</b><br>• Comme au Texas Hold'em : 2 lettres cachées par joueur, 5 lettres communes retournées en 3 fois (3, puis 1, puis 1), un tour de mise à chaque fois.<br>• Se coucher, suivre, relancer ou tapis : temps limité pour décider, sinon tu te couches (ou tu dis « parole » si personne n'a misé).<br>• À la fin, chacun a <b>45 s pour taper son mot</b> : il forme son meilleur mot avec ses lettres et celles du milieu, <b>dont au moins une de ses lettres cachées</b>.<br>• Tu <b>tapes toi-même</b> ton mot : aucune aide, il n'est vérifié qu'à l'abattage. <b>Mot inexistant, lettre absente ou aucune de tes lettres cachées : tu perds le coup.</b><br>• Valeur du mot = valeur des lettres + <b>5 points de bonus</b> pour le mot. Le mot le plus fort gagne le pot.<br>• La donne est toujours vérifiée : <b>au moins un joueur peut former un mot valide</b>. Sinon, les lettres sont redistribuées.<br>• Si personne ne forme un mot valide, <b>la banque remporte le pot</b>.<br>• <b>Pots séparés</b> : un joueur à tapis ne peut gagner que ce qu'il a pu suivre ; le surplus se joue entre les autres. Égalité : le pot est partagé, et le reste d'arrondi va à la banque.<br>• Si tous les joueurs quittent la table, <b>chacun récupère sa mise du coup</b>.<br>• Format : 10 coups, ou jusqu'au dernier joueur qui a encore des pièces.<br>• <b>Tirage équitable</b> : le paquet est mélangé par le serveur avec un générateur aléatoire cryptographique. Personne ne voit les lettres cachées des autres, même en fouillant la page. L'empreinte du paquet est affichée avant le coup et le paquet est dévoilé après : chacun peut vérifier que rien n'a été changé en cours de route.</div>
+        <div class="note flinfo" id="pkInfo"><b>Règles du Poker Lettres</b> <span class="rver">barème V2</span><br>• Comme au Texas Hold'em : 2 lettres cachées par joueur, 5 lettres communes retournées en 3 fois (3, puis 1, puis 1), un tour de mise à chaque fois.<br>• À ton tour : <b>parole</b> (rien à payer), <b>suivre</b>, <b>relancer du montant de ton choix</b> (au moins la relance minimale, au plus ton tapis), <b>tapis</b> ou <b>te coucher</b>. Temps limité pour décider, sinon tu te couches (ou tu dis « parole » si personne n'a misé).<br>• Si tous les autres se couchent, <b>tu gagnes le pot sans montrer ton mot</b> (bluff réussi).<br>• À la fin, chacun a <b>45 s pour taper et verrouiller son mot</b> (2 à 7 lettres) avec ses lettres et celles du milieu, <b>dont au moins une de ses lettres cachées</b>. Dès que tous ont verrouillé, on passe à l'abattage. Les autres voient seulement <b>combien de lettres</b> tu as verrouillées.<br>• <b>Score = valeur des lettres + bonus de longueur + bonus Main Pleine.</b> Bonus de longueur : 2 lettres +0 · 3 lettres +3 · 4 lettres +6 · 5 lettres +10 · 6 lettres +15 · 7 lettres +22. <b>Main Pleine : +5</b> si tes 2 lettres cachées sont dans ton mot.<br>• Le meilleur score gagne ; à égalité, <b>le mot le plus long</b> ; encore à égalité, le pot est partagé (le reste indivisible va dans la cagnotte).<br>• Mot inexistant, lettre absente ou aucune de tes lettres cachées : ton mot ne compte pas.<br>• <b>Cagnotte du salon</b> 🎰 : les pots que personne ne gagne (aucun mot valide) et les restes de partage l'alimentent. Elle est remportée par le gagnant de l'abattage qui joue un <b>mot de 6 ou 7 lettres</b> (jamais sur un abandon des autres).<br>• Après chaque coup, ton <b>Mot Max</b> s'affiche : le meilleur mot possible avec tes lettres, pour progresser.<br>• <b>Léo</b> est un robot : il ne voit que ses propres lettres et les lettres communes, comme toi. Trois niveaux : débutant, intermédiaire, confirmé.<br>• <b>Pots séparés</b> : un joueur à tapis ne peut gagner que ce qu'il a pu suivre.<br>• Si tous les joueurs quittent la table, <b>chacun récupère sa mise du coup</b>.<br>• <b>Tirage équitable</b> : paquet mélangé par le serveur avec un générateur cryptographique ; son empreinte est affichée avant le coup et le paquet dévoilé après.<br><span class="rver" id="pkDictV"></span></div>
         <input class="pkin" id="pkIn" maxlength="7" autocomplete="off" autocapitalize="characters" spellcheck="false" placeholder="Tape ton mot">
-        <div class="pkcalc" id="pkCalc">Valeur : lettres + 5 points pour le mot</div>
-        <button class="btn" id="pkBest">Garder ce mot</button>
+        <div class="pkcalc" id="pkCalc">Score potentiel : lettres + bonus de longueur + bonus Main Pleine</div>
+        <button class="btn" id="pkBest">Verrouiller ce mot</button>
       </div>
     </div>
     <aside class="pkside">
@@ -809,12 +829,14 @@ function pk(o){send({t:"pk",name:ME?ME.name:"",token:ME?ME.token:"",...o})}
 function connect(){ws=new WebSocket((location.protocol==="https:"?"wss://":"ws://")+location.host+"/ws");
   ws.onopen=()=>{send(SOLO?{t:"join",solo:true}:{t:"join",room:CODE,name:ME?ME.name:"",token:ME?ME.token:""});send({t:"presence",presence:{name:ME?ME.name:"",page:"poker"}});pk({a:"watch"});
     if(GO&&!sat&&guestBlocked()){location.replace("/?need=compte");return}
-    if(GO&&!sat){sat=true;pk({a:"sit",solo:GO==="solo",fmt:Q.get("fmt")||"10",mise:Q.get("mise")||"20",dec:Q.get("dec")||"30"})}};
+    if(GO&&!sat){sat=true;pk({a:"sit",solo:GO==="solo",fmt:Q.get("fmt")||"10",mise:Q.get("mise")||"20",dec:Q.get("dec")||"30",lvl:Q.get("lvl")||LVL()})}};
   ws.onmessage=e=>{let m;try{m=JSON.parse(e.data)}catch(x){return}
     if(m.t==="error"&&(m.code==="auth"||m.code==="forbidden")){ws.onclose=null;ws.close();location.replace(m.code==="auth"?"/"+CODE:"/?open=salon");return}
     if(m.t==="room"){ROOMNAME=m.name||"";if(ST)render()}
     if(m.t==="pkst"){PREV=ST;ST=m.st;if(!ME&&ST&&ST.started&&!(PREV&&PREV.started)){try{const g=JSON.parse(LS.get("fl-guest-g")||"[]");g.push("pk"+Date.now());LS.set("fl-guest-g",JSON.stringify(g))}catch(e){}}render()}
-    else if(m.t==="pkerr"){toast("⚠️",esc(m.msg));if(m.need)setTimeout(openConv,600)}};
+    else if(m.t==="pkerr"){toast("⚠️",esc(m.msg));if(m.need)setTimeout(openConv,600)}
+    else if(m.t==="pkchk")showCheck(m);
+    else if(m.t==="pklock"){if(m.ok){LOCKED=m.w;$("#pkIn").disabled=true;$("#pkBest").disabled=true;$("#pkBest").textContent="🔒 Mot verrouillé";clearTimeout(CHK);$("#pkCalc").innerHTML="🔒 <b>"+esc(m.w)+"</b> est verrouillé : verdict à l'abattage.";toast("🔒","Mot verrouillé : <b>"+esc(m.w)+"</b>")}}};
   ws.onclose=()=>setTimeout(connect,2000)}
 
 // ---------- affichage ----------
@@ -822,8 +844,8 @@ const PCOL=["#5ad8ff","#ffa45c","#7cf0a9","#c49bff","#ff8fb1","#ffd166"];
 function card(ch,cls,key){return '<div class="card-l'+(cls?" "+cls:"")+'"'+(key?' data-ck="'+key+'"':'')+'>'+(ch?esc(ch)+"<small>"+PV[ch]+"</small>":"")+'</div>'}
 function fmt(ms){const s=Math.max(0,Math.ceil(ms/1000));return Math.floor(s/60)+":"+String(s%60).padStart(2,"0")}
 let skew=0;
-function render(){const st=ST;const lob=$("#pkLobby");if(st&&PREV&&st.hand!==PREV.hand&&$("#pkIn")){$("#pkIn").value="";typed();window.__autoSent=false}if(st&&PREV&&PREV.phase!=="abattage"&&st.phase==="abattage")RES0=Date.now();
-  if(!st){lob.innerHTML='<h3>Poker Lettres</h3><p class="note">Assieds-toi à la table de ce salon. La partie démarre quand vous êtes au moins deux (ou contre le robot en solo).</p><div class="pkrow"><button class="btn primary" id="lbSolo">👤 Jouer contre le robot</button>'+(SOLO?'':'<button class="btn" id="lbSit">👥 M\'asseoir à la table</button>')+'</div>';lob.hidden=false;bindLobby();renderDeck(null);return}
+function render(){const st=ST;const lob=$("#pkLobby");if(st&&PREV&&st.hand!==PREV.hand&&$("#pkIn")){LOCKED="";$("#pkIn").value="";$("#pkBest").disabled=false;$("#pkBest").textContent="Verrouiller ce mot";typed();window.__autoSent=false}if(st&&PREV&&PREV.phase!=="abattage"&&st.phase==="abattage")RES0=Date.now();
+  if(!st){lob.innerHTML='<h3>Poker Lettres</h3><p class="note">Assieds-toi à la table de ce salon. La partie démarre quand vous êtes au moins deux (ou contre le robot en solo).</p><div class="pkrow"><button class="btn primary" id="lbSolo">👤 Jouer contre Léo</button>'+lvlSeg()+''+(SOLO?'':'<button class="btn" id="lbSit">👥 M\'asseoir à la table</button>')+'</div>';lob.hidden=false;bindLobby();renderDeck(null);return}
   skew=st.now-Date.now();
   const me=st.me>=0?st.seats[st.me]:null;
   $("#pkMode").textContent=st.maxHands?"Coup "+Math.max(1,st.hand)+"/"+st.maxHands:"Coup "+Math.max(1,st.hand)+" · jusqu'au dernier";
@@ -832,7 +854,7 @@ function render(){const st=ST;const lob=$("#pkLobby");if(st&&PREV&&st.hand!==PRE
     const list=st.seats.map(s=>'<div class="lbs"><span class="ava" style="background:'+PCOL[st.seats.indexOf(s)%6]+'">'+esc(s.name[0])+'</span><b>'+esc(s.name)+'</b><span class="note">🪙 '+s.stack+'</span></div>').join("");
     if(st.phase==="fin")lob.innerHTML='<h3>🏁 '+esc(st.msg)+'</h3><div class="lbl">'+st.seats.slice().sort((a,b)=>b.stack-a.stack).map((s,i)=>'<div class="lbs"><span class="rank">'+(i+1)+'</span><b>'+esc(s.name)+'</b><span class="note">🪙 '+s.stack+'</span></div>').join("")+'</div><p class="note">Tes jetons restants retournent dans ton porte-monnaie.</p><div class="pkrow"><button class="btn primary" id="lbAgain">🔁 Rejouer</button><a class="btn" href="'+HOMEURL+'">🏠 Accueil</a></div>';
     else lob.innerHTML='<h3>'+(SOLO?'Table privée':'Table du salon'+(ROOMNAME?' « '+esc(ROOMNAME)+' »':''))+'</h3><p class="note">Mise d\'entrée '+st.buy+' jetons · '+(st.maxHands?st.maxHands+" coups":"jusqu'au dernier")+' · '+st.dec+' s pour décider</p><div class="lbl">'+(list||'<div class="note">Personne pour l\'instant.</div>')+'</div>'
-      +(me?(st.seats.length>=2?'<button class="btn primary" id="lbStart">▶ Lancer la partie</button>':'<p class="note">'+(SOLO?'Ajoute le robot pour commencer.':'En attente d\'un autre joueur du salon… ou joue contre le robot.')+'</p><div class="pkrow"><button class="btn" id="lbBot">🤖 Ajouter le robot</button>'+(SOLO?'':'<button class="btn" id="lbShare">📤 Inviter</button>')+'</div>')
+      +(me?(st.seats.length>=2?'<button class="btn primary" id="lbStart">▶ Lancer la partie</button>':'<p class="note">'+(SOLO?'Ajoute Léo, le robot, pour commencer.':'En attente d\'un autre joueur du salon… ou joue contre Léo, le robot.')+'</p><div class="pkrow">'+lvlSeg()+'<button class="btn" id="lbBot">🤖 Ajouter Léo (robot)</button>'+(SOLO?'':'<button class="btn" id="lbShare">📤 Inviter</button>')+'</div>')
         :'<div class="pkrow"><button class="btn primary" id="lbSit">👥 M\'asseoir ('+st.buy+' jetons)</button></div>');
     bindLobby()}else lob.hidden=true;
   // places : moi en bas, les autres en haut
@@ -842,18 +864,25 @@ function render(){const st=ST;const lob=$("#pkLobby");if(st&&PREV&&st.hand!==PRE
   // milieu
   $("#pkBoard").innerHTML=(st.board&&st.board.length?st.board:[null,null,null,null,null]).map((c,i)=>card(c,c?"":"slot","b"+i)).join("");
   $$("#pkStage span").forEach((x,i)=>x.classList.toggle("on",st.shown>=[3,4,5][i]&&st.started));
-  $("#pkPot").innerHTML="🪙 "+st.pot+(st.bank?" <small class='carrytag' title='La banque remporte les pots sans mot valide et les restes d\'arrondi'>🏦 banque "+st.bank+"</small>":"");
+  $("#pkPot").innerHTML="🪙 "+st.pot+" <small class='carrytag jp' title='Cagnotte du salon : remportée par un mot de 6 ou 7 lettres gagnant à l\'abattage'>🎰 cagnotte "+(st.jackpot||0)+"</small>";
+  if($("#pkDictV"))$("#pkDictV").textContent="Barème "+(st.bareme||"V2")+" · "+(st.dict||"");
   // résultats
   let r=$("#pkRes");if(st.results&&st.phase==="abattage"){r.hidden=false;const opp=st.seats.filter((x,i)=>i!==st.me&&x.hand).length*2,base=1600+opp*650+500,el=Date.now()-(RES0||0);
-    r.innerHTML=st.results.map((x,j)=>'<div style="animation-delay:'+Math.max(0,base+j*900-el)+'ms" class="rv '+(x.win?"win":x.ok===false?"lose":"")+'"><span>'+(x.win?"🏆 ":"")+esc(x.name)+(x.word?' · '+(x.ok?"<b>"+esc(x.word)+"</b>":"<s>"+esc(x.word)+"</s> ✗ "+esc(x.why||"")):x.why?' · '+esc(x.why):"")+'</span><span>'+(x.ok?(x.pts-5)+" + 5 = <b>"+x.pts+"</b>":x.gain?"+"+x.gain:"<b>perdu</b>")+'</span></div>').join("")}else r.hidden=true;
+    r.innerHTML=st.results.map((x,j)=>'<div style="animation-delay:'+Math.max(0,base+j*900-el)+'ms" class="rv '+(x.win?"win":x.ok===false?"lose":"")+'"><span>'+(x.win?"🏆 ":"")+esc(x.name)+(x.word?' · '+(x.ok?"<b>"+esc(x.word)+"</b>":"<s>"+esc(x.word)+"</s> ✗ "+esc(x.why||"")):x.why?' · '+esc(x.why):"")+'</span><span>'+(x.ok?detail(x.eval)+" = <b>"+x.pts+"</b>":x.gain?"+"+x.gain:"<b>perdu</b>")+(x.jackpot?' <b class="jpw">🎰 +'+x.jackpot+'</b>':'')+'</span></div>').join("")
+    +(st.mymax?'<div class="rv mmax" style="animation-delay:'+Math.max(0,base+st.results.length*900-el)+'ms"><span>💡 Ton Mot Max : <b>'+esc(st.mymax.word)+'</b></span><span>'+detail(st.mymax)+' = <b>'+st.mymax.total_score+'</b>'+mmGap(st)+'</span></div>':'')}else r.hidden=true;
   // actions
   const myTurn=me&&st.phase==="mise"&&st.turn===st.me;const owe=me?Math.max(0,st.bet-me.roundBet):0;
   $$(".pkact .btn").forEach(b=>b.disabled=!myTurn);
   $('[data-a="call"]').textContent=owe?"Suivre "+Math.min(owe,me?me.stack:0):"Parole";
-  $('[data-a="raise"]').textContent="Relancer +"+(st.ante*2);
+  const minTo=st.bet+(st.minInc||st.ante*2),maxTo=me?me.roundBet+me.stack:0;
+  $('[data-a="raise"]').textContent=me&&maxTo>st.bet?"Relancer…":"Relancer";$('[data-a="raise"]').disabled=!myTurn||maxTo<=st.bet;
+  $('[data-a="allin"]').textContent=me&&me.stack?"Tapis ("+me.stack+")":"Tapis";$('[data-a="allin"]').disabled=!myTurn||!me||!me.stack;
+  $("#pkRisk").innerHTML=myTurn?(owe?"À payer : <b>"+Math.min(owe,me.stack)+"</b>":"Rien à payer")+" · ton solde <b>"+me.stack+"</b> · pot <b>"+st.pot+"</b>"+(owe>=me.stack?" · <span class='warn'>suivre = tapis</span>":""):"";
+  if(!myTurn){$("#pkRaise").hidden=true;$("#pkAllin").hidden=true}else RZ={min:Math.min(minTo,maxTo),max:maxTo,pot:st.pot,bet:st.bet,owe};
   // phase « mot »
-  const wp=st.phase==="mot"&&me&&!me.folded;$("#pkWordCard").classList.toggle("wordphase",wp);$("#pkWClk").style.display=wp?"":"none";$("#pkIn").disabled=!(me&&!me.folded&&(st.phase==="mot"||st.phase==="mise"));
+  const wp=st.phase==="mot"&&me&&!me.folded;$("#pkWordCard").classList.toggle("wordphase",wp);$("#pkWClk").style.display=wp?"":"none";$("#pkIn").disabled=!!LOCKED||!(me&&!me.folded&&(st.phase==="mot"||st.phase==="mise"));
   if(PREV&&PREV.phase!=="mot"&&st.phase==="mot"&&me&&!me.folded){toast("✍️","À vous ! <b>45 s</b> pour taper votre mot");bell();setTimeout(()=>$("#pkIn").focus(),100)}
+  if(PREV&&PREV.phase!=="abattage"&&st.phase==="abattage"&&st.jackpotWon)setTimeout(()=>{announce&&announce("🎰 CAGNOTTE !",st.jackpotWon.names.join(", ")+" +"+st.jackpotWon.each*st.jackpotWon.names.length);bell()},2500);
   if(PREV&&PREV.phase!=="abattage"&&st.phase==="abattage"&&st.msg){toast(st.results&&st.results.some(x=>x.win)?"🏆":"🔁",esc(st.msg));bell()}
   if(PREV&&PREV.turn!==st.turn&&myTurn)tone(660,.25,.08);
   if((st.phase==="fin"&&PREV&&PREV.phase!=="fin")||(me&&(!PREV||PREV.me<0)))loadWallet();
@@ -861,7 +890,7 @@ function render(){const st=ST;const lob=$("#pkLobby");if(st&&PREV&&st.hand!==PRE
   renderDeck(st.deckLeft);tick()}
 function seatHTML(st,s,i,mine){const turn=st.phase==="mise"&&st.turn===i;const cls="seat"+(mine?" me":"")+(turn?" turn":st.started&&st.phase==="mise"?" idle":"")+(s.folded||s.out||s.gone?" out":"");
   const hand=s.hand?s.hand.map((c,k)=>card(c,"mine","s"+i+"-"+k)).join(""):(st.started&&!s.out?card(null,"back","s"+i+"-0")+card(null,"back","s"+i+"-1"):"");
-  return '<div class="'+cls+'" data-i="'+i+'" style="--c:'+(mine?"var(--gold)":PCOL[i%6])+'"><div class="shead"><span class="ava" style="background:'+PCOL[i%6]+'">'+esc(s.name[0])+'</span><b>'+esc(s.name)+'</b>'+(s.bot?" 🤖":"")+'<span class="rclk" data-clk="'+i+'">'+(turn?"":"–")+'</span></div><div class="chips">🪙 '+s.stack+(s.inPot?" · mise "+s.inPot:"")+(s.last?" · "+esc(s.last):"")+(s.gone?" · parti":"")+(st.phase==="mot"&&!s.folded?(s.wordDone?" · ✍️ prêt":" · ✍️…"):"")+'</div><div class="cards'+(mine?"":" sm")+'">'+hand+'</div></div>'}
+  return '<div class="'+cls+'" data-i="'+i+'" style="--c:'+(mine?"var(--gold)":PCOL[i%6])+'"><div class="shead"><span class="ava" style="background:'+PCOL[i%6]+'">'+esc(s.name[0])+'</span><b>'+esc(s.name)+'</b>'+(s.bot?' <span class="botb" title="Robot : il ne voit que ses lettres et les lettres communes">Robot</span>':"")+'<span class="rclk" data-clk="'+i+'">'+(turn?"":"–")+'</span></div><div class="chips">🪙 '+s.stack+(s.inPot?" · mise "+s.inPot:"")+(s.last?" · "+esc(s.last):"")+(s.gone?" · parti":"")+(st.phase==="mot"&&!s.folded?(s.wordDone?" · 🔒 "+(s.wordLen?s.wordLen+" lettres verrouillées":"verrouillé"):" · ✍️…"):"")+'</div><div class="cards'+(mine?"":" sm")+'">'+hand+'</div></div>'}
 function tick(){if(!ST)return;const left=ST.deadline-(Date.now()+skew);
   $$("[data-clk]").forEach(c=>{const i=+c.dataset.clk;const on=ST.phase==="mise"&&ST.turn===i;c.textContent=on?fmt(Math.min(left,ST.dec*1000)):"–";c.classList.toggle("low",on&&left<=10500)});
   const w=$("#pkWClk");if(ST.phase==="mot"){w.textContent=fmt(left);w.classList.toggle("low",left<=10500);
@@ -869,11 +898,12 @@ function tick(){if(!ST)return;const left=ST.deadline-(Date.now()+skew);
 setInterval(tick,250);
 function bindLobby(){const b=id=>$(id);
   const gate=f=>()=>{if(guestBlocked()){location.href="/?need=compte";return}f()};
-  if(b("#lbSolo"))b("#lbSolo").onclick=gate(()=>pk({a:"sit",solo:true,fmt:"10",mise:"20",dec:"30"}));
+  $$(".pklv button").forEach(x=>x.onclick=()=>{LS.set("fl-pklvl",x.dataset.v);$$(".pklv button").forEach(y=>y.classList.toggle("on",y===x))});
+  if(b("#lbSolo"))b("#lbSolo").onclick=gate(()=>pk({a:"sit",solo:true,fmt:"10",mise:"20",dec:"30",lvl:LVL()}));
   if(b("#lbSit"))b("#lbSit").onclick=()=>pk({a:"sit",fmt:"10",mise:"20",dec:"30"});
-  if(b("#lbBot"))b("#lbBot").onclick=()=>pk({a:"sit",solo:true});
+  if(b("#lbBot"))b("#lbBot").onclick=()=>pk({a:"sit",solo:true,lvl:LVL()});
   if(b("#lbStart"))b("#lbStart").onclick=gate(()=>pk({a:"start"}));
-  if(b("#lbAgain"))b("#lbAgain").onclick=()=>pk({a:"sit",solo:ST&&ST.solo,mise:String(ST?ST.buy:20),dec:String(ST?ST.dec:30),fmt:ST&&!ST.maxHands?"last":"10"});
+  if(b("#lbAgain"))b("#lbAgain").onclick=()=>pk({a:"sit",solo:ST&&ST.solo,mise:String(ST?ST.buy:20),dec:String(ST?ST.dec:30),fmt:ST&&!ST.maxHands?"last":"10",lvl:ST&&ST.botLvl||LVL()});
   if(b("#lbShare"))b("#lbShare").onclick=()=>{const link=location.origin+"/"+CODE+"/poker";if(navigator.share)navigator.share({title:"Poker Lettres",text:"Une partie de Poker Lettres ?",url:link}).catch(()=>{});else{(navigator.clipboard?navigator.clipboard.writeText(link):Promise.reject()).then(()=>toast("📋","Lien copié"),()=>toast("🔗",link))}}}
 // ---------- paquet (lettres pas encore vues) ----------
 let DPREV=null;
@@ -884,11 +914,32 @@ function renderDeck(left){const g=$("#pkDeck");if(!left){$("#pkDeckSum").innerHT
 $("#pkDeckBtn").onclick=()=>{const c=$("#pkDeckCard").classList.toggle("closed");$("#pkDeckBtn").setAttribute("aria-expanded",!c)};
 if(innerWidth<620){$("#pkDeckCard").classList.add("closed");$("#pkDeckBtn").setAttribute("aria-expanded","false")}
 // ---------- actions ----------
-$$(".pkact .btn").forEach(b=>b.onclick=()=>pk({a:"act",act:b.dataset.a}));
-function typed(){const v=$("#pkIn").value.toUpperCase().replace(/[^A-Z]/g,"").slice(0,7);$("#pkIn").value=v;const pts=[...v].reduce((t,c)=>t+(PV[c]||0),0);
-  $("#pkCalc").innerHTML=v?"Si ton mot est bon : "+pts+" + 5 = <b>"+(pts+5)+" pts</b><br><span class='note'>…et s'il est faux, tu perds le coup.</span>":"Valeur : lettres + 5 points pour le mot"}
+$$(".pkact .btn").forEach(b=>b.onclick=()=>{const a=b.dataset.a;if(a==="raise")return rzShow();if(a==="allin"){const me=ST&&ST.seats[ST.me];$("#aiN").textContent=me?me.stack:0;$("#pkRaise").hidden=true;$("#pkAllin").hidden=false;return}pk({a:"act",act:a})});
+let CHK=null,LOCKED="";
+function typed(){if(LOCKED)return;const v=$("#pkIn").value.normalize("NFD").replace(/[\u0300-\u036f]/g,"").toUpperCase().replace(/[^A-Z]/g,"").slice(0,7);$("#pkIn").value=v;
+  clearTimeout(CHK);if(!v){$("#pkCalc").innerHTML="Score potentiel : lettres + bonus de longueur + bonus Main Pleine";return}
+  $("#pkCalc").innerHTML="Score potentiel de <b>"+esc(v)+"</b> : vérification…";CHK=setTimeout(()=>pk({a:"check",w:v}),250)}
+// détail du score : lettres + longueur + Main Pleine
+function detail(e){if(!e)return"";return e.base_points+" + "+e.length_bonus+(e.full_hand_bonus?" + "+e.full_hand_bonus+" ✋":"")}
+function mmGap(st){const me=st.results&&st.me>=0?st.results.find(x=>x.name===st.seats[st.me].name):null;const mine=me&&me.ok?me.pts:0,d=st.mymax.total_score-mine;return d>0?' <span class="note">(+'+d+' possible)</span>':' <span class="note">✔ parfait</span>'}
+function showCheck(m){if(LOCKED||m.w!==$("#pkIn").value)return;const e=m.r;const c=$("#pkCalc");
+  if(e.valid)c.innerHTML="Score potentiel : lettres <b>"+e.base_points+"</b> + longueur <b>"+e.length_bonus+"</b>"+(e.full_hand_bonus?" + Main Pleine <b>"+e.full_hand_bonus+"</b>":"")+" = <b>"+e.total_score+" pts</b><br><span class='note'>Avec les lettres déjà retournées. Le score officiel est calculé à l'abattage.</span>";
+  else c.innerHTML="<span class='warn'>✗ "+esc(e.reason)+"</span><br><span class='note'>Avec les lettres déjà retournées"+(ST&&ST.shown<5?" : d'autres lettres peuvent encore arriver.":".")+"</span>"}
+// niveau de Léo choisi par le joueur
+const LVL=()=>{const v=LS.get("fl-pklvl");return ["debutant","inter","confirme"].includes(v)?v:"inter"};
+function lvlSeg(){const v=LVL();return '<div class="seg pklv" role="group" aria-label="Niveau de Léo">'+[["debutant","Débutant"],["inter","Intermédiaire"],["confirme","Confirmé"]].map(([k,n])=>'<button type="button" data-v="'+k+'"'+(k===v?' class="on"':'')+'>'+n+'</button>').join("")+'</div>'}
+// relance au choix
+let RZ=null;
+function rzShow(){if(!RZ)return;const r=$("#rzRange");r.min=RZ.min;r.max=RZ.max;r.value=Math.min(RZ.max,Math.max(RZ.min,+r.value||RZ.min));rzUpd();$("#pkAllin").hidden=true;$("#pkRaise").hidden=false;r.focus()}
+function rzUpd(){const v=+$("#rzRange").value;$("#rzTo").textContent=v;$("#rzSub").textContent=(v>=RZ.max?"tapis · ":"")+"tu ajoutes "+Math.max(0,v-(RZ.bet-RZ.owe))+" jeton"+(v-(RZ.bet-RZ.owe)>1?"s":"")}
+$("#rzRange").oninput=rzUpd;
+$$(".rzq button").forEach(b=>b.onclick=()=>{if(!RZ)return;const q=b.dataset.q,p=RZ.pot+RZ.owe;let v=q==="min"?RZ.min:q==="max"?RZ.max:RZ.bet+Math.round(q==="half"?p/2:p);$("#rzRange").value=Math.min(RZ.max,Math.max(RZ.min,v));rzUpd()});
+$("#rzCancel").onclick=()=>{$("#pkRaise").hidden=true};
+$("#rzOk").onclick=()=>{const v=+$("#rzRange").value;$("#pkRaise").hidden=true;pk({a:"act",act:"raise",amt:v})};
+$("#aiNo").onclick=()=>{$("#pkAllin").hidden=true};
+$("#aiOk").onclick=()=>{$("#pkAllin").hidden=true;pk({a:"act",act:"allin"})};
 $("#pkIn").oninput=typed;
-$("#pkBest").onclick=()=>{const v=$("#pkIn").value;if(!v)return toast("✍️","Tape d'abord ton mot");if(ST&&ST.phase==="mot"){pk({a:"word",w:v});toast("🔒","Mot gardé pour l'abattage : "+esc(v))}else toast("🃏","Mot noté : il sera envoyé à l'abattage.")};
+$("#pkBest").onclick=()=>{const v=$("#pkIn").value;if(LOCKED)return;if(!v)return toast("✍️","Tape d'abord ton mot");if(ST&&ST.phase==="mot")pk({a:"word",w:v});else toast("🃏","Mot noté : tu pourras le verrouiller quand les 5 lettres seront retournées.")};
 $("#pkIn").onkeydown=e=>{if(e.key==="Enter")$("#pkBest").click()};
 $("#pkInfoBtn").onclick=()=>{const o=$("#pkInfo").classList.toggle("on");$("#pkInfoBtn").setAttribute("aria-expanded",o)};
 $("#pkWalBtn").onclick=()=>{const o=$("#pkWal").classList.toggle("on");$("#pkWalBtn").setAttribute("aria-expanded",o)};
@@ -1070,6 +1121,7 @@ const st=document.createElement("style");st.textContent=".bico{display:inline-fl
 document.head.appendChild(st);
 const go=()=>{scan();mo.observe(document.body,{subtree:true,childList:true,characterData:true})};
 if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",go);else go();
+
 })();
 </script>
 </body>

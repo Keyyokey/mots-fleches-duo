@@ -6,9 +6,13 @@ const path = require("path");
 
 const PV = { A:1,B:3,C:3,D:2,E:1,F:4,G:2,H:4,I:1,J:8,K:10,L:1,M:2,N:1,O:1,P:3,Q:8,R:1,S:1,T:1,U:1,V:4,W:10,X:10,Y:10,Z:10 };
 const DECK = { E:6,A:4,I:4,S:4,N:3,R:3,T:3,U:3,O:3,L:2,C:2,D:2,M:2,P:2,B:1,G:1,F:1,H:1,V:1,J:1,Q:1,X:1,Z:1,K:1,W:1,Y:1 };
-const WORD_BONUS = 5, WORD_TIME = 45, MAX_SEATS = 6;
+const WORD_TIME = 45, MAX_SEATS = 6;
+// Barème V2 (cahier des charges Poker Lettres V2, 7/11/2026) : valeur des lettres + bonus de longueur + bonus « Main Pleine »
+const LEN_BONUS = { 2: 0, 3: 3, 4: 6, 5: 10, 6: 15, 7: 22 }, FULL_HAND = 5;
+const BAREME = "V2 · 7/11/2026";
 let DICT = new Set(), WORDS = [];
-try { WORDS = fs.readFileSync(path.join(__dirname, "poker_mots.txt"), "utf8").split("\n").filter(Boolean); DICT = new Set(WORDS); } catch (e) { console.error("Dictionnaire du poker absent :", e.message); }
+try { WORDS = fs.readFileSync(path.join(__dirname, "poker_mots.txt"), "utf8").split("\n").map(w => w.trim()).filter(w => /^[A-Z]{2,7}$/.test(w)); DICT = new Set(WORDS); } catch (e) { console.error("Dictionnaire du poker absent :", e.message); }
+const DICT_VERSION = "Dictionnaire 2026-11 · " + WORDS.length.toLocaleString("fr-FR") + " mots de 2 à 7 lettres, sans accent (pluriels et formes conjuguées compris)";
 
 const rnd = n => crypto.randomInt(n);
 function shuffle() {           // Fisher-Yates avec un générateur cryptographique
@@ -18,31 +22,47 @@ function shuffle() {           // Fisher-Yates avec un générateur cryptographi
 }
 const count = arr => { const m = {}; for (const c of arr) m[c] = (m[c] || 0) + 1; return m; };
 const fits = (wc, have) => { for (const c in wc) if ((have[c] || 0) < wc[c]) return false; return true; };
-const wordValue = w => [...w].reduce((t, c) => t + (PV[c] || 0), 0) + WORD_BONUS;
-// mot valide : existe, se forme avec la main + le milieu, et utilise au moins une lettre cachée du joueur
-function checkWord(w, hand, board) {
-  w = String(w || "").toUpperCase().replace(/[^A-Z]/g, "");
-  if (w.length < 2) return { ok: false, why: "trop court" };
-  if (!DICT.has(w)) return { ok: false, why: "mot inexistant" };
-  const wc = count(w);
-  if (!fits(wc, count(hand.concat(board)))) return { ok: false, why: "lettre absente" };
-  if (fits(wc, count(board))) return { ok: false, why: "aucune de tes lettres" };
-  return { ok: true, pts: wordValue(w) };
+const norm = w => String(w || "").normalize("NFD").replace(/[\u0300-\u036f]/g, "").toUpperCase().replace(/[^A-Z]/g, "");
+// lettres privées utilisables au maximum : quand une lettre est à la fois dans la main et sur la table, on la prend dans la main (bonus le plus favorable)
+const privUsed = (wc, hc) => { let n = 0; for (const c in wc) n += Math.min(wc[c], hc[c] || 0); return n; };
+// évaluation normalisée : tous les champs sont toujours présents, même pour un mot refusé
+function evaluateWord(w, hand, board) {
+  const word = norm(w).slice(0, 12), r = { valid: false, reason: "", word, length: word.length, base_points: 0, length_bonus: 0, full_hand_bonus: 0, private_used_count: 0, total_score: 0 };
+  if (word.length < 2) { r.reason = "trop court (2 lettres minimum)"; return r; }
+  if (word.length > 7) { r.reason = "trop long (7 lettres maximum)"; return r; }
+  if (!DICT.has(word)) { r.reason = "mot absent du dictionnaire"; return r; }
+  const wc = count(word), hc = count(hand || []);
+  if (!fits(wc, count((hand || []).concat(board || [])))) { r.reason = "lettre indisponible"; return r; }
+  r.private_used_count = privUsed(wc, hc);
+  if (r.private_used_count < 1) { r.reason = "aucune de tes lettres cachées"; return r; }
+  r.valid = true; r.base_points = [...word].reduce((t, c) => t + (PV[c] || 0), 0); r.length_bonus = LEN_BONUS[word.length] || 0;
+  r.full_hand_bonus = (hand || []).length === 2 && r.private_used_count >= 2 ? FULL_HAND : 0;
+  r.total_score = r.base_points + r.length_bonus + r.full_hand_bonus; return r;
 }
+// ancien format, utilisé par l'abattage et le robot
+function checkWord(w, hand, board) { const e = evaluateWord(w, hand, board); return e.valid ? { ok: true, pts: e.total_score, len: e.length, eval: e } : { ok: false, why: e.reason, eval: e }; }
+const better = (a, b) => !b || a.pts > b.pts || (a.pts === b.pts && a.w.length > b.w.length) || (a.pts === b.pts && a.w.length === b.w.length && a.w < b.w);
 let WC = null;
-function botWord(hand, board) {   // le robot ne trouve pas toujours le meilleur mot
+// tous les mots jouables avec cette main, notés selon le barème V2
+function allWords(hand, board) {
   if (!WC) WC = WORDS.map(w => [w, count(w)]);
-  const have = count(hand.concat(board)), bc = count(board); const all = [];
-  for (const [w, wc] of WC) { if (fits(wc, have) && !fits(wc, bc)) all.push({ w, pts: wordValue(w) }); }
-  if (!all.length) return null; all.sort((a, b) => b.pts - a.pts);
-  return all[Math.min(all.length - 1, crypto.randomInt(Math.min(all.length, 10)))];
+  const have = count(hand.concat(board)), hc = count(hand), out = [];
+  for (const [w, wc] of WC) { if (!fits(wc, have)) continue; const pu = privUsed(wc, hc); if (pu < 1) continue;
+    let b = 0; for (const c of w) b += PV[c] || 0; out.push({ w, pts: b + (LEN_BONUS[w.length] || 0) + (hand.length === 2 && pu >= 2 ? FULL_HAND : 0) }); }
+  return out;
 }
+// Mot Max : recherche exhaustive (aucun arrêt sur un seuil arbitraire), départage par la longueur puis l'ordre alphabétique
 function bestWord(hand, board, limit) {
-  if (!WC) WC = WORDS.map(w => [w, count(w)]);
-  const have = count(hand.concat(board)), bc = count(board); let best = null;
-  for (const [w, wc] of WC) { if (!fits(wc, have) || fits(wc, bc)) continue;
-    const v = wordValue(w); if (!best || v > best.pts) best = { w, pts: v }; if (limit && best.pts >= limit) break; }
-  return best;
+  if (limit) { if (!WC) WC = WORDS.map(w => [w, count(w)]); const have = count(hand.concat(board)), hc = count(hand); for (const [w, wc] of WC) if (fits(wc, have) && privUsed(wc, hc) >= 1) return { w, pts: 1 }; return null; }
+  let best = null; for (const x of allWords(hand, board)) if (better(x, best)) best = x; return best;
+}
+// le robot Léo : débutant = mots courants courts, intermédiaire = parmi ses 10 meilleurs, confirmé = son Mot Max
+function botWord(hand, board, lvl) {
+  let all = allWords(hand, board); if (!all.length) return null;
+  all.sort((a, b) => b.pts - a.pts || b.w.length - a.w.length);
+  if (lvl === "confirme") return all[0];
+  if (lvl === "debutant") { const s = all.filter(x => x.w.length >= 3 && x.w.length <= 5); all = s.length ? s : all; return all[Math.min(all.length - 1, 5 + rnd(Math.min(all.length, 40)))] || all[all.length - 1]; }
+  return all[Math.min(all.length - 1, rnd(Math.min(all.length, 10)))];
 }
 
 const tables = new Map();            // salle -> table
@@ -51,12 +71,17 @@ function table(room) { return tables.get(room); }
 function newTable(room, opts) {
   const buy = [10, 20, 50].includes(+opts.mise) ? +opts.mise : 20;
   const t = { room, seats: [], started: false, hand: 0, maxHands: opts.fmt === "last" ? 0 : 10, buy, ante: Math.max(1, Math.round(buy / 10)),
-    dec: [20, 30, 45].includes(+opts.dec) ? +opts.dec : 30, solo: !!opts.solo, carry: 0, bank: 0, phase: "attente", log: [], timer: null, deadline: 0 };
+    dec: [20, 30, 45].includes(+opts.dec) ? +opts.dec : 30, solo: !!opts.solo, carry: 0, bank: 0, phase: "attente", log: [], timer: null, deadline: 0,
+    botLvl: ["debutant", "inter", "confirme"].includes(opts.lvl) ? opts.lvl : "inter", minInc: 0, jp: 0 };
   const old = tables.get(room); if (old) { clearTimeout(old.timer); old.dead = true; }   // l'ancienne table ne doit plus rien déclencher
   tables.set(room, t); return t;
 }
 
 module.exports = function (hooks) {
+  // cagnotte progressive : par salon, conservée entre les parties (hooks.jackpot) ; table solo : propre à la partie
+  const shared = t => !!hooks.jackpot && !String(t.room).startsWith("~");   // vrai salon (la table privée « ~… » garde sa cagnotte pour la partie)
+  const jpGet = t => shared(t) ? (hooks.jackpot.get(t.room) || 0) : (t.jp || 0);
+  const jpAdd = (t, n) => { n = Math.round(n); if (!n) return; if (shared(t)) hooks.jackpot.add(t.room, n); else t.jp = Math.max(0, (t.jp || 0) + n); };
   // hooks : send(ws,o), wallet(name) -> {coins}, pay(name, delta, betAmount), points(name, pts)
   const sockSeat = new WeakMap();
 
@@ -65,12 +90,14 @@ module.exports = function (hooks) {
     const show = t.phase === "abattage" || t.phase === "fin";
     return {
       room: t.room, started: t.started, phase: t.phase, hand: t.hand, maxHands: t.maxHands, buy: t.buy, ante: t.ante, dec: t.dec, solo: t.solo,
-      pot: t.pot || 0, carry: 0, dealEnd: t.dealEnd || 0, bank: t.bank || 0, bet: t.bet || 0, turn: t.turn, deadline: t.deadline, now: Date.now(), commit: t.commit || "", reveal: t.phase === "abattage" || t.phase === "fin" ? t.revealDeck || "" : "",
+      pot: t.pot || 0, carry: 0, dealEnd: t.dealEnd || 0, bank: 0, jackpot: jpGet(t), minInc: t.minInc || t.ante * 2, botLvl: t.botLvl, bareme: BAREME, dict: DICT_VERSION, bet: t.bet || 0, turn: t.turn, deadline: t.deadline, now: Date.now(), commit: t.commit || "", reveal: t.phase === "abattage" || t.phase === "fin" ? t.revealDeck || "" : "",
       board: (t.board || []).map((c, i) => i < (t.shown || 0) ? c : null), shown: t.shown || 0,
       deckLeft: me ? leftFor(t, me) : null,
       seats: t.seats.map((s, i) => ({ name: s.name, bot: !!s.bot, stack: s.stack, inPot: s.inPot || 0, roundBet: s.roundBet || 0, folded: !!s.folded, allin: !!s.allin, out: !!s.out, here: s.bot || !!s.ws, gone: !!s.gone,
-        acted: !!s.acted, wordDone: !!s.word, last: s.last || "", hand: i === seatIdx ? s.hand : (show && !s.folded && s.hand ? s.hand : null), result: show ? s.result || null : null })),
-      me: seatIdx, results: t.results || null, msg: t.msg || ""
+        acted: !!s.acted, wordDone: !!s.word, wordLen: s.word && s.word !== "-" ? s.word.length : 0, last: s.last || "", hand: i === seatIdx ? s.hand : (show && !s.folded && s.hand ? s.hand : null), result: show ? s.result || null : null })),
+      me: seatIdx, results: t.results || null, msg: t.msg || "", jackpotWon: t.jpWon || null,
+      // Mot Max : seulement pour sa propre main, après la résolution (aucune fuite d'information pendant le coup)
+      mymax: show && me && me.max ? me.max : null
     };
   }
   function leftFor(t, s) { const seen = (t.board || []).slice(0, t.shown || 0).concat(s.hand || []); const m = { ...DECK }; for (const c of seen) m[c]--; return m; }
@@ -87,8 +114,8 @@ module.exports = function (hooks) {
   const canAct = t => t.seats.filter(s => !s.folded && !s.out && !s.allin);
 
   function startHand(t) {
-    t.hand++; t.results = null; t.msg = ""; t.pot = 0; t.carry = 0; t.bet = 0;
-    t.seats.forEach(s => { s.folded = !!(s.out || s.gone); s.allin = false; s.inPot = 0; s.roundBet = 0; s.word = null; s.result = null; s.acted = false; s.last = ""; s.hand = null; });
+    t.hand++; t.results = null; t.msg = ""; t.pot = 0; t.carry = 0; t.bet = 0; t.jpWon = null;
+    t.seats.forEach(s => { s.folded = !!(s.out || s.gone); s.allin = false; s.inPot = 0; s.roundBet = 0; s.word = null; s.result = null; s.acted = false; s.last = ""; s.hand = null; s.max = null; });
     if (active(t).length < 2) return endGame(t, "Il faut au moins deux joueurs.");
     // donne vérifiée : au moins un joueur doit pouvoir former un mot valide
     let deck, tries = 0;
@@ -106,7 +133,7 @@ module.exports = function (hooks) {
     startRound(t);
   }
   function startRound(t) {
-    t.bet = 0; t.seats.forEach(s => { s.roundBet = 0; s.acted = false; });
+    t.bet = 0; t.minInc = t.ante * 2; t.seats.forEach(s => { s.roundBet = 0; s.acted = false; });
     if (canAct(t).length < 2) return nextStreet(t);
     t.turn = nextFrom(t, t.first - 1); ask(t);
   }
@@ -122,13 +149,20 @@ module.exports = function (hooks) {
     if (s.bot) later(t, g * 1000 + 1200 + rnd(1600), () => botAct(t, i));
     if (s.gone) later(t, 300, () => act(t, i, "fold", true));
   }
-  function act(t, i, a, auto) {
+  function act(t, i, a, auto, amt) {
     if (t.phase !== "mise" || i !== t.turn) return;
     const s = t.seats[i]; const owe = t.bet - s.roundBet;
     const put = n => { n = Math.max(0, Math.min(n, s.stack)); s.stack -= n; s.roundBet += n; s.inPot += n; t.pot += n; if (!s.stack) s.allin = true; return n; };
     if (a === "fold") { s.folded = true; s.last = auto ? "temps écoulé : couché" : "couché"; }
     else if (a === "call") { const n = put(owe); s.last = n ? "suit " + n : "parole"; }
-    else if (a === "raise") { const n = put(owe + t.ante * 2); if (s.roundBet > t.bet) { t.bet = s.roundBet; t.seats.forEach((o, k) => { if (k !== i) o.acted = false; }); } s.last = "relance +" + (n - owe > 0 ? n - owe : 0); }
+    else if (a === "raise") {
+      // relance au choix : « relancer à » un montant entre la relance minimale et le tapis du joueur
+      const minTo = t.bet + (t.minInc || t.ante * 2), maxTo = s.roundBet + s.stack;
+      let to = Math.floor(Number(amt)); if (!Number.isFinite(to)) to = minTo; to = Math.max(minTo, Math.min(to, maxTo));
+      if (to <= t.bet) { const n = put(owe); s.last = n ? "suit " + n : "parole"; }       // pas assez pour relancer : il suit
+      else { const prevBet = t.bet; put(to - s.roundBet); const inc = s.roundBet - prevBet;
+        if (s.roundBet > t.bet) { t.bet = s.roundBet; if (inc >= (t.minInc || 0)) t.minInc = inc; t.seats.forEach((o, k) => { if (k !== i) o.acted = false; }); }
+        s.last = s.allin ? "tapis ! (" + s.roundBet + ")" : "relance à " + s.roundBet; } }
     else if (a === "allin") { put(s.stack); if (s.roundBet > t.bet) { t.bet = s.roundBet; t.seats.forEach((o, k) => { if (k !== i) o.acted = false; }); } s.last = "tapis !"; }
     else return;
     s.acted = true;
@@ -147,7 +181,7 @@ module.exports = function (hooks) {
     t.phase = "mot"; t.msg = "À vous ! " + WORD_TIME + " s pour taper votre mot";
     setTimer(t, WORD_TIME, () => showdown(t));
     broadcast(t);
-    active(t).forEach((s, i) => { if (s.bot) later(t, 4000 + rnd(9000), () => { if (t.phase !== "mot") return; const b = botWord(s.hand, t.board); s.word = b ? b.w : "-"; checkAllWords(t); }); });
+    active(t).forEach((s, i) => { if (s.bot) later(t, 4000 + rnd(9000), () => { if (t.phase !== "mot") return; const b = botWord(s.hand, t.board, t.botLvl); s.word = b ? b.w : "-"; checkAllWords(t); }); });
   }
   function checkAllWords(t) { if (t.phase === "mot" && active(t).every(s => s.word || s.gone)) showdown(t); else broadcast(t); }
   function settle(t, winners, share) { // gains crédités aux joueurs
@@ -157,8 +191,9 @@ module.exports = function (hooks) {
     clearTimeout(t.timer); const w = active(t)[0];
     // pots séparés : le joueur restant ne gagne, sur chaque mise, que jusqu'à hauteur de sa propre mise ; le reste (mises de joueurs couchés au-delà) va à la banque
     const cap = t.seats.reduce((a, o) => a + Math.min(o.inPot || 0, w.inPot || 0), 0), gain = Math.min(t.pot, cap), toBank = t.pot - gain;
-    w.stack += gain; settle(t, [w], gain); t.bank = (t.bank || 0) + toBank;
-    t.results = [{ name: w.name, win: true, gain, why: "les autres se sont couchés" }]; t.msg = w.name + " remporte le pot (" + gain + ")" + (toBank ? " · banque +" + toBank : "");
+    w.stack += gain; settle(t, [w], gain); jpAdd(t, toBank);
+    // victoire sans abattage : le gagnant n'a pas à montrer de mot, et la cagnotte ne se déclenche pas
+    t.results = [{ name: w.name, win: true, gain, why: "les autres se sont couchés" }]; t.msg = w.name + " remporte le pot (" + gain + ") sans montrer son mot" + (toBank ? " · cagnotte +" + toBank : "");
     t.pot = 0; t.phase = "abattage"; broadcast(t); later(t, 5000, () => afterHand(t));
   }
   // Abattage avec pots séparés : chaque couche de mise ne peut être gagnée que par les joueurs qui l'ont suivie.
@@ -175,18 +210,23 @@ module.exports = function (hooks) {
       const elig = res.filter(s => (s.inPot || 0) >= lvl && s.result.ok);
       if (!elig.length) toBank += part;
       else {
-        const best = Math.max(...elig.map(s => s.result.pts)); const win = elig.filter(s => s.result.pts === best);
+        // départage : score, puis mot le plus long, puis partage
+        const best = Math.max(...elig.map(s => s.result.pts)); const top = elig.filter(s => s.result.pts === best); const L = Math.max(...top.map(s => s.result.len || 0)); const win = top.filter(s => (s.result.len || 0) === L);
         const share = Math.floor(part / win.length); toBank += part - share * win.length;
         win.forEach(s => { gain[t.seats.indexOf(s)] += share; winnersAll.add(s); });
       }
       dealt += part; prev = lvl;
     });
-    t.seats.forEach((s, i) => { if (gain[i]) { s.stack += gain[i]; s.result.win = true; s.result.gain = gain[i]; } });
+    // cagnotte : un gagnant de l'abattage avec un mot valide de 6 ou 7 lettres la remporte (partage égal, le reste indivisible y reste)
+    const W = [...winnersAll], jw = W.filter(s => (s.result.len || 0) >= 6), jp = jpGet(t);
+    if (jw.length && jp > 0) { const each = Math.floor(jp / jw.length); if (each > 0) { jw.forEach(s => { gain[t.seats.indexOf(s)] += each; s.result.jackpot = each; }); jpAdd(t, -each * jw.length); t.jpWon = { names: jw.map(s => s.name), each }; } }
+    t.seats.forEach((s, i) => { if (gain[i]) { s.stack += gain[i]; s.result.win = s.result.win || winnersAll.has(s); s.result.gain = gain[i]; } });
     t.seats.forEach((s, i) => { if (!s.bot && s.name && gain[i] > (s.inPot || 0)) hooks.points && hooks.points(s.name, gain[i] - (s.inPot || 0)); });
-    t.bank = (t.bank || 0) + toBank;
-    const W = [...winnersAll];
-    t.msg = !W.length ? "Personne n'a de mot valide : la banque remporte le pot (" + t.pot + ")"
-      : (W.length > 1 ? "Partage : " + W.map(s => s.name + " +" + gain[t.seats.indexOf(s)]).join(", ") : W[0].name + " gagne " + gain[t.seats.indexOf(W[0])]) + (toBank ? " · banque +" + toBank : "");
+    jpAdd(t, toBank);
+    t.msg = !W.length ? "Personne n'a de mot valide : le pot (" + t.pot + ") part dans la cagnotte"
+      : (W.length > 1 ? "Partage : " + W.map(s => s.name + " +" + gain[t.seats.indexOf(s)]).join(", ") : W[0].name + " gagne " + gain[t.seats.indexOf(W[0])]) + (t.jpWon ? " · 🎰 CAGNOTTE " + t.jpWon.each * t.jpWon.names.length + " !" : "") + (toBank ? " · cagnotte +" + toBank : "");
+    // Mot Max de chaque joueur encore en lice (affiché à lui seul)
+    res.forEach(s => { if (!s.bot) { const b = bestWord(s.hand, t.board); s.max = b ? { word: b.w, ...evaluateWord(b.w, s.hand, t.board) } : null; } });
     t.results = res.map(s => ({ name: s.name, ...s.result })); t.pot = 0;
     broadcast(t); later(t, 5000 + res.length * 2200, () => afterHand(t));   // le temps de voir les lettres se retourner et les mots de chacun
   }
@@ -199,18 +239,27 @@ module.exports = function (hooks) {
   }
   function endGame(t, why) {
     clearTimeout(t.timer); if (t.phase === "fin") return;
-    if (t.pot) { const sh = t.seats.filter(s => !s.out); const each = sh.length ? Math.floor(t.pot / sh.length) : 0; sh.forEach(s => s.stack += each); t.bank = (t.bank || 0) + t.pot - each * sh.length; t.pot = 0; }
+    if (t.pot) { const sh = t.seats.filter(s => !s.out); const each = sh.length ? Math.floor(t.pot / sh.length) : 0; sh.forEach(s => s.stack += each); jpAdd(t, t.pot - each * sh.length); t.pot = 0; }
     t.phase = "fin"; t.started = false;
     t.seats.forEach(s => { if (!s.bot && s.name && !s.paid) { s.paid = true; hooks.pay(s.name, s.stack); } });
     const ranking = t.seats.slice().sort((a, b) => b.stack - a.stack);
     t.msg = why || (ranking.length ? "Partie terminée : " + ranking[0].name + " finit en tête avec " + ranking[0].stack + " jetons" : "Partie terminée.");
     broadcast(t); setTimeout(() => { if (tables.get(t.room) === t && t.phase === "fin" && !t.seats.some(s => s.ws)) tables.delete(t.room); }, 10 * 60e3);
   }
+  // Léo ne voit que ses 2 lettres et les lettres communes déjà retournées : force estimée = son meilleur mot actuel
   function botAct(t, i) {
     if (t.phase !== "mise" || t.turn !== i) return;
-    const s = t.seats[i]; const b = bestWord(s.hand, t.board.slice(0, t.shown)) || { pts: 0 }; const owe = t.bet - s.roundBet; const r = rnd(100);
-    let a = "call"; if (b.pts >= 16 && r < 45) a = "raise"; else if (b.pts < 8 && owe > t.ante * 2 && r < 60) a = "fold"; else if (r < 6) a = "raise";
-    act(t, i, a);
+    const s = t.seats[i], lvl = t.botLvl || "inter"; const b = bestWord(s.hand, t.board.slice(0, t.shown)) || { pts: 0 }; const owe = t.bet - s.roundBet, r = rnd(100), pot = t.pot || 0;
+    const minTo = t.bet + (t.minInc || t.ante * 2);
+    let a = "call", amt;
+    if (lvl === "debutant") { if (b.pts >= 26 && r < 25) a = "raise"; else if (b.pts < 10 && owe > t.ante * 4 && r < 50) a = "fold"; else if (r < 2) a = "raise"; amt = minTo; }
+    else if (lvl === "confirme") {
+      if (b.pts >= 22 && r < 60) { a = "raise"; amt = t.bet + Math.max(t.minInc || 0, Math.round(pot * (b.pts >= 28 ? 1 : .5))); }
+      else if (owe === 0 && r < 10) { a = "raise"; amt = t.bet + Math.max(t.minInc || 0, Math.round(pot * .5)); }        // bluff mesuré
+      else if (b.pts < 14 && owe > pot / 3 && r < 70) a = "fold";
+    } else { if (b.pts >= 22 && r < 45) { a = "raise"; amt = r < 20 ? t.bet + Math.max(t.minInc || 0, Math.round(pot / 2)) : minTo; } else if (b.pts < 12 && owe > t.ante * 2 && r < 60) a = "fold"; else if (r < 6) { a = "raise"; amt = minTo; } }
+    if (a === "fold" && owe === 0) a = "call";                                     // inutile de se coucher quand on peut dire parole
+    act(t, i, a, false, amt);
   }
 
   return {
@@ -231,14 +280,16 @@ module.exports = function (hooks) {
           s = { name, stack, ws, paid: !who }; t.seats.push(s);
         }
         s.ws = ws; s.gone = false; sockSeat.set(ws, t);
-        if (m.solo) { t.solo = true; if (!t.seats.some(x => x.bot)) t.seats.push({ name: "ROBOT", bot: true, stack: t.buy }); }
+        if (m.solo) { t.solo = true; if (["debutant", "inter", "confirme"].includes(m.lvl)) t.botLvl = m.lvl; if (!t.seats.some(x => x.bot)) t.seats.push({ name: "LÉO", bot: true, stack: t.buy }); }
         broadcast(t); return;
       }
       if (!t) return;
       const i = t.seats.findIndex(s => s.ws === ws);
       if (m.a === "start") { if (t.started || i < 0 || t.seats.length < 2) return; t.started = true; t.hand = 0; startHand(t); return; }
-      if (m.a === "act" && i >= 0) return act(t, i, String(m.act || ""));
-      if (m.a === "word" && i >= 0 && t.phase === "mot") { const s = t.seats[i]; if (s.folded) return; s.word = String(m.w || "").toUpperCase().replace(/[^A-Z]/g, "").slice(0, 7) || "-"; return checkAllWords(t); }
+      if (m.a === "act" && i >= 0) return act(t, i, String(m.act || ""), false, m.amt);
+      // aperçu du score : calculé par le serveur avec la main du joueur et les lettres déjà visibles (rien de caché)
+      if (m.a === "check" && i >= 0) { const s = t.seats[i]; if (!s.hand) return; return hooks.send(ws, { t: "pkchk", w: String(m.w || "").slice(0, 12), r: evaluateWord(m.w, s.hand, (t.board || []).slice(0, t.shown || 0)) }); }
+      if (m.a === "word" && i >= 0 && t.phase === "mot") { const s = t.seats[i]; if (s.folded || s.word) return hooks.send(ws, { t: "pklock", ok: !!s.word, w: s.word || "" }); s.word = norm(m.w).slice(0, 7) || "-"; hooks.send(ws, { t: "pklock", ok: true, w: s.word }); return checkAllWords(t); }
       if (m.a === "leave" && i >= 0) return leave(t, i);
     },
     gone(ws) { const t = sockSeat.get(ws); if (!t) return; if (t.watchers) t.watchers.delete(ws); const i = t.seats.findIndex(s => s.ws === ws); if (i < 0) return;
@@ -247,7 +298,8 @@ module.exports = function (hooks) {
       if (!t.started) { if (!s.bot && s.name && !s.paid) { s.paid = true; hooks.pay(s.name, s.stack); } t.seats.splice(i, 1); if (!t.seats.some(x => !x.bot)) tables.delete(t.room); else broadcast(t); return; }
       // déconnexion : 60 s pour revenir, sinon le joueur quitte la table
       later(t, 60e3, () => { const j = t.seats.indexOf(s); if (!s.ws && j >= 0) leave(t, j); }); broadcast(t); },
-    publicLetters: { PV, DECK }
+    publicLetters: { PV, DECK, LEN_BONUS, FULL_HAND }, evaluateWord, bestWord,
+    _table: room => tables.get(room)          // tests du serveur uniquement (jamais exposé aux joueurs)
   };
   function leave(t, i) {
     const s = t.seats[i]; if (!s || s.gone) return; s.gone = true; s.ws = null;

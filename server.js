@@ -570,7 +570,12 @@ const poker = makePoker({
   send,
   wallet: name => { const p = players.get(name); return p ? ensureWallet(p) : null; },
   pay: (name, delta) => { const p = players.get(name); if (!p) return; ensureWallet(p); p.coins = Math.max(0, Math.round(p.coins + delta)); if (delta < 0) p.wkBet = (p.wkBet || 0) - delta; savePlayer(name); },
-  points: (name, pts) => { const p = players.get(name); if (p && pts > 0) { addPoints(name, p, "poker", pts); savePlayer(name); } }
+  points: (name, pts) => { const p = players.get(name); if (p && pts > 0) { addPoints(name, p, "poker", pts); savePlayer(name); } },
+  // cagnotte progressive du salon (Poker V2) : gardée dans la fiche du salon, sauvegardée avec lui
+  jackpot: {
+    get: room => { const s = salons.get(room); return s && s.docs.meta ? Math.max(0, s.docs.meta.jackpot || 0) : 0; },
+    add: (room, n) => { const s = salons.get(room); if (!s) return; s.docs.meta = s.docs.meta || {}; s.docs.meta.jackpot = Math.max(0, (s.docs.meta.jackpot || 0) + n); s.touched = Date.now(); scheduleSave(room); }
+  }
 });
 
 async function api(req, res, route) {

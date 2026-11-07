@@ -802,6 +802,7 @@ body.nodeco .blob{opacity:.35}
     <div class="seg" id="pkFmt"><button class="on" data-v="10">10 coups</button><button data-v="last">Jusqu'au dernier</button></div>
     <label class="f">🪙 Mise d'entrée<select id="pkMise"><option value="10">10 jetons</option><option value="20" selected>20 jetons</option><option value="50">50 jetons</option></select></label>
     <label class="f">⏱ Temps pour décider<select id="pkDec"><option value="20">20 s</option><option value="30" selected>30 s</option><option value="45">45 s</option></select></label>
+    <label class="f pklvlf">🤖 Niveau de Léo (le robot)<select id="pkLvl"><option value="debutant">Débutant</option><option value="inter" selected>Intermédiaire</option><option value="confirme">Confirmé</option></select></label>
   </div>
   <div class="note" id="cfgNote"></div>
   <div style="display:flex;gap:8px"><button class="btn" id="cfgX" style="flex:1">Annuler</button><button class="btn primary" id="cfgGo" style="flex:2">Suivant →</button></div>
@@ -1133,7 +1134,7 @@ function openCfg(t,m,opp){const k=t.dataset.key,G=GAMES[k];
   if(m==="solo"&&!ME&&guestN()>=GUEST_MAX){needAccount();return}
   if(m==="multi"&&(!ME||ME.stale)){needMulti();$("#needT").textContent=G.nm+" à plusieurs";$("#need").dataset.k=k;$("#need").classList.add("on");return}
   CFG={k,m,opp};$("#cfgT").textContent=G.nm+" · "+({solo:"Solo",multi:"Multijoueur",resume:"Reprendre la partie"}[m]);
-  const pk=k==="poker",cg=k==="culture";$(".cfgfl").style.display=pk||cg||m==="resume"?"none":"";$(".cfgpk").style.display=pk&&m!=="resume"?"":"none";
+  const pk=k==="poker",cg=k==="culture";$(".cfgfl").style.display=pk||cg||m==="resume"?"none":"";$(".cfgpk").style.display=pk&&m!=="resume"?"":"none";{const lf=document.querySelector(".pklvlf");if(lf)lf.style.display=pk&&m==="solo"?"":"none"}
   if(!pk&&!cg){const lv=$("#lvl");lv.innerHTML=G.lv.map(([v,l],i)=>'<button data-v="'+v+'" class="'+(i===(LS.get("fl-cfg-lvl-"+k)|0)?"on":"")+'">'+l+'</button>').join("");
     lv.querySelectorAll("button").forEach((b,i)=>b.onclick=()=>{lv.querySelectorAll("button").forEach(x=>x.classList.toggle("on",x===b));LS.set("fl-cfg-lvl-"+k,i);fillNums()});
     fillNums()}
@@ -1154,7 +1155,7 @@ $("#cfgX").onclick=()=>$("#cfg").classList.remove("on");
 $("#cfgGo").onclick=()=>{const{k,m,opp}=CFG;$("#cfg").classList.remove("on");
   const lv=k==="culture"?"":($("#lvl .on")||{}).dataset?.v||"";const q=new URLSearchParams({go:m});if(lv&&m!=="resume")q.set("lvl",lv);const n=k==="culture"?"":$("#gnum").value;if(n&&m!=="resume")q.set("n",n);
   if((k==="fleches"||k==="rond")&&m==="multi")q.set("t","-1");if(opp)q.set("opp",opp);
-  if(k==="poker"){q.set("fmt",($("#pkFmt .on")||{}).dataset?.v||"10");q.set("mise",$("#pkMise").value);q.set("dec",$("#pkDec").value)}
+  if(k==="poker"){q.set("fmt",($("#pkFmt .on")||{}).dataset?.v||"10");q.set("mise",$("#pkMise").value);q.set("dec",$("#pkDec").value);if(m==="solo")q.set("lvl",$("#pkLvl").value)}
   if(m==="multi"&&!(CODE&&ROOM)){call("screate",{name:ME.name,token:ME.token,sname:"Salon de "+ME.name}).then(r=>{if(r.status===200)location.href="/"+r.salon.code+"/"+k+"?"+q;else toast("⚠️",esc(r.msg||"Création du salon impossible."))});return}
   location.href=(CODE?"/"+CODE+"/"+k:"/"+k)+"?"+q}
 $$("#pkFmt button").forEach(b=>b.onclick=()=>$$("#pkFmt button").forEach(x=>x.classList.toggle("on",x===b)));
@@ -1340,6 +1341,7 @@ const st=document.createElement("style");st.textContent=".bico{display:inline-fl
 document.head.appendChild(st);
 const go=()=>{scan();mo.observe(document.body,{subtree:true,childList:true,characterData:true})};
 if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",go);else go();
+
 })();
 </script>
 </body>
