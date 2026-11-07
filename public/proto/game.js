@@ -11,8 +11,7 @@
   const N_LETTERS = () => (innerWidth < 600 ? 14 : 22);
   const REDUCED = matchMedia("(prefers-reduced-motion: reduce)").matches;
   const SEASON = (() => { const m = new Date().getMonth(); return m < 2 || m === 11 ? "hiver" : m < 5 ? "printemps" : m < 8 ? "ete" : "automne"; })();
-  const LIGHT = matchMedia("(prefers-color-scheme: light)").matches;   // fond clair : couleurs plus soutenues pour rester lisibles
-  const PALETTE = LIGHT ? { hiver: ["#0369a1", "#4338ca", "#0e7490"], printemps: ["#15803d", "#be185d", "#a16207"], ete: ["#b45309", "#c2410c", "#0f766e"], automne: ["#c2410c", "#b91c1c", "#a16207"] }[SEASON] : { hiver: ["#7dd3fc", "#a5b4fc", "#e0f2fe"], printemps: ["#86efac", "#f9a8d4", "#fde68a"], ete: ["#fcd34d", "#fb923c", "#5eead4"], automne: ["#fb923c", "#f87171", "#facc15"] }[SEASON];
+  const PALETTE = { hiver: ["#7dd3fc", "#a5b4fc", "#e0f2fe"], printemps: ["#86efac", "#f9a8d4", "#fde68a"], ete: ["#fcd34d", "#fb923c", "#5eead4"], automne: ["#fb923c", "#f87171", "#facc15"] }[SEASON];
 
   // ---------- canvas ----------
   const cv = document.getElementById("scene"), ctx = cv.getContext("2d");
@@ -144,8 +143,8 @@
     if (S.shake) ctx.translate(rnd(-4, 4) * S.shake * 3, rnd(-4, 4) * S.shake * 3);
     for (const l of S.letters) {
       ctx.save(); ctx.translate(l.x, l.y); ctx.rotate(l.rot); const sc = 1 + l.pop; ctx.scale(sc, sc);
-      ctx.globalAlpha = S.mode === "play" ? .95 : (LIGHT ? .7 : .55);
-      ctx.fillStyle = LIGHT ? "rgba(255,255,255,.75)" : "rgba(255,255,255,.10)"; ctx.strokeStyle = l.pop ? "#f87171" : l.col; ctx.lineWidth = 2;
+      ctx.globalAlpha = S.mode === "play" ? .95 : .55;
+      ctx.fillStyle = "rgba(255,255,255,.10)"; ctx.strokeStyle = l.pop ? "#f87171" : l.col; ctx.lineWidth = 2;
       roundRect(-l.r, -l.r, l.r * 2, l.r * 2, l.r * .45); ctx.fill(); ctx.stroke();
       ctx.fillStyle = l.col; ctx.font = `900 ${Math.round(l.r * 1.15)}px Nunito, sans-serif`; ctx.textAlign = "center"; ctx.textBaseline = "middle"; ctx.fillText(l.ch, 0, 2);
       ctx.restore();
