@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-<meta name="description" content="Mots fléchés, Tourniquet, mots mêlés et Poker Lettres : joue en solo ou entre amis, en direct.">
+<meta name="description" content="Mots fléchés, Tourniquet, mots mêlés, Poker Lettres et culture générale : 5 jeux de lettres et de savoir, gratuits, en solo ou entre amis, en direct.">
 <meta name="theme-color" content="#121214">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22%3E%3Ctext y=%22.9em%22 font-size=%2290%22%3E🔤%3C/text%3E%3C/svg%3E">
 <meta charset="utf-8">
@@ -714,6 +714,7 @@ body.nodeco .blob{opacity:.35}
 .ctas{display:flex;gap:10px;flex-wrap:wrap}.ctas .cta{min-height:44px;padding:10px 18px;font-weight:800;text-decoration:none;display:inline-flex;align-items:center;gap:6px}
 a.logo{text-decoration:none;color:inherit}a.logo:focus-visible{outline:2px solid var(--accent-cyan);outline-offset:3px}
 .abtn.abtn-s{width:auto;padding:6px 14px;font-size:.82em;background:rgba(255,255,255,.1)}#cfgMode{margin-bottom:10px}
+.tuto{max-width:420px;text-align:center}.tutohd{display:flex;justify-content:space-between;align-items:center}.tutox{margin-top:10px;background:none;border:0;color:var(--muted,#a9b3c7);text-decoration:underline;font-size:.85rem;cursor:pointer}.tutoico{font-size:2.6rem;margin:6px 0 2px}#tutoP{font-size:1rem;line-height:1.5;min-height:4.5em;color:var(--ink)}.tutodots{display:flex;gap:6px;justify-content:center;margin:8px 0 12px}.tutodots i{width:8px;height:8px;border-radius:50%;background:rgba(255,255,255,.25)}.tutodots i.on{background:var(--accent-cyan,#17B9C5)}.tutobt{display:flex;gap:8px;justify-content:center}.tutobt [hidden]{display:none}
 .ctas [hidden]{display:none!important}.ctas a.cta{color:inherit}
 .games{max-width:var(--content-max)!important}
 .ctas .btn.primary{box-shadow:0 0 0 0 rgba(23,185,197,.5);animation:ctaglow 3.2s ease-in-out infinite}
@@ -843,6 +844,13 @@ a.logo{text-decoration:none;color:inherit}a.logo:focus-visible{outline:2px solid
   <div class="note">Choisis d'abord le jeu, puis ses réglages.</div>
   <div class="gpick" id="pickL"></div>
   <button class="btn" id="pickX">Annuler</button>
+</div></div>
+<div class="overlay" id="tuto" role="dialog" aria-modal="true" aria-labelledby="tutoT"><div class="glass sheet tuto">
+  <div class="tutohd"><span class="tag2" id="tutoN">1/3</span></div>
+  <div class="tutoico" id="tutoI">🎯</div><h3 id="tutoT">Comment jouer</h3><p class="note" id="tutoP"></p>
+  <div class="tutodots" id="tutoD"></div>
+  <div class="tutobt"><button class="btn" id="tutoPrev" type="button">← Retour</button><button class="btn primary" id="tutoNext" type="button">Suivant →</button></div>
+  <button class="tutox" id="tutoSkip" type="button">Passer le tutoriel</button>
 </div></div>
 <div class="overlay" id="cfg"><div class="glass sheet">
   <h3 id="cfgT">Mots fléchés · Solo</h3>
@@ -1206,7 +1214,21 @@ function fillNums(){const G=GAMES[CFG.k];const i=[...$$("#lvl button")].findInde
 function bindMode(b){b.onclick=e=>{e.stopPropagation();const t=b.closest(".tile");if(b.dataset.cfg)return openCfg(t,"solo");openCfg(t,b.dataset.mode,undefined,true)}}
 $$(".modes .abtn").forEach(bindMode);
 $("#cfgX").onclick=()=>$("#cfg").classList.remove("on");
-$("#cfgGo").onclick=()=>{const{k,m,opp}=CFG;$("#cfg").classList.remove("on");
+// ---------- tutoriel : quelques étapes la 1re fois qu'on lance un jeu ----------
+const TUTO={
+ fleches:[["👆","Choisis un mot","Touche une définition (ou une case) : le mot s'éclaire dans la grille. ⇄ change le sens."],["⌨️","Écris et valide","Tape les lettres puis « Valider » : 1 point par bonne lettre, 3 de plus par mot complété. 💡 révèle une lettre, sans points."],["🔢","Le mot mystère","Les cases numérotées (2 points de plus chacune) forment le mot mystère, avec un indice sous la grille. À deux, chacun son tour."]],
+ rond:[["⭕","18 définitions","Chaque rond est une définition : sa réponse fait toujours 6 lettres."],["✍️","Écris tout autour","Touche un rond, tape les 6 lettres puis « Valider ». Le mot s'écrit dans les cases qui l'entourent, partagées avec les ronds voisins."],["🎯","Ricochets","Mot juste : +10 points. Si ton mot complète un voisin, c'est un ricochet : +10 de plus."]],
+ meles:[["🔎","Trouve les mots","Les mots de la liste sont cachés dans la grille, dans tous les sens, même à l'envers."],["👉","Glisse ou touche","Glisse du début à la fin du mot, ou touche sa 1re puis sa dernière lettre."],["⚡","Le plus rapide gagne","Chaque mot trouvé rapporte des points. À deux, un mot déjà pris ne compte plus."]],
+ culture:[["❓","10 questions","Chaque partie compte 10 questions, avec ou sans image."],["⏱️","20 secondes","Choisis parmi 4 réponses (touches 1 à 4). Bonne réponse : 10 points, et jusqu'à 5 de plus si tu es rapide."],["💡","Le savais-tu ?","Après chaque question, une anecdote t'en apprend un peu plus."]],
+ poker:[["🃏","Tes lettres","Tu reçois 2 lettres cachées ; 5 lettres communes arrivent au milieu (3, puis 1, puis 1)."],["🪙","Mise ou couche-toi","À chaque étape : parole, suivre, relancer, tapis ou se coucher. Si tout le monde se couche, tu gagnes le pot."],["🏆","Le meilleur mot","À la fin, forme un mot avec tes lettres et celles du milieu (au moins une des tiennes). Le meilleur score emporte le pot."]]};
+function tuto(k,done){const S=TUTO[k];if(!S||LS.get("fl-tuto-"+k))return done();let i=0;const o=$("#tuto");
+  const show=()=>{const [ic,t,p]=S[i];$("#tutoI").textContent=ic;$("#tutoT").textContent=t;$("#tutoP").textContent=p;$("#tutoN").textContent=(i+1)+"/"+S.length;
+    $("#tutoD").innerHTML=S.map((_,j)=>'<i class="'+(j===i?"on":"")+'"></i>').join("");$("#tutoPrev").hidden=!i;$("#tutoNext").textContent=i===S.length-1?"▶ Jouer":"Suivant →";$("#tutoNext").focus()};
+  const end=()=>{LS.set("fl-tuto-"+k,"1");o.classList.remove("on");document.removeEventListener("keydown",kd);done()};
+  const kd=e=>{if(e.key==="Escape")end()};document.addEventListener("keydown",kd);
+  $("#tutoNext").onclick=()=>{if(i<S.length-1){i++;show()}else end()};$("#tutoPrev").onclick=()=>{if(i){i--;show()}};$("#tutoSkip").onclick=end;{const x=o.querySelector(".xbtn");if(x)x.onclick=e=>{e.stopPropagation();end()}}
+  o.classList.add("on");show()}
+$("#cfgGo").onclick=()=>{if(CFG.m!=="resume"&&!CFG.opp&&TUTO[CFG.k]&&!LS.get("fl-tuto-"+CFG.k)){$("#cfg").classList.remove("on");return tuto(CFG.k,()=>$("#cfgGo").onclick())}const{k,m,opp}=CFG;$("#cfg").classList.remove("on");
   const lv=k==="culture"?"":($("#lvl .on")||{}).dataset?.v||"";const q=new URLSearchParams({go:m});if(lv&&m!=="resume")q.set("lvl",lv);const n=k==="culture"?"":$("#gnum").value;if(n&&m!=="resume")q.set("n",n);
   if((k==="fleches"||k==="rond")&&m==="multi")q.set("t","-1");if(opp)q.set("opp",opp);
   if(k==="poker"){q.set("fmt",($("#pkFmt .on")||{}).dataset?.v||"10");q.set("mise",$("#pkMise").value);q.set("dec",$("#pkDec").value);if(m==="solo")q.set("lvl",$("#pkLvl").value)}

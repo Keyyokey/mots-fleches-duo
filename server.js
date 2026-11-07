@@ -732,12 +732,23 @@ const pages = {};                      // fichier -> { raw, gz, br, etag, mtime 
 function pack(raw) {
   return { raw, gz: zlib.gzipSync(raw, { level: 9 }), br: zlib.brotliCompressSync(raw, { params: { [zlib.constants.BROTLI_PARAM_QUALITY]: 11, [zlib.constants.BROTLI_PARAM_SIZE_HINT]: raw.length } }), etag: '"' + crypto.createHash("sha1").update(raw).digest("base64url").slice(0, 16) + '"' };
 }
+// ---------- référencement : adresse canonique, aperçu de partage, robots.txt, sitemap.xml ----------
+const SITE = (process.env.SITE_URL || "https://mots-fleches-duo.onrender.com").replace(/\/$/, "");
+const CANON = { "accueil.html": "/", "fl.html": "/fleches", "rd.html": "/rond", "mm.html": "/meles", "cg.html": "/culture", "poker.html": "/poker", "mot.html": "/mot" };
+function seoTags(file, txt) {
+  const c = CANON[path.basename(file)]; if (c === undefined) return "";
+  const t = (txt.match(/<title>([^<]*)<\/title>/) || [])[1] || "Mots Fléchés Duo";
+  const d = (txt.match(/<meta name="description" content="([^"]*)"/) || [])[1] || "";
+  const u = SITE + c;
+  return '\n<link rel="canonical" href="' + u + '"><meta property="og:type" content="website"><meta property="og:site_name" content="Mots Fléchés Duo"><meta property="og:locale" content="fr_FR"><meta property="og:url" content="' + u + '"><meta property="og:title" content="' + t + '"><meta property="og:description" content="' + d + '"><meta name="twitter:card" content="summary">';
+}
+const SITEMAP_PATHS = ["/", "/fleches", "/rond", "/meles", "/culture", "/poker", "/mot"];
 function page(file, inject) {
   const st = fs.statSync(file);
   const c = pages[file];
   if (c && c.mtime === st.mtimeMs) return c;
   let txt = fs.readFileSync(file, "utf8");
-  if (inject) txt = txt.replace("<head>", "<head>\n<script>window.SUPPORT=" + SUPPORT + ";</script>");
+  if (inject) txt = txt.replace("<head>", "<head>\n<script>window.SUPPORT=" + SUPPORT + ";</script>" + (txt.includes('rel="canonical"') ? "" : seoTags(file, txt)));
   return (pages[file] = { ...pack(Buffer.from(txt)), mtime: st.mtimeMs });
 }
 function sendBody(req, res, p, type, cache) {
@@ -772,6 +783,12 @@ const server = http.createServer((req, res) => {
   const am = url.pathname.match(/^\/api\/p\/(create|login|me|pin|logout|rank|score|wallet|conv|salons|sjoin|screate|skick|scode|sleave|hist|solo)$/);
   if (am) return void api(req, res, am[1]).catch(e => { console.error(e); try { res.writeHead(500); res.end("{}"); } catch {} });
   if (url.pathname.startsWith("/d/")) return sendStatic(req, res, url.pathname.slice(3));
+  if (url.pathname === "/robots.txt") { res.writeHead(200, { "content-type": "text/plain; charset=utf-8", "cache-control": "public, max-age=86400" }); return res.end("User-agent: *\nAllow: /\nDisallow: /api/\nDisallow: /maquette\nDisallow: /healthz\n\nSitemap: " + SITE + "/sitemap.xml\n"); }
+  if (url.pathname === "/sitemap.xml") {
+    const day = new Date().toISOString().slice(0, 10);
+    res.writeHead(200, { "content-type": "application/xml; charset=utf-8", "cache-control": "public, max-age=86400" });
+    return res.end('<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n' + SITEMAP_PATHS.map(p => "  <url><loc>" + SITE + p + "</loc><lastmod>" + day + "</lastmod><changefreq>" + (p === "/mot" ? "daily" : "weekly") + "</changefreq><priority>" + (p === "/" ? "1.0" : "0.8") + "</priority></url>").join("\n") + "\n</urlset>\n");
+  }
   if (url.pathname === "/maquette" || url.pathname === "/maquette/") return sendPage(req, res, path.join(__dirname, "public", "maquette.html"));
   if (url.pathname === "/mot" || url.pathname === "/mot/") return sendPage(req, res, path.join(__dirname, "public", "mot.html"));
   if (/^\/(?:[A-Za-z0-9]{5}\/)?rond\/?$/.test(url.pathname)) return sendPage(req, res, path.join(__dirname, "public", "rd.html"));
