@@ -731,14 +731,14 @@ a.logo{text-decoration:none;color:inherit}a.logo:focus-visible{outline:2px solid
 .kpi.gold b{color:var(--accent-gold)}.kpi.green b{color:var(--accent-green)}
 .sec2{display:flex;align-items:center;gap:8px;max-width:var(--content-max);margin:22px auto 10px;font:800 1.05rem Nunito,sans-serif;letter-spacing:.01em}
 .sec2::after{content:"";flex:1;height:1px;background:linear-gradient(90deg,rgba(255,255,255,.25),transparent)}
-.space{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;max-width:var(--content-max);margin:0 auto}
+.space{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,260px),1fr));gap:12px;max-width:var(--content-max);margin:0 auto}
 .space .card{border-radius:var(--radius-card)}.space .salonbox{grid-column:1/-1}.space .salonbox.off{display:none}
 .defi{display:flex;flex-direction:column;gap:8px}.defi .bar{height:8px;border-radius:99px;background:rgba(255,255,255,.12);overflow:hidden}.defi .bar u{display:block;height:100%;background:linear-gradient(90deg,var(--accent-green),var(--accent-cyan))}
 .defi .row{display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap}.defi a.btn{text-decoration:none;min-height:40px;display:inline-flex;align-items:center}
 .tile{outline:none}.tile:focus-visible{box-shadow:0 0 0 3px var(--accent-cyan)}
 [data-theme=light] .kpi{background:rgba(255,255,255,.6);border-color:rgba(15,25,40,.1)}[data-theme=light] .sec2::after{background:linear-gradient(90deg,rgba(15,25,40,.2),transparent)}
-@media (max-width:1099px){.hero2{grid-template-columns:1fr}.space{grid-template-columns:repeat(2,minmax(0,1fr))}}
-@media (max-width:699px){.herocard{padding:20px 16px;min-height:0}.hvis{display:none}.ctas .cta{flex:1 1 100%;justify-content:center}.space{grid-template-columns:1fr}}
+@media (max-width:1099px){.hero2{grid-template-columns:1fr}}
+@media (max-width:699px){.herocard{padding:20px 16px;min-height:0}.hvis{display:none}.ctas .cta{flex:1 1 100%;justify-content:center}}
 @media (prefers-reduced-motion:reduce){.hc,.ctas .btn.primary{animation:none!important}}
 </style>
 </head>
@@ -822,9 +822,6 @@ a.logo{text-decoration:none;color:inherit}a.logo:focus-visible{outline:2px solid
   <section class="space" aria-label="Mon espace">
     <div class="glass card">
       <h3>Classement général</h3><div id="cRank"><div class="note">Chargement…</div></div>
-    </div>
-    <div class="glass card">
-      <h3>Défi du jour</h3><div id="cDefi"></div>
     </div>
     <div class="glass card">
       <h3>Joueurs connectés</h3><div id="cPeers"></div>
@@ -1105,7 +1102,7 @@ function connect(){if(!CODE||!ME||ME.stale)return;ws=new WebSocket((location.pro
 const pillMe=()=>window.innerWidth<=620?$("#mBtn"):$(".me-pill"),pillSalon=()=>window.innerWidth<=620?$("#mBtn"):$(".salon-pill");
 const PCOL=["#5ad8ff","#ffa45c","#7cf0a9","#c49bff","#ff8fb1","#ffd166"];
 const colOf=n=>PCOL[[...String(n)].reduce((a,c)=>a+c.charCodeAt(0),0)%PCOL.length];
-const GAMEL={accueil:"à l'accueil",fleches:"aux mots fléchés",rond:"au Tourniquet",meles:"aux mots mêlés",poker:"au poker",mot:"au mot du jour"};
+const GAMEL={accueil:"à l'accueil",fleches:"aux mots fléchés",rond:"au Tourniquet",meles:"aux mots mêlés",poker:"au poker"};
 function renderPeers(){const box=$("#cPeers");if(!CODE||!ROOM){box.innerHTML='<div class="note">Rejoins ou crée un salon (bouton 🛋️) pour voir qui est connecté et jouer à plusieurs.</div>';return}
   const seen=new Set(),rows=[];PEERS.forEach(p=>{const pr=p.presence||{};const n=(pr.name||"").trim();const me=p.id===MYID;const key=n||p.id;if(seen.has(key))return;seen.add(key);rows.push({n:n||"Invité",me,where:pr.page||(pr.gid?"fleches":"")})});
   rows.sort((a,b)=>b.me-a.me);
@@ -1236,7 +1233,7 @@ $("#cfgGo").onclick=()=>{if(CFG.m!=="resume"&&!CFG.opp&&TUTO[CFG.k]&&!LS.get("fl
   location.href=(CODE?"/"+CODE+"/"+k:"/"+k)+"?"+q}
 $$("#pkFmt button").forEach(b=>b.onclick=()=>$$("#pkFmt button").forEach(x=>x.classList.toggle("on",x===b)));
 // « Reprendre » : une partie non terminée est gardée dans le navigateur pour ce salon
-// ---------- accueil V2 : boutons de bienvenue, progression compacte, défi du jour ----------
+// ---------- accueil V2 : boutons de bienvenue, progression compacte ----------
 $("#ctaPlay").onclick=()=>pickGame(null,"solo");{const lh=$("#logoHome");if(lh&&CODE)lh.href="/"+CODE}
 $("#ctaResume").onclick=()=>{const r=document.querySelector('.tile [data-mode="resume"]');if(r)r.click()};
 function renderCta(){const has=!!document.querySelector('.tile [data-mode="resume"]');$("#ctaResume").hidden=!has;$("#ctaDisc").hidden=has}
@@ -1247,13 +1244,7 @@ function renderKpi(){const box=$("#cKpi");if(!box)return;
   const dkey=new Date(Date.now()+3600e3).toISOString().slice(0,10),today=Object.values((PTS.d||{})[dkey]||{}).reduce((a,b)=>a+(+b||0),0);
   box.innerHTML='<div class="kpi green" style="grid-column:1/-1"><small>Points au total</small><b>'+fmtN(PTS.tot||0)+'</b></div><div class="kpi"><small>Aujourd\'hui</small><b>'+(today>0?"+":"")+fmtN(today)+'</b></div>'
     +(typeof COINS==="number"?'<div class="kpi gold"><small>Jetons</small><b>🪙 '+fmtN(COINS)+'</b></div>':'')}
-// défi du jour : la même grille de mots fléchés (niveau normal) pour tout le monde, qui change chaque jour à minuit
-function renderDefi(){const box=$("#cDefi");if(!box)return;
-  const [y,m,d]=TODAY.split("-").map(Number),day=Math.floor(Date.UTC(y,m-1,d)/864e5),N=GAMES.fleches.lv[1][2],n=(day*37)%N+1;
-  box.innerHTML='<div class="defi"><div class="row"><b>📅 La grille du jour</b><span class="note">Mots fléchés · Normal · n°'+n+'</span></div>'
-    +'<div class="note">La même grille pour tout le monde aujourd\'hui. Une nouvelle demain.</div>'
-    +'<div class="row"><a class="btn primary" href="/fleches?go=solo&lvl=normal&n='+n+'">Jouer la grille du jour</a></div></div>'}
-renderDefi();renderKpi();
+renderKpi();
 function renderResume(){$$(".tile").forEach(t=>{const k=t.dataset.key;let on=false;
   const docs=Object.assign({},(()=>{try{return JSON.parse(LS.get("fl-salon-"+CODE)||"{}").docs||{}}catch(e){return{}}})(),CODE?DOCS:{});
   for(const id in docs){const d=docs[id];if(!d||!d.players||d.done||d.solo)continue;const g=id==="cg"?"culture":(id==="rond"||id==="meles"||id==="poker")?id:"fleches";if(g===k&&Date.now()-(d.started||0)<7*864e5)on=true}
