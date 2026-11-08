@@ -722,7 +722,7 @@ a.logo{text-decoration:none;color:inherit}a.logo:focus-visible{outline:2px solid
 .skgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(112px,1fr));gap:8px}
 .sktile{display:flex;flex-direction:column;align-items:center;gap:3px;padding:10px 6px 8px;border-radius:14px;border:2px solid transparent;background:linear-gradient(160deg,color-mix(in srgb,var(--c1) 38%,transparent),color-mix(in srgb,var(--c2) 30%,transparent));color:var(--ink,#fff);cursor:pointer;text-align:center;font:inherit}
 .sktile b{font-size:.8rem;text-transform:uppercase;letter-spacing:.03em;line-height:1.15}.sktile small{font-size:.74rem;opacity:.85}.sktile em{font-style:normal;font-size:.68rem;opacity:.8}
-.skfull{display:block;width:100%;aspect-ratio:2/3;border-radius:10px;overflow:hidden;margin-bottom:4px}.skfull img{width:100%;height:100%;object-fit:cover;object-position:top;display:block}.skgrid:has(.skfull){grid-template-columns:repeat(auto-fill,minmax(132px,1fr))}
+.skfull{display:block;width:100%;aspect-ratio:2/3;border-radius:10px;overflow:hidden;margin-bottom:4px}.skfull img{width:100%;height:100%;object-fit:contain;object-position:bottom;display:block;filter:drop-shadow(0 6px 10px rgba(0,0,0,.35))}.skgrid:has(.skfull){grid-template-columns:repeat(auto-fill,minmax(132px,1fr))}
 .sktile.on{border-color:#fff;box-shadow:0 0 0 2px var(--c1),0 0 18px color-mix(in srgb,var(--c1) 60%,transparent)}.sktile.lock{filter:grayscale(.85);opacity:.55;cursor:not-allowed}.sktile:focus-visible{outline:2px solid var(--accent-cyan);outline-offset:2px}
 .ctas [hidden]{display:none!important}.ctas a.cta{color:inherit}
 .games{max-width:var(--content-max)!important}
@@ -937,7 +937,7 @@ a.logo{text-decoration:none;color:inherit}a.logo:focus-visible{outline:2px solid
   SERIES.forEach(function (s) {
     s[2].forEach(function (k) {
       k[2].forEach(function (h) {
-        var o = { id: k[0] + "/" + h[0], serie: s[0], serieNom: s[1], skin: k[0], skinNom: k[1], hab: h[0], habNom: h[1], rar: h[2], file: s[0] + "-" + k[0] + "-" + h[0] + ".jpg", full: s[0] === "chasseurs" ? s[0] + "-" + k[0] + "-" + h[0] + "-full.jpg" : "" };
+        var o = { id: k[0] + "/" + h[0], serie: s[0], serieNom: s[1], skin: k[0], skinNom: k[1], hab: h[0], habNom: h[1], rar: h[2], file: s[0] + "-" + k[0] + "-" + h[0] + (s[0] === "chasseurs" ? ".webp" : ".jpg"), full: s[0] === "chasseurs" ? s[0] + "-" + k[0] + "-" + h[0] + "-full.webp" : "" };   // chasseurs : images détourées (fond transparent)
         LIST.push(o); BY[o.id] = o;
       });
     });
