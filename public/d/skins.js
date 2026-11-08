@@ -36,13 +36,25 @@
     ["animaux", "Animaux", [
       ["chat", "Le Chat bibliothécaire", [["classique", "Classique", "pc"], ["pyjama", "Pyjama", "rare"], ["mage", "Chat mage", "leg"]]],
       ["renard", "Le Renard bluffeur", [["classique", "Classique", "rare"], ["gentleman", "Gentleman", "epi"], ["neige", "Renard des neiges", "epi"]]],
-      ["chouette", "La Chouette savante", [["classique", "Classique", "rare"], ["exploratrice", "Exploratrice", "epi"], ["nuit", "Gardienne de la nuit", "leg"]]]]]
+      ["chouette", "La Chouette savante", [["classique", "Classique", "rare"], ["exploratrice", "Exploratrice", "epi"], ["nuit", "Gardienne de la nuit", "leg"]]]]],
+    // série en pied (8/11/2026) : image du visage pour les avatars, image en pied (-full) pour le casier
+    ["chasseurs", "Les Chasseurs de mots", [
+      ["streameuse", "Zoé, la Streameuse", [["classique", "Classique", "epi"]]],
+      ["jardinier", "Le Jardinier des mots", [["classique", "Classique", "leg"]]],
+      ["tigre", "Le Tigre arbitre", [["classique", "Classique", "epi"]]],
+      ["poetesse", "La Poétesse des abysses", [["classique", "Classique", "leg"]]],
+      ["bibliothecaire", "Mamie Bibliothécaire", [["classique", "Classique", "rare"]]],
+      ["boulanger", "Le Boulanger des lettres", [["classique", "Classique", "rare"]]],
+      ["cartographe", "La Cartographe", [["classique", "Classique", "epi"]]],
+      ["champion", "Le Champion en fauteuil", [["classique", "Classique", "leg"]]],
+      ["conteur", "Le Papy conteur", [["classique", "Classique", "epi"]]],
+      ["lina", "Lina, la petite championne", [["classique", "Classique", "rare"]]]]]
   ];
   var LIST = [], BY = {};
   SERIES.forEach(function (s) {
     s[2].forEach(function (k) {
       k[2].forEach(function (h) {
-        var o = { id: k[0] + "/" + h[0], serie: s[0], serieNom: s[1], skin: k[0], skinNom: k[1], hab: h[0], habNom: h[1], rar: h[2], file: s[0] + "-" + k[0] + "-" + h[0] + ".jpg" };
+        var o = { id: k[0] + "/" + h[0], serie: s[0], serieNom: s[1], skin: k[0], skinNom: k[1], hab: h[0], habNom: h[1], rar: h[2], file: s[0] + "-" + k[0] + "-" + h[0] + ".jpg", full: s[0] === "chasseurs" ? s[0] + "-" + k[0] + "-" + h[0] + "-full.jpg" : "" };
         LIST.push(o); BY[o.id] = o;
       });
     });

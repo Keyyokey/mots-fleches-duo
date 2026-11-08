@@ -722,6 +722,7 @@ a.logo{text-decoration:none;color:inherit}a.logo:focus-visible{outline:2px solid
 .skgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(112px,1fr));gap:8px}
 .sktile{display:flex;flex-direction:column;align-items:center;gap:3px;padding:10px 6px 8px;border-radius:14px;border:2px solid transparent;background:linear-gradient(160deg,color-mix(in srgb,var(--c1) 38%,transparent),color-mix(in srgb,var(--c2) 30%,transparent));color:var(--ink,#fff);cursor:pointer;text-align:center;font:inherit}
 .sktile b{font-size:.8rem;text-transform:uppercase;letter-spacing:.03em;line-height:1.15}.sktile small{font-size:.74rem;opacity:.85}.sktile em{font-style:normal;font-size:.68rem;opacity:.8}
+.skfull{display:block;width:100%;aspect-ratio:2/3;border-radius:10px;overflow:hidden;margin-bottom:4px}.skfull img{width:100%;height:100%;object-fit:cover;object-position:top;display:block}.skgrid:has(.skfull){grid-template-columns:repeat(auto-fill,minmax(132px,1fr))}
 .sktile.on{border-color:#fff;box-shadow:0 0 0 2px var(--c1),0 0 18px color-mix(in srgb,var(--c1) 60%,transparent)}.sktile.lock{filter:grayscale(.85);opacity:.55;cursor:not-allowed}.sktile:focus-visible{outline:2px solid var(--accent-cyan);outline-offset:2px}
 .ctas [hidden]{display:none!important}.ctas a.cta{color:inherit}
 .games{max-width:var(--content-max)!important}
@@ -918,13 +919,25 @@ a.logo{text-decoration:none;color:inherit}a.logo:focus-visible{outline:2px solid
     ["animaux", "Animaux", [
       ["chat", "Le Chat bibliothécaire", [["classique", "Classique", "pc"], ["pyjama", "Pyjama", "rare"], ["mage", "Chat mage", "leg"]]],
       ["renard", "Le Renard bluffeur", [["classique", "Classique", "rare"], ["gentleman", "Gentleman", "epi"], ["neige", "Renard des neiges", "epi"]]],
-      ["chouette", "La Chouette savante", [["classique", "Classique", "rare"], ["exploratrice", "Exploratrice", "epi"], ["nuit", "Gardienne de la nuit", "leg"]]]]]
+      ["chouette", "La Chouette savante", [["classique", "Classique", "rare"], ["exploratrice", "Exploratrice", "epi"], ["nuit", "Gardienne de la nuit", "leg"]]]]],
+    // série en pied (8/11/2026) : image du visage pour les avatars, image en pied (-full) pour le casier
+    ["chasseurs", "Les Chasseurs de mots", [
+      ["streameuse", "Zoé, la Streameuse", [["classique", "Classique", "epi"]]],
+      ["jardinier", "Le Jardinier des mots", [["classique", "Classique", "leg"]]],
+      ["tigre", "Le Tigre arbitre", [["classique", "Classique", "epi"]]],
+      ["poetesse", "La Poétesse des abysses", [["classique", "Classique", "leg"]]],
+      ["bibliothecaire", "Mamie Bibliothécaire", [["classique", "Classique", "rare"]]],
+      ["boulanger", "Le Boulanger des lettres", [["classique", "Classique", "rare"]]],
+      ["cartographe", "La Cartographe", [["classique", "Classique", "epi"]]],
+      ["champion", "Le Champion en fauteuil", [["classique", "Classique", "leg"]]],
+      ["conteur", "Le Papy conteur", [["classique", "Classique", "epi"]]],
+      ["lina", "Lina, la petite championne", [["classique", "Classique", "rare"]]]]]
   ];
   var LIST = [], BY = {};
   SERIES.forEach(function (s) {
     s[2].forEach(function (k) {
       k[2].forEach(function (h) {
-        var o = { id: k[0] + "/" + h[0], serie: s[0], serieNom: s[1], skin: k[0], skinNom: k[1], hab: h[0], habNom: h[1], rar: h[2], file: s[0] + "-" + k[0] + "-" + h[0] + ".jpg" };
+        var o = { id: k[0] + "/" + h[0], serie: s[0], serieNom: s[1], skin: k[0], skinNom: k[1], hab: h[0], habNom: h[1], rar: h[2], file: s[0] + "-" + k[0] + "-" + h[0] + ".jpg", full: s[0] === "chasseurs" ? s[0] + "-" + k[0] + "-" + h[0] + "-full.jpg" : "" };
         LIST.push(o); BY[o.id] = o;
       });
     });
@@ -1198,7 +1211,7 @@ function openSkins(){if(!ME||ME.stale)return;const box=$("#skins"),tot=(PTS&&PTS
   $("#skSub").textContent=n+" habillage"+(n>1?"s":"")+" débloqué"+(n>1?"s":"")+" sur "+SKINS.LIST.length+" · "+fmtN(tot)+" points";
   $("#skList").innerHTML=ser.map(s=>'<h4 class="sksr">'+esc(s.nom)+'</h4><div class="skgrid">'+s.l.map(o=>{const ok=SKINS.unlocked(o.id,tot,mois)||o.id===ME.skin,on=o.id===ME.skin,r=SKINS.RAR[o.rar];
     return'<button type="button" class="sktile'+(on?" on":"")+(ok?"":" lock")+'" data-id="'+o.id+'" style="--c1:'+r.c1+';--c2:'+r.c2+'" aria-pressed="'+on+'"'+(ok?"":' aria-disabled="true"')+' title="'+esc(o.skinNom+" · "+o.habNom+(ok?"":" — "+SKINS.condition(o.id)))+'">'
-      +skinAv(o.id,"?","skav big")+'<b>'+esc(o.skinNom.replace(/^(La |Le |L')/,""))+'</b><small>'+esc(o.habNom)+'</small><em>'+(ok?r.nom:"🔒 "+SKINS.condition(o.id))+'</em></button>'}).join("")+'</div>').join("");
+      +(o.full?'<span class="skfull" style="background:linear-gradient(160deg,'+r.c1+','+r.c2+')"><img src="/d/skins/'+o.full+'" alt="" loading="lazy" onerror="this.remove()"></span>':skinAv(o.id,"?","skav big"))+'<b>'+esc(o.skinNom.replace(/^(La |Le |L')/,""))+'</b><small>'+esc(o.habNom)+'</small><em>'+(ok?r.nom:"🔒 "+SKINS.condition(o.id))+'</em></button>'}).join("")+'</div>').join("");
   $("#skNone").hidden=!ME.skin;$("#skErr").textContent="";
   $$("#skList .sktile").forEach(b=>b.onclick=()=>{if(b.classList.contains("lock")){$("#skErr").textContent="« "+b.title.split(" — ")[0]+" » : "+SKINS.condition(b.dataset.id)+".";return}pickSkin(b.dataset.id)});
   box.classList.add("on")}
