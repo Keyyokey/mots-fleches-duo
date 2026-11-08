@@ -1241,23 +1241,18 @@ $("#ctaPlay").onclick=()=>pickGame(null,"solo");{const lh=$("#logoHome");if(lh&&
 $("#ctaResume").onclick=()=>{const r=document.querySelector('.tile [data-mode="resume"]');if(r)r.click()};
 function renderCta(){const has=!!document.querySelector('.tile [data-mode="resume"]');$("#ctaResume").hidden=!has;$("#ctaDisc").hidden=has}
 const TODAY=(()=>{const d=new Date();return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0")})();
-const motState=()=>{try{return JSON.parse(localStorage.getItem("mot-"+TODAY)||"null")}catch(e){return null}};
-const motStats=()=>{try{return JSON.parse(localStorage.getItem("mot-stats")||"null")}catch(e){return null}};
 function renderKpi(){const box=$("#cKpi");if(!box)return;
   if(!ME||ME.stale){box.innerHTML='<button class="btn primary" id="kLogin" type="button" style="grid-column:1/-1">Créer mon pseudo / me connecter</button>';$("#kLogin").onclick=()=>{const b=document.querySelector(".me-pill");if(b)b.click()};return}
   if(!PTS){box.innerHTML="";return}
-  const dkey=new Date(Date.now()+3600e3).toISOString().slice(0,10),today=Object.values((PTS.d||{})[dkey]||{}).reduce((a,b)=>a+(+b||0),0),ms=motStats();
-  box.innerHTML='<div class="kpi green"><small>Points au total</small><b>'+fmtN(PTS.tot||0)+'</b></div><div class="kpi"><small>Aujourd\'hui</small><b>'+(today>0?"+":"")+fmtN(today)+'</b></div>'
-    +(typeof COINS==="number"?'<div class="kpi gold"><small>Jetons</small><b>🪙 '+fmtN(COINS)+'</b></div>':'')
-    +'<div class="kpi"><small>Série mot du jour</small><b>'+((ms&&ms.streak)||0)+' j</b></div>'}
-function renderDefi(){const box=$("#cDefi");if(!box)return;const st=motState(),ms=motStats();
-  let h='<div class="defi"><div class="row"><b>Le mot du jour</b><span class="note">5 lettres · 6 essais</span></div>';
-  if(st&&st.done)h+=st.win?'<div>✅ Trouvé en <b>'+st.rows.length+'</b> essai'+(st.rows.length>1?"s":"")+' aujourd\'hui. Reviens demain !</div>':'<div>Pas trouvé aujourd\'hui. Un nouveau mot t\'attend demain.</div>';
-  else if(st&&st.rows&&st.rows.length)h+='<div class="row"><span>En cours : <b>'+st.rows.length+'</b> / 6 essais</span></div><div class="bar" role="progressbar" aria-valuemin="0" aria-valuemax="6" aria-valuenow="'+st.rows.length+'"><u style="width:'+Math.round(st.rows.length/6*100)+'%"></u></div>';
-  else h+='<div class="note">Un nouveau mot chaque jour, le même pour tout le monde.</div>';
-  if(ms&&ms.played)h+='<div class="note">Série en cours : <b>'+(ms.streak||0)+'</b> j · meilleure : '+(ms.best||0)+' j · '+ms.won+'/'+ms.played+' trouvés</div>';
-  h+=(st&&st.done)?'':'<div class="row"><a class="btn primary" href="'+"/mot"+'">'+(st&&st.rows&&st.rows.length?"Continuer":"Jouer au mot du jour")+'</a></div>';
-  box.innerHTML=h+'</div>'}
+  const dkey=new Date(Date.now()+3600e3).toISOString().slice(0,10),today=Object.values((PTS.d||{})[dkey]||{}).reduce((a,b)=>a+(+b||0),0);
+  box.innerHTML='<div class="kpi green" style="grid-column:1/-1"><small>Points au total</small><b>'+fmtN(PTS.tot||0)+'</b></div><div class="kpi"><small>Aujourd\'hui</small><b>'+(today>0?"+":"")+fmtN(today)+'</b></div>'
+    +(typeof COINS==="number"?'<div class="kpi gold"><small>Jetons</small><b>🪙 '+fmtN(COINS)+'</b></div>':'')}
+// défi du jour : la même grille de mots fléchés (niveau normal) pour tout le monde, qui change chaque jour à minuit
+function renderDefi(){const box=$("#cDefi");if(!box)return;
+  const [y,m,d]=TODAY.split("-").map(Number),day=Math.floor(Date.UTC(y,m-1,d)/864e5),N=GAMES.fleches.lv[1][2],n=(day*37)%N+1;
+  box.innerHTML='<div class="defi"><div class="row"><b>📅 La grille du jour</b><span class="note">Mots fléchés · Normal · n°'+n+'</span></div>'
+    +'<div class="note">La même grille pour tout le monde aujourd\'hui. Une nouvelle demain.</div>'
+    +'<div class="row"><a class="btn primary" href="/fleches?go=solo&lvl=normal&n='+n+'">Jouer la grille du jour</a></div></div>'}
 renderDefi();renderKpi();
 function renderResume(){$$(".tile").forEach(t=>{const k=t.dataset.key;let on=false;
   const docs=Object.assign({},(()=>{try{return JSON.parse(LS.get("fl-salon-"+CODE)||"{}").docs||{}}catch(e){return{}}})(),CODE?DOCS:{});

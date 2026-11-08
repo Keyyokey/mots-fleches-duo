@@ -14,7 +14,6 @@ const makeCatalog = require("./catalog");
 const PORT = process.env.PORT || 3000;
 const DATA_DIR = process.env.DATA_DIR || path.join(__dirname, "data");
 const SAVE_FILE = path.join(DATA_DIR, "salons.json");
-const PAGE = path.join(__dirname, "public", "index.html");
 const HOME = path.join(__dirname, "public", "accueil.html");
 // adresse du joueur : en ligne, l'en-tête posé par le relais de Render (Cloudflare) fait foi ; X-Forwarded-For seulement à défaut (le navigateur peut l'inventer)
 function clientIp(req) { const h = req.headers, cf = h["cf-connecting-ip"] || h["true-client-ip"]; if (cf) return String(cf).trim().slice(0, 64); return String(h["x-forwarded-for"] || req.socket.remoteAddress || "").split(",")[0].trim().slice(0, 64); }
@@ -734,7 +733,7 @@ function pack(raw) {
 }
 // ---------- référencement : adresse canonique, aperçu de partage, robots.txt, sitemap.xml ----------
 const SITE = (process.env.SITE_URL || "https://mots-fleches-duo.onrender.com").replace(/\/$/, "");
-const CANON = { "accueil.html": "/", "fl.html": "/fleches", "rd.html": "/rond", "mm.html": "/meles", "cg.html": "/culture", "poker.html": "/poker", "mot.html": "/mot" };
+const CANON = { "accueil.html": "/", "fl.html": "/fleches", "rd.html": "/rond", "mm.html": "/meles", "cg.html": "/culture", "poker.html": "/poker" };
 function seoTags(file, txt) {
   const c = CANON[path.basename(file)]; if (c === undefined) return "";
   const t = (txt.match(/<title>([^<]*)<\/title>/) || [])[1] || "Mots Fléchés Duo";
@@ -742,7 +741,7 @@ function seoTags(file, txt) {
   const u = SITE + c;
   return '\n<link rel="canonical" href="' + u + '"><meta property="og:type" content="website"><meta property="og:site_name" content="Mots Fléchés Duo"><meta property="og:locale" content="fr_FR"><meta property="og:url" content="' + u + '"><meta property="og:title" content="' + t + '"><meta property="og:description" content="' + d + '"><meta name="twitter:card" content="summary">';
 }
-const SITEMAP_PATHS = ["/", "/fleches", "/rond", "/meles", "/culture", "/poker", "/mot"];
+const SITEMAP_PATHS = ["/", "/fleches", "/rond", "/meles", "/culture", "/poker"];
 function page(file, inject) {
   const st = fs.statSync(file);
   const c = pages[file];
@@ -787,10 +786,11 @@ const server = http.createServer((req, res) => {
   if (url.pathname === "/sitemap.xml") {
     const day = new Date().toISOString().slice(0, 10);
     res.writeHead(200, { "content-type": "application/xml; charset=utf-8", "cache-control": "public, max-age=86400" });
-    return res.end('<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n' + SITEMAP_PATHS.map(p => "  <url><loc>" + SITE + p + "</loc><lastmod>" + day + "</lastmod><changefreq>" + (p === "/mot" ? "daily" : "weekly") + "</changefreq><priority>" + (p === "/" ? "1.0" : "0.8") + "</priority></url>").join("\n") + "\n</urlset>\n");
+    return res.end('<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n' + SITEMAP_PATHS.map(p => "  <url><loc>" + SITE + p + "</loc><lastmod>" + day + "</lastmod><changefreq>" + "weekly" + "</changefreq><priority>" + (p === "/" ? "1.0" : "0.8") + "</priority></url>").join("\n") + "\n</urlset>\n");
   }
   if (url.pathname === "/maquette" || url.pathname === "/maquette/") return sendPage(req, res, path.join(__dirname, "public", "maquette.html"));
-  if (url.pathname === "/mot" || url.pathname === "/mot/") return sendPage(req, res, path.join(__dirname, "public", "mot.html"));
+  // le mot du jour a été retiré le 8/11/2026 : les anciens liens ramènent à l'accueil
+  if (url.pathname === "/mot" || url.pathname === "/mot/") { res.writeHead(301, { location: "/" }); return res.end(); }
   if (/^\/(?:[A-Za-z0-9]{5}\/)?rond\/?$/.test(url.pathname)) return sendPage(req, res, path.join(__dirname, "public", "rd.html"));
   if (/^\/(?:[A-Za-z0-9]{5}\/)?meles\/?$/.test(url.pathname)) return sendPage(req, res, path.join(__dirname, "public", "mm.html"));
   // icône du site (onglet du navigateur)
