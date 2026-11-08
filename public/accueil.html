@@ -715,6 +715,14 @@ body.nodeco .blob{opacity:.35}
 a.logo{text-decoration:none;color:inherit}a.logo:focus-visible{outline:2px solid var(--accent-cyan);outline-offset:3px}
 .abtn.abtn-s{width:auto;padding:6px 14px;font-size:.82em;background:rgba(255,255,255,.1)}#cfgMode{margin-bottom:10px}
 .tuto{max-width:420px;text-align:center}.tutohd{display:flex;justify-content:space-between;align-items:center}.tutox{margin-top:10px;background:none;border:0;color:var(--muted,#a9b3c7);text-decoration:underline;font-size:.85rem;cursor:pointer}.tutoico{font-size:2.6rem;margin:6px 0 2px}#tutoP{font-size:1rem;line-height:1.5;min-height:4.5em;color:var(--ink)}.tutodots{display:flex;gap:6px;justify-content:center;margin:8px 0 12px}.tutodots i{width:8px;height:8px;border-radius:50%;background:rgba(255,255,255,.25)}.tutodots i.on{background:var(--accent-cyan,#17B9C5)}.tutobt{display:flex;gap:8px;justify-content:center}.tutobt [hidden]{display:none}
+.skav{position:relative;display:inline-grid;place-items:center;width:34px;height:34px;border-radius:50%;overflow:hidden;flex:none;color:#fff;font-weight:800;background:linear-gradient(135deg,#1f7a86,#2b9aa6)}.skav i{font-style:normal}.skav img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}.skav.sm{width:24px;height:24px;font-size:.7rem;margin-right:6px}.skav.big{width:56px;height:56px;font-size:1.5rem;border-radius:14px}
+.av-me.hasskin{position:relative;overflow:hidden}.av-me.hasskin i{font-style:normal}.av-me.hasskin img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.skbtn{display:flex;align-items:center;gap:10px;width:100%;text-align:left;margin:6px 0 10px}.skbtn span{display:flex;flex-direction:column}.skbtn small{font-weight:500;opacity:.75;font-size:.78rem}
+.skbox{max-width:760px;width:calc(100% - 24px)}.skscroll{max-height:min(62vh,560px);overflow:auto;padding-right:4px;margin:8px 0}.sksr{margin:12px 0 6px;font-size:.9rem;letter-spacing:.06em;text-transform:uppercase;opacity:.8}
+.skgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(112px,1fr));gap:8px}
+.sktile{display:flex;flex-direction:column;align-items:center;gap:3px;padding:10px 6px 8px;border-radius:14px;border:2px solid transparent;background:linear-gradient(160deg,color-mix(in srgb,var(--c1) 38%,transparent),color-mix(in srgb,var(--c2) 30%,transparent));color:var(--ink,#fff);cursor:pointer;text-align:center;font:inherit}
+.sktile b{font-size:.8rem;text-transform:uppercase;letter-spacing:.03em;line-height:1.15}.sktile small{font-size:.74rem;opacity:.85}.sktile em{font-style:normal;font-size:.68rem;opacity:.8}
+.sktile.on{border-color:#fff;box-shadow:0 0 0 2px var(--c1),0 0 18px color-mix(in srgb,var(--c1) 60%,transparent)}.sktile.lock{filter:grayscale(.85);opacity:.55;cursor:not-allowed}.sktile:focus-visible{outline:2px solid var(--accent-cyan);outline-offset:2px}
 .ctas [hidden]{display:none!important}.ctas a.cta{color:inherit}
 .games{max-width:var(--content-max)!important}
 .ctas .btn.primary{box-shadow:0 0 0 0 rgba(23,185,197,.5);animation:ctaglow 3.2s ease-in-out infinite}
@@ -842,6 +850,11 @@ a.logo{text-decoration:none;color:inherit}a.logo:focus-visible{outline:2px solid
   <div class="gpick" id="pickL"></div>
   <button class="btn" id="pickX">Annuler</button>
 </div></div>
+<div class="overlay" id="skins" role="dialog" aria-modal="true" aria-labelledby="skT"><div class="glass sheet skbox">
+  <h3 id="skT">🎭 Mes skins</h3><div class="note" id="skSub"></div>
+  <div class="skscroll" id="skList"></div><div class="err" id="skErr"></div>
+  <div class="tutobt"><button class="btn" id="skNone" type="button" onclick="pickSkin('')">Retirer mon skin</button><button class="btn primary" type="button" onclick="document.getElementById('skins').classList.remove('on')">Fermer</button></div>
+</div></div>
 <div class="overlay" id="tuto" role="dialog" aria-modal="true" aria-labelledby="tutoT"><div class="glass sheet tuto">
   <div class="tutohd"><span class="tag2" id="tutoN">1/3</span></div>
   <div class="tutoico" id="tutoI">🎯</div><h3 id="tutoT">Comment jouer</h3><p class="note" id="tutoP"></p>
@@ -867,6 +880,70 @@ a.logo{text-decoration:none;color:inherit}a.logo:focus-visible{outline:2px solid
 <div class="overlay" id="mini"><div class="glass sheet"><h3 id="miniT"></h3><div class="note" id="miniB"></div><button class="btn primary" id="miniX">Fermer</button></div></div>
 
 <script>
+// Catalogue des skins et de leurs habillages (document « Skins & habillages », 8/11/2026).
+// Identifiant d'un habillage : "skin/habillage". Image : /d/skins/<serie>-<skin>-<habillage>.png (fond de couleur)
+// et /d/skins/t/<même nom>.png (fond transparent, autour de la table du poker). Tant qu'une image manque,
+// le site affiche l'initiale du skin sur la couleur de sa rareté.
+(function (root) {
+  var RAR = {
+    pc: { nom: "Peu commun", c1: "#22BD92", c2: "#0f6b54", pts: 0 },
+    rare: { nom: "Rare", c1: "#17B9C5", c2: "#0b5f7a", pts: 500 },
+    epi: { nom: "Épique", c1: "#9167F1", c2: "#4b2a9c", pts: 2000 },
+    leg: { nom: "Légendaire", c1: "#F4BE4D", c2: "#b06d12", pts: 5000 },
+    hiv: { nom: "Hiver", c1: "#9FD8F0", c2: "#3d7fa8", pts: 0, mois: 12 }
+  };
+  var SERIES = [
+    ["lettres", "Lettrés", [
+      ["professeure", "La Professeure", [["classique", "Classique", "pc"], ["diplomes", "Remise des diplômes", "epi"], ["bibliotheque", "Bibliothèque de nuit", "leg"]]],
+      ["ecrivain", "L'Écrivain", [["classique", "Classique", "rare"], ["voyage", "En voyage", "epi"], ["encre", "Maître de l'encre", "leg"]]],
+      ["lectrice", "La Lectrice", [["classique", "Classique", "pc"], ["conte", "Conte", "rare"], ["gardienne", "Gardienne des mots", "leg"]]],
+      ["cruciverbiste", "Le Cruciverbiste", [["classique", "Classique", "rare"], ["dimanche", "Dimanche matin", "epi"], ["maitre", "Grand maître", "leg"]]]]],
+    ["cartes", "Cartes & Bluff", [
+      ["stratege", "Le Stratège", [["classique", "Classique", "rare"], ["decontracte", "Décontracté", "epi"], ["tournoi", "Grand tournoi", "leg"]]],
+      ["reine", "La Reine du bluff", [["classique", "Classique", "epi"], ["masque", "Bal masqué", "epi"], ["coeur", "Reine de cœur", "leg"]]],
+      ["croupier", "Le Croupier", [["classique", "Classique", "pc"], ["neon", "Casino néon", "epi"], ["hasard", "Maître du hasard", "leg"]]],
+      ["ombre", "L'Ombre", [["classique", "Classique", "epi"], ["blanche", "Ombre blanche", "epi"], ["doree", "Ombre dorée", "leg"]]]]],
+    ["rue", "Rue", [
+      ["casquette", "La Joueuse en casquette", [["classique", "Classique", "pc"], ["skate", "Skate", "rare"], ["neon", "Néon", "epi"]]],
+      ["rookie", "Le Rookie", [["classique", "Classique", "pc"], ["gamer", "Gamer", "rare"], ["champion", "Champion junior", "epi"]]],
+      ["voyageuse", "La Voyageuse", [["classique", "Classique", "rare"], ["desert", "Désert", "epi"], ["epices", "Marché aux épices", "leg"]]],
+      ["dj", "Le DJ", [["classique", "Classique", "rare"], ["festival", "Festival", "epi"], ["cosmique", "Platines cosmiques", "leg"]]]]],
+    ["hiver", "Hiver", [
+      ["patineuse", "La Patineuse", [["classique", "Classique", "hiv"], ["aurore", "Aurore boréale", "hiv"], ["reine", "Reine des glaces", "hiv"]]],
+      ["montagnard", "Le Montagnard", [["classique", "Classique", "hiv"], ["sommet", "Sommet", "hiv"], ["esprit", "Esprit des neiges", "hiv"]]],
+      ["bonhomme", "Le Bonhomme de neige farceur", [["classique", "Classique", "hiv"], ["fete", "Fête", "hiv"], ["roi", "Roi de l'hiver", "hiv"]]]]],
+    ["robots", "Robots", [
+      ["leo", "Léo", [["classique", "Classique", "pc"], ["retro", "Rétro", "epi"], ["dore", "Léo doré", "leg"]]],
+      ["lexi", "Lexi", [["classique", "Classique", "rare"], ["bibliothecaire", "Bibliothécaire", "epi"], ["cristal", "Lexi cristal", "leg"]]]]],
+    ["animaux", "Animaux", [
+      ["chat", "Le Chat bibliothécaire", [["classique", "Classique", "pc"], ["pyjama", "Pyjama", "rare"], ["mage", "Chat mage", "leg"]]],
+      ["renard", "Le Renard bluffeur", [["classique", "Classique", "rare"], ["gentleman", "Gentleman", "epi"], ["neige", "Renard des neiges", "epi"]]],
+      ["chouette", "La Chouette savante", [["classique", "Classique", "rare"], ["exploratrice", "Exploratrice", "epi"], ["nuit", "Gardienne de la nuit", "leg"]]]]]
+  ];
+  var LIST = [], BY = {};
+  SERIES.forEach(function (s) {
+    s[2].forEach(function (k) {
+      k[2].forEach(function (h) {
+        var o = { id: k[0] + "/" + h[0], serie: s[0], serieNom: s[1], skin: k[0], skinNom: k[1], hab: h[0], habNom: h[1], rar: h[2], file: s[0] + "-" + k[0] + "-" + h[0] + ".png" };
+        LIST.push(o); BY[o.id] = o;
+      });
+    });
+  });
+  // débloqué ? tot = points au total du joueur ; mois = 1..12 (mois en cours, heure de Paris)
+  function unlocked(id, tot, mois) {
+    var o = BY[id]; if (!o) return false; var r = RAR[o.rar];
+    if (r.mois) return mois === r.mois;
+    return (Number(tot) || 0) >= r.pts;
+  }
+  function condition(id) {
+    var o = BY[id]; if (!o) return ""; var r = RAR[o.rar];
+    if (r.mois) return "Seulement en décembre";
+    return r.pts ? "Dès " + r.pts.toLocaleString("fr-FR") + " points" : "Offert";
+  }
+  var api = { RAR: RAR, LIST: LIST, BY: BY, unlocked: unlocked, condition: condition };
+  if (typeof module !== "undefined" && module.exports) module.exports = api; else root.SKINS = api;
+})(this);
+
 // ---------- icônes « verre » de l'en-tête (relief, dégradé, reflet, halo) ----------
 const ICO=(()=>{let n=0;
   // chaque appel crée des identifiants neufs (une icône cachée ne casse pas les autres) ; g : [clair, moyen, foncé] ; glow : couleur du halo ; body : formes (utilisent fill="url(#B)") ; gloss : formes recouvertes du reflet
@@ -969,8 +1046,9 @@ function makeAcctUI(env){
           else{er2.innerHTML=say(r);(r.field==="pin"?nc:nn).focus()}};
         p.querySelector("#nwGo").onclick=go2;nc.onkeydown=e=>{if(e.key==="Enter")go2()};setTimeout(()=>nn.focus(),50)}}
     else{const L=ME.salons||[];
-      p.innerHTML='<h4>Bonjour '+esc(ME.name)+' 👋</h4><div class="note">Mes salons</div><div class="list">'+(L.length?rows(L):'<div class="note">Tu n\'as accès à aucun salon pour le moment.</div>')+'</div>'+(env.homeUrl?'<button class="btn" id="meHome">🏠 Accueil</button>':"")+'<button class="lnk" id="meOut">Se déconnecter</button>';
+      p.innerHTML='<h4>Bonjour '+esc(ME.name)+' 👋</h4>'+(env.skins?'<button class="btn skbtn" id="meSkin" type="button">'+env.skins.av()+'<span>🎭 Mon skin<small>'+env.skins.label()+'</small></span></button>':'')+'<div class="note">Mes salons</div><div class="list">'+(L.length?rows(L):'<div class="note">Tu n\'as accès à aucun salon pour le moment.</div>')+'</div>'+(env.homeUrl?'<button class="btn" id="meHome">🏠 Accueil</button>':"")+'<button class="lnk" id="meOut">Se déconnecter</button>';
       p.querySelectorAll(".sl").forEach(b=>b.onclick=()=>openRoom(b.dataset.c));
+      const sk=p.querySelector("#meSkin");if(sk)sk.onclick=()=>{env.hide(p);env.skins.open()};
       const h=p.querySelector("#meHome");if(h)h.onclick=()=>{location.href=env.homeUrl()};
       p.querySelector("#meOut").onclick=async()=>{await env.call("logout",{name:ME.name,token:ME.token});env.setME(null);env.hide(p);env.onLogout()}}
     env.hide(env.q("#popSalon"));env.place(p,btn);env.show(p);const f=p.querySelector("input");if(f)setTimeout(()=>f.focus(),50)}
@@ -1110,7 +1188,26 @@ function renderPeers(){const box=$("#cPeers");if(!CODE||!ROOM){box.innerHTML='<d
     +(rows.length<2?'<div class="row"><span class="dot" style="background:var(--muted);box-shadow:none"></span><span class="nm note">En attente d\'un joueur… <a href="#" id="invLink">inviter</a></span></div>':"");
   box.querySelectorAll(".plus").forEach(b=>b.onclick=()=>pickGame(b.dataset.n));
   const il=$("#invLink");if(il)il.onclick=e=>{e.preventDefault();share()}}
-function rankRows(list,meName){return list.map((r,i)=>'<div class="row'+(meName&&r.name.toUpperCase()===meName?" me":"")+'"><span class="rank'+(r.rank<=3||i<3?" "+["g","s","b"][(r.rank||i+1)-1]:"")+'">'+(r.rank||i+1)+'</span><span class="nm">'+esc(r.name)+'</span><span class="pts">'+fmtN(r.pts)+'</span></div>').join("")}
+// ---------- skins ----------
+function setAv(el){if(!el)return;const id=ME&&ME.skin;const o=id&&window.SKINS&&SKINS.BY[id];if(!o){el.textContent=ME?ME.name[0]:"?";el.style.background="";el.classList.remove("hasskin");return}
+  const r=SKINS.RAR[o.rar];el.classList.add("hasskin");el.style.background="linear-gradient(135deg,"+r.c1+","+r.c2+")";el.innerHTML='<i>'+esc(o.skinNom.replace(/^(La |Le |L')/,"")[0])+'</i><img src="/d/skins/'+o.file+'" alt="" onerror="this.remove()">'}
+// casier « Mes skins » : choisir l'habillage affiché sur le profil
+function openSkins(){if(!ME||ME.stale)return;const box=$("#skins"),tot=(PTS&&PTS.tot)||0,mois=Number(new Date().toLocaleString("en-GB",{timeZone:"Europe/Paris",month:"numeric"}));
+  const ser=[];SKINS.LIST.forEach(o=>{let s=ser.find(x=>x.id===o.serie);if(!s)ser.push(s={id:o.serie,nom:o.serieNom,l:[]});s.l.push(o)});
+  const n=SKINS.LIST.filter(o=>SKINS.unlocked(o.id,tot,mois)).length;
+  $("#skSub").textContent=n+" habillage"+(n>1?"s":"")+" débloqué"+(n>1?"s":"")+" sur "+SKINS.LIST.length+" · "+fmtN(tot)+" points";
+  $("#skList").innerHTML=ser.map(s=>'<h4 class="sksr">'+esc(s.nom)+'</h4><div class="skgrid">'+s.l.map(o=>{const ok=SKINS.unlocked(o.id,tot,mois)||o.id===ME.skin,on=o.id===ME.skin,r=SKINS.RAR[o.rar];
+    return'<button type="button" class="sktile'+(on?" on":"")+(ok?"":" lock")+'" data-id="'+o.id+'" style="--c1:'+r.c1+';--c2:'+r.c2+'" aria-pressed="'+on+'"'+(ok?"":' aria-disabled="true"')+' title="'+esc(o.skinNom+" · "+o.habNom+(ok?"":" — "+SKINS.condition(o.id)))+'">'
+      +skinAv(o.id,"?","skav big")+'<b>'+esc(o.skinNom.replace(/^(La |Le |L')/,""))+'</b><small>'+esc(o.habNom)+'</small><em>'+(ok?r.nom:"🔒 "+SKINS.condition(o.id))+'</em></button>'}).join("")+'</div>').join("");
+  $("#skNone").hidden=!ME.skin;$("#skErr").textContent="";
+  $$("#skList .sktile").forEach(b=>b.onclick=()=>{if(b.classList.contains("lock")){$("#skErr").textContent="« "+b.title.split(" — ")[0]+" » : "+SKINS.condition(b.dataset.id)+".";return}pickSkin(b.dataset.id)});
+  box.classList.add("on")}
+async function pickSkin(id){const r=await call("skin",{name:ME.name,token:ME.token,skin:id});
+  if(r.status!==200){$("#skErr").textContent=r.error||"Impossible d'enregistrer le skin.";return}
+  ME.skin=r.skin||"";store();updPills();renderRank();openSkins();toast("🎭",ME.skin?"Skin choisi : <b>"+esc(SKINS.BY[ME.skin].skinNom+" · "+SKINS.BY[ME.skin].habNom)+"</b>":"Skin retiré")}
+function skinAv(id,fallback,cls){const o=id&&window.SKINS&&SKINS.BY[id];if(!o)return'<span class="'+(cls||"skav")+' noskin">'+esc((fallback||"?")[0])+'</span>';const r=SKINS.RAR[o.rar];
+  return'<span class="'+(cls||"skav")+'" style="background:linear-gradient(135deg,'+r.c1+','+r.c2+')" title="'+esc(o.skinNom+" · "+o.habNom)+'"><i>'+esc(o.skinNom.replace(/^(La |Le |L')/,"")[0])+'</i><img src="/d/skins/'+o.file+'" alt="" loading="lazy" onerror="this.remove()"></span>'}
+function rankRows(list,meName){return list.map((r,i)=>'<div class="row'+(meName&&r.name.toUpperCase()===meName?" me":"")+'"><span class="rank'+(r.rank<=3||i<3?" "+["g","s","b"][(r.rank||i+1)-1]:"")+'">'+(r.rank||i+1)+'</span>'+(r.skin?skinAv(r.skin,r.name,"skav sm"):"")+'<span class="nm">'+esc(r.name)+'</span><span class="pts">'+fmtN(r.pts)+'</span></div>').join("")}
 function renderSalon(){const box=$("#cSalon");{const sb=box.closest(".salonbox");if(sb)sb.classList.toggle("off",!CODE||!ROOM)}if(!CODE||!ROOM){box.innerHTML='<div class="note">Le classement apparaît ici dès que tu joues dans un salon.</div>';return}
   const st=DOCS.stats&&DOCS.stats.players?Object.values(DOCS.stats.players):[];
   if(!st.length){box.innerHTML='<div class="note">Pas encore de partie terminée dans ce salon.</div>';return}
@@ -1153,7 +1250,7 @@ function chart(i){const box=$("#chart"),sub=$("#chartSub"),tabs=$("#chartTabs");
 const curTab=()=>{const b=$("#chartTabs .on");const c=b?b.dataset.c:"0";return c==="t"?"t":+c};
 $$("#chartTabs button").forEach(b=>b.onclick=()=>{$$("#chartTabs button").forEach(x=>x.classList.toggle("on",x===b));chart(curTab())});
 async function loadMe(){if(!ME)return;const r=await call("me",{name:ME.name,token:ME.token});
-  if(r.status===200){if(Array.isArray(r.salons))ME.salons=r.salons;store();updPills();PTS=r.pts;if(typeof r.coins==="number")COINS=r.coins;SRVSOLO=new Set(r.solo||[]);renderResume();chart(curTab());renderKpi()}
+  if(r.status===200){if(Array.isArray(r.salons))ME.salons=r.salons;if(typeof r.skin==="string")ME.skin=r.skin;store();updPills();PTS=r.pts;if(typeof r.coins==="number")COINS=r.coins;SRVSOLO=new Set(r.solo||[]);renderResume();chart(curTab());renderKpi()}
   else if(r.status===401){ME.stale=true;store();chart(curTab())}}
 
 // ---------- fenêtres Pseudo et Salon ----------
@@ -1163,9 +1260,10 @@ $$(".pop").forEach(p=>p.addEventListener("click",e=>e.stopPropagation()));
 document.addEventListener("click",e=>{if(!e.target.closest(".pop")&&!e.target.closest(".me-pill")&&!e.target.closest(".salon-pill")&&!e.target.closest("#mMenu"))closePops()});
 addEventListener("keydown",e=>{if(e.key==="Escape"){closePops();$$(".overlay.on").forEach(o=>o.classList.remove("on"))}});
 const UI=makeAcctUI({q:s=>$(s),call,esc,toast,place,code:()=>CODE,getME:()=>ME,setME:o=>{ME=o;store();updPills()},
+  skins:{av:()=>skinAv(ME&&ME.skin,ME&&ME.name,"skav big"),label:()=>{const o=ME&&ME.skin&&SKINS.BY[ME.skin];return o?esc(o.skinNom+" · "+o.habNom):"Choisis ton personnage"},open:()=>openSkins()},
   show:p=>p.classList.add("on"),hide:p=>p.classList.remove("on"),onLogin:()=>{afterLogin();if(CODE&&!ws)connect();invite()},onLogout:()=>{PTS=null;COINS=null;setTimeout(renderKpi,0);ROOM=null;if(ws){ws.onclose=null;ws.close();ws=null}updPills();chart(0);renderRank();renderPeers();renderSalon()}});
 const openMe=UI.openMe,openSalon=UI.openSalon;
-function updPills(){const m=$(".me-pill");m.querySelector(".av-me").textContent=ME?ME.name[0]:"?";m.querySelector("b").textContent=ME?ME.name:"Pseudo";m.querySelector(".sub").textContent=ME?"· Ma page":"· Se connecter";
+function updPills(){const m=$(".me-pill");setAv(m.querySelector(".av-me"));m.querySelector("b").textContent=ME?ME.name:"Pseudo";m.querySelector(".sub").textContent=ME?"· Ma page":"· Se connecter";
   $(".salon-pill span").textContent=CODE?(salonName(CODE)||"Salon "+CODE):"Nom du salon"}
 $(".me-pill").onclick=e=>{e.stopPropagation();if($("#popMe").classList.contains("on"))return closePops();openMe(e.currentTarget)};
 $(".salon-pill").onclick=e=>{e.stopPropagation();if($("#popSalon").classList.contains("on"))return closePops();openSalon(e.currentTarget)};
@@ -1262,7 +1360,7 @@ $("#dim").addEventListener("click",()=>{closePops();$("#mMenu").classList.remove
 // ---------- menu du téléphone ----------
 (function(){const b=$("#mBtn"),m=$("#mMenu");const close=()=>{m.classList.remove("on");b.setAttribute("aria-expanded","false")};
   b.onclick=e=>{e.stopPropagation();const on=!m.classList.contains("on");closePops();m.classList.toggle("on",on);b.setAttribute("aria-expanded",String(on));
-    $("#mMe").textContent=ME?ME.name:"Pseudo";$("#mAv").textContent=ME?ME.name[0]:"?";$("#mMeSub").textContent=ME?"Ma page":"Se connecter · Ma page";$("#mSalon").textContent=CODE?(salonName(CODE)||"Salon "+CODE):"Nom du salon";
+    $("#mMe").textContent=ME?ME.name:"Pseudo";setAv($("#mAv"));$("#mMeSub").textContent=ME?"Ma page":"Se connecter · Ma page";$("#mSalon").textContent=CODE?(salonName(CODE)||"Salon "+CODE):"Nom du salon";
     hdrIcons()};
   m.addEventListener("click",e=>{e.stopPropagation();const a=e.target.closest("[data-act]")?.dataset.act;if(!a)return;
     if(a==="pseudo"){close();openMe(b)}else if(a==="salon"){close();openSalon(b)}else if(a==="share"){close();share()}

@@ -522,6 +522,15 @@ async function backupPlayers() {
 }
 const backupReady = backupPlayers();
 // ---------- points des joueurs (classement général, progression) ----------
+const SKINS = require("./public/d/skins.js");   // catalogue des skins (partagé avec les pages)
+const skinMem = new Map();           // pseudo -> habillage porté (pour le classement)
+const moisParis = () => Number(new Date().toLocaleString("en-GB", { timeZone: "Europe/Paris", month: "numeric" }));
+async function skinsOf(names) {
+  const out = {}; names.forEach(n => { if (skinMem.has(n)) out[n] = skinMem.get(n); });
+  const miss = names.filter(n => !(n in out));
+  if (REDIS && miss.length) { try { const r = await redis(["HMGET", "skins", ...miss]); miss.forEach((n, i) => { if (r[i]) { out[n] = r[i]; skinMem.set(n, r[i]); } }); } catch (e) { console.error("Skins Redis :", e.message); } }
+  return out;
+}
 const rankMem = new Map();           // pseudo -> total (secours sans Redis)
 const DAYKEY = () => new Date(Date.now() + 3600e3).toISOString().slice(0, 10);
 const SOLO_MULT = { facile: 1, normal: 1.5, moyen: 1.5, difficile: 2 };
@@ -568,6 +577,7 @@ async function topRank(me) {
       const r = await redis(["ZREVRANGE", "rank", "0", "9", "WITHSCORES"]);
       for (let i = 0; i < r.length; i += 2) top.push({ name: r[i], pts: Math.round(Number(r[i + 1])) });
       if (me) { const [rk, sc] = await Promise.all([redis(["ZREVRANK", "rank", me]), redis(["ZSCORE", "rank", me])]); if (rk !== null && rk !== undefined) mine = { name: me, rank: Number(rk) + 1, pts: Math.round(Number(sc)) }; }
+      const sk = await skinsOf(top.map(x => x.name).concat(mine ? [mine.name] : [])); top.forEach(x => { if (sk[x.name]) x.skin = sk[x.name]; }); if (mine && sk[mine.name]) mine.skin = sk[mine.name];
       return { top, me: mine };
     } catch (e) { console.error("Classement Redis :", e.message); }
   }
@@ -651,7 +661,17 @@ async function api(req, res, route) {
   }
   if (!authed()) return out(401, { error: "jeton", msg: "Reconnecte-toi avec ton code secret." });
   if (["salons", "sjoin", "screate", "skick", "scode", "sleave"].includes(route)) return void await salonApi(route, name, p, b, ip, out, bad);
-  if (route === "me") { let list = null; try { list = await salonList(name, p); } catch {} return out(200, { name, salons: list, pts: ptsOut(p), solo: Object.keys(p.solo || {}), coins: ensureWallet(p).coins }); }
+  if (route === "me") { let list = null; try { list = await salonList(name, p); } catch {} return out(200, { name, salons: list, pts: ptsOut(p), solo: Object.keys(p.solo || {}), coins: ensureWallet(p).coins, skin: p.skin || "" }); }
+  // skin du profil : le serveur vérifie que l'habillage existe et qu'il est débloqué (points au total, ou mois de décembre pour l'Hiver)
+  if (route === "skin") {
+    const id = String(b.skin || "");
+    if (id && !SKINS.BY[id]) return out(400, { error: "Habillage inconnu." });
+    if (id && id !== p.skin && !SKINS.unlocked(id, (p.pts && p.pts.tot) || 0, moisParis())) return out(403, { error: "Habillage pas encore débloqué : " + SKINS.condition(id) + "." });
+    if (id) p.skin = id; else delete p.skin;
+    savePlayer(name); skinMem.set(name, id);
+    if (REDIS) (id ? redis(["HSET", "skins", name, id]) : redis(["HDEL", "skins", name])).catch(e => console.error("Skins Redis :", e.message));
+    return out(200, { ok: true, skin: id });
+  }
   if (route === "wallet" || route === "conv") {
     ensureWallet(p); p.cv = (p.cv || []).filter(x => Date.now() - x.t < 2 * 3600e3);
     const used = p.cv.reduce((a, x) => a + x.n, 0);
@@ -779,7 +799,7 @@ const server = http.createServer((req, res) => {
   // /healthz répond 503 si le stockage refuse l'accès : UptimeRobot (qui surveille /healthz) envoie alors une alerte par e-mail
   if (url.pathname === "/healthz" && url.searchParams.get("ip") === "1") { res.writeHead(200, { "content-type": "application/json", "cache-control": "no-store" }); return res.end(JSON.stringify(ipSource(req))); }   // quels en-têtes d'adresse arrivent (sans les valeurs)
   if (url.pathname === "/healthz") { const bad = REDIS && storage.ok === false; res.writeHead(bad ? 503 : 200, { "content-type": "text/plain; charset=utf-8" }); return res.end(bad ? "STOCKAGE KO depuis " + storage.since + " : " + storage.msg : "ok " + salons.size + (REDIS ? " redis" : "")); }
-  const am = url.pathname.match(/^\/api\/p\/(create|login|me|pin|logout|rank|score|wallet|conv|salons|sjoin|screate|skick|scode|sleave|hist|solo)$/);
+  const am = url.pathname.match(/^\/api\/p\/(create|login|me|pin|logout|rank|score|wallet|conv|salons|sjoin|screate|skick|scode|sleave|hist|solo|skin)$/);
   if (am) return void api(req, res, am[1]).catch(e => { console.error(e); try { res.writeHead(500); res.end("{}"); } catch {} });
   if (url.pathname.startsWith("/d/")) return sendStatic(req, res, url.pathname.slice(3));
   if (url.pathname === "/robots.txt") { res.writeHead(200, { "content-type": "text/plain; charset=utf-8", "cache-control": "public, max-age=86400" }); return res.end("User-agent: *\nAllow: /\nDisallow: /api/\nDisallow: /maquette\nDisallow: /healthz\n\nSitemap: " + SITE + "/sitemap.xml\n"); }
