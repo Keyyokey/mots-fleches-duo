@@ -1,11 +1,11 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-<meta name="description" content="Poker Lettres : le Texas Hold'em avec des lettres. Forme le meilleur mot, mise et bluffe, contre le robot ou entre amis.">
+<meta name="description" content="Wordflush : le Texas Hold'em avec des lettres. Forme le meilleur mot, mise et bluffe, contre le robot ou entre amis.">
 <link rel="icon" href="/favicon.ico">
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Poker Lettres — Mots Fléchés Duo</title>
+<title>Wordflush — Mots Fléchés Duo</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&family=Nunito:wght@600;800&family=Playfair+Display:wght@600;700;800&display=swap" rel="stylesheet">
 <style>
@@ -741,7 +741,7 @@ table.bar td,table.bar th{padding:5px 6px;border-bottom:1px solid rgba(255,255,2
 </header>
 <div class="hline"></div>
 <main class="view on" id="v-poker">
-  <div class="gtop"><a id="homeLink" hidden></a><button class="homebtn" id="homeBtn" title="Retour à l'accueil" aria-label="Retour à l'accueil"><svg viewBox="0 0 24 24"><path d="M3 11.2 12 4l9 7.2" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/><path d="M5.5 10v9.2h4.8v-5.6h3.4v5.6h4.8V10" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linejoin="round"/></svg></button><b class="gname">Poker <span style="color:var(--gold)">Lettres</span> <span class="hpill" id="pkMode">Table</span></b></div>
+  <div class="gtop"><a id="homeLink" hidden></a><button class="homebtn" id="homeBtn" title="Retour à l'accueil" aria-label="Retour à l'accueil"><svg viewBox="0 0 24 24"><path d="M3 11.2 12 4l9 7.2" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/><path d="M5.5 10v9.2h4.8v-5.6h3.4v5.6h4.8V10" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linejoin="round"/></svg></button><b class="gname">Word<span style="color:var(--gold)">flush</span> <span class="hpill" id="pkMode">Table</span></b></div>
   <div class="pk2">
     <div class="pkleft"><div class="pkfelt">
       <div class="seats pkopp" id="pkOpp"></div>
@@ -768,7 +768,7 @@ table.bar td,table.bar th{padding:5px 6px;border-bottom:1px solid rgba(255,255,2
       </div>
       <div class="glass pkcard" id="pkWordCard">
         <div class="flrow"><span class="tag2">Ton mot</span><span class="rclk pkwclk" id="pkWClk" style="display:none">0:45</span><button class="infobtn" id="pkInfoBtn" aria-expanded="false" title="Règles">i</button></div>
-        <div class="note flinfo" id="pkInfo"><b>Règles du Poker Lettres</b> <span class="rver">barème V2</span><br>• Comme au Texas Hold'em : 2 lettres cachées par joueur, 5 lettres communes retournées en 3 fois (3, puis 1, puis 1), un tour de mise à chaque fois.<br>• À ton tour : <b>parole</b> (rien à payer), <b>suivre</b>, <b>relancer du montant de ton choix</b> (au moins la relance minimale, au plus ton tapis), <b>tapis</b> ou <b>te coucher</b>. Temps limité pour décider, sinon tu te couches (ou tu dis « parole » si personne n'a misé).<br>• Si tous les autres se couchent, <b>tu gagnes le pot sans montrer ton mot</b> (bluff réussi).<br>• À la fin, chacun a <b>45 s pour taper et verrouiller son mot</b> (2 à 7 lettres) avec ses lettres et celles du milieu, <b>dont au moins une de ses lettres cachées</b>. Dès que tous ont verrouillé, on passe à l'abattage. Les autres voient seulement <b>combien de lettres</b> tu as verrouillées.<br>• <b>Score = valeur des lettres + bonus de longueur + bonus Main Pleine.</b> Bonus de longueur : 2 lettres +0 · 3 lettres +3 · 4 lettres +6 · 5 lettres +10 · 6 lettres +15 · 7 lettres +22. <b>Main Pleine : +5</b> si tes 2 lettres cachées sont dans ton mot.<br>• Le meilleur score gagne ; à égalité, <b>le mot le plus long</b> ; encore à égalité, le pot est partagé (le reste indivisible va dans la cagnotte).<br>• Mot inexistant, lettre absente ou aucune de tes lettres cachées : ton mot ne compte pas.<br>• <b>Cagnotte du salon</b> 🎰 : les pots que personne ne gagne (aucun mot valide) et les restes de partage l'alimentent. Elle est remportée par le gagnant de l'abattage qui joue un <b>mot de 6 ou 7 lettres</b> (jamais sur un abandon des autres).<br>• Après chaque coup, ton <b>Mot Max</b> s'affiche : le meilleur mot possible avec tes lettres, pour progresser.<br>• <b>Léo</b> est un robot : il ne voit que ses propres lettres et les lettres communes, comme toi. Trois niveaux : débutant, intermédiaire, confirmé.<br>• <b>Pots séparés</b> : un joueur à tapis ne peut gagner que ce qu'il a pu suivre.<br>• Si tous les joueurs quittent la table, <b>chacun récupère sa mise du coup</b>.<br>• <b>Tirage équitable</b> : paquet mélangé par le serveur avec un générateur cryptographique ; son empreinte est affichée avant le coup et le paquet dévoilé après.<br><span class="rver" id="pkDictV"></span></div>
+        <div class="note flinfo" id="pkInfo"><b>Règles de Wordflush</b> <span class="rver">barème V2</span><br>• Comme au Texas Hold'em : 2 lettres cachées par joueur, 5 lettres communes retournées en 3 fois (3, puis 1, puis 1), un tour de mise à chaque fois.<br>• À ton tour : <b>parole</b> (rien à payer), <b>suivre</b>, <b>relancer du montant de ton choix</b> (au moins la relance minimale, au plus ton tapis), <b>tapis</b> ou <b>te coucher</b>. Temps limité pour décider, sinon tu te couches (ou tu dis « parole » si personne n'a misé).<br>• Si tous les autres se couchent, <b>tu gagnes le pot sans montrer ton mot</b> (bluff réussi).<br>• À la fin, chacun a <b>45 s pour taper et verrouiller son mot</b> (2 à 7 lettres) avec ses lettres et celles du milieu, <b>dont au moins une de ses lettres cachées</b>. Dès que tous ont verrouillé, on passe à l'abattage. Les autres voient seulement <b>combien de lettres</b> tu as verrouillées.<br>• <b>Score = valeur des lettres + bonus de longueur + bonus Main Pleine.</b> Bonus de longueur : 2 lettres +0 · 3 lettres +3 · 4 lettres +6 · 5 lettres +10 · 6 lettres +15 · 7 lettres +22. <b>Main Pleine : +5</b> si tes 2 lettres cachées sont dans ton mot.<br>• Le meilleur score gagne ; à égalité, <b>le mot le plus long</b> ; encore à égalité, le pot est partagé (le reste indivisible va dans la cagnotte).<br>• Mot inexistant, lettre absente ou aucune de tes lettres cachées : ton mot ne compte pas.<br>• <b>Cagnotte du salon</b> 🎰 : les pots que personne ne gagne (aucun mot valide) et les restes de partage l'alimentent. Elle est remportée par le gagnant de l'abattage qui joue un <b>mot de 6 ou 7 lettres</b> (jamais sur un abandon des autres).<br>• Après chaque coup, ton <b>Mot Max</b> s'affiche : le meilleur mot possible avec tes lettres, pour progresser.<br>• <b>Léo</b> est un robot : il ne voit que ses propres lettres et les lettres communes, comme toi. Trois niveaux : débutant, intermédiaire, confirmé.<br>• <b>Pots séparés</b> : un joueur à tapis ne peut gagner que ce qu'il a pu suivre.<br>• Si tous les joueurs quittent la table, <b>chacun récupère sa mise du coup</b>.<br>• <b>Tirage équitable</b> : paquet mélangé par le serveur avec un générateur cryptographique ; son empreinte est affichée avant le coup et le paquet dévoilé après.<br><span class="rver" id="pkDictV"></span></div>
         <input class="pkin" id="pkIn" maxlength="7" autocomplete="off" autocapitalize="characters" spellcheck="false" placeholder="Tape ton mot">
         <div class="pkcalc" id="pkCalc">Score potentiel : lettres + bonus de longueur + bonus Main Pleine</div>
         <button class="btn" id="pkBest">Verrouiller ce mot</button>
@@ -795,7 +795,7 @@ table.bar td,table.bar th{padding:5px 6px;border-bottom:1px solid rgba(255,255,2
 <button class="btn primary" id="lvStay">Continuer à jouer</button><button class="btn" id="lvQuit">Quitter la table</button></div></div>
 <div class="overlay" id="cvWin"><div class="glass sheet"><h3>🪙 Points → jetons</h3><div id="cvBox"></div><button class="btn" id="cvClose">Fermer</button></div></div>
 <script>
-// ---------- Poker Lettres : page de jeu (le serveur tient le paquet, la page affiche et envoie les actions) ----------
+// ---------- Wordflush (ex-Poker Lettres) : page de jeu (le serveur tient le paquet, la page affiche et envoie les actions) ----------
 const $=s=>document.querySelector(s),$$=s=>[...document.querySelectorAll(s)];
 const LS={get(k){try{return localStorage.getItem(k)}catch(e){return null}},set(k,v){try{localStorage.setItem(k,v)}catch(e){}}};
 const esc=s=>String(s==null?"":s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
@@ -846,7 +846,7 @@ function card(ch,cls,key){return '<div class="card-l'+(cls?" "+cls:"")+'"'+(key?
 function fmt(ms){const s=Math.max(0,Math.ceil(ms/1000));return Math.floor(s/60)+":"+String(s%60).padStart(2,"0")}
 let skew=0;
 function render(){const st=ST;const lob=$("#pkLobby");if(st&&PREV&&st.hand!==PREV.hand&&$("#pkIn")){LOCKED="";$("#pkIn").value="";$("#pkBest").disabled=false;$("#pkBest").textContent="Verrouiller ce mot";typed();window.__autoSent=false}if(st&&PREV&&PREV.phase!=="abattage"&&st.phase==="abattage")RES0=Date.now();
-  if(!st){lob.innerHTML='<h3>Poker Lettres</h3><p class="note">Assieds-toi à la table de ce salon. La partie démarre quand vous êtes au moins deux (ou contre le robot en solo).</p><div class="pkrow"><button class="btn primary" id="lbSolo">👤 Jouer contre Léo</button>'+lvlSeg()+''+(SOLO?'':'<button class="btn" id="lbSit">👥 M\'asseoir à la table</button>')+'</div>';lob.hidden=false;bindLobby();renderDeck(null);return}
+  if(!st){lob.innerHTML='<h3>Wordflush</h3><p class="note">Assieds-toi à la table de ce salon. La partie démarre quand vous êtes au moins deux (ou contre le robot en solo).</p><div class="pkrow"><button class="btn primary" id="lbSolo">👤 Jouer contre Léo</button>'+lvlSeg()+''+(SOLO?'':'<button class="btn" id="lbSit">👥 M\'asseoir à la table</button>')+'</div>';lob.hidden=false;bindLobby();renderDeck(null);return}
   skew=st.now-Date.now();
   const me=st.me>=0?st.seats[st.me]:null;
   $("#pkMode").textContent=st.maxHands?"Coup "+Math.max(1,st.hand)+"/"+st.maxHands:"Coup "+Math.max(1,st.hand)+" · jusqu'au dernier";
@@ -905,7 +905,7 @@ function bindLobby(){const b=id=>$(id);
   if(b("#lbBot"))b("#lbBot").onclick=()=>pk({a:"sit",solo:true,lvl:LVL()});
   if(b("#lbStart"))b("#lbStart").onclick=gate(()=>pk({a:"start"}));
   if(b("#lbAgain"))b("#lbAgain").onclick=()=>pk({a:"sit",solo:ST&&ST.solo,mise:String(ST?ST.buy:20),dec:String(ST?ST.dec:30),fmt:ST&&!ST.maxHands?"last":"10",lvl:ST&&ST.botLvl||LVL()});
-  if(b("#lbShare"))b("#lbShare").onclick=()=>{const link=location.origin+"/"+CODE+"/poker";if(navigator.share)navigator.share({title:"Poker Lettres",text:"Une partie de Poker Lettres ?",url:link}).catch(()=>{});else{(navigator.clipboard?navigator.clipboard.writeText(link):Promise.reject()).then(()=>toast("📋","Lien copié"),()=>toast("🔗",link))}}}
+  if(b("#lbShare"))b("#lbShare").onclick=()=>{const link=location.origin+"/"+CODE+"/poker";if(navigator.share)navigator.share({title:"Wordflush",text:"Une partie de Wordflush ?",url:link}).catch(()=>{});else{(navigator.clipboard?navigator.clipboard.writeText(link):Promise.reject()).then(()=>toast("📋","Lien copié"),()=>toast("🔗",link))}}}
 // ---------- paquet (lettres pas encore vues) ----------
 let DPREV=null;
 function renderDeck(left){const g=$("#pkDeck");if(!left){$("#pkDeckSum").innerHTML="55 lettres";g.innerHTML="";return}

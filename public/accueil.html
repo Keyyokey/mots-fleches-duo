@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-<meta name="description" content="Mots fléchés, Tourniquet, mots mêlés, Poker Lettres et culture générale : 5 jeux de lettres et de savoir, gratuits, en solo ou entre amis, en direct.">
+<meta name="description" content="Mots fléchés, Tourniquet, mots mêlés, Wordflush et culture générale : 5 jeux de lettres et de savoir, gratuits, en solo ou entre amis, en direct.">
 <meta name="theme-color" content="#121214">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22%3E%3Ctext y=%22.9em%22 font-size=%2290%22%3E🔤%3C/text%3E%3C/svg%3E">
 <meta charset="utf-8">
@@ -789,15 +789,15 @@ a.logo{text-decoration:none;color:inherit}a.logo:focus-visible{outline:2px solid
       <div class="hvis" aria-hidden="true"><span class="hc c1">A</span><span class="hc c2">?</span><span class="hc c3">M</span><span class="hc c4 grid"><i></i><i></i><i></i><i></i></span></div>
     </div>
     <div class="glass card progcard">
-      <h3>Ma progression</h3><div class="kpis" id="cKpi"></div><div class="chartTabs" id="chartTabs"><button class="on" data-c="0">Fléchés</button><button data-c="1">Tourniquet</button><button data-c="2">Mêlés</button><button data-c="3">Poker</button></div><svg class="chart" id="chart" viewBox="0 0 300 118"></svg><div class="chartSub" id="chartSub"></div>
+      <h3>Ma progression</h3><div class="kpis" id="cKpi"></div><div class="chartTabs" id="chartTabs"><button class="on" data-c="0">Fléchés</button><button data-c="1">Tourniquet</button><button data-c="2">Mêlés</button><button data-c="3">Wordflush</button></div><svg class="chart" id="chart" viewBox="0 0 300 118"></svg><div class="chartSub" id="chartSub"></div>
     </div>
   </main>
   <h2 class="sec2" id="nosJeux"><span aria-hidden="true">🎮</span> Nos jeux</h2>
 
   <div class="games">
     <div class="g-top">
-      <div class="tile" style="--tg:linear-gradient(135deg,#0b3d2e 0%,#0f7a4f 50%,#1fae6e 100%)" data-game="Poker lettres" data-key="poker" data-multi="1">
-        <div class="txt"><span class="tag">Stratégie</span><h2>Poker<br>Lettres</h2><p>Forme le meilleur mot avec ta main, mise et bluffe pour remporter le pot.</p></div>
+      <div class="tile" style="--tg:linear-gradient(135deg,#0b3d2e 0%,#0f7a4f 50%,#1fae6e 100%)" data-game="Wordflush" data-key="poker" data-multi="1">
+        <div class="txt"><span class="tag">Stratégie</span><h2>Word<br>flush</h2><p>Forme le meilleur mot avec ta main, mise et bluffe pour remporter le pot.</p></div>
         <div class="vis"><div class="fan"><div class="cd">M<small>2</small></div><div class="cd">O<small>1</small></div><div class="cd">X<small>10</small></div><div class="chip" style="left:8px"></div><div class="chip" style="left:30px;bottom:6px"></div></div></div>
         <div class="modes acts"><button class="abtn" data-mode="solo"><span>👤</span> Solo</button><button class="abtn" data-mode="multi"><span>👥</span> Multijoueurs</button><button class="abtn abtn-s" data-cfg="1" aria-label="Réglages de la partie"><span>⚙️</span> Réglages</button></div>
       </div>
@@ -1193,7 +1193,7 @@ function connect(){if(!CODE||!ME||ME.stale)return;ws=new WebSocket((location.pro
 const pillMe=()=>window.innerWidth<=620?$("#mBtn"):$(".me-pill"),pillSalon=()=>window.innerWidth<=620?$("#mBtn"):$(".salon-pill");
 const PCOL=["#5ad8ff","#ffa45c","#7cf0a9","#c49bff","#ff8fb1","#ffd166"];
 const colOf=n=>PCOL[[...String(n)].reduce((a,c)=>a+c.charCodeAt(0),0)%PCOL.length];
-const GAMEL={accueil:"à l'accueil",fleches:"aux mots fléchés",rond:"au Tourniquet",meles:"aux mots mêlés",poker:"au poker"};
+const GAMEL={accueil:"à l'accueil",fleches:"aux mots fléchés",rond:"au Tourniquet",meles:"aux mots mêlés",poker:"à Wordflush"};
 function renderPeers(){const box=$("#cPeers");if(!CODE||!ROOM){box.innerHTML='<div class="note">Rejoins ou crée un salon (bouton 🛋️) pour voir qui est connecté et jouer à plusieurs.</div>';return}
   const seen=new Set(),rows=[];PEERS.forEach(p=>{const pr=p.presence||{};const n=(pr.name||"").trim();const me=p.id===MYID;const key=n||p.id;if(seen.has(key))return;seen.add(key);rows.push({n:n||"Invité",me,where:pr.page||(pr.gid?"fleches":"")})});
   rows.sort((a,b)=>b.me-a.me);
@@ -1294,7 +1294,7 @@ $$("[data-open=share]").forEach(b=>b.onclick=share);
 const GAMES={fleches:{nm:"Mots fléchés",lv:[["facile","Facile",414],["normal","Normal",417],["difficile","Difficile",386]],t:true},
   rond:{nm:"Le Tourniquet",lv:[["facile","Facile",321],["moyen","Normal",320],["difficile","Difficile",319]],t:true},
   meles:{nm:"Mots mêlés",lv:[["facile","Facile",297],["moyen","Normal",297],["difficile","Difficile",297]]},
-  poker:{nm:"Poker lettres",lv:[]},culture:{nm:"Culture générale",lv:[]}};
+  poker:{nm:"Wordflush",lv:[]},culture:{nm:"Culture générale",lv:[]}};
 $$(".tile").forEach(t=>t.addEventListener("click",e=>{if(e.target.closest(".modes"))return;const was=t.classList.contains("lift");$$(".tile").forEach(x=>x.classList.remove("lift"));if(!was)t.classList.add("lift")}));
 document.addEventListener("click",e=>{if(!e.target.closest(".tile"))$$(".tile").forEach(x=>x.classList.remove("lift"))});
 let CFG=null;
@@ -1311,7 +1311,7 @@ function openCfg(t,m,opp,quick){const k=t.dataset.key,G=GAMES[k];
   if(quick)return $("#cfgGo").onclick();   // un clic : on lance avec les derniers réglages (niveau retenu, grille suivante)
   $("#cfg").classList.add("on")}
 // bouton + des joueurs connectés : on choisit d'abord le jeu (5 jeux), puis ses réglages
-const PICK=[["fleches","Mots fléchés","Grille à deux"],["rond","Le Tourniquet","Six mots en rond"],["meles","Mots mêlés","Le plus rapide gagne"],["poker","Poker lettres","Mots et jetons"],["culture","Culture générale","10 questions en duel"]];
+const PICK=[["fleches","Mots fléchés","Grille à deux"],["rond","Le Tourniquet","Six mots en rond"],["meles","Mots mêlés","Le plus rapide gagne"],["poker","Wordflush","Mots et jetons"],["culture","Culture générale","10 questions en duel"]];
 function pickGame(opp,mode){mode=mode||"multi";$("#pickT").textContent=mode==="solo"?"À quoi veux-tu jouer ?":"Proposer une partie à "+opp;const L=$("#pickL");
   {const n=document.querySelector("#pickG .note");if(n)n.textContent=mode==="solo"?"Choisis ton jeu : la partie démarre tout de suite. Tu pourras inviter quelqu'un ensuite.":"Choisis d'abord le jeu, puis ses réglages."}
   L.innerHTML=PICK.map(([k,n,d])=>'<button type="button" data-k="'+k+'"><b>'+n+'</b><small>'+d+'</small></button>').join("");

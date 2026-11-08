@@ -818,6 +818,8 @@ const server = http.createServer((req, res) => {
     return res.end('<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n' + SITEMAP_PATHS.map(p => "  <url><loc>" + SITE + p + "</loc><lastmod>" + day + "</lastmod><changefreq>" + "weekly" + "</changefreq><priority>" + (p === "/" ? "1.0" : "0.8") + "</priority></url>").join("\n") + "\n</urlset>\n");
   }
   if (url.pathname === "/maquette" || url.pathname === "/maquette/") return sendPage(req, res, path.join(__dirname, "public", "maquette.html"));
+  // Wordflush = le nom du poker (8/11/2026) : /wordflush et /CODE/wordflush mènent à la table
+  { const wf = url.pathname.match(/^(\/[A-Za-z0-9]{5})?\/wordflush\/?$/i); if (wf) { res.writeHead(301, { location: (wf[1] || "") + "/poker" + url.search }); return res.end(); } }
   // le mot du jour a été retiré le 8/11/2026 : les anciens liens ramènent à l'accueil
   if (url.pathname === "/mot" || url.pathname === "/mot/") { res.writeHead(301, { location: "/" }); return res.end(); }
   if (/^\/(?:[A-Za-z0-9]{5}\/)?rond\/?$/.test(url.pathname)) return sendPage(req, res, path.join(__dirname, "public", "rd.html"));
