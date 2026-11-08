@@ -1,5 +1,5 @@
 // Catalogue des skins et de leurs habillages (document « Skins & habillages », 8/11/2026).
-// Identifiant d'un habillage : "skin/habillage". Image : /d/skins/<serie>-<skin>-<habillage>.png (fond de couleur)
+// Identifiant d'un habillage : "skin/habillage". Image : /d/skins/<serie>-<skin>-<habillage>.jpg (fond de couleur, 320 px)
 // et /d/skins/t/<même nom>.png (fond transparent, autour de la table du poker). Tant qu'une image manque,
 // le site affiche l'initiale du skin sur la couleur de sa rareté.
 (function (root) {
@@ -42,7 +42,7 @@
   SERIES.forEach(function (s) {
     s[2].forEach(function (k) {
       k[2].forEach(function (h) {
-        var o = { id: k[0] + "/" + h[0], serie: s[0], serieNom: s[1], skin: k[0], skinNom: k[1], hab: h[0], habNom: h[1], rar: h[2], file: s[0] + "-" + k[0] + "-" + h[0] + ".png" };
+        var o = { id: k[0] + "/" + h[0], serie: s[0], serieNom: s[1], skin: k[0], skinNom: k[1], hab: h[0], habNom: h[1], rar: h[2], file: s[0] + "-" + k[0] + "-" + h[0] + ".jpg" };
         LIST.push(o); BY[o.id] = o;
       });
     });

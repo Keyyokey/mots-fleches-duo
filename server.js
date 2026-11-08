@@ -784,6 +784,13 @@ function sendPage(req, res, file) {
 }
 // données lourdes (grilles…) : nom de fichier versionné → mises en cache un an par le navigateur
 const STATIC = { js: "text/javascript; charset=utf-8", json: "application/json", svg: "image/svg+xml", css: "text/css; charset=utf-8" };
+const skinCache = new Map();
+function sendSkin(req, res, name, ext) {
+  let buf = skinCache.get(name);
+  if (!buf) { try { buf = fs.readFileSync(path.join(__dirname, "public", "d", "skins", name)); } catch { res.writeHead(404, { "cache-control": "public, max-age=300" }); return res.end(); } skinCache.set(name, buf); }
+  res.writeHead(200, { "content-type": ext === "jpg" ? "image/jpeg" : "image/" + ext, "content-length": buf.length, "cache-control": "public, max-age=86400" });
+  res.end(req.method === "HEAD" ? undefined : buf);
+}
 function sendStatic(req, res, name) {
   const m = name.match(/^([a-z0-9-]{3,60})\.(js|json|svg|css)$/); if (!m) { res.writeHead(404); return res.end(); }
   let p; try { p = page(path.join(__dirname, "public", "d", name), false); } catch { res.writeHead(404); return res.end(); }
@@ -801,6 +808,8 @@ const server = http.createServer((req, res) => {
   if (url.pathname === "/healthz") { const bad = REDIS && storage.ok === false; res.writeHead(bad ? 503 : 200, { "content-type": "text/plain; charset=utf-8" }); return res.end(bad ? "STOCKAGE KO depuis " + storage.since + " : " + storage.msg : "ok " + salons.size + (REDIS ? " redis" : "")); }
   const am = url.pathname.match(/^\/api\/p\/(create|login|me|pin|logout|rank|score|wallet|conv|salons|sjoin|screate|skick|scode|sleave|hist|solo|skin)$/);
   if (am) return void api(req, res, am[1]).catch(e => { console.error(e); try { res.writeHead(500); res.end("{}"); } catch {} });
+  // images des skins (fichiers binaires, gardées en mémoire après la 1re lecture)
+  { const sm = url.pathname.match(/^\/d\/skins\/([a-z0-9-]{3,80})\.(jpg|png|webp)$/); if (sm) return sendSkin(req, res, sm[1] + "." + sm[2], sm[2]); }
   if (url.pathname.startsWith("/d/")) return sendStatic(req, res, url.pathname.slice(3));
   if (url.pathname === "/robots.txt") { res.writeHead(200, { "content-type": "text/plain; charset=utf-8", "cache-control": "public, max-age=86400" }); return res.end("User-agent: *\nAllow: /\nDisallow: /api/\nDisallow: /maquette\nDisallow: /healthz\n\nSitemap: " + SITE + "/sitemap.xml\n"); }
   if (url.pathname === "/sitemap.xml") {
