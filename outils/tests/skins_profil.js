@@ -14,7 +14,7 @@ const api=async(r,b)=>{const x=await fetch(U+'/api/p/'+r,{method:'POST',headers:
   ok(await p.isVisible('#meSkin'),w+' px : le profil propose « 🎭 Mon skin »');
   await p.click('#meSkin');await p.waitForTimeout(400);
   const st=await p.evaluate(()=>({on:document.getElementById('skins').classList.contains('on'),tiles:document.querySelectorAll('.sktile').length,lock:document.querySelectorAll('.sktile.lock').length,sub:document.getElementById('skSub').textContent,sw:document.documentElement.scrollWidth,box:document.querySelector('.skbox').getBoundingClientRect().right}));
-  ok(st.on&&st.tiles===60,w+' px : casier ouvert, 60 habillages ('+st.sub+')');ok(st.box<=w&&st.sw<=w,w+' px : le casier tient dans l\'écran');
+  ok(st.on&&st.tiles===70,w+' px : casier ouvert, 70 habillages ('+st.sub+')');ok(st.box<=w&&st.sw<=w,w+' px : le casier tient dans l\'écran');
   await p.click('.sktile[data-id="leo/dore"]',{force:true});await p.waitForTimeout(300);ok(/5[\s\u202f\u00a0]?000 points/.test(await p.textContent('#skErr')),w+' px : habillage verrouillé → condition affichée');
   const pick=w===1280?'leo/classique':'chat/classique';await p.click('.sktile[data-id="'+pick+'"]');await p.waitForTimeout(800);
   const after=await p.evaluate(()=>({me:JSON.parse(localStorage.getItem('fl-me')).skin,pill:document.querySelector('.me-pill .av-me').className,on:document.querySelector('.sktile.on')&&document.querySelector('.sktile.on').dataset.id}));
