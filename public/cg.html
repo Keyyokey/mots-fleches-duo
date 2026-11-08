@@ -457,6 +457,10 @@ button{font:inherit;color:inherit;cursor:pointer}
 .cgans button::before{content:attr(data-l);position:absolute;left:12px;top:50%;transform:translateY(-50%);width:24px;height:24px;border-radius:8px;display:grid;place-items:center;font-size:.75rem;background:rgba(0,0,0,.25);color:var(--muted)}
 :root[data-theme="light"] .cgans button::before{background:rgba(15,25,40,.08)}
 .cgans button.pick{box-shadow:0 0 0 2px var(--accent)}
+.cgsf{display:flex;gap:8px}.cgsf input{flex:1;min-width:0;min-height:52px;padding:0 16px;border-radius:16px;border:1px solid var(--stroke);background:var(--glass2);color:var(--ink);font:700 1.05rem Nunito,Inter,sans-serif;backdrop-filter:blur(10px)}
+.cgsf input:focus{outline:none;box-shadow:0 0 0 2px var(--accent)}.cgsf .btn{min-height:52px;border-radius:16px}.cgshint{margin-top:8px}.cgsf[hidden],.cgshint[hidden],.cgsond[hidden]{display:none}
+.cgsr{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-top:8px;padding:10px 14px;border-radius:14px;border:1px solid var(--stroke);background:var(--glass2);font-weight:700}
+.cgsr .sv{margin-left:auto}.cgsr.ok{background:linear-gradient(135deg,rgba(16,185,129,.45),rgba(16,185,129,.18));border-color:rgba(16,185,129,.7)}.cgsr.ko{background:linear-gradient(135deg,rgba(229,72,77,.4),rgba(229,72,77,.15));border-color:rgba(229,72,77,.6)}
 .cgans button.ok{background:linear-gradient(135deg,rgba(16,185,129,.55),rgba(16,185,129,.25));border-color:rgba(16,185,129,.8);color:#fff}
 .cgans button.ko{background:linear-gradient(135deg,rgba(229,72,77,.6),rgba(229,72,77,.3));border-color:#e5484d;color:#fff;animation:clkp .4s}
 .cgans button[disabled]{cursor:default;transform:none}
@@ -1032,6 +1036,7 @@ body.sk-fleches.light .c.pp .L{color:#8a93a3!important}
       <figure class="cgfig" id="cgFig" hidden><img alt="" decoding="async"><figcaption class="note"></figcaption></figure>
       <div class="cgq" id="cgQ"></div>
       <div class="cgans" id="cgA"></div>
+      <div class="cgsond" id="cgS" hidden></div>
       <div class="cgfact" id="cgFact" hidden><b>💡 Le savais-tu ?</b> <span id="cgX"></span><div class="note" id="cgFrom"></div></div>
       <button class="btn primary" id="cgNext" hidden>Question suivante →</button>
     </div>
@@ -1422,7 +1427,7 @@ function start(){if(PAGE==="poker"||window.SK_HDR){host.dataset.page="poker";D.b
 if(D.readyState==="loading")D.addEventListener("DOMContentLoaded",start);else start();
 })();
 </script>
-<script src="/d/culture-b5d74a84bc.js"></script>
+<script src="/d/cg-index.js"></script>
 <script>// ===== Culture générale — moteur branché sur l'écran de l'artefact =====
 // 10 questions, 4 réponses, 20 s par question. Bonne réponse : 10 pts + jusqu'à 5 pts de rapidité.
 // À deux : même question en même temps, la réponse s'affiche quand les deux ont répondu (ou à la fin du temps).
@@ -1436,7 +1441,16 @@ const CODE=((location.pathname.match(/^\/([A-Za-z0-9]{5})\//)||[])[1]||"").toUpp
 const HOME=CODE?"/"+CODE:"/";
 let ME=null;try{ME=JSON.parse(LS.get("fl-me")||"null")}catch(e){}if(ME&&!/^[A-Z0-9@#_]{2,7}$/.test(ME.name||""))ME=null;
 const DOC="cg",SOLOKEY="fl2-solo-culture",GAME="culture",NQ=10,TQ=20000,AUTO=15000;
-const BANK=window.__CG||[],BYID={};BANK.forEach(q=>BYID[q.id]=q);
+// la page ne charge qu'un index léger (identifiant → type) ; les 10 questions de la partie sont demandées au serveur
+const IDX=window.__CGI||{},KIND={},BYID={};Object.keys(IDX).forEach(k=>IDX[k].forEach(id=>KIND[id]=k));const ALLIDS=Object.keys(KIND);
+const QUOTA={img:3,txt:2,calc:2,puz:2,sond:1};
+function loadQs(ids){const miss=(ids||[]).filter(id=>!BYID[id]);if(!miss.length)return Promise.resolve(true);
+  return fetch("/api/cg/q?ids="+miss.map(encodeURIComponent).join(",")).then(r=>r.ok?r.json():[]).then(L=>{L.forEach(q=>BYID[q.id]=q);ids.forEach(id=>{const q=BYID[id];if(q&&q.img){const im=new Image();im.decoding="async";im.src=q.img}});return ids.every(id=>BYID[id])}).catch(()=>false)}
+const tqOf=q=>q&&q.k==="sond"?30000:TQ;
+// « tout le monde a son mot à dire » : réponse tapée, comparée sans accents, majuscules, articles ni pluriel (1 faute de frappe tolérée)
+function nrm(x){return String(x||"").toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/[’']/g," ").replace(/[^a-z0-9 ]/g," ").replace(/\b(le|la|les|l|un|une|des|du|de|d)\b/g," ").replace(/\s+/g," ").trim().split(" ").map(w=>w.length>3?w.replace(/(s|x)$/,""):w).join(" ")}
+function lev1(a,b){if(Math.abs(a.length-b.length)>1)return false;let i=0,j=0,e=0;while(i<a.length&&j<b.length){if(a[i]===b[j]){i++;j++;continue}if(++e>1)return false;if(a.length>b.length)i++;else if(b.length>a.length)j++;else{i++;j++}}return e+(a.length-i)+(b.length-j)<=1}
+function sondMatch(q,txt){const t=nrm(txt);if(!t)return null;const f=L=>L.find(x=>{const n=nrm(x);return n===t||(t.length>=5&&lev1(n,t))});const a=f(q.a);if(a)return{w:a,o:0};const o=f(q.o||[]);return o?{w:o,o:1}:null}
 const COLS=["var(--p1)","var(--p2)"];
 
 let G=null,ws=null,docs={},peers=[],reqN=0,acks={};
@@ -1482,16 +1496,17 @@ function awayCheck(force){if(!G||G.solo||G.done||!G.away)return;const now=Date.n
   G.forfeit=true;G.done=true;G.ended=now;delete G.away;if(!force){save();render()}}
 
 // ---------- déroulement d'une question ----------
-function qLeft(){if(!G||!G.qStart)return TQ;const now=frozen()?(G.pauseAt||G.go||Date.now()):Date.now();return Math.max(0,G.qStart+TQ-Math.max(now,G.qStart))}
+function qLeft(){const T=tqOf(curQ());if(!G||!G.qStart)return T;const now=frozen()?(G.pauseAt||G.go||Date.now()):Date.now();return Math.max(0,G.qStart+T-Math.max(now,G.qStart))}
 function revealed(){if(!G||G.done&&!curQ())return true;const n=G.players.length;let all=true;for(let s=0;s<n;s++)if(!ansOf(G.i,s))all=false;return all||qLeft()<=0}
-function revealAt(){let t=G.qStart+TQ;const n=G.players.length;let mx=0,all=true;for(let s=0;s<n;s++){const a=ansOf(G.i,s);if(!a)all=false;else mx=Math.max(mx,a.at||0)}return all?Math.min(t,mx||t):t}
-function answer(k){if(!canPlay()){if(G&&!G.done)toast("⏳",frozen()?"Attends le lancement de la partie.":"Tu regardes la partie.");return}
+function revealAt(){let t=G.qStart+tqOf(curQ());const n=G.players.length;let mx=0,all=true;for(let s=0;s<n;s++){const a=ansOf(G.i,s);if(!a)all=false;else mx=Math.max(mx,a.at||0)}return all?Math.min(t,mx||t):t}
+function answer(k,txt){if(!canPlay()){if(G&&!G.done)toast("⏳",frozen()?"Attends le lancement de la partie.":"Tu regardes la partie.");return}
   const s=mySeat(),q=curQ();if(!q||ansOf(G.i,s)||revealed())return;
-  const left=qLeft(),ok=k===0,pts=ok?10+Math.round(5*left/TQ):0,val={k,pts,at:Date.now()};
+  const left=qLeft(),m=q.k==="sond"?sondMatch(q,txt):null;if(q.k==="sond")k=m?0:1;
+  const ok=k===0,pts=ok?10+(m&&m.o?3:0)+Math.round(5*left/tqOf(q)):0,val={k,pts,at:Date.now()};if(q.k==="sond"){val.w=String(txt||"").slice(0,40);if(m){val.m=m.w;val.o=m.o}}
   markQ(q,"s");
   if(G.solo){G.ans[G.i+"-0"]=val;G.players[0].score+=pts;after(ok,pts);save();render();return}
   req({t:"patch",id:DOC,gid:G.gid,field:"ans",key:G.i+"-"+s,value:val,ifAbsent:true,score:{i:s,add:pts}}).then(()=>after(ok,pts)).catch(c=>{if(c!=="taken")toast("⚠️","Réponse pas enregistrée ("+esc(c)+")")})}
-function after(ok,pts){if(ok){sfx.ok();toast("✅","Bonne réponse : <b>+"+pts+" pts</b>"+(pts>10?" (dont "+(pts-10)+" de rapidité)":""))}else sfx.bad()}
+function after(ok,pts){if(ok){sfx.ok();toast("✅","Bonne réponse : <b>+"+pts+" pts</b>"+(pts>10?" (dont "+(pts-10)+" de bonus)":""))}else sfx.bad()}
 function next(){if(!G||G.done||!revealed())return;const s=mySeat();if(s===null)return;markQ(curQ(),"d");const last=G.i+1>=G.qs.length,now=Date.now();
   const ex=last?{done:true,ended:now}:{i:G.i+1,qStart:now};
   if(G.solo){Object.assign(G,ex);if(last)end();save();render();return}
@@ -1502,7 +1517,8 @@ function scoreSrv(){try{if(!ME||!ME.token)return;const i=G.solo?0:mySeat();const
 
 // ---------- affichage ----------
 let shownEnd=null,drawn="";
-function render(){document.body.classList.remove("booting");if(!G)return;setTimeout(guestNote,0);const s=mySeat(),q=curQ();
+function render(){document.body.classList.remove("booting");if(!G)return;
+  if(Array.isArray(G.qs)&&G.qs.some(id=>!BYID[id])){$("#cgQ").textContent="Chargement des questions…";if(!render.busy){render.busy=1;loadQs(G.qs).then(ok=>{render.busy=0;if(ok)render();else blockedWin("Les questions n'ont pas pu être chargées. Vérifie ta connexion puis recharge la page.")})}return}setTimeout(guestNote,0);const s=mySeat(),q=curQ();
   $(".gname").innerHTML='Culture <span style="color:#71B280">Générale</span> <span class="hpill" id="cgPill">'+(G.solo?"Solo":"Duo")+" • "+G.qs.length+" questions</span>";
   [["#cgP1",0],["#cgP2",1]].forEach(([id,i])=>{const e=$(id),p=G.players[i];if(!p){e.style.display="none";return}e.style.display="";e.querySelector(".pi").textContent=(p.name||"?")[0].toUpperCase();e.querySelector("b").textContent=p.name+(i===s&&!G.solo?" ·toi":"");e.querySelector(".sv").textContent=p.score});
   if(!q)return endShow();
@@ -1517,12 +1533,23 @@ function render(){document.body.classList.remove("booting");if(!G)return;setTime
   btns.forEach(b=>{const k=+b.dataset.k;b.disabled=rv||!!mine||!canPlay();b.classList.toggle("pick",!!mine&&mine.k===k&&!rv);b.classList.toggle("ok",rv&&k===0);b.classList.toggle("ko",rv&&!!mine&&mine.k===k&&k!==0);
     let w=b.querySelector(".who");if(rv){const h=G.players.map((p,i)=>({p,i,a:ansOf(G.i,i)})).filter(x=>x.a&&x.a.k===k&&!G.solo).map(x=>'<span style="background:'+COLS[x.i%2]+'">'+esc((x.p.name||"?")[0].toUpperCase())+"</span>").join("");
       if(h){if(!w){w=document.createElement("span");w.className="who";b.appendChild(w)}w.innerHTML=h}else if(w)w.remove()}else if(w)w.remove()});
+  if(q.k==="sond")sondRender(q,rv,s,mine);
   $("#cgFact").hidden=!rv;$("#cgNext").hidden=!rv||s===null;
-  if(rv){$("#cgX").textContent=q.x;$("#cgFrom").textContent="Source : "+q.s;$("#cgNext").textContent=G.i+1<G.qs.length?"Question suivante →":"Voir le résultat 🏆"}
+  if(rv){$("#cgX").textContent=q.k==="sond"?sondX(q):q.x;$("#cgFrom").textContent="Source : "+q.s;$("#cgNext").textContent=G.i+1<G.qs.length?"Question suivante →":"Voir le résultat 🏆"}
   if(G.done)endShow();tick()}
-function draw(q){$("#cgTheme").textContent=q.t;$("#cgSrc").textContent="";$("#cgQ").textContent=q.q;
+const KLAB={calc:"🧮 ",puz:"🧩 ",sond:"🗣️ "};
+function draw(q){$("#cgTheme").textContent=(KLAB[q.k]||"")+q.t;$("#cgA").hidden=q.k==="sond";$("#cgS").hidden=q.k!=="sond";if(q.k==="sond"){$("#cgSrc").textContent="";$("#cgQ").textContent=q.q;sondDraw(q);return}$("#cgS").innerHTML="";$("#cgSrc").textContent="";$("#cgQ").textContent=q.q;
   const f=$("#cgFig");if(q.img){f.hidden=false;const im=f.querySelector("img");im.alt="Illustration de la question";im.src=q.img;f.querySelector("figcaption").innerHTML=esc(q.cr||"")+(q.src?' · <a href="'+esc(q.src)+'" target="_blank" rel="noopener">source</a>':"")}else{f.hidden=true;f.querySelector("img").removeAttribute("src")}
   const A=$("#cgA");A.innerHTML="";order(q).forEach((k,i)=>{const b=document.createElement("button");b.dataset.l="ABCD"[i];b.dataset.k=k;b.textContent=q.a[k];b.onclick=()=>answer(k);A.appendChild(b)})}
+function sondDraw(q){const f=$("#cgFig");f.hidden=true;f.querySelector("img").removeAttribute("src");$("#cgA").innerHTML="";
+  $("#cgS").innerHTML='<form class="cgsf" autocomplete="off"><input id="cgIn" maxlength="40" placeholder="Ta réponse…" aria-label="Ta réponse" enterkeyhint="send"><button class="btn primary" type="submit">Valider</button></form><div class="note cgshint">Toutes les bonnes réponses comptent. Une réponse originale rapporte <b>+3</b>. 30 secondes.</div><div id="cgSL"></div>';
+  $("#cgS form").onsubmit=e=>{e.preventDefault();const v=$("#cgIn").value.trim();if(v)answer(1,v)};setTimeout(()=>{const i=$("#cgIn");if(i&&!i.disabled&&matchMedia("(pointer:fine)").matches)i.focus()},50)}
+function sondRender(q,rv,s,mine){const i=$("#cgIn"),b=$("#cgS form button");if(!i)return;const off=rv||!!mine||!canPlay();i.disabled=off;b.disabled=off;if(mine&&mine.w&&!i.value)i.value=mine.w;
+  $("#cgS form").hidden=rv;$(".cgshint").hidden=rv;
+  const L=G.players.map((p,j)=>({p,j,a:ansOf(G.i,j)})).filter(x=>rv||x.j===s);
+  $("#cgSL").innerHTML=L.map(({p,j,a})=>{if(!a)return rv?'<div class="cgsr ko"><b>'+esc(p.name)+'</b> pas de réponse</div>':"";if(!rv)return'<div class="cgsr">Réponse envoyée : <b>'+esc(a.w||"")+"</b></div>";
+    return'<div class="cgsr '+(a.k===0?"ok":"ko")+'"><b>'+esc(p.name)+'</b> '+esc(a.w||"")+(a.k===0?(a.m&&nrm(a.m)!==nrm(a.w)?" → "+esc(a.m):"")+(a.o?' <span class="tag2">originale +3</span>':""):" ✗")+' <span class="sv">+'+(a.pts||0)+"</span></div>"}).join("")}
+function sondX(q){const o=q.o||[],n=8;return"Réponses classiques : "+q.a.join(", ")+"."+(o.length?" Réponses originales acceptées : "+o.slice(0,n).join(", ")+(o.length>n?"… (et "+(o.length-n)+" autres)":"")+".":"")}
 function endShow(){if(!G.done||shownEnd===G.gid)return;shownEnd=G.gid;if(!G.solo)scoreSrv();const s=mySeat();
   const good=G.qs.filter((x,i)=>{const a=ansOf(i,s===null?0:s);return a&&a.k===0}).length;
   const r=G.players.map((p,i)=>({p,i})).sort((a,b)=>b.p.score-a.p.score);
@@ -1568,7 +1595,9 @@ $("#lvPause").onclick=()=>leave(pauseGame);$("#lvQuit").onclick=()=>leave(quitGa
 // ---------- tirage des questions ----------
 // on évite les questions déjà vues par le joueur (ou par l'un des joueurs en multijoueur) ; s'il n'en reste pas assez, on complète au hasard
 function localSeen(){try{return JSON.parse(LS.get("fl2-played-culture")||"{}")}catch(e){return{}}}
-function pickQs(seen){const a=BANK.filter(q=>!seen.has(q.id)),b=BANK.filter(q=>seen.has(q.id));const sh=L=>{L=L.slice();for(let i=L.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[L[i],L[j]]=[L[j],L[i]]}return L};return sh(a).concat(sh(b)).slice(0,NQ).map(q=>q.id)}
+function pickQs(seen){const sh=L=>{L=L.slice();for(let i=L.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[L[i],L[j]]=[L[j],L[i]]}return L};const out=[];
+  const take=(L,n)=>{L=L.filter(id=>!out.includes(id));out.push(...sh(L.filter(id=>!seen.has(id))).concat(sh(L.filter(id=>seen.has(id)))).slice(0,n))};
+  Object.keys(QUOTA).forEach(k=>take(IDX[k]||[],QUOTA[k]));if(out.length<NQ)take(ALLIDS,NQ-out.length);return sh(out).slice(0,NQ)}
 function newGame(names,isSolo,qs){return{gid:Math.random().toString(36).slice(2,10),game:GAME,solo:isSolo,level:"all",qs,i:0,qStart:isSolo?Date.now():0,ans:{},adv:{},started:Date.now(),players:names.map(x=>({name:x,score:0})),done:false,wait:!isSolo,msg:""}}
 function open(g){G=g;drawn="";shownEnd=null;if(G.solo&&!G.done&&G.pauseAt){const d=Date.now()-G.pauseAt;G.started+=d;if(G.qStart)G.qStart+=d;delete G.pauseAt}
   if(!G.solo){claimGuest();const s=mySeat();if(G.away&&s!==null&&G.away[s]>0)resumeGame()}render();announce();history.replaceState(null,"",location.pathname)}
@@ -1576,7 +1605,7 @@ function again(){const o=G;if(o.solo){NEWSOLO("all",0,null);return}
   const opp=o.players.map(p=>p.name).find(n=>String(n).toUpperCase()!==ME.name)||"Invité";
   drawReq("all",0,opp).then(r=>{if(!r.ok)return blockedWin(r.msg);const ng=newGame(o.players.map(p=>p.name),false,r.qs);ng.prev=o.gid;open(ng);save()})}
 function start(){const go=Q.get("go");const solo=()=>{try{return JSON.parse(LS.get(SOLOKEY)||"null")}catch(e){return null}};
-  if(!BANK.length){blockedWin("Les questions n'ont pas pu être chargées. Recharge la page.");return}
+  if(!ALLIDS.length){blockedWin("Les questions n'ont pas pu être chargées. Recharge la page.");return}
   if(go==="solo"||(go==="resume"&&!CODE)){soloBoot(go);return}
   if(!CODE){const g=solo();if(g&&!g.done){open(g);return}location.replace("/");return}
   if(!ME){if(go==="resume"){const g=solo();if(g&&!g.done){open(g);return}}location.replace(HOME+"?need=pseudo");return}
@@ -1611,7 +1640,7 @@ function soloPut(){if(!G||!G.solo||!ME||!ME.token)return;clearTimeout(soloPut.t)
 function soloDrop(){if(ME&&ME.token){clearTimeout(soloPut.t);soloPost(null)}}
 function soloGet(){if(!ME||!ME.token)return Promise.resolve(null);return Promise.race([fetch("/api/p/solo",{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({name:ME.name,token:ME.token,game:GAME})}).then(r=>r.ok?r.json():null).catch(()=>null),new Promise(r=>setTimeout(()=>r(null),1500))])}
 function soloBoot(go){let loc=null;try{loc=JSON.parse(LS.get(SOLOKEY)||"null")}catch(e){}
-  soloGet().then(r=>{const sv=r&&r.doc;const old=g=>g&&g.solo&&!g.done&&Array.isArray(g.qs)&&g.qs.every(id=>BYID[id]);
+  soloGet().then(r=>{const sv=r&&r.doc;const old=g=>g&&g.solo&&!g.done&&Array.isArray(g.qs)&&g.qs.every(id=>KIND[id]);
     let best=old(loc)?loc:null;if(old(sv)&&(!best||(sv.saved||0)>(best.saved||0)))best=sv;
     if(best){open(best);save();return}
     if(go==="resume"){location.replace(HOME);return}

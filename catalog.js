@@ -29,7 +29,19 @@ module.exports = function (root) {
   const NQ = 10;
   function shuffle(a) { a = a.slice(); for (let i = a.length - 1; i > 0; i--) { const j = crypto.randomInt(i + 1); [a[i], a[j]] = [a[j], a[i]]; } return a; }
   // questions jamais vues par aucun participant en priorité ; s'il n'en reste pas assez, on complète avec des questions déjà vues
-  function drawSet(hists) { const adm = admissible("culture", "all", hists); const seen = lists.culture.all.filter(id => !adm.includes(id)); return shuffle(adm).concat(shuffle(seen)).slice(0, NQ); }
+  // une partie mélange les types de questions : 3 avec image, 2 de culture, 2 calculs, 2 casse-tête, 1 « tout le monde a son mot à dire »
+  const KIND = q => q.k || (q.img ? "img" : "txt"), QUOTA = { img: 3, txt: 2, calc: 2, puz: 2, sond: 1 };
+  const KINDOF = {}; CG.forEach(q => KINDOF[q.id] = KIND(q));
+  function drawSet(hists) {
+    const adm = new Set(admissible("culture", "all", hists)), out = [];
+    const take = (ids, n) => { const a = shuffle(ids.filter(id => adm.has(id) && !out.includes(id))), b = shuffle(ids.filter(id => !adm.has(id) && !out.includes(id))); out.push(...a.concat(b).slice(0, n)); };
+    for (const k in QUOTA) take(lists.culture.all.filter(id => KINDOF[id] === k), QUOTA[k]);
+    if (out.length < NQ) take(lists.culture.all, NQ - out.length);
+    return shuffle(out).slice(0, NQ);
+  }
+  // index léger pour la page (identifiant → type) et questions servies à la demande : la page ne télécharge plus toute la banque
+  const CGBY = {}; CG.forEach(q => CGBY[q.id] = q);
+  const cgIndex = () => { const o = {}; CG.forEach(q => (o[KINDOF[q.id]] = o[KINDOF[q.id]] || []).push(q.id)); return o; };
   // revérification au lancement : une question déjà vue par un participant est remplacée si une question neuve existe
   function setOk(qs, hists) { if (!Array.isArray(qs) || qs.length !== NQ || new Set(qs).size !== NQ || !qs.every(id => canon.culture[id])) return false; const adm = admissible("culture", "all", hists); return adm.length < NQ ? qs.filter(id => adm.includes(id)).length >= adm.length : qs.every(id => adm.includes(id)); }
   const GAMES = ["fleches", "rond", "meles", "culture"];
@@ -53,5 +65,5 @@ module.exports = function (root) {
     else { const [lv, mid] = ref.split(":"); const def = mctx.melesDef(mid, lv); const m = mctx.makeMeles(def.theme, lv, def.seed); Object.assign(d, m, { mid: "n" + def.k, found: {} }); }
     d.players.forEach(p => p.score = 0);
   }
-  return { GAMES, drawSet, setOk, NQ, refOf, level, cid, admissible, pick, byNumber, applyTo, lists, counts: { fleches: GRIDS.length, rond: ROND.length } };
+  return { GAMES, CGBY, cgIndex, QUOTA, drawSet, setOk, NQ, refOf, level, cid, admissible, pick, byNumber, applyTo, lists, counts: { fleches: GRIDS.length, rond: ROND.length } };
 };
