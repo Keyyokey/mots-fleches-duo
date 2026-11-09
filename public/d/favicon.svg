@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="-2 -6 182 182" role="img" aria-label="Tuilo">
+<defs>
+<linearGradient id="wood" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#FBE9C2"/><stop offset="1" stop-color="#E9C688"/></linearGradient>
+<linearGradient id="ink" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#11857F"/><stop offset=".55" stop-color="#2E4F9C"/><stop offset="1" stop-color="#5A2AA6"/></linearGradient>
+<linearGradient id="rim" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#2DE2C8"/><stop offset="1" stop-color="#A26BFF"/></linearGradient>
+<linearGradient id="gl" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff" stop-opacity=".22"/><stop offset=".5" stop-color="#fff" stop-opacity="0"/></linearGradient>
+<filter id="glow" x="-20%" y="-30%" width="140%" height="160%"><feGaussianBlur stdDeviation="7"/></filter>
+</defs>
+
+<g class="t" style="animation-delay:0.00s"><g fill="url(#rim)" opacity=".55" filter="url(#glow)"><rect x="23" y="24" width="132" height="138" rx="26" transform="rotate(-6 89 90)"/></g><g fill="#fff" fill-opacity=".14" stroke="url(#rim)" stroke-width="3.5"><rect x="23" y="24" width="132" height="138" rx="26" transform="rotate(-6 89 90)"/></g><g fill="url(#gl)"><rect x="23" y="24" width="132" height="138" rx="26" transform="rotate(-6 89 90)"/></g><g transform="rotate(-6 89 90)">
+   <rect x="30" y="39" width="118" height="118" rx="20" fill="#B8894A"/>
+   <rect x="30" y="31" width="118" height="118" rx="20" fill="url(#wood)"/>
+   <rect x="35" y="35" width="108" height="49.559999999999995" rx="16" fill="#fff" opacity=".22"/>
+   <path d="M68.02 59.75L110.07 59.75Q111.82 59.75 113.38 60.03Q114.94 60.31 116 61.78Q117.06 63.25 117.06 66.84Q117.06 70.33 116 71.85Q114.94 73.37 113.33 73.65Q111.72 73.92 109.98 73.92L97.28 73.92L97.28 116.06Q97.28 118.08 96.91 119.97Q96.54 121.85 94.84 123.05Q93.14 124.25 88.91 124.25Q84.86 124.25 83.11 123Q81.36 121.76 81.04 119.88Q80.72 117.99 80.72 115.97L80.72 73.92L67.93 73.92Q66.28 73.92 64.67 73.60Q63.06 73.28 62 71.81Q60.94 70.33 60.94 66.75Q60.94 63.25 62 61.78Q63.06 60.31 64.71 60.03Q66.37 59.75 68.02 59.75" fill="#6b4a20" opacity=".5" transform="translate(0 -2)"/>
+   <path d="M68.02 59.75L110.07 59.75Q111.82 59.75 113.38 60.03Q114.94 60.31 116 61.78Q117.06 63.25 117.06 66.84Q117.06 70.33 116 71.85Q114.94 73.37 113.33 73.65Q111.72 73.92 109.98 73.92L97.28 73.92L97.28 116.06Q97.28 118.08 96.91 119.97Q96.54 121.85 94.84 123.05Q93.14 124.25 88.91 124.25Q84.86 124.25 83.11 123Q81.36 121.76 81.04 119.88Q80.72 117.99 80.72 115.97L80.72 73.92L67.93 73.92Q66.28 73.92 64.67 73.60Q63.06 73.28 62 71.81Q60.94 70.33 60.94 66.75Q60.94 63.25 62 61.78Q63.06 60.31 64.71 60.03Q66.37 59.75 68.02 59.75" fill="#fff" opacity=".55" transform="translate(0 2)"/>
+   <path d="M68.02 59.75L110.07 59.75Q111.82 59.75 113.38 60.03Q114.94 60.31 116 61.78Q117.06 63.25 117.06 66.84Q117.06 70.33 116 71.85Q114.94 73.37 113.33 73.65Q111.72 73.92 109.98 73.92L97.28 73.92L97.28 116.06Q97.28 118.08 96.91 119.97Q96.54 121.85 94.84 123.05Q93.14 124.25 88.91 124.25Q84.86 124.25 83.11 123Q81.36 121.76 81.04 119.88Q80.72 117.99 80.72 115.97L80.72 73.92L67.93 73.92Q66.28 73.92 64.67 73.60Q63.06 73.28 62 71.81Q60.94 70.33 60.94 66.75Q60.94 63.25 62 61.78Q63.06 60.31 64.71 60.03Q66.37 59.75 68.02 59.75" fill="url(#ink)"/>
+  </g></g></svg>

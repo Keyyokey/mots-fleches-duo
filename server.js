@@ -1,4 +1,4 @@
-// Mots Fléchés Duo — serveur du site (Node.js + WebSocket)
+// Tuilo (ex-Mots Fléchés Duo) — serveur du site (Node.js + WebSocket)
 // Chaque « salon » (code de 5 caractères dans le lien) partage ses parties en direct.
 // Lancer : npm install  puis  npm start   →  http://localhost:3000
 "use strict";
@@ -756,10 +756,10 @@ const SITE = (process.env.SITE_URL || "https://mots-fleches-duo.onrender.com").r
 const CANON = { "accueil.html": "/", "fl.html": "/fleches", "rd.html": "/rond", "mm.html": "/meles", "cg.html": "/culture", "poker.html": "/poker" };
 function seoTags(file, txt) {
   const c = CANON[path.basename(file)]; if (c === undefined) return "";
-  const t = (txt.match(/<title>([^<]*)<\/title>/) || [])[1] || "Mots Fléchés Duo";
+  const t = (txt.match(/<title>([^<]*)<\/title>/) || [])[1] || "Tuilo";
   const d = (txt.match(/<meta name="description" content="([^"]*)"/) || [])[1] || "";
   const u = SITE + c;
-  return '\n<link rel="canonical" href="' + u + '"><meta property="og:type" content="website"><meta property="og:site_name" content="Mots Fléchés Duo"><meta property="og:locale" content="fr_FR"><meta property="og:url" content="' + u + '"><meta property="og:title" content="' + t + '"><meta property="og:description" content="' + d + '"><meta name="twitter:card" content="summary">';
+  return '\n<link rel="canonical" href="' + u + '"><meta property="og:type" content="website"><meta property="og:site_name" content="Tuilo"><meta property="og:image" content="' + SITE + '/tuilo-512.png"><meta property="og:locale" content="fr_FR"><meta property="og:url" content="' + u + '"><meta property="og:title" content="' + t + '"><meta property="og:description" content="' + d + '"><meta name="twitter:card" content="summary">';
 }
 const SITEMAP_PATHS = ["/", "/fleches", "/rond", "/meles", "/culture", "/poker"];
 function page(file, inject) {
@@ -786,6 +786,7 @@ function sendPage(req, res, file) {
 const STATIC = { js: "text/javascript; charset=utf-8", json: "application/json", svg: "image/svg+xml", css: "text/css; charset=utf-8" };
 const skinCache = new Map();
 let cgIdx = null;
+const FAVICON = fs.readFileSync(path.join(__dirname, "public", "d", "favicon.svg"));
 function sendSkin(req, res, name, ext) {
   let buf = skinCache.get(name);
   if (!buf) { try { buf = fs.readFileSync(path.join(__dirname, "public", "d", "skins", name)); } catch { res.writeHead(404, { "cache-control": "public, max-age=300" }); return res.end(); } skinCache.set(name, buf); }
@@ -835,7 +836,9 @@ const server = http.createServer((req, res) => {
   if (/^\/(?:[A-Za-z0-9]{5}\/)?rond\/?$/.test(url.pathname)) return sendPage(req, res, path.join(__dirname, "public", "rd.html"));
   if (/^\/(?:[A-Za-z0-9]{5}\/)?meles\/?$/.test(url.pathname)) return sendPage(req, res, path.join(__dirname, "public", "mm.html"));
   // icône du site (onglet du navigateur)
-  if (url.pathname === "/favicon.ico" || url.pathname === "/favicon.svg") { res.writeHead(200, { "content-type": "image/svg+xml", "cache-control": "public, max-age=604800" }); return res.end('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#00ADB5"/><stop offset="1" stop-color="#A26BFF"/></linearGradient></defs><rect width="64" height="64" rx="14" fill="url(#g)"/><text x="32" y="46" font-family="Arial,sans-serif" font-size="40" font-weight="800" text-anchor="middle" fill="#fff">M</text></svg>'); }
+  // icônes Tuilo : onglet (SVG) et écran d'accueil du téléphone (PNG)
+  if (url.pathname === "/favicon.ico" || url.pathname === "/favicon.svg") { res.writeHead(200, { "content-type": "image/svg+xml", "cache-control": "public, max-age=86400" }); return res.end(FAVICON); }
+  if (url.pathname === "/apple-touch-icon.png" || url.pathname === "/tuilo-512.png") { const f = url.pathname === "/tuilo-512.png" ? "tuilo-512.png" : "tuilo-180.png"; res.writeHead(200, { "content-type": "image/png", "cache-control": "public, max-age=86400" }); return res.end(fs.readFileSync(path.join(__dirname, "public", "d", f))); }
   if (/^\/(?:[A-Za-z0-9]{5}\/)?culture\/?$/.test(url.pathname)) return sendPage(req, res, path.join(__dirname, "public", "cg.html"));
   if (/^\/(?:[A-Za-z0-9]{5}\/)?fleches\/?$/.test(url.pathname)) return sendPage(req, res, path.join(__dirname, "public", "fl.html"));
   if (/^\/(?:[A-Za-z0-9]{5}\/)?poker\/?$/.test(url.pathname)) return sendPage(req, res, path.join(__dirname, "public", "poker.html"));
@@ -907,4 +910,4 @@ async function resetOnce() {
 // une erreur imprévue dans un salon ne doit pas arrêter tout le site (les autres parties continuent) : on la note dans le journal
 process.on("uncaughtException", e => console.error("Erreur imprévue (le serveur continue) :", e && e.stack || e));
 process.on("unhandledRejection", e => console.error("Promesse rejetée (le serveur continue) :", e && e.stack || e));
-Promise.all([backupReady, resetOnce()]).then(() => server.listen(PORT, () => console.log("Mots Fléchés Duo en ligne sur http://localhost:" + PORT + (REDIS ? " (stockage Redis actif)" : ""))));
+Promise.all([backupReady, resetOnce()]).then(() => server.listen(PORT, () => console.log("Tuilo en ligne sur http://localhost:" + PORT + (REDIS ? " (stockage Redis actif)" : ""))));
