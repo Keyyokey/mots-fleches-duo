@@ -521,6 +521,78 @@ async function backupPlayers() {
   } catch (e) { console.error("Sauvegarde des comptes impossible :", e.message); }
 }
 const backupReady = backupPlayers();
+
+// ---------- sauvegardes automatiques (9/11/2026) ----------
+// Une copie par jour de toutes les données durables (comptes, points, classements, skins, salons enregistrés…), gardée 7 jours
+// dans Redis sous bak:auto:AAAAMMJJ (découpée en morceaux de 400 Ko). Les parties en cours (salon:*) et les sauvegardes elles-mêmes
+// ne sont pas copiées. ADMIN_KEY (variable Render) permet de lister, télécharger et restaurer : /admin/sauvegardes?key=…
+const BAK_KEEP_S = 8 * 86400, BAK_CHUNK = 400000;
+const bakSkip = k => /^(bak:|salon:)/.test(k);
+const parisDay = (d = new Date()) => d.toLocaleDateString("sv-SE", { timeZone: "Europe/Paris" }).replace(/-/g, "");
+async function bakSnapshot() {
+  const keys = []; let cur = "0";
+  do { const r = await redis(["SCAN", cur, "COUNT", "500"]); cur = String(r[0]); (r[1] || []).forEach(k => { if (!bakSkip(k)) keys.push(k); }); } while (cur !== "0");
+  const data = {};
+  for (const k of keys) {
+    const type = await redis(["TYPE", k]); let v;
+    if (type === "string") v = await redis(["GET", k]);
+    else if (type === "hash") v = await redis(["HGETALL", k]);
+    else if (type === "zset") v = await redis(["ZRANGE", k, "0", "-1", "WITHSCORES"]);
+    else if (type === "set") v = await redis(["SMEMBERS", k]);
+    else if (type === "list") v = await redis(["LRANGE", k, "0", "-1"]);
+    else continue;
+    const ttl = await redis(["PTTL", k]);
+    data[k] = { type, v, ttl: ttl > 0 ? ttl : 0 };
+  }
+  return data;
+}
+async function writeBackup(tag) {
+  const data = await bakSnapshot(), txt = JSON.stringify({ v: 1, at: new Date().toISOString(), keys: data });
+  const n = Math.ceil(txt.length / BAK_CHUNK) || 1;
+  for (let i = 0; i < n; i++) await redis(["SET", "bak:auto:" + tag + ":" + i, txt.slice(i * BAK_CHUNK, (i + 1) * BAK_CHUNK), "EX", String(BAK_KEEP_S)]);
+  await redis(["SET", "bak:auto:" + tag, JSON.stringify({ parts: n, keys: Object.keys(data).length, bytes: txt.length, at: new Date().toISOString() }), "EX", String(BAK_KEEP_S)]);
+  return { tag, keys: Object.keys(data).length, bytes: txt.length };
+}
+async function readBackup(tag) {
+  const meta = JSON.parse(await redis(["GET", "bak:auto:" + tag]) || "null"); if (!meta) return null;
+  let txt = ""; for (let i = 0; i < meta.parts; i++) { const part = await redis(["GET", "bak:auto:" + tag + ":" + i]); if (part == null) throw new Error("morceau manquant"); txt += part; }
+  return JSON.parse(txt);
+}
+async function listBackups() {
+  const out = []; let cur = "0";
+  do { const r = await redis(["SCAN", cur, "MATCH", "bak:auto:*", "COUNT", "500"]); cur = String(r[0]); (r[1] || []).forEach(k => { const t = k.slice(9); if (!/:\d+$/.test(t)) out.push(t); }); } while (cur !== "0");   // les morceaux (…:0, …:1) ne sont pas listés
+  const res = []; for (const t of out.sort().reverse()) { try { res.push(Object.assign({ tag: t }, JSON.parse(await redis(["GET", "bak:auto:" + t])))); } catch (e) {} }
+  return res;
+}
+async function restoreBackup(tag) {
+  const b = await readBackup(tag); if (!b) throw new Error("sauvegarde introuvable");
+  const safety = await writeBackup("avant-" + new Date().toISOString().slice(0, 16).replace(/[-:T]/g, ""));   // état actuel gardé avant d'écraser
+  let n = 0;
+  for (const [k, o] of Object.entries(b.keys)) {
+    if (bakSkip(k)) continue;
+    await redis(["DEL", k]);
+    if (o.type === "string") await redis(["SET", k, o.v]);
+    else if (o.type === "hash") { const a = Array.isArray(o.v) ? o.v : Object.entries(o.v).flat(); if (a.length) await redis(["HSET", k, ...a.map(String)]); }
+    else if (o.type === "zset") { const a = []; for (let i = 0; i < o.v.length; i += 2) a.push(String(o.v[i + 1]), String(o.v[i])); if (a.length) await redis(["ZADD", k, ...a]); }
+    else if (o.type === "set") { if (o.v.length) await redis(["SADD", k, ...o.v.map(String)]); }
+    else if (o.type === "list") { if (o.v.length) await redis(["RPUSH", k, ...o.v.map(String)]); }
+    if (o.ttl) await redis(["PEXPIRE", k, String(o.ttl)]);
+    n++;
+  }
+  // le serveur relit ensuite la base : on vide ce qu'il gardait en mémoire (comptes, fiches de salon, skins)
+  players.clear(); accs.clear(); codeIdx.clear(); skinMem.clear(); rankMem.clear();
+  return { restored: n, safety: safety.tag };
+}
+let bakBusy = false;
+async function dailyBackup() {
+  if (!REDIS || bakBusy) return; bakBusy = true;
+  try { const tag = parisDay(); if (!(await redis(["EXISTS", "bak:auto:" + tag]))) { const r = await writeBackup(tag); console.log("Sauvegarde du jour faite : " + r.keys + " clés, " + Math.round(r.bytes / 1024) + " Ko"); } }
+  catch (e) { console.error("Sauvegarde du jour impossible :", e.message); }
+  finally { bakBusy = false; }
+}
+setTimeout(dailyBackup, 90e3); setInterval(dailyBackup, 3 * 3600e3);
+const ADMIN_KEY = envClean(process.env.ADMIN_KEY);
+const adminOk = k => { if (!ADMIN_KEY || ADMIN_KEY.length < 16) return false; const a = Buffer.from(String(k || "")), b = Buffer.from(ADMIN_KEY); return a.length === b.length && crypto.timingSafeEqual(a, b); };
 // ---------- points des joueurs (classement général, progression) ----------
 const SKINS = require("./public/d/skins.js");   // catalogue des skins (partagé avec les pages)
 const skinMem = new Map();           // pseudo -> habillage porté (pour le classement)
@@ -594,7 +666,7 @@ const ALLOW = bet => bet >= 50 ? 70 : bet >= 20 ? 50 : bet >= 1 ? 35 : 20;
 function ensureWallet(p) {
   const wk = isoWeek();
   if (typeof p.coins !== "number") { p.coins = 70; p.wk = wk; p.wkBet = 0; return p; }
-  if (p.wk !== wk) { const add = ALLOW(p.wkBet || 0); p.coins = Math.min(300, p.coins + add); p.lastAllow = add; p.wk = wk; p.wkBet = 0; }
+  if (p.wk !== wk) { const add = ALLOW(p.wkBet || 0); p.coins = p.coins >= 300 ? p.coins : Math.min(300, p.coins + add); /* la dotation s'arrête à 300 mais ne retire jamais rien */ p.lastAllow = add; p.wk = wk; p.wkBet = 0; }
   return p;
 }
 const poker = makePoker({
@@ -754,7 +826,7 @@ function pack(raw) {
 // ---------- référencement : adresse canonique, aperçu de partage, robots.txt, sitemap.xml ----------
 const SITE = (process.env.SITE_URL || "https://mots-fleches-duo.onrender.com").replace(/\/$/, "");
 const OLDHOST_REDIRECT = !/\.onrender\.com/i.test(SITE);   // actif seulement quand SITE_URL est un vrai domaine
-const CANON = { "accueil.html": "/", "fl.html": "/fleches", "rd.html": "/rond", "mm.html": "/meles", "cg.html": "/culture", "poker.html": "/poker" };
+const CANON = { "regles.html": "/regles", "legal.html": "/mentions-legales", "accueil.html": "/", "fl.html": "/fleches", "rd.html": "/rond", "mm.html": "/meles", "cg.html": "/culture", "poker.html": "/poker" };
 function seoTags(file, txt) {
   const c = CANON[path.basename(file)]; if (c === undefined) return "";
   const t = (txt.match(/<title>([^<]*)<\/title>/) || [])[1] || "Motipop";
@@ -762,12 +834,20 @@ function seoTags(file, txt) {
   const u = SITE + c;
   return '\n<link rel="canonical" href="' + u + '"><meta property="og:type" content="website"><meta property="og:site_name" content="Motipop"><meta property="og:image" content="' + SITE + '/motipop-512.png"><meta property="og:locale" content="fr_FR"><meta property="og:url" content="' + u + '"><meta property="og:title" content="' + t + '"><meta property="og:description" content="' + d + '"><meta name="twitter:card" content="summary">';
 }
-const SITEMAP_PATHS = ["/", "/fleches", "/rond", "/meles", "/culture", "/poker"];
+// informations légales : réglées chez Render (CONTACT_EMAIL, et EDITEUR_NOM / EDITEUR_ADRESSE pour un éditeur professionnel)
+const escH = v => String(v).replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
+const CEMAIL = envClean(process.env.CONTACT_EMAIL);
+const CONTACT_HTML = /^[^\s@<>"]+@[^\s@<>"]+\.[a-z]{2,}$/i.test(CEMAIL) ? '<a href="mailto:' + escH(CEMAIL) + '">' + escH(CEMAIL) + "</a>" : '<span class="note">adresse de contact bientôt disponible</span>';
+const EDITEUR_HTML = envClean(process.env.EDITEUR_NOM)
+  ? "<b>" + escH(envClean(process.env.EDITEUR_NOM)) + "</b>" + (envClean(process.env.EDITEUR_ADRESSE) ? " — " + escH(envClean(process.env.EDITEUR_ADRESSE)) : "")
+  : "Motipop est édité à titre non professionnel par un particulier. Conformément à l'article 1-1 de la loi n° 2004-575 du 21 juin 2004 pour la confiance dans l'économie numérique, ses coordonnées ont été communiquées à l'hébergeur.";
+const SITEMAP_PATHS = ["/", "/fleches", "/rond", "/meles", "/culture", "/poker", "/regles", "/mentions-legales"];
 function page(file, inject) {
   const st = fs.statSync(file);
   const c = pages[file];
   if (c && c.mtime === st.mtimeMs) return c;
   let txt = fs.readFileSync(file, "utf8");
+  if (txt.includes("{{CONTACT}}") || txt.includes("{{EDITEUR}}")) txt = txt.split("{{CONTACT}}").join(CONTACT_HTML).split("{{EDITEUR}}").join(EDITEUR_HTML);
   if (inject) txt = txt.replace("<head>", "<head>\n<script>window.SUPPORT=" + SUPPORT + ";</script>" + (txt.includes('rel="canonical"') ? "" : seoTags(file, txt)));
   return (pages[file] = { ...pack(Buffer.from(txt)), mtime: st.mtimeMs });
 }
@@ -799,6 +879,22 @@ function sendStatic(req, res, name) {
   let p; try { p = page(path.join(__dirname, "public", "d", name), false); } catch { res.writeHead(404); return res.end(); }
   sendBody(req, res, p, STATIC[m[2]], /-[0-9a-f]{10}\./.test(name) ? "public, max-age=31536000, immutable" : "public, max-age=3600");
 }
+// espace d'administration des sauvegardes (seulement si ADMIN_KEY est réglée chez Render ; la clé n'est jamais écrite dans les journaux)
+async function adminRoute(req, res, url) {
+    const key = url.searchParams.get("key") || req.headers["x-admin-key"];
+    if (!adminOk(key)) { res.writeHead(404, { "content-type": "text/plain; charset=utf-8" }); return res.end("Introuvable"); }
+    const J = (c, o) => { res.writeHead(c, { "content-type": "application/json; charset=utf-8", "cache-control": "no-store" }); res.end(JSON.stringify(o, null, 1)); };
+    if (!REDIS) return J(503, { error: "Pas de stockage Redis sur ce serveur" });
+    try {
+      if (url.pathname === "/admin/sauvegardes" && req.method === "GET") return J(200, { sauvegardes: await listBackups(), aide: "Télécharger : /admin/telecharger?key=…&date=AAAAMMJJ · Sauvegarde immédiate : POST /admin/sauvegarder · Restaurer : POST /admin/restaurer?date=AAAAMMJJ&confirmer=RESTAURER" });
+      if (url.pathname === "/admin/telecharger" && req.method === "GET") { const tag = String(url.searchParams.get("date") || ""); if (!/^[\w-]{1,40}$/.test(tag)) return J(400, { error: "date ?" }); const b = await readBackup(tag); if (!b) return J(404, { error: "sauvegarde introuvable" });
+        res.writeHead(200, { "content-type": "application/json; charset=utf-8", "content-disposition": "attachment; filename=\"motipop-sauvegarde-" + tag + ".json\"", "cache-control": "no-store" }); return res.end(JSON.stringify(b)); }
+      if (url.pathname === "/admin/sauvegarder" && req.method === "POST") return J(200, await writeBackup(parisDay() + "-" + new Date().toISOString().slice(11, 16).replace(":", "")));
+      if (url.pathname === "/admin/restaurer" && req.method === "POST") { const tag = String(url.searchParams.get("date") || ""); if (url.searchParams.get("confirmer") !== "RESTAURER") return J(400, { error: "ajoute confirmer=RESTAURER" }); if (!/^[\w-]{1,40}$/.test(tag)) return J(400, { error: "date ?" });
+        const r = await restoreBackup(tag); console.log("Restauration de la sauvegarde " + tag + " : " + r.restored + " clés (état précédent gardé dans " + r.safety + ")"); return J(200, r); }
+    } catch (e) { console.error("Admin :", e.message); return J(500, { error: e.message }); }
+    return J(404, { error: "inconnu" });
+  }
 const server = http.createServer((req, res) => {
   const url = new URL(req.url, "http://x");
   // nouveau domaine : une fois SITE_URL réglé sur le domaine (ex. https://tuilo.fr), les visites de l'ancienne adresse
@@ -806,6 +902,7 @@ const server = http.createServer((req, res) => {
   if (OLDHOST_REDIRECT && (req.method === "GET" || req.method === "HEAD") && /\.onrender\.com$/i.test(String(req.headers.host || "").split(":")[0]) && !url.pathname.startsWith("/api/")) {
     res.writeHead(301, { location: SITE + url.pathname + url.search, "cache-control": "public, max-age=3600" }); return res.end();
   }
+  if (url.pathname.startsWith("/admin/")) return void adminRoute(req, res, url);
   if (url.pathname === "/healthz" && url.searchParams.get("redis") === "1") {
     const t0 = Date.now();
     return void (REDIS ? redis(["PING"]).then(v => ({ ping: v }), e => ({ ping: "échec", err: e.message })) : Promise.resolve({ ping: "pas de Redis" }))
@@ -839,6 +936,9 @@ const server = http.createServer((req, res) => {
   { const wf = url.pathname.match(/^(\/[A-Za-z0-9]{5})?\/wordflush\/?$/i); if (wf) { res.writeHead(301, { location: (wf[1] || "") + "/poker" + url.search }); return res.end(); } }
   // le mot du jour a été retiré le 8/11/2026 : les anciens liens ramènent à l'accueil
   if (url.pathname === "/mot" || url.pathname === "/mot/") { res.writeHead(301, { location: "/" }); return res.end(); }
+  // pages d'information : règles et jetons, informations légales (3 adresses vers la même page, ouverte à la bonne section)
+  if (url.pathname === "/regles" || url.pathname === "/regles/") return sendPage(req, res, path.join(__dirname, "public", "regles.html"));
+  if (/^\/(?:mentions-legales|confidentialite|conditions|legal)\/?$/.test(url.pathname)) return sendPage(req, res, path.join(__dirname, "public", "legal.html"));
   if (/^\/(?:[A-Za-z0-9]{5}\/)?rond\/?$/.test(url.pathname)) return sendPage(req, res, path.join(__dirname, "public", "rd.html"));
   if (/^\/(?:[A-Za-z0-9]{5}\/)?meles\/?$/.test(url.pathname)) return sendPage(req, res, path.join(__dirname, "public", "mm.html"));
   // icône du site (onglet du navigateur)

@@ -899,6 +899,7 @@ a.logo{text-decoration:none;color:inherit}a.logo:focus-visible{outline:2px solid
       <h3>Classement du salon</h3><div id="cSalon"></div>
     </div>
   </main>
+<footer class="sitefoot" style="margin:22px 4px 34px;display:flex;flex-wrap:wrap;justify-content:center;gap:6px 16px;font-size:.85rem"><a href="/regles" style="color:inherit;opacity:.8">Règles et jetons</a><a href="/mentions-legales" style="color:inherit;opacity:.8">Mentions légales</a><a href="/confidentialite" style="color:inherit;opacity:.8">Confidentialité</a><a href="/conditions" style="color:inherit;opacity:.8">Conditions d'utilisation</a></footer>
 </main>
 
 </div>
@@ -1387,7 +1388,7 @@ const TUTO={
  fleches:[["👆","Choisis un mot","Touche une définition (ou une case) : le mot s'éclaire dans la grille. ⇄ change le sens."],["⌨️","Écris et valide","Tape les lettres puis « Valider » : 1 point par bonne lettre, 3 de plus par mot complété. 💡 révèle une lettre, sans points."],["🔢","Le mot mystère","Les cases numérotées (2 points de plus chacune) forment le mot mystère, avec un indice sous la grille. À deux, chacun son tour."]],
  rond:[["⭕","18 définitions","Chaque rond est une définition : sa réponse fait toujours 6 lettres."],["✍️","Écris tout autour","Touche un rond, tape les 6 lettres puis « Valider ». Le mot s'écrit dans les cases qui l'entourent, partagées avec les ronds voisins."],["🎯","Ricochets","Mot juste : +10 points. Si ton mot complète un voisin, c'est un ricochet : +10 de plus."]],
  meles:[["🔎","Trouve les mots","Les mots de la liste sont cachés dans la grille, dans tous les sens, même à l'envers."],["👉","Glisse ou touche","Glisse du début à la fin du mot, ou touche sa 1re puis sa dernière lettre."],["⚡","Le plus rapide gagne","Chaque mot trouvé rapporte des points. À deux, un mot déjà pris ne compte plus."]],
- culture:[["❓","10 questions","Chaque partie compte 10 questions, avec ou sans image."],["⏱️","20 secondes","Choisis parmi 4 réponses (touches 1 à 4). Bonne réponse : 10 points, et jusqu'à 5 de plus si tu es rapide."],["💡","Le savais-tu ?","Après chaque question, une anecdote t'en apprend un peu plus."]],
+ culture:[["❓","10 questions mélangées","Images, culture, calculs, casse-tête et une question « Tout le monde a son mot à dire »."],["⏱️","20 secondes","Choisis parmi 4 réponses (touches 1 à 4). Bonne réponse : 10 points, et jusqu'à 5 de plus si tu es rapide."],["🗣️","À toi de le dire","Pour « Tout le monde a son mot à dire », tape ta réponse en 30 s : toutes les bonnes réponses comptent, une réponse originale rapporte +3."]],
  poker:[["🃏","Tes lettres","Tu reçois 2 lettres cachées ; 5 lettres communes arrivent au milieu (3, puis 1, puis 1)."],["🪙","Mise ou couche-toi","À chaque étape : parole, suivre, relancer, tapis ou se coucher. Si tout le monde se couche, tu gagnes le pot."],["🏆","Le meilleur mot","À la fin, forme un mot avec tes lettres et celles du milieu (au moins une des tiennes). Le meilleur score emporte le pot."]]};
 function tuto(k,done){const S=TUTO[k];if(!S||LS.get("fl-tuto-"+k))return done();let i=0;const o=$("#tuto");
   const show=()=>{const [ic,t,p]=S[i];$("#tutoI").textContent=ic;$("#tutoT").textContent=t;$("#tutoP").textContent=p;$("#tutoN").textContent=(i+1)+"/"+S.length;
