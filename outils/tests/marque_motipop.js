@@ -9,6 +9,6 @@ for(const [path,name] of [["/","accueil"],["/fleches?go=solo","fl"],["/rond?go=s
  console.log(vw[2],name,JSON.stringify(r));
  if(name==="accueil"||name==="fl"||name==="poker")await p.screenshot({path:SP+"tu_"+vw[2]+"_"+name+".png",clip:{x:0,y:0,width:vw[0],height:Math.min(260,vw[1])}});await p.close()}
  await ctx.close()}
-for(const u of ["/favicon.svg","/apple-touch-icon.png","/d/tuilo-512.png"]){const r=await fetch("http://localhost:3100"+u);console.log(u,r.status,r.headers.get("content-type"),(await r.arrayBuffer()).byteLength)}
+for(const u of ["/favicon.svg","/apple-touch-icon.png","/motipop-512.png"]){const r=await fetch("http://localhost:3100"+u);console.log(u,r.status,r.headers.get("content-type"),(await r.arrayBuffer()).byteLength)}
 const h=await (await fetch("http://localhost:3100/")).text();console.log("og:",(h.match(/og:site_name" content="[^"]*"|og:image" content="[^"]*"/g)||[]).join(" | "));
 console.log("erreurs",errs);await b.close()})();

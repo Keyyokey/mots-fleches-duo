@@ -1,4 +1,4 @@
-// Tuilo (ex-Mots Fléchés Duo) — serveur du site (Node.js + WebSocket)
+// Motipop (ex-Mots Fléchés Duo) — serveur du site (Node.js + WebSocket)
 // Chaque « salon » (code de 5 caractères dans le lien) partage ses parties en direct.
 // Lancer : npm install  puis  npm start   →  http://localhost:3000
 "use strict";
@@ -757,10 +757,10 @@ const OLDHOST_REDIRECT = !/\.onrender\.com/i.test(SITE);   // actif seulement qu
 const CANON = { "accueil.html": "/", "fl.html": "/fleches", "rd.html": "/rond", "mm.html": "/meles", "cg.html": "/culture", "poker.html": "/poker" };
 function seoTags(file, txt) {
   const c = CANON[path.basename(file)]; if (c === undefined) return "";
-  const t = (txt.match(/<title>([^<]*)<\/title>/) || [])[1] || "Tuilo";
+  const t = (txt.match(/<title>([^<]*)<\/title>/) || [])[1] || "Motipop";
   const d = (txt.match(/<meta name="description" content="([^"]*)"/) || [])[1] || "";
   const u = SITE + c;
-  return '\n<link rel="canonical" href="' + u + '"><meta property="og:type" content="website"><meta property="og:site_name" content="Tuilo"><meta property="og:image" content="' + SITE + '/tuilo-512.png"><meta property="og:locale" content="fr_FR"><meta property="og:url" content="' + u + '"><meta property="og:title" content="' + t + '"><meta property="og:description" content="' + d + '"><meta name="twitter:card" content="summary">';
+  return '\n<link rel="canonical" href="' + u + '"><meta property="og:type" content="website"><meta property="og:site_name" content="Motipop"><meta property="og:image" content="' + SITE + '/motipop-512.png"><meta property="og:locale" content="fr_FR"><meta property="og:url" content="' + u + '"><meta property="og:title" content="' + t + '"><meta property="og:description" content="' + d + '"><meta name="twitter:card" content="summary">';
 }
 const SITEMAP_PATHS = ["/", "/fleches", "/rond", "/meles", "/culture", "/poker"];
 function page(file, inject) {
@@ -842,9 +842,9 @@ const server = http.createServer((req, res) => {
   if (/^\/(?:[A-Za-z0-9]{5}\/)?rond\/?$/.test(url.pathname)) return sendPage(req, res, path.join(__dirname, "public", "rd.html"));
   if (/^\/(?:[A-Za-z0-9]{5}\/)?meles\/?$/.test(url.pathname)) return sendPage(req, res, path.join(__dirname, "public", "mm.html"));
   // icône du site (onglet du navigateur)
-  // icônes Tuilo : onglet (SVG) et écran d'accueil du téléphone (PNG)
+  // icônes Motipop : onglet (SVG) et écran d'accueil du téléphone (PNG)
   if (url.pathname === "/favicon.ico" || url.pathname === "/favicon.svg") { res.writeHead(200, { "content-type": "image/svg+xml", "cache-control": "public, max-age=86400" }); return res.end(FAVICON); }
-  if (url.pathname === "/apple-touch-icon.png" || url.pathname === "/tuilo-512.png") { const f = url.pathname === "/tuilo-512.png" ? "tuilo-512.png" : "tuilo-180.png"; res.writeHead(200, { "content-type": "image/png", "cache-control": "public, max-age=86400" }); return res.end(fs.readFileSync(path.join(__dirname, "public", "d", f))); }
+  if (url.pathname === "/apple-touch-icon.png" || url.pathname === "/motipop-512.png") { const f = url.pathname === "/motipop-512.png" ? "motipop-512.png" : "motipop-180.png"; res.writeHead(200, { "content-type": "image/png", "cache-control": "public, max-age=86400" }); return res.end(fs.readFileSync(path.join(__dirname, "public", "d", f))); }
   if (/^\/(?:[A-Za-z0-9]{5}\/)?culture\/?$/.test(url.pathname)) return sendPage(req, res, path.join(__dirname, "public", "cg.html"));
   if (/^\/(?:[A-Za-z0-9]{5}\/)?fleches\/?$/.test(url.pathname)) return sendPage(req, res, path.join(__dirname, "public", "fl.html"));
   if (/^\/(?:[A-Za-z0-9]{5}\/)?poker\/?$/.test(url.pathname)) return sendPage(req, res, path.join(__dirname, "public", "poker.html"));
@@ -916,4 +916,4 @@ async function resetOnce() {
 // une erreur imprévue dans un salon ne doit pas arrêter tout le site (les autres parties continuent) : on la note dans le journal
 process.on("uncaughtException", e => console.error("Erreur imprévue (le serveur continue) :", e && e.stack || e));
 process.on("unhandledRejection", e => console.error("Promesse rejetée (le serveur continue) :", e && e.stack || e));
-Promise.all([backupReady, resetOnce()]).then(() => server.listen(PORT, () => console.log("Tuilo en ligne sur http://localhost:" + PORT + (REDIS ? " (stockage Redis actif)" : ""))));
+Promise.all([backupReady, resetOnce()]).then(() => server.listen(PORT, () => console.log("Motipop en ligne sur http://localhost:" + PORT + (REDIS ? " (stockage Redis actif)" : ""))));
