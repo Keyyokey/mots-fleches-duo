@@ -668,6 +668,10 @@ table.bar td,table.bar th{padding:5px 6px;border-bottom:1px solid rgba(255,255,2
 </style>
 <style>
 /* Poker V2 : relance au choix, risque, cagnotte, Mot Max, robot Léo */
+.pkforce{display:flex;align-items:center;gap:10px;margin:0 0 8px;padding:8px 12px;border-radius:14px;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.14);cursor:pointer;font-size:.86rem;color:#e7f6ee}
+.pkforce .fbars{display:flex;gap:3px;flex:none}.pkforce .fbars i{width:9px;height:16px;border-radius:4px;background:rgba(255,255,255,.16)}
+.pkforce[data-l="1"] .fbars i.on{background:#f87171}.pkforce[data-l="2"] .fbars i.on{background:#fbbf24}.pkforce[data-l="3"] .fbars i.on{background:#4ade80}.pkforce[data-l="4"] .fbars i.on{background:linear-gradient(180deg,#5eead4,#a78bfa)}
+.pkforce .ft{display:flex;flex-direction:column;line-height:1.25;min-width:0}.pkforce .ft small{opacity:.75}.pkforce.off{opacity:.7}
 .pkrisk{min-height:1.3em;font-size:.86rem;color:#d8f5e6;text-align:center;margin:2px 0 6px}.pkrisk b{color:var(--gold)}.pkrisk .warn,.pkcalc .warn{color:#fca5a5;font-weight:700}
 .pkraise{margin-top:8px;padding:10px 12px;border-radius:14px;background:rgba(0,0,0,.28);border:1px solid rgba(255,255,255,.18);display:flex;flex-direction:column;gap:8px}.pkraise[hidden]{display:none}
 .pkraise .rzhead{display:flex;justify-content:space-between;align-items:baseline;gap:8px;flex-wrap:wrap}.pkraise .rzhead b{color:var(--gold);font-size:1.15rem}
@@ -756,6 +760,7 @@ table.bar td,table.bar th{padding:5px 6px;border-bottom:1px solid rgba(255,255,2
       <div class="pklobby" id="pkLobby" hidden></div>
       </div>
       <div class="glass pkcard">
+        <div class="pkforce" id="pkForce" hidden></div>
         <div class="pkrisk" id="pkRisk" aria-live="polite"></div>
         <div class="pkact"><button class="btn" data-a="fold">Se coucher</button><button class="btn" data-a="call">Suivre</button><button class="btn primary" data-a="raise">Relancer</button><button class="btn gold" data-a="allin">Tapis</button></div>
         <div class="pkraise" id="pkRaise" hidden>
@@ -878,7 +883,7 @@ function render(){const st=ST;const lob=$("#pkLobby");if(st&&PREV&&st.hand!==PRE
   const minTo=st.bet+(st.minInc||st.ante*2),maxTo=me?me.roundBet+me.stack:0;
   $('[data-a="raise"]').textContent=me&&maxTo>st.bet?"Relancer…":"Relancer";$('[data-a="raise"]').disabled=!myTurn||maxTo<=st.bet;
   $('[data-a="allin"]').textContent=me&&me.stack?"Tapis ("+me.stack+")":"Tapis";$('[data-a="allin"]').disabled=!myTurn||!me||!me.stack;
-  $(".pkact").classList.toggle("myturn",!!myTurn);$("#pkRisk").innerHTML=myTurn?"<b class='yt'>▶ À toi de jouer</b> · "+(owe?"À payer : <b>"+Math.min(owe,me.stack)+"</b>":"Rien à payer")+" · ton solde <b>"+me.stack+"</b> · pot <b>"+st.pot+"</b>"+(owe>=me.stack?" · <span class='warn'>suivre = tapis</span>":""):(st.phase==="mise"&&st.seats&&st.seats[st.turn]?"⏳ Tour de <b>"+esc(st.seats[st.turn].name)+"</b> · pot <b>"+st.pot+"</b>":"");
+  forceShow(st,me);$(".pkact").classList.toggle("myturn",!!myTurn);$("#pkRisk").innerHTML=myTurn?"<b class='yt'>▶ À toi de jouer</b> · "+(owe?"À payer : <b>"+Math.min(owe,me.stack)+"</b>":"Rien à payer")+" · ton solde <b>"+me.stack+"</b> · pot <b>"+st.pot+"</b>"+(owe>=me.stack?" · <span class='warn'>suivre = tapis</span>":""):(st.phase==="mise"&&st.seats&&st.seats[st.turn]?"⏳ Tour de <b>"+esc(st.seats[st.turn].name)+"</b> · pot <b>"+st.pot+"</b>":"");
   if(!myTurn){$("#pkRaise").hidden=true;$("#pkAllin").hidden=true}else RZ={min:Math.min(minTo,maxTo),max:maxTo,pot:st.pot,bet:st.bet,owe};
   // phase « mot »
   const wp=st.phase==="mot"&&me&&!me.folded;$("#pkWordCard").classList.toggle("wordphase",wp);$("#pkWClk").style.display=wp?"":"none";$("#pkIn").disabled=!!LOCKED||!(me&&!me.folded&&(st.phase==="mot"||st.phase==="mise"));
@@ -892,7 +897,14 @@ function render(){const st=ST;const lob=$("#pkLobby");if(st&&PREV&&st.hand!==PRE
 function seatHTML(st,s,i,mine){const turn=st.phase==="mise"&&st.turn===i;const cls="seat"+(mine?" me":"")+(turn?" turn":st.started&&st.phase==="mise"?" idle":"")+(s.folded||s.out||s.gone?" out":"");
   const hand=s.hand?s.hand.map((c,k)=>card(c,"mine","s"+i+"-"+k)).join(""):(st.started&&!s.out?card(null,"back","s"+i+"-0")+card(null,"back","s"+i+"-1"):"");
   return '<div class="'+cls+'" data-i="'+i+'" style="--c:'+(mine?"var(--gold)":PCOL[i%6])+'"><div class="shead"><span class="ava" style="background:'+PCOL[i%6]+'">'+esc(s.name[0])+'</span><b>'+esc(s.name)+'</b>'+(s.bot?' <span class="botb" title="Robot : il ne voit que ses lettres et les lettres communes">Robot</span>':"")+'<span class="rclk" data-clk="'+i+'">'+(turn?"":"–")+'</span></div><div class="chips">🪙 '+s.stack+(s.inPot?" · mise "+s.inPot:"")+(s.last?" · "+esc(s.last):"")+(s.gone?" · parti":"")+(st.phase==="mot"&&!s.folded?(s.wordDone?" · 🔒 "+(s.wordLen?s.wordLen+" lettres verrouillées":"verrouillé"):" · ✍️…"):"")+'</div><div class="cards'+(mine?"":" sm")+'">'+hand+'</div></div>'}
-function tick(){if(!ST)return;const left=ST.deadline-(Date.now()+skew);
+// jauge « force de ta main » pendant les mises (calculée par le serveur, sans jamais donner le mot)
+const FLV=["Aucun mot","Faible","Correcte","Bonne","Très forte"];
+function forceShow(st,me){const b=$("#pkForce");if(!b)return;const f=st&&st.force;if(!f||!me||me.folded||(st.dealEnd&&Date.now()+skew<st.dealEnd)){b.hidden=true;return}const key=JSON.stringify(f)+LS.get("fl-pkforce");if(!b.hidden&&b.dataset.k===key)return;b.dataset.k=key;b.hidden=false;b.dataset.l=f.level;
+  const off=LS.get("fl-pkforce")==="off";b.classList.toggle("off",off);b.title=off?"Afficher la force de ta main":"Masquer la force de ta main";
+  if(off){b.innerHTML='<span class="ft"><b>Force de ta main</b><small>masquée · touche pour l\u2019afficher</small></span>';return}
+  const n=Math.round(f.pct/10);b.innerHTML='<span class="fbars" aria-hidden="true">'+[1,2,3,4].map(k=>'<i class="'+(k<=f.level?"on":"")+'"></i>').join("")+'</span><span class="ft"><b>Ta main : '+FLV[f.level]+'</b><small>'+(f.words?"Meilleure que "+n+" main"+(n>1?"s":"")+" sur 10 avec ces lettres · "+f.words+" mot"+(f.words>1?"s":"")+" possible"+(f.words>1?"s":"")+" · jusqu\u2019à "+f.best+" pts":"Aucun mot avec tes lettres pour l\u2019instant"+(st.shown<5?" · d\u2019autres lettres arrivent":""))+'</small></span>'}
+document.addEventListener("click",e=>{if(e.target.closest("#pkForce")){$("#pkForce").dataset.k="";LS.set("fl-pkforce",LS.get("fl-pkforce")==="off"?"on":"off");forceShow(ST,ST&&ST.seats?ST.seats[ST.me]:null)}});
+function tick(){if(!ST)return;forceShow(ST,ST.seats?ST.seats[ST.me]:null);const left=ST.deadline-(Date.now()+skew);
   $$("[data-clk]").forEach(c=>{const i=+c.dataset.clk;const on=ST.phase==="mise"&&ST.turn===i;c.textContent=on?fmt(Math.min(left,ST.dec*1000)):"–";c.classList.toggle("low",on&&left<=10500)});
   const w=$("#pkWClk");if(ST.phase==="mot"){w.textContent=fmt(left);w.classList.toggle("low",left<=10500);
     if(left<1500&&!window.__autoSent&&$("#pkIn").value){window.__autoSent=true;pk({a:"word",w:$("#pkIn").value})}}else window.__autoSent=false}

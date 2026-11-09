@@ -56,6 +56,20 @@ function bestWord(hand, board, limit) {
   if (limit) { if (!WC) WC = WORDS.map(w => [w, count(w)]); const have = count(hand.concat(board)), hc = count(hand); for (const [w, wc] of WC) if (fits(wc, have) && privUsed(wc, hc) >= 1) return { w, pts: 1 }; return null; }
   let best = null; for (const x of allWords(hand, board)) if (better(x, best)) best = x; return best;
 }
+// Force de la main pendant les mises : le meilleur score que permettent tes 2 lettres et les lettres déjà retournées,
+// comparé à 24 mains de 2 lettres tirées parmi les lettres encore invisibles pour toi (même table). Le mot lui-même n'est jamais donné.
+function handForce(hand, board, unseen) {
+  const mine = allWords(hand, board), best = mine.length ? Math.max(...mine.map(x => x.pts)) : 0;
+  const pool = []; for (const c in unseen) for (let k = 0; k < unseen[c]; k++) pool.push(c);
+  let beat = 0, tie = 0; const N = 24;
+  for (let i = 0; i < N && pool.length > 1; i++) {
+    const a = rnd(pool.length); let b = rnd(pool.length - 1); if (b >= a) b++;
+    const o = allWords([pool[a], pool[b]], board), ob = o.length ? Math.max(...o.map(x => x.pts)) : 0;
+    if (best > ob) beat++; else if (best === ob) tie++;
+  }
+  const pct = Math.round(100 * (beat + tie / 2) / N);
+  return { best, words: mine.length, pct, level: !mine.length ? 0 : pct < 35 ? 1 : pct < 60 ? 2 : pct < 82 ? 3 : 4 };
+}
 // le robot Léo : débutant = mots courants courts, intermédiaire = parmi ses 10 meilleurs, confirmé = son Mot Max
 function botWord(hand, board, lvl) {
   let all = allWords(hand, board); if (!all.length) return null;
@@ -93,6 +107,7 @@ module.exports = function (hooks) {
       pot: t.pot || 0, carry: 0, dealEnd: t.dealEnd || 0, bank: 0, jackpot: jpGet(t), minInc: t.minInc || t.ante * 2, botLvl: t.botLvl, bareme: BAREME, dict: DICT_VERSION, bet: t.bet || 0, turn: t.turn, deadline: t.deadline, now: Date.now(), commit: t.commit || "", reveal: t.phase === "abattage" || t.phase === "fin" ? t.revealDeck || "" : "",
       board: (t.board || []).map((c, i) => i < (t.shown || 0) ? c : null), shown: t.shown || 0,
       deckLeft: me ? leftFor(t, me) : null,
+      force: me && me.hand && !me.folded && !me.bot && t.phase === "mise" ? forceOf(t, me) : null,
       seats: t.seats.map((s, i) => ({ name: s.name, bot: !!s.bot, stack: s.stack, inPot: s.inPot || 0, roundBet: s.roundBet || 0, folded: !!s.folded, allin: !!s.allin, out: !!s.out, here: s.bot || !!s.ws, gone: !!s.gone,
         acted: !!s.acted, wordDone: !!s.word, wordLen: s.word && s.word !== "-" ? s.word.length : 0, last: s.last || "", hand: i === seatIdx ? s.hand : (show && !s.folded && s.hand ? s.hand : null), result: show ? s.result || null : null })),
       me: seatIdx, results: t.results || null, msg: t.msg || "", jackpotWon: t.jpWon || null,
@@ -100,6 +115,7 @@ module.exports = function (hooks) {
       mymax: show && me && me.max ? me.max : null
     };
   }
+  function forceOf(t, s) { const k = t.hand + ":" + (t.shown || 0); if (s.forceK !== k) { s.forceK = k; s.force = handForce(s.hand, (t.board || []).slice(0, t.shown || 0), leftFor(t, s)); } return s.force; }
   function leftFor(t, s) { const seen = (t.board || []).slice(0, t.shown || 0).concat(s.hand || []); const m = { ...DECK }; for (const c of seen) m[c]--; return m; }
   function broadcast(t) {
     t.seats.forEach((s, i) => { if (s.ws) hooks.send(s.ws, { t: "pkst", st: publicState(t, i) }); });
