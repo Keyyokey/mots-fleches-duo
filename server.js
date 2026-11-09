@@ -753,6 +753,7 @@ function pack(raw) {
 }
 // ---------- référencement : adresse canonique, aperçu de partage, robots.txt, sitemap.xml ----------
 const SITE = (process.env.SITE_URL || "https://mots-fleches-duo.onrender.com").replace(/\/$/, "");
+const OLDHOST_REDIRECT = !/\.onrender\.com/i.test(SITE);   // actif seulement quand SITE_URL est un vrai domaine
 const CANON = { "accueil.html": "/", "fl.html": "/fleches", "rd.html": "/rond", "mm.html": "/meles", "cg.html": "/culture", "poker.html": "/poker" };
 function seoTags(file, txt) {
   const c = CANON[path.basename(file)]; if (c === undefined) return "";
@@ -800,6 +801,11 @@ function sendStatic(req, res, name) {
 }
 const server = http.createServer((req, res) => {
   const url = new URL(req.url, "http://x");
+  // nouveau domaine : une fois SITE_URL réglé sur le domaine (ex. https://tuilo.fr), les visites de l'ancienne adresse
+  // onrender sont redirigées (301) vers la même page du domaine. Les appels API (POST) et le WebSocket ne sont pas touchés.
+  if (OLDHOST_REDIRECT && (req.method === "GET" || req.method === "HEAD") && /\.onrender\.com$/i.test(String(req.headers.host || "").split(":")[0]) && !url.pathname.startsWith("/api/")) {
+    res.writeHead(301, { location: SITE + url.pathname + url.search, "cache-control": "public, max-age=3600" }); return res.end();
+  }
   if (url.pathname === "/healthz" && url.searchParams.get("redis") === "1") {
     const t0 = Date.now();
     return void (REDIS ? redis(["PING"]).then(v => ({ ping: v }), e => ({ ping: "échec", err: e.message })) : Promise.resolve({ ping: "pas de Redis" }))
