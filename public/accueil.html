@@ -750,7 +750,12 @@ a.logo{text-decoration:none;color:inherit}a.logo:focus-visible{outline:2px solid
 @media (max-width:699px){.herocard{padding:20px 16px;min-height:0}.hvis{display:none}.ctas .cta{flex:1 1 100%;justify-content:center}}
 @media (prefers-reduced-motion:reduce){.hc,.ctas .btn.primary{animation:none!important}}
 </style>
-<script src="/d/icons.js" defer></script><style id="tlogo-sm">@media (max-width:420px){#logoHome .tlogo svg{height:31px!important}#logoHome small{font-size:.54rem!important;letter-spacing:.12em!important}}</style></head>
+<script src="/d/icons.js" defer></script><style id="tlogo-sm">@media (max-width:420px){#logoHome .tlogo svg{height:31px!important}#logoHome small{font-size:.54rem!important;letter-spacing:.12em!important}}</style><style id="dash">.dash .dleft{display:flex;flex-direction:column;gap:14px;min-width:0}.dash .card{border-radius:var(--radius-card)}
+.rtabs{display:flex;gap:8px;margin:0 0 12px;flex-wrap:wrap}.rtabs button{flex:1 1 auto;padding:9px 14px;border-radius:14px;border:1px solid var(--stroke,rgba(255,255,255,.18));background:rgba(255,255,255,.08);color:inherit;font:800 .98rem Nunito,Inter,sans-serif;cursor:pointer;backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px)}
+.rtabs button.on{background:rgba(255,255,255,.2);border-color:rgba(255,255,255,.35);box-shadow:inset 0 1px 0 rgba(255,255,255,.25)}.rtabs button:focus-visible{outline:2px solid #2DE2C8;outline-offset:2px}
+.sitefoot{text-align:center}
+.dash{align-items:stretch}.dash .rankcard{flex:1 1 auto}.rtabs{flex-wrap:nowrap}.rtabs button{flex:1 1 0;min-width:0;line-height:1.2}
+@media (max-width:620px){.rtabs{gap:6px}.rtabs button{padding:8px 6px;font-size:.84rem}}</style></head>
 <body>
 <div class="blob b1"></div><div class="blob b2"></div><div class="blob b3"></div>
 <div class="wrap">
@@ -839,19 +844,21 @@ a.logo{text-decoration:none;color:inherit}a.logo:focus-visible{outline:2px solid
 
 <!-- ============ ACCUEIL ============ -->
 <main class="view on" id="v-accueil">
-  <section class="hero2" aria-labelledby="heroT">
-    <div class="glass herocard">
-      <div class="htxt">
-        <h1 id="heroT">Ton univers de <span class="hjeux">jeux</span></h1>
-        <p class="promise">Joue, progresse et gagne des points avec tes jeux de lettres préférés, seul ou entre amis.</p>
-        <div class="ctas"><button class="btn primary cta" id="ctaPlay" type="button">▶ Jouer maintenant</button><button class="btn cta" id="ctaResume" type="button" hidden>↺ Reprendre ma partie</button><a class="btn cta" id="ctaDisc" href="#nosJeux">Découvrir les jeux</a></div>
+  <section class="hero2 dash" aria-label="Mon espace">
+    <div class="dleft">
+      <div class="glass card rankcard">
+        <div class="rtabs" role="tablist" aria-label="Classements"><button type="button" role="tab" class="on" aria-selected="true" data-r="cRank">Classement général</button><button type="button" role="tab" aria-selected="false" data-r="cSalon">Classement de ton salon</button></div>
+        <div id="cRank" role="tabpanel"><div class="note">Chargement…</div></div>
+        <div id="cSalon" role="tabpanel" hidden></div>
       </div>
-      <div class="hvis" aria-hidden="true"><span class="hc c1">A</span><span class="hc c2">?</span><span class="hc c3">M</span><span class="hc c4 grid"><i></i><i></i><i></i><i></i></span></div>
+      <div class="glass card">
+        <h3>Joueurs connectés</h3><div id="cPeers"></div>
+      </div>
     </div>
     <div class="glass card progcard">
       <h3>Ma progression</h3><div class="kpis" id="cKpi"></div><div class="chartTabs" id="chartTabs"><button class="on" data-c="0">Fléchés</button><button data-c="1">Tourniquet</button><button data-c="2">Mêlés</button><button data-c="3">Wordflush</button></div><svg class="chart" id="chart" viewBox="0 0 300 118"></svg><div class="chartSub" id="chartSub"></div>
     </div>
-  </main>
+  </section>
   <h2 class="sec2" id="nosJeux"><span aria-hidden="true">🎮</span> Nos jeux</h2>
 
   <div class="games">
@@ -887,18 +894,6 @@ a.logo{text-decoration:none;color:inherit}a.logo:focus-visible{outline:2px solid
       </div>
     </div>
   </div>
-  <h2 class="sec2"><span aria-hidden="true">👤</span> Mon espace</h2>
-  <section class="space" aria-label="Mon espace">
-    <div class="glass card">
-      <h3>Classement général</h3><div id="cRank"><div class="note">Chargement…</div></div>
-    </div>
-    <div class="glass card">
-      <h3>Joueurs connectés</h3><div id="cPeers"></div>
-    </div>
-    <div class="glass card salonbox">
-      <h3>Classement du salon</h3><div id="cSalon"></div>
-    </div>
-  </main>
 <footer class="sitefoot" style="margin:22px 4px 34px;display:flex;flex-wrap:wrap;justify-content:center;gap:6px 16px;font-size:.85rem"><a href="/regles" style="color:inherit;opacity:.8">Règles et jetons</a><a href="/mentions-legales" style="color:inherit;opacity:.8">Mentions légales</a><a href="/confidentialite" style="color:inherit;opacity:.8">Confidentialité</a><a href="/conditions" style="color:inherit;opacity:.8">Conditions d'utilisation</a></footer>
 </main>
 
@@ -1406,9 +1401,11 @@ $("#cfgGo").onclick=()=>{if(CFG.m!=="resume"&&!CFG.opp&&TUTO[CFG.k]&&!LS.get("fl
 $$("#pkFmt button").forEach(b=>b.onclick=()=>$$("#pkFmt button").forEach(x=>x.classList.toggle("on",x===b)));
 // « Reprendre » : une partie non terminée est gardée dans le navigateur pour ce salon
 // ---------- accueil V2 : boutons de bienvenue, progression compacte ----------
-$("#ctaPlay").onclick=()=>pickGame(null,"solo");{const lh=$("#logoHome");if(lh&&CODE)lh.href="/"+CODE}
-$("#ctaResume").onclick=()=>{const r=document.querySelector('.tile [data-mode="resume"]');if(r)r.click()};
-function renderCta(){const has=!!document.querySelector('.tile [data-mode="resume"]');$("#ctaResume").hidden=!has;$("#ctaDisc").hidden=has}
+if($("#ctaPlay"))$("#ctaPlay").onclick=()=>pickGame(null,"solo");{const lh=$("#logoHome");if(lh&&CODE)lh.href="/"+CODE}
+if($("#ctaResume"))$("#ctaResume").onclick=()=>{const r=document.querySelector('.tile [data-mode="resume"]');if(r)r.click()};
+function renderCta(){const has=!!document.querySelector('.tile [data-mode="resume"]');if($("#ctaResume")){$("#ctaResume").hidden=!has;$("#ctaDisc").hidden=has}}
+// classements à onglets : général / ton salon
+document.addEventListener("click",e=>{const b=e.target.closest(".rtabs button");if(!b)return;document.querySelectorAll(".rtabs button").forEach(x=>{const on=x===b;x.classList.toggle("on",on);x.setAttribute("aria-selected",on);const p=document.getElementById(x.dataset.r);if(p)p.hidden=!on})});
 const TODAY=(()=>{const d=new Date();return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0")})();
 function renderKpi(){const box=$("#cKpi");if(!box)return;
   if(!ME||ME.stale){box.innerHTML='<button class="btn primary" id="kLogin" type="button" style="grid-column:1/-1">Créer mon pseudo / me connecter</button>';$("#kLogin").onclick=()=>{const b=document.querySelector(".me-pill");if(b)b.click()};return}
