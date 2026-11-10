@@ -340,7 +340,25 @@ button{font:inherit;color:inherit;cursor:pointer}
 .pkact .btn{padding:10px 8px}
 .btn.gold{background:linear-gradient(135deg,#ffc857,#e8a33d);color:#2a1a00;border-color:transparent}
 .coins{color:var(--gold);font-size:1.1rem}
-.pkres{display:flex;flex-direction:column;gap:6px;width:100%}
+.pkres{display:flex;flex-direction:column;gap:6px;width:100%}.pkres[hidden]{display:none!important}.pkforce[hidden],.pkraise[hidden],.pksteps[hidden]{display:none!important}
+.pksteps{display:flex;gap:6px;width:100%;justify-content:center}.pksteps span{flex:1;text-align:center;padding:6px 4px;border-radius:999px;font-size:.78rem;font-weight:800;color:rgba(255,255,255,.55);background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1)}
+.pksteps span.on{color:#1d1406;background:linear-gradient(135deg,#ffd27a,#f4b33d);border-color:transparent;box-shadow:0 0 14px rgba(255,200,87,.35)}.pksteps span.done{color:#c9f3dd}
+.wlater{display:none;align-items:center;gap:10px;width:100%;font-size:.88rem;color:#dfe7f5}.wlater span{flex:1}.wlater .btn{flex:none}
+#pkWordCard.later>.wlater{display:flex}#pkWordCard.later:not(.prep)>:not(.flrow):not(.wlater){display:none!important}#pkWordCard.later.prep>.wlater{display:none}
+.wletters{display:flex;flex-wrap:wrap;gap:6px;width:100%;justify-content:center}.wletters:empty{display:none}
+.wletters button{width:38px;height:44px;border-radius:9px;border:0;font:900 1.25rem Nunito,Inter,sans-serif;color:#2a1d0c;background:linear-gradient(180deg,#fff7e3,#efd9a8);box-shadow:inset 0 -3px 0 rgba(120,85,40,.35),0 3px 8px rgba(0,0,0,.25);position:relative;cursor:pointer}
+.wletters button.mine{box-shadow:inset 0 -3px 0 rgba(120,85,40,.35),0 0 0 2px var(--gold),0 3px 10px rgba(255,200,87,.35)}.wletters button i{position:absolute;right:3px;bottom:1px;font:800 .55rem Nunito;font-style:normal}
+.wletters .sep{width:8px}
+.pkcard .pkact .btn{min-height:46px;font-weight:800}.pkrisk{font-size:.95rem}.pkrisk .yt{font-size:1.02rem}
+.rzq .btn{min-height:42px;font-size:.92rem}.rzq .btn.on{box-shadow:0 0 0 2px var(--gold)}
+.pkwin{position:fixed;inset:0;z-index:60;display:grid;place-items:center;pointer-events:none;background:radial-gradient(circle,rgba(255,200,87,.18),transparent 60%);animation:pkwf 2.6s ease forwards}
+.pkwin .wbox{text-align:center;padding:18px 28px;border-radius:24px;background:linear-gradient(160deg,rgba(40,30,10,.85),rgba(20,30,25,.85));border:2px solid var(--gold);box-shadow:0 0 40px rgba(255,200,87,.45);color:#fff;animation:pkwb .5s cubic-bezier(.2,1.6,.4,1)}
+.pkwin .wbox b{display:block;font:900 1.7rem Nunito,Inter,sans-serif;color:var(--gold)}.pkwin .wbox span{display:block;font:800 2.2rem Nunito,Inter,sans-serif;margin-top:4px}
+.pkwin i{position:absolute;top:45%;left:50%;width:10px;height:14px;border-radius:3px;animation:pkcf 1.6s ease-out forwards}
+@keyframes pkwf{0%,80%{opacity:1}100%{opacity:0}}@keyframes pkwb{from{transform:scale(.6);opacity:0}to{transform:scale(1);opacity:1}}@keyframes pkcf{to{transform:translate(var(--x),var(--y)) rotate(var(--r));opacity:0}}
+@media (max-width:620px){.ph-mot .pkleft>.pkcard:not(#pkWordCard){display:none}.pkfelt{padding:8px 6px 10px!important}.pkfelt .pkdealer{margin:2px auto}.pkopp .seat{padding:4px 6px}.pkstage{margin:2px 0}.pkboard .card-l{width:36px;height:50px}
+  #pkWordCard{scroll-margin-bottom:8px}.pkcard{padding:12px}}
+@media (prefers-reduced-motion:reduce){.pkwin,.pkwin .wbox,.pkwin i{animation:none}.pkwin{opacity:0}}
 .pkres div{display:flex;justify-content:space-between;gap:10px;padding:6px 10px;border-radius:10px;background:rgba(0,0,0,.3);color:#fff;font-size:.85rem}
 .pkres div.win{background:linear-gradient(90deg,rgba(255,200,87,.35),rgba(255,200,87,.1));box-shadow:0 0 0 1px var(--gold)}
 @media (max-width:900px){.pk2{grid-template-columns:1fr;max-width:620px;margin:0 auto}}
@@ -820,6 +838,7 @@ table.bar td,table.bar th{padding:5px 6px;border-bottom:1px solid rgba(255,255,2
       <div class="pklobby" id="pkLobby" hidden></div>
       </div>
       <div class="glass pkcard">
+        <div class="pksteps" id="pkSteps" aria-label="Étapes du coup"><span data-s="mise">① Mises</span><span data-s="mot">② Ton mot</span><span data-s="abattage">③ Résultat</span></div>
         <div class="pkforce" id="pkForce" hidden></div>
         <div class="pkrisk" id="pkRisk" aria-live="polite"></div>
         <div class="pkact"><button class="btn" data-a="fold">Se coucher</button><button class="btn" data-a="call">Suivre</button><button class="btn primary" data-a="raise">Relancer</button><button class="btn gold" data-a="allin">Tapis</button></div>
@@ -834,6 +853,8 @@ table.bar td,table.bar th{padding:5px 6px;border-bottom:1px solid rgba(255,255,2
       <div class="glass pkcard" id="pkWordCard">
         <div class="flrow"><span class="tag2">Ton mot</span><span class="rclk pkwclk" id="pkWClk" style="display:none">0:45</span><button class="infobtn" id="pkInfoBtn" aria-expanded="false" title="Règles">i</button></div>
         <div class="note flinfo" id="pkInfo"><b>Règles de Wordflush</b> <span class="rver">barème V2</span><br>• Comme au Texas Hold'em : 2 lettres cachées par joueur, 5 lettres communes retournées en 3 fois (3, puis 1, puis 1), un tour de mise à chaque fois.<br>• À ton tour : <b>parole</b> (rien à payer), <b>suivre</b>, <b>relancer du montant de ton choix</b> (au moins la relance minimale, au plus ton tapis), <b>tapis</b> ou <b>te coucher</b>. Temps limité pour décider, sinon tu te couches (ou tu dis « parole » si personne n'a misé).<br>• Si tous les autres se couchent, <b>tu gagnes le pot sans montrer ton mot</b> (bluff réussi).<br>• À la fin, chacun a <b>45 s pour taper et verrouiller son mot</b> (2 à 7 lettres) avec ses lettres et celles du milieu, <b>dont au moins une de ses lettres cachées</b>. Dès que tous ont verrouillé, on passe à l'abattage. Les autres voient seulement <b>combien de lettres</b> tu as verrouillées.<br>• <b>Score = valeur des lettres + bonus de longueur + bonus Main Pleine.</b> Bonus de longueur : 2 lettres +0 · 3 lettres +3 · 4 lettres +6 · 5 lettres +10 · 6 lettres +15 · 7 lettres +22. <b>Main Pleine : +5</b> si tes 2 lettres cachées sont dans ton mot.<br>• Le meilleur score gagne ; à égalité, <b>le mot le plus long</b> ; encore à égalité, le pot est partagé (le reste indivisible va dans la cagnotte).<br>• Mot inexistant, lettre absente ou aucune de tes lettres cachées : ton mot ne compte pas.<br>• <b>Cagnotte du salon</b> 🎰 : les pots que personne ne gagne (aucun mot valide) et les restes de partage l'alimentent. Elle est remportée par le gagnant de l'abattage qui joue un <b>mot de 6 ou 7 lettres</b> (jamais sur un abandon des autres).<br>• Après chaque coup, ton <b>Mot Max</b> s'affiche : le meilleur mot possible avec tes lettres, pour progresser.<br>• <b>Léo</b> est un robot : il ne voit que ses propres lettres et les lettres communes, comme toi. Trois niveaux : débutant, intermédiaire, confirmé.<br>• <b>Pots séparés</b> : un joueur à tapis ne peut gagner que ce qu'il a pu suivre.<br>• Si tous les joueurs quittent la table, <b>chacun récupère sa mise du coup</b>.<br>• <b>Tirage équitable</b> : paquet mélangé par le serveur avec un générateur cryptographique ; son empreinte est affichée avant le coup et le paquet dévoilé après.<br><span class="rver" id="pkDictV"></span></div>
+        <div class="wlater" id="pkLater">✍️ <span>Ton mot se joue <b>après les mises</b>, quand les 5 lettres seront retournées.</span><button class="btn sm" type="button" id="pkPrep">Le préparer</button></div>
+        <div class="wletters" id="pkWL" aria-label="Tes lettres et les lettres communes (touche une lettre pour l'ajouter)"></div>
         <input class="pkin" id="pkIn" maxlength="7" autocomplete="off" autocapitalize="characters" spellcheck="false" placeholder="Tape ton mot">
         <div class="pkcalc" id="pkCalc">Score potentiel : lettres + bonus de longueur + bonus Main Pleine</div>
         <button class="btn" id="pkBest">Verrouiller ce mot</button>
@@ -943,13 +964,13 @@ function render(){const st=ST;const lob=$("#pkLobby");if(st&&PREV&&st.hand!==PRE
   const minTo=st.bet+(st.minInc||st.ante*2),maxTo=me?me.roundBet+me.stack:0;
   $('[data-a="raise"]').textContent=me&&maxTo>st.bet?"Relancer…":"Relancer";$('[data-a="raise"]').disabled=!myTurn||maxTo<=st.bet;
   $('[data-a="allin"]').textContent=me&&me.stack?"Tapis ("+me.stack+")":"Tapis";$('[data-a="allin"]').disabled=!myTurn||!me||!me.stack;
-  forceShow(st,me);$(".pkact").classList.toggle("myturn",!!myTurn);$("#pkRisk").innerHTML=myTurn?"<b class='yt'>▶ À toi de jouer</b> · "+(owe?"À payer : <b>"+Math.min(owe,me.stack)+"</b>":"Rien à payer")+" · ton solde <b>"+me.stack+"</b> · pot <b>"+st.pot+"</b>"+(owe>=me.stack?" · <span class='warn'>suivre = tapis</span>":""):(st.phase==="mise"&&st.seats&&st.seats[st.turn]?"⏳ Tour de <b>"+esc(st.seats[st.turn].name)+"</b> · pot <b>"+st.pot+"</b>":"");
-  if(!myTurn){$("#pkRaise").hidden=true;$("#pkAllin").hidden=true}else RZ={min:Math.min(minTo,maxTo),max:maxTo,pot:st.pot,bet:st.bet,owe};
+  stepsShow(st,me);forceShow(st,me);$(".pkact").classList.toggle("myturn",!!myTurn);$("#pkRisk").innerHTML=myTurn?"<b class='yt'>▶ À toi de jouer</b> · "+(owe?"À payer : <b>"+Math.min(owe,me.stack)+"</b>":"Rien à payer")+" · ton solde <b>"+me.stack+"</b> · pot <b>"+st.pot+"</b>"+(owe>=me.stack?" · <span class='warn'>suivre = tapis</span>":"")+coachTip(st,owe):(st.phase==="mise"&&st.seats&&st.seats[st.turn]?"⏳ Tour de <b>"+esc(st.seats[st.turn].name)+"</b> · pot <b>"+st.pot+"</b>":"");
+  if(!myTurn){$("#pkRaise").hidden=true;$("#pkAllin").hidden=true}else RZ={min:Math.min(minTo,maxTo),max:maxTo,pot:st.pot,bet:st.bet,owe,stack:me.stack,mine:me.roundBet||0};
   // phase « mot »
-  const wp=st.phase==="mot"&&me&&!me.folded;$("#pkWordCard").classList.toggle("wordphase",wp);$("#pkWClk").style.display=wp?"":"none";$("#pkIn").disabled=!!LOCKED||!(me&&!me.folded&&(st.phase==="mot"||st.phase==="mise"));
+  const wp=st.phase==="mot"&&me&&!me.folded;$("#pkWordCard").classList.toggle("wordphase",wp);$("#pkWordCard").classList.toggle("later",st.phase==="mise");if(st.phase!=="mise")$("#pkWordCard").classList.remove("prep");document.body.classList.toggle("ph-mot",!!wp);lettersShow(st,me);$("#pkWClk").style.display=wp?"":"none";$("#pkIn").disabled=!!LOCKED||!(me&&!me.folded&&(st.phase==="mot"||st.phase==="mise"));
   if(PREV&&PREV.phase!=="mot"&&st.phase==="mot"&&me&&!me.folded){toast("✍️","À vous ! <b>45 s</b> pour taper votre mot");bell();setTimeout(()=>$("#pkIn").focus(),100)}
   if(PREV&&PREV.phase!=="abattage"&&st.phase==="abattage"&&st.jackpotWon)setTimeout(()=>{announce&&announce("🎰 CAGNOTTE !",st.jackpotWon.names.join(", ")+" +"+st.jackpotWon.each*st.jackpotWon.names.length);bell()},2500);
-  if(PREV&&PREV.phase!=="abattage"&&st.phase==="abattage"&&st.msg){toast(st.results&&st.results.some(x=>x.win)?"🏆":"🔁",esc(st.msg));bell()}
+  if(PREV&&PREV.phase!=="abattage"&&st.phase==="abattage"&&st.msg){toast(st.results&&st.results.some(x=>x.win)?"🏆":"🔁",esc(st.msg));bell();const mine=me&&st.results&&st.results.find(x=>x.name===me.name&&x.win&&x.gain);if(mine){const d=st.results.length>1||mine.word?1600+st.seats.filter((x,i)=>i!==st.me&&x.hand).length*1300+1200:600;setTimeout(()=>winFx(mine.gain),d)}}
   if(PREV&&PREV.turn!==st.turn&&myTurn)tone(660,.25,.08);
   if((st.phase==="fin"&&PREV&&PREV.phase!=="fin")||(me&&(!PREV||PREV.me<0)))loadWallet();
   dealer(PREV,st);applyHide();
@@ -964,6 +985,25 @@ function forceShow(st,me){const b=$("#pkForce");if(!b)return;const f=st&&st.forc
   if(off){b.innerHTML='<span class="ft"><b>Force de ta main</b><small>masquée · touche pour l\u2019afficher</small></span>';return}
   const n=Math.round(f.pct/10);b.innerHTML='<span class="fbars" aria-hidden="true">'+[1,2,3,4].map(k=>'<i class="'+(k<=f.level?"on":"")+'"></i>').join("")+'</span><span class="ft"><b>Ta main : '+FLV[f.level]+'</b><small>'+(f.words?"Meilleure que "+n+" main"+(n>1?"s":"")+" sur 10 avec ces lettres · "+f.words+" mot"+(f.words>1?"s":"")+" possible"+(f.words>1?"s":"")+" · jusqu\u2019à "+f.best+" pts":"Aucun mot avec tes lettres pour l\u2019instant"+(st.shown<5?" · d\u2019autres lettres arrivent":""))+'</small></span>'}
 document.addEventListener("click",e=>{if(e.target.closest("#pkForce")){$("#pkForce").dataset.k="";LS.set("fl-pkforce",LS.get("fl-pkforce")==="off"?"on":"off");forceShow(ST,ST&&ST.seats?ST.seats[ST.me]:null)}});
+// conseils de premier jeu : affichés pendant les 3 premiers coups où l'on joue
+function coachTip(st,owe){let n=+LS.get("fl-pkcoach")||0;if(coachTip.h!==st.hand){coachTip.h=st.hand;if(st.phase==="mise")LS.set("fl-pkcoach",++n)}if(n>3||!st.force)return"";const l=st.force.level;
+  return '<br><span class="note">💡 '+(l<=1?(owe?"Main faible : « Se coucher » t'évite de perdre plus de jetons.":"Main faible : « Parole » ne coûte rien, tu verras la lettre suivante."):l===2?"Main correcte : « Suivre » ou « Parole » pour voir la suite sans trop risquer.":"Main forte : « Relancer » fait grossir le pot que tu peux gagner.")+"</span>"}
+// étapes du coup : ① mises → ② mot → ③ résultat
+function stepsShow(st,me){const ph=st&&st.started?st.phase:"";const ord=["mise","mot","abattage"],k=ord.indexOf(ph);$$("#pkSteps span").forEach((e,i)=>{e.classList.toggle("on",i===k);e.classList.toggle("done",k>i)});$("#pkSteps").hidden=k<0}
+// lettres utilisables, affichées sous le champ du mot (restent visibles quand le clavier du téléphone est ouvert) ; un toucher ajoute la lettre
+const LV={A:1,B:3,C:3,D:2,E:1,F:4,G:2,H:4,I:1,J:8,K:10,L:1,M:2,N:1,O:1,P:3,Q:8,R:1,S:1,T:1,U:1,V:4,W:10,X:10,Y:10,Z:10};
+function lettersShow(st,me){const w=$("#pkWL");if(!w)return;const on=me&&!me.folded&&me.hand&&(st.phase==="mot"||$("#pkWordCard").classList.contains("prep"))&&!LOCKED;
+  const brd=(st.board||[]).slice(0,st.shown||0),key=on?me.hand.join("")+"|"+brd.join(""):"";if(w.dataset.k===key)return;w.dataset.k=key;
+  w.innerHTML=on?me.hand.map(c=>'<button type="button" class="mine" data-l="'+c+'">'+c+'<i>'+(LV[c]||"")+'</i></button>').join("")+'<span class="sep"></span>'+brd.map(c=>'<button type="button" data-l="'+c+'">'+c+'<i>'+(LV[c]||"")+'</i></button>').join(""):""}
+document.addEventListener("click",e=>{const b=e.target.closest("#pkWL button");if(b&&!LOCKED){const i=$("#pkIn");if(i.disabled)return;i.value=(i.value+b.dataset.l).slice(0,7);typed()}});
+document.addEventListener("click",e=>{if(e.target.closest("#pkPrep")){$("#pkWordCard").classList.add("prep");if(ST)lettersShow(ST,ST.seats?ST.seats[ST.me]:null);setTimeout(()=>$("#pkIn").focus(),50)}});
+// le champ reste visible au-dessus du clavier du téléphone
+document.addEventListener("focusin",e=>{if(e.target.id==="pkIn"&&matchMedia("(max-width:620px)").matches)setTimeout(()=>$("#pkWordCard").scrollIntoView({block:"end",behavior:"smooth"}),300)});
+if(window.visualViewport)visualViewport.addEventListener("resize",()=>{if(document.activeElement&&document.activeElement.id==="pkIn")$("#pkWordCard").scrollIntoView({block:"end"})});
+// victoire : bandeau doré + confettis
+function winFx(gain){const o=document.createElement("div");o.className="pkwin";o.setAttribute("aria-live","polite");o.innerHTML='<div class="wbox"><b>Tu remportes le pot !</b><span>+'+gain+' 🪙</span></div>';
+  const C=["#ffd27a","#2DE2C8","#A26BFF","#ff7a90","#fff"];for(let i=0;i<26;i++){const c=document.createElement("i");const a=Math.random()*Math.PI*2,r=120+Math.random()*180;c.style.cssText="background:"+C[i%5]+";--x:"+Math.round(Math.cos(a)*r)+"px;--y:"+Math.round(Math.sin(a)*r)+"px;--r:"+Math.round(Math.random()*720)+"deg";o.appendChild(c)}
+  document.body.appendChild(o);if(SOUND){tone(523,.3,.06);tone(659,.3,.06,.12);tone(784,.3,.06,.24);tone(1046,.6,.07,.36)}setTimeout(()=>o.remove(),2700)}
 function tick(){if(!ST)return;forceShow(ST,ST.seats?ST.seats[ST.me]:null);const left=ST.deadline-(Date.now()+skew);
   $$("[data-clk]").forEach(c=>{const i=+c.dataset.clk;const on=ST.phase==="mise"&&ST.turn===i;c.textContent=on?fmt(Math.min(left,ST.dec*1000)):"–";c.classList.toggle("low",on&&left<=10500)});
   const w=$("#pkWClk");if(ST.phase==="mot"){w.textContent=fmt(left);w.classList.toggle("low",left<=10500);
@@ -1003,10 +1043,12 @@ const LVL=()=>{const v=LS.get("fl-pklvl");return ["debutant","inter","confirme"]
 function lvlSeg(){const v=LVL();return '<div class="seg pklv" role="group" aria-label="Niveau de Léo">'+[["debutant","Débutant"],["inter","Intermédiaire"],["confirme","Confirmé"]].map(([k,n])=>'<button type="button" data-v="'+k+'"'+(k===v?' class="on"':'')+'>'+n+'</button>').join("")+'</div>'}
 // relance au choix
 let RZ=null;
-function rzShow(){if(!RZ)return;const r=$("#rzRange");r.min=RZ.min;r.max=RZ.max;r.value=Math.min(RZ.max,Math.max(RZ.min,+r.value||RZ.min));rzUpd();$("#pkAllin").hidden=true;$("#pkRaise").hidden=false;r.focus()}
-function rzUpd(){const v=+$("#rzRange").value;$("#rzTo").textContent=v;$("#rzSub").textContent=(v>=RZ.max?"tapis · ":"")+"tu ajoutes "+Math.max(0,v-(RZ.bet-RZ.owe))+" jeton"+(v-(RZ.bet-RZ.owe)>1?"s":"")}
-$("#rzRange").oninput=rzUpd;
-$$(".rzq button").forEach(b=>b.onclick=()=>{if(!RZ)return;const q=b.dataset.q,p=RZ.pot+RZ.owe;let v=q==="min"?RZ.min:q==="max"?RZ.max:RZ.bet+Math.round(q==="half"?p/2:p);$("#rzRange").value=Math.min(RZ.max,Math.max(RZ.min,v));rzUpd()});
+function rzShow(){if(!RZ)return;const r=$("#rzRange");r.min=RZ.min;r.max=RZ.max;r.value=rzQ("half");rzMark("half");rzUpd();$("#pkAllin").hidden=true;$("#pkRaise").hidden=false;r.focus()}
+function rzQ(q){const p=RZ.pot+RZ.owe;const v=q==="min"?RZ.min:q==="max"?RZ.max:RZ.bet+Math.round(q==="half"?p/2:p);return Math.min(RZ.max,Math.max(RZ.min,v))}
+function rzMark(q){$$(".rzq button").forEach(b=>b.classList.toggle("on",b.dataset.q===q))}
+function rzUpd(){const v=+$("#rzRange").value,add=Math.max(0,v-(RZ.bet-RZ.owe));$("#rzTo").textContent=v;$("#rzSub").textContent=(v>=RZ.max?"tapis · ":"")+"tu ajoutes "+add+" jeton"+(add>1?"s":"")+(RZ.stack!=null?" · il te restera "+Math.max(0,RZ.stack-add):"")}
+$("#rzRange").oninput=()=>{rzMark("");rzUpd()};
+$$(".rzq button").forEach(b=>b.onclick=()=>{if(!RZ)return;$("#rzRange").value=rzQ(b.dataset.q);rzMark(b.dataset.q);rzUpd()});
 $("#rzCancel").onclick=()=>{$("#pkRaise").hidden=true};
 $("#rzOk").onclick=()=>{const v=+$("#rzRange").value;$("#pkRaise").hidden=true;pk({a:"act",act:"raise",amt:v})};
 $("#aiNo").onclick=()=>{$("#pkAllin").hidden=true};
