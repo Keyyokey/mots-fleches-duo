@@ -1,0 +1,387 @@
+FAVORI|Préféré de tous
+FAVORI|Donné gagnant
+MOINES|Religieux du monastère
+JOUETS|Cadeaux d'enfants
+COPIES|Reproductions
+VENGER|Laver un affront
+MORTES|Sans vie
+POMPES|Chaussures familières
+CHANTS|Airs chantés
+GERANT|Dirige le magasin
+VALIDE|En règle
+RIGOLE|Petit canal
+ECLATE|Vole en morceaux
+CHOQUE|Scandalisé
+FICHES|Cartes de classement
+METAUX|Fer et cuivre
+TANTOT|Tout à l'heure
+HORMIS|Sauf
+NOBLES|Ducs et marquis
+PIRATE|Écumeur des mers
+PRIMES|Bonus de salaire
+CIBLES|Points à viser
+CANAUX|Voies d'eau
+JERSEY|Île anglo-normande
+JERSEY|Tricot souple
+MARIES|Unis devant le maire
+AMICAL|Bon camarade
+LEGERS|Peu lourds
+REVUES|Magazines
+MOTIVE|Plein d'entrain
+HABITS|Vêtements
+PLUIES|Averses
+GLACES|Miroirs
+FRITES|Bâtonnets de pomme de terre
+LOYERS|Payés au propriétaire
+TALONS|Arrières du pied
+DESIRS|Envies
+MAUDIT|Frappé d'une malédiction
+DEMONS|Diables
+ANGLES|Coins
+FIBRES|Filaments
+GENANT|Embarrassant
+POULES|Pondeuses
+SLOGAN|Formule publicitaire
+CLAQUE|Gifle
+GRASSE|Riche en matière grasse
+FONDER|Créer
+LUTTES|Combats
+TURQUE|D'Ankara
+FILMER|Tourner une scène
+COINCE|Bloqué
+OTAGES|Retenus en échange
+PERLES|Bijoux de l'huître
+SABLES|Grains de la plage
+CLICHE|Idée toute faite
+PAIRES|Couples
+CHAUDS|Brûlants
+REPUTE|Célèbre
+VARIER|Changer
+BIERES|Blondes ou brunes
+CHOEUR|Ensemble de chanteurs
+IDEALE|Parfaite
+IDIOTS|Sots
+DECORS|Ornements de théâtre
+STOCKS|Réserves
+VERTUS|Qualités morales
+CHUTES|Dégringolades
+SALONS|Pièces de réception
+POETES|Rimeurs
+VIGNES|Donnent le raisin
+LANDES|Terres incultes
+ROCHES|Pierres
+COLONS|Habitants des colonies
+STADES|Terrains de sport
+ACIDES|Aigres
+DANOIS|De Copenhague
+DANOIS|Grand chien
+SOLDES|Prix réduits
+DEFUNT|Disparu
+VERTES|Comme les prairies
+CLAIRS|Lumineux
+GRAINS|Petites semences
+PECHES|Fruits veloutés
+DROLES|Amusants
+LIGNEE|Descendance
+CONGES|Vacances
+TARDER|Traîner
+PLONGE|Saute dans l'eau
+PRIVER|Retirer à quelqu'un
+SURSIS|Délai accordé
+VANNES|Mauvaises blagues
+REPERE|Point de référence
+ECRASE|Aplati
+GUIDES|Accompagnateurs de touristes
+CIMENT|Liant du maçon
+ETROIT|Pas large
+ALLUME|Mis en marche
+ADMIRE|Contemple avec respect
+RECULE|Va en arrière
+AVERTI|Prévenu
+MOQUER|Railler
+DEPENS|Aux … de quelqu'un
+SEDUIT|Charmé
+CHAIRE|Tribune du professeur
+TUMEUR|Grosseur anormale
+CYCLES|Suites qui se répètent
+MARRON|Fruit du châtaignier
+CUISSE|Haut de la jambe
+CONSUL|Représentant à l'étranger
+PLATES|Sans relief
+CABLES|Gros fils
+DANSES|Valses et tangos
+NICKEL|Impeccable, familièrement
+NICKEL|Métal blanc
+BLEUES|Couleur du ciel
+PLEURS|Larmes
+TUYAUX|Conduits
+ENVIES|Désirs
+JUSTES|Équitables
+BULLES|Il y en a dans le champagne
+JOINTS|Raccords
+EXCLUS|Mis à l'écart
+DELITS|Infractions
+LAIQUE|Non religieux
+PENCHE|Incliné
+ROUSSE|Aux cheveux roux
+ENGINS|Machines
+VOLETS|Protègent les fenêtres
+EMBLEE|D'… : aussitôt
+INCITE|Pousse à
+RELIER|Joindre
+ALLEES|Chemins du parc
+MOEURS|Coutumes
+CONFUS|Embrouillé
+FUSILS|Armes du chasseur
+PARIER|Miser
+HUILES|Olive ou tournesol
+MARGES|Blancs de la page
+DEVINE|Trouve par intuition
+EFFACE|Gomme
+VILAIN|Pas beau
+FOULEE|Enjambée du coureur
+ABUSER|Exagérer
+SPRINT|Course rapide
+OBSCUR|Sombre
+HERITE|Reçoit en succession
+DIGNES|Méritants
+ABOUTI|Achevé
+FREINS|Arrêtent la voiture
+ENVAHI|Occupé de force
+AIMANT|Attire le fer
+MEFIER|Se … : se garder
+RUINER|Mettre sur la paille
+ATOUTS|Cartes maîtresses
+EQUITE|Justice
+MILICE|Troupe armée
+THESES|Travaux de doctorat
+LAMPES|Éclairent
+PESANT|Lourd
+RONDES|Sans angles
+CAPTER|Recevoir un signal
+AMANTS|Amoureux
+LOUCHE|Grande cuillère
+LOUCHE|Suspect
+TENTES|Abris de toile
+BRAVES|Courageux
+CALMES|Tranquilles
+BLOCUS|Encerclement d'un pays
+RADARS|Flashent les chauffards
+LITIGE|Désaccord
+FATALE|Mortelle
+BUFFET|Meuble de salle à manger
+DECORE|Orné
+ECARTE|Éloigné
+PURETE|Qualité de ce qui est pur
+PREDIT|Annoncé à l'avance
+FICTIF|Imaginaire
+WAGONS|Voitures de train
+WHISKY|Alcool écossais
+DEFAIT|Battu
+MYTHES|Légendes
+TRACER|Dessiner une ligne
+VITALE|Essentielle
+ORAGES|Tonnerre et éclairs
+SITUER|Localiser
+GEANTE|Immense
+BOSSES|Il y en a deux sur le chameau
+HABILE|Adroit
+PAROIS|Cloisons
+CROUTE|Dessus du pain
+SECHES|Sans eau
+PIEGES|Traquenards
+ADIEUX|Derniers au revoir
+BATONS|Bouts de bois
+VANTER|Faire l'éloge
+GARANT|Responsable
+FUITES|Écoulements
+RIVAUX|Concurrents
+EVALUE|Estimé
+EPIQUE|Digne d'une épopée
+PATATE|Pomme de terre
+RANGEE|File
+CRACHE|Expulse de la bouche
+ALGUES|Plantes marines
+CHEIKH|Chef arabe
+ATOMES|Particules
+CRECHE|Garderie des tout-petits
+MUTUEL|Réciproque
+LANCES|Armes de joute
+GORGES|Défilés profonds
+DEFIER|Provoquer
+REDIRE|Répéter
+BARRER|Rayer
+TUERIE|Massacre
+ADHERE|Colle
+BRISEE|Cassée
+PENTES|Côtes
+CRAQUE|Cède avec bruit
+BLAMER|Reprocher
+BOXEUR|Champion du ring
+TARDIF|En retard
+VOCALE|De la voix
+CREPES|Galettes de la Chandeleur
+LUCIDE|Clairvoyant
+COMETE|Astre chevelu
+EPOPEE|Récit héroïque
+BLINDE|Renforcé d'acier
+ATROCE|Horrible
+CARREE|À quatre côtés égaux
+VIVRES|Provisions
+REGNER|Être roi
+TUILES|Couvrent le toit
+PLANTS|Jeunes végétaux
+SODIUM|Élément du sel
+IDEAUX|Modèles parfaits
+PERCHE|Long bâton
+GONFLE|Enflé
+MORDRE|Planter les dents
+ENONCE|Texte du problème
+COLORE|Teinté
+ARCADE|Galerie voûtée
+OIGNON|Fait pleurer en cuisine
+ERABLE|Arbre du Canada
+CORNES|Ornent la tête du taureau
+BANALE|Ordinaire
+FOULES|Multitudes
+ASPIRE|Inhale
+BRUTES|Violents
+UTOPIE|Rêve impossible
+BRIDGE|Jeu de cartes
+FROIDS|Glacés
+GENIES|Esprits supérieurs
+SURFER|Glisser sur la vague
+PENDRE|Accrocher
+GACHIS|Gaspillage
+SOURDS|N'entendent pas
+DONJON|Tour du château
+VERSET|Paragraphe de la Bible
+DECALE|Déplacé
+GLACEE|Très froide
+REGLEE|Payée
+GRIMPE|Monte
+BRUNES|Pas blondes
+MINIME|Tout petit
+CERNER|Encercler
+SUCRES|Morceaux pour le café
+FIANCE|Futur marié
+ECOULE|Passé
+SAUVEE|Tirée d'affaire
+ORACLE|Prédiction divine
+REUNIE|Rassemblée
+MENEUR|Chef de bande
+MOULES|Coquillages avec les frites
+ADEPTE|Partisan
+GRANIT|Roche dure
+BERGES|Bords de rivière
+VOYOUS|Petits malfrats
+DRAMES|Tragédies
+PLAIDE|Défend au tribunal
+TRICHE|Fraude au jeu
+VIABLE|Qui peut durer
+IDIOTE|Sotte
+COQUIN|Malicieux
+EVADER|S'… : s'échapper
+TONTON|Oncle familier
+VIBRER|Trembler
+TRAQUE|Chasse à l'homme
+JETONS|Pièces du casino
+APOGEE|Point culminant
+TIGRES|Fauves rayés
+ABOLIR|Supprimer une loi
+RESINE|Sève du pin
+DOSAGE|Proportion
+YAOURT|Laitage
+VILLAS|Belles maisons
+POGNON|Argent familier
+FUMEUR|Aime la cigarette
+COMTES|Nobles
+DECHET|Ordure
+CLOWNS|Amuseurs du cirque
+PLOMBS|Fusibles
+MEDIUM|Voyant
+IDOLES|Stars adulées
+MACONS|Bâtisseurs
+POUTRE|Grosse pièce de bois
+OCTAVE|Huit notes
+MINCES|Fines
+CHEVEU|Poil de la tête
+FUYANT|Qui se dérobe
+AMORCE|Appât du pêcheur
+FUSEES|Engins spatiaux
+PYTHON|Gros serpent
+CANYON|Gorge profonde
+LARVES|Futurs insectes
+FLANCS|Côtés
+LISSES|Sans aspérités
+BAGUES|Anneaux
+BELIER|Mâle de la brebis
+FRONTS|Lignes de combat
+VINYLE|Disque noir
+CHUTER|Tomber
+CROSSE|Bâton de l'évêque
+MAREES|Mouvements de la mer
+STANDS|Comptoirs de salon
+ASTHME|Gêne respiratoire
+APOTRE|Disciple
+SONGER|Penser
+SECOUE|Agité
+VALLON|Petite vallée
+RARETE|Ce qui est rare
+EGOUTS|Canalisations souterraines
+SAINES|En bonne santé
+PIGNON|Roue dentée
+FUMIER|Engrais naturel
+COCHER|Conducteur de fiacre
+CORAIL|Forme les récifs
+FOSSES|Trous creusés
+REPARE|Remis en état
+SCELLE|Cacheté
+BARONS|Nobles
+CORNET|Glace à emporter
+HIVERS|Saisons froides
+CAVIAR|Œufs d'esturgeon
+REMUER|Bouger
+ARCHER|Tireur à l'arc
+PARVIS|Place devant l'église
+COSMOS|Univers
+AFFLUX|Arrivée massive
+MANIER|Manipuler
+GRAMME|Unité de poids
+CAREME|Jeûne chrétien
+ABREGE|Résumé
+BANNIR|Exiler
+CACTUS|Plante piquante
+RIVALE|Concurrente
+EVACUE|Vidé
+MICROS|Amplifient la voix
+LATINS|Peuples du Sud de l'Europe
+LESION|Blessure
+DEVOUE|Serviable
+NAPPES|Couvrent la table
+TANDEM|Vélo à deux
+GRADES|Galons
+BIKINI|Maillot deux-pièces
+CALINS|Tendres étreintes
+RENTES|Revenus réguliers
+CHENES|Arbres à glands
+PINCES|Outils du bricoleur
+ENVIER|Jalouser
+DENSES|Épais
+MAILLE|Boucle de tricot
+DURETE|Sévérité
+QUEUES|Files d'attente
+PANTIN|Marionnette
+PISTON|Pièce du moteur
+FRONDE|Lance-pierre
+SAFRAN|Épice jaune
+AVOINE|Céréale des chevaux
+FORGES|Ateliers du forgeron
+VISEUR|Œil de l'appareil photo
+PHOBIE|Peur maladive
+DALLES|Pavés
+BAMBOU|Mangé par le panda
+CROQUE|Mord à pleines dents
+OLIVES|Fruits de l'olivier
+BOUDIN|Charcuterie
+BOHEME|Vie d'artiste
