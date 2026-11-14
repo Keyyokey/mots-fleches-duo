@@ -699,7 +699,7 @@ table.bar td,table.bar th{padding:5px 6px;border-bottom:1px solid rgba(255,255,2
 #fMsg{min-height:1em;font-size:.8rem}
 .flbar{cursor:pointer}
 .slots.myst span{cursor:pointer}
-#kb{position:fixed;left:-9999px;top:0;opacity:0;width:1px;height:1px}
+#kb{position:absolute;left:0;top:0;opacity:0;width:1px;height:1px;margin:0;padding:0;border:0;background:transparent;color:transparent;caret-color:transparent;font-size:16px;pointer-events:none;z-index:-1}
 #invBtn{margin-top:6px}
 .endrow{display:flex;align-items:center;gap:10px;padding:8px 12px;border-radius:12px;background:rgba(0,0,0,.2);margin-top:6px;text-align:left}
 :root[data-theme="light"] .endrow{background:rgba(255,255,255,.7)}
@@ -1610,7 +1610,7 @@ function render(){turnSounds();document.body.classList.remove("booting");if(!G||
     else if(pend[k]){L.textContent=pend[k];e.classList.add("pend")}
     else{const pp=peerPend[k];if(pp){L.textContent=pp.l;e.classList.add("live");e.style.setProperty("--fc",PC[pp.seat]||PC[1])}else L.textContent=""}}
   if(G.last&&G.last.cells&&!G.done&&(Date.now()-(G.lastSeenAt||0))<1e9)G.last.cells.forEach(k=>{if(els[k]){els[k].classList.add("last");els[k].style.setProperty("--lc",PC[G.last.by]||PC[0])}});
-  const w=curWord();if(w&&!G.done)w.cells.forEach(k=>els[k].classList.add("cur"));if(sel&&els[sel]&&!G.done)els[sel].classList.add("caret");
+  const w=curWord();if(w&&!G.done)w.cells.forEach(k=>els[k].classList.add("cur"));if(sel&&els[sel]&&!G.done)els[sel].classList.add("caret");placeKb(sel&&!G.done?els[sel]:null);
   $$(".fc.q .h").forEach(h=>h.classList.remove("qsel"));if(w){const q=els[w.q];const h=q&&q.querySelector('.h[data-i="'+w.qi+'"]');if(h)h.classList.add("qsel")}
   // définition en cours
   $("#fClue").textContent=w?w.text:"Touche une case ou une définition";$("#fOk").disabled=!play;$("#fOk").textContent=play?"✓ Valider":G.done?"Partie terminée":frozen()?"En attente…":"Pas ton tour";
@@ -1656,6 +1656,14 @@ let lastFz=null;setInterval(()=>{if(!G)return;const fz=frozen()+"|"+G.turn+"|"+G
 
 // ---------- saisie (clavier physique et clavier du téléphone) ----------
 const kb=document.createElement("input");kb.id="kb";kb.setAttribute("aria-label","Saisie des lettres");kb.setAttribute("autocomplete","off");kb.setAttribute("autocapitalize","characters");kb.setAttribute("autocorrect","off");kb.setAttribute("spellcheck","false");kb.setAttribute("inputmode","text");document.body.appendChild(kb);
+// le champ invisible suit la case en cours : quand le téléphone ramène « la zone de saisie » à l'écran,
+// c'est la case tapée qui reste visible au-dessus du clavier (et non plus le haut de la page)
+function placeKb(cell){const k=document.getElementById("kb");if(!k||!cell)return;const r=cell.getBoundingClientRect(),op=k.offsetParent||document.documentElement,o=op.getBoundingClientRect();
+  k.style.left=Math.max(0,r.left-o.left+op.scrollLeft)+"px";k.style.top=(r.top-o.top+op.scrollTop)+"px";k.style.width=Math.max(1,r.width)+"px";k.style.height=Math.max(1,r.height)+"px";requestAnimationFrame(keepCaretVisible)}
+// clavier ouvert : si la case en cours passe sous le clavier, on fait glisser la page juste ce qu'il faut
+function keepCaretVisible(){const vv=window.visualViewport,k=document.getElementById("kb");if(!vv||!k||document.activeElement!==k)return;const c=document.querySelector("#grid .fc.caret")||document.querySelector(".fc.caret");if(!c)return;
+  const r=c.getBoundingClientRect(),top=vv.offsetTop+8,bot=vv.offsetTop+vv.height-12;if(r.bottom>bot)scrollBy(0,r.bottom-bot);else if(r.top<top)scrollBy(0,r.top-top)}
+if(window.visualViewport)visualViewport.addEventListener("resize",()=>setTimeout(keepCaretVisible,60));
 function focusKb(){if(matchMedia("(pointer:coarse)").matches){try{kb.focus({preventScroll:true})}catch(e){}}}
 kb.addEventListener("input",()=>{const v=kb.value.toUpperCase().normalize("NFD").replace(/[̀-ͯ]/g,"").replace(/[^A-Z]/g,"");kb.value="";for(const l of v)typeL(l)});
 kb.addEventListener("keydown",e=>{if(e.key==="Backspace"){e.preventDefault();erase()}else if(e.key==="Enter"){e.preventDefault();validate()}});
