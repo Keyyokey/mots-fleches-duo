@@ -1495,7 +1495,7 @@ function req(o){return new Promise((ok,ko)=>{const n=++reqN;o.req=n;acks[n]=m=>m
 function save(){if(!G)return;if(G.solo){G.saved=Date.now();soloPut();LS.set(SOLOKEY,JSON.stringify(G));if(G.done)LS.del("fl-paused-meles");else LS.set("fl-paused-meles","1");return}send({t:"set",id:DOC,data:JSON.parse(JSON.stringify(G)),req:++reqN})}
 function announce(){send({t:"presence",presence:{name:ME?ME.name:"",page:"meles",gid:G?G.gid:null,seat:mySeat()}})}
 function seatsHere(){const s=new Set();const me=mySeat();if(me!==null)s.add(me);peers.forEach(p=>{const pr=p.presence||{};if(pr.gid===G.gid&&pr.seat!=null&&pr.page==="meles")s.add(Number(pr.seat))});return s}
-function waitCheck(){if(!G||G.solo||G.done||!G.wait)return;if(mySeat()===null){joinWait();return}const s=seatsHere();if(G.blocked)return;if(G.players.length>=MAXP&&G.players.every((p,i)=>s.has(i)))launchNow()}
+function waitCheck(){if(!G||G.solo||G.done||!G.wait)return;if(mySeat()===null){joinWait();return}const s=seatsHere();if(G.blocked)return;if(G.players.length>=MAXP&&G.players.every((p,i)=>s.has(i))&&presentSeats()[0]===mySeat())launchNow()}
 let joinTry="";function joinWait(){if(!ME||!G||!G.wait||G.done||G.blocked||mySeat()!==null||joinTry===G.gid)return;
   const i=G.players.findIndex(p=>p.name==="Invité");if(i>=0)G.players[i].name=ME.name;else if(G.players.length<MAXP)G.players.push({name:ME.name,score:0});else return;
   joinTry=G.gid;save();announce();render()}
@@ -1615,13 +1615,15 @@ function open(g){G=g;try{const pl=JSON.parse(LS.get("fl2-played-meles")||"{}");p
 function again(){const o=G;if(o.solo){open(newGame(o.players.map(p=>p.name),true,o.level,pickN(o.level)));save();return}
   const opp=o.players.map(p=>p.name).find(n=>String(n).toUpperCase()!==ME.name)||"Invité";
   drawReq(o.level,0,opp).then(r=>{if(!r.ok)return blockedWin(r.msg);const ng=newGame(o.players.map(p=>p.name),false,o.level,Number(String(r.ref).split(":n")[1]));ng.prev=o.gid;open(ng);save()})}
+// une partie du salon encore active (salle d'attente ou en cours depuis moins de 15 min) n'est jamais écrasée par « Jouer » : on la rejoint ou on la regarde
+function live(d){return !!(d&&!d.done&&!d.solo&&d.players&&Date.now()-Math.max(d.turnStart||0,d.go||0,d.started||0)<15*60e3)}
 function start(){const go=Q.get("go"),lvl=Q.get("lvl")||"facile",n=Number(Q.get("n"))||0;const solo=()=>{try{return JSON.parse(LS.get(SOLOKEY)||"null")}catch(e){return null}};
   if(go==="solo"||(go==="resume"&&!CODE)){soloBoot(go,lvl,n);return}
   if(!CODE){const g=solo();if(g&&!g.done){open(g);return}location.replace("/");return}
   if(!ME){if(go==="resume"){const g=solo();if(g&&!g.done){open(g);return}}location.replace(HOME+"?need=pseudo");return}
   connect();const t0=Date.now();const iv=setInterval(()=>{if(G){clearInterval(iv);return}if(window.__snapped||Object.keys(docs).length||Date.now()-t0>2500){clearInterval(iv);const d=docs[DOC];
     const mine=d&&!d.done&&d.players&&(d.players.some(p=>String(p.name).toUpperCase()===ME.name)||d.players.some(p=>p.name==="Invité"));
-    if(go==="multi"&&!(mine&&!n)){let opp=Q.get("opp")||"Invité";if(opp.toUpperCase()===ME.name)opp="Invité";
+    if(go==="multi"&&!(live(d)||(mine&&!n))){let opp=Q.get("opp")||"Invité";if(opp.toUpperCase()===ME.name)opp="Invité";
       drawReq(lvl,n,opp).then(r=>{if(!r.ok)return blockedWin(r.msg);const k=Number(String(r.ref).split(":n")[1]);const g=newGame([ME.name,opp],false,lvl,k);if(r.manual)g.manual=true;open(g);save()});return}
     if(d&&d.players&&!d.solo){open(d);return}const g=solo();if(g&&!g.done){open(g);return}location.replace(HOME)}},100)}
 const GAME="meles",REFOF=g=>g.level+":"+g.mid;

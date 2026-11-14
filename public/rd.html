@@ -981,7 +981,7 @@ body.sk-fleches.light .c.pp .L{color:#8a93a3!important}
 .scores2.linked .sc.turn::after{display:none}
 }
 .scores2:not(.linked) .vsb{display:none}@media (max-width:620px){.scores2.linked{flex-wrap:wrap!important}.scores2.linked .sc{flex-basis:50%!important;max-width:50%}.scores2.linked .mmclock{flex:1 1 100%;order:3;margin-top:8px;text-align:center}}@media (max-width:620px){.scores2.linked .sc{grid-template-columns:auto minmax(0,1fr) auto!important;grid-template-areas:"pi b sv" "pi x sv"!important;padding:5px 22px 5px 8px!important;column-gap:6px!important;row-gap:0!important}.scores2.linked .sc2{grid-template-columns:auto minmax(0,1fr) auto!important;grid-template-areas:"sv b pi" "sv x pi"!important;padding:5px 8px 5px 22px!important}.scores2.linked .sc .pi{width:28px!important;height:28px!important;font-size:.8rem!important}.scores2.linked .sc b{font-size:.78rem!important;align-self:end}.scores2.linked .sc .sv{font-size:1.2rem!important}.scores2.linked .sc .rclk,.scores2.linked .sc .cgst{grid-row:auto!important;grid-column:auto!important;grid-area:x!important;justify-self:start!important;align-self:start;font-size:.64rem!important;padding:0 5px!important;margin:1px 0 0!important;line-height:1.5}.scores2.linked .sc2 .rclk,.scores2.linked .sc2 .cgst{justify-self:end!important}.scores2.linked .sc1 .rclk+.cgst{display:none!important}.scores2.linked .vsb{width:30px!important;height:30px!important;font-size:.7rem!important;border-width:1.5px!important}.scores2.linked{border-radius:14px!important}.scores2.linked .sc{border-radius:13px 0 0 13px!important}.scores2.linked .sc2{border-radius:0 13px 13px 0!important}.scores2.linked .mmclock{margin-top:4px!important;padding:4px!important;font-size:.85rem}}@media (max-width:620px){.scores2.linked{background:linear-gradient(135deg,rgba(255,255,255,.10),rgba(255,255,255,.04))!important;-webkit-backdrop-filter:blur(14px) saturate(140%);backdrop-filter:blur(14px) saturate(140%);border:1px solid rgba(255,255,255,.18)!important;box-shadow:inset 0 1px 0 rgba(255,255,255,.22),0 6px 20px rgba(0,0,0,.25)!important}.scores2.linked .sc.turn,.scores2.linked .sc.lead{background:linear-gradient(135deg,rgba(23,185,197,.30),rgba(145,103,241,.20))!important;box-shadow:inset 0 0 0 1px rgba(255,255,255,.14)!important}.scores2.linked .vsb{background:linear-gradient(145deg,rgba(255,255,255,.28),rgba(255,255,255,.08))!important;-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);border:1px solid rgba(255,255,255,.45)!important;box-shadow:0 4px 12px rgba(0,0,0,.3),inset 0 1px 0 rgba(255,255,255,.4)!important}.scores2.linked .mmclock{background:rgba(255,255,255,.06)!important;border:1px solid rgba(255,255,255,.12)!important;border-radius:10px}}</style>
-<script src="/d/icons.js" defer></script></head>
+<script src="/d/icons.js" defer></script><style id="tj-css">#mkb{display:none}@media (max-width:620px){body.kbon{padding-bottom:214px}body.kbon #mkb{display:flex}#mkb{position:fixed;left:0;right:0;bottom:0;z-index:70;flex-direction:column;gap:6px;padding:8px 5px calc(8px + env(safe-area-inset-bottom));background:rgba(12,18,36,.92);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);border-top:1px solid rgba(255,255,255,.16);box-shadow:0 -10px 30px rgba(0,0,0,.35)}.mkbar{display:flex;align-items:center;gap:6px}#mkOk{flex:none;height:44px;padding:0 16px;border-radius:11px;border:none;color:#fff;font:800 15px Inter,sans-serif;background:linear-gradient(135deg,#00ADB5,#A26BFF);touch-action:manipulation}#mkOk:disabled{opacity:.5}.mkct{flex:1;min-width:0;display:flex;flex-direction:column;line-height:1.2;padding-left:4px}.mkct small{font-size:12px;color:#a9b3c7;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.mkct b{font-size:19px;letter-spacing:3px;color:#eef2f7}.mkrow{display:flex;gap:4px;justify-content:center}.mkk{flex:1 1 0;max-width:40px;height:46px;border-radius:9px;border:none;background:rgba(255,255,255,.16);color:#eef2f7;font:700 19px Inter,sans-serif;touch-action:manipulation;padding:0}.mkk:active{background:rgba(127,227,234,.4)}.mkk.mkw{max-width:60px;flex:1.6 1 0;font-size:17px}[data-theme=light] #mkb{background:rgba(240,244,250,.95);border-top-color:rgba(15,25,40,.12)}[data-theme=light] .mkk{background:rgba(15,25,40,.08);color:#14202b}[data-theme=light] .mkct b{color:#14202b}}</style></head>
 <body class="sk-new booting g-rond">
 <div id="skTop" class="skph"></div>
 <div class="blob b1"></div><div class="blob b2"></div><div class="blob b3"></div>
@@ -1487,10 +1487,10 @@ function validate(){if(!canPlay())return;if(!sel){toast("👆","Choisis d'abord 
     if(Object.keys(G.found).length>=total()){p.score+=20;finish(p.name+" termine la grille : +20 points de bonus !")}
     else if(!G.solo){G.champs=(G.champs||0)+1;if(!G.f80&&fillRatio()>=.8){G.f80=true;sfx.bell();toast("🔔","<b>Grille à 80 %</b> · plus qu'un tour chacun")}if(G.champs>=3)endTour("3 mots trouvés.")}}
   else{sfx.bad();G.msg="Raté"+(G.solo?" : ce n'est pas « "+typ+" ».":" pour "+p.name+".");typ="";if(!G.solo){sel=null;nextTurn();G.msg+=" Au tour de "+G.players[G.turn].name+"."}}
-  save();render();announce()}
+  save();render();announce();kbFlush()}
 function finish(msg){G.done=true;G.ended=Date.now();G.msg=msg;if(!G.solo)send({t:"tally",gid:G.gid,game:"rond",results:G.players.map(p=>({name:p.name,score:p.score}))});
   try{if(ME&&ME.token){const i=G.solo?0:mySeat();const k="fl-sc-rond"+G.gid;if(i!==null&&!LS.get(k)){LS.set(k,"1");fetch("/api/p/score",{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({name:ME.name,token:ME.token,game:"rond",gid:String(G.gid),pts:G.players[i].score,solo:!!G.solo,level:G.level,ref:String(REFOF(G)),started:G.started})}).then(r=>r.json()).then(repNote).catch(()=>{})}}}catch(e){}}
-function pass(){if(!canPlay()||G.solo)return;const p=G.players[G.turn];sel=null;typ="";nextTurn();G.msg=p.name+" passe. Au tour de "+G.players[G.turn].name+".";save();render()}
+function pass(){if(!canPlay()||G.solo)return;const p=G.players[G.turn];sel=null;typ="";nextTurn();G.msg=p.name+" passe. Au tour de "+G.players[G.turn].name+".";save();render();kbFlush()}
 function reveal(){if(!canPlay()||!sel)return;histMark("s");const [c,r]=sel.split("-").map(Number);const W=norm(P.cols[c][r].w);G.found[sel]=-5;G.msg="« "+W+" » révélé (sans points).";sel=null;typ="";if(!G.solo){nextTurn();G.msg+=" Au tour de "+G.players[G.turn].name+"."}
   if(Object.keys(G.found).length>=total())finish("Grille terminée.");save();render()}
 
@@ -1532,10 +1532,12 @@ const kb=document.createElement("input");kb.id="kb";kb.setAttribute("aria-label"
 // à l'écran à chaque lettre, c'est ce cercle qui reste en face du joueur (la page ne descend plus vers les cases de réponse)
 function placeKb(){const t=$("#rring .rq.sel");if(!t)return;const r=t.getBoundingClientRect(),op=kb.offsetParent||document.documentElement,o=op.getBoundingClientRect();
   kb.style.left=Math.max(0,r.left-o.left+op.scrollLeft)+"px";kb.style.top=(r.top-o.top+op.scrollTop)+"px";kb.style.width=Math.max(1,r.width)+"px";kb.style.height=Math.max(1,r.height)+"px"}
-function focusKb(){if(matchMedia("(pointer:coarse)").matches){placeKb();try{kb.focus({preventScroll:true})}catch(e){}}}
+function focusKb(){if(tjOn()){if(document.activeElement===kb)kb.blur();return}if(matchMedia("(pointer:coarse)").matches){placeKb();if(document.activeElement===kb){kbFlush();return}kbReset();try{kb.focus({preventScroll:true})}catch(e){}}}
+const SENT="\u200b";function kbReset(){kb.value=SENT;try{kb.setSelectionRange(1,1)}catch(e){}}
+function kbFlush(){if(document.activeElement!==kb)return;kb.blur();kbReset();try{kb.focus({preventScroll:true})}catch(e){}}
 function addL(l){if(!sel||!canPlay()||typ.length>=6)return;typ+=l;tone(880,0,.05,"triangle",.05);draw();slots();announce();placeKb()}
 function delL(){if(!typ)return;typ=typ.slice(0,-1);draw();slots();announce()}
-kb.addEventListener("input",()=>{const v=norm(kb.value);kb.value="";for(const l of v)addL(l)});
+kb.addEventListener("input",()=>{const raw=kb.value;if(!raw.includes(SENT)){delL();kbReset();return}const v=norm(raw.replace(SENT,""));kbReset();for(const l of v)addL(l)});
 kb.addEventListener("keydown",e=>{if(e.key==="Backspace"){e.preventDefault();delL()}else if(e.key==="Enter"){e.preventDefault();validate()}});
 addEventListener("keydown",e=>{if(!G||e.target===kb||e.target.tagName==="INPUT"||$(".overlay.on"))return;if(/^[a-zA-Z]$/.test(e.key)){addL(e.key.toUpperCase());e.preventDefault()}else if(e.key==="Backspace"){delL();e.preventDefault()}else if(e.key==="Enter"){validate();e.preventDefault()}});
 $("#rSlots").onclick=focusKb;$("#rOk").onclick=validate;$("#rPass").onclick=pass;$("#rReveal").onclick=reveal;
@@ -1610,6 +1612,23 @@ function soloBoot(go,lvl,n){let loc=null;try{loc=JSON.parse(LS.get(SOLOKEY)||"nu
     if(go==="resume"){location.replace(HOME);return}
     if(!ME&&guestCount()>=GUEST_MAX){location.replace("/?need=compte");return}
     NEWSOLO(lvl,n,new Set((r&&r.played)||[]))})}
+// ---------- téléphone : clavier Motipop (le clavier Android ne s'ouvre plus) ----------
+function tjOn(){return matchMedia("(pointer:coarse)").matches&&innerWidth<=620}
+const MK=document.createElement("div");MK.id="mkb";MK.setAttribute("aria-label","Clavier du jeu");
+MK.innerHTML='<div class="mkbar"><div class="mkct"><small id="mkClue"></small><b id="mkTyp"></b></div><button type="button" id="mkOk">Valider</button></div>'
+  +["AZERTYUIOP","QSDFGHJKLM","WXCVBN⌫"].map(r=>'<div class="mkrow">'+[...r].map(k=>'<button type="button" class="mkk'+(k==="⌫"?" mkw":"")+'" data-k="'+k+'"'+(k==="⌫"?' aria-label="Effacer"':"")+'>'+k+"</button>").join("")+"</div>").join("");
+document.body.appendChild(MK);
+MK.addEventListener("pointerdown",e=>{const b=e.target.closest("button");if(!b)return;e.preventDefault();if(navigator.vibrate)try{navigator.vibrate(8)}catch(x){}
+  const k=b.dataset.k;if(k){if(k==="⌫")delL();else addL(k);mkUpd();return}if(b.id==="mkOk")validate()});
+function mkUpd(){if(!sel||!P)return;const [c,r]=sel.split("-").map(Number);const w=P.cols[c]&&P.cols[c][r];$("#mkClue").textContent=w?w.c:"";
+  $("#mkTyp").textContent=[0,1,2,3,4,5].map(i=>typ[i]||"·").join(" ");$("#mkOk").disabled=typ.length!==6}
+let kbWas=false;
+function tjRd(){const on=tjOn()&&G&&!G.done&&canPlay()&&!!sel&&!$(".overlay.on");document.body.classList.toggle("kbon",on);if(on)mkUpd();
+  // le cercle choisi reste visible au-dessus du clavier
+  if(on&&!kbWas){const q=$("#rring .rq.sel");if(q){const r=q.getBoundingClientRect(),avail=innerHeight-MK.offsetHeight-12;if(r.top<8||r.bottom>avail)scrollBy(0,r.top-Math.max(8,(avail-r.height)/2))}}
+  kbWas=on}
+const _render=render;render=function(){_render();tjRd()};
+addEventListener("resize",()=>{if(G)tjRd()});
 // accès réservé aux tests automatiques sur la copie locale (jamais sur le site en ligne)
 if(location.hostname==="localhost")window.__t=c=>eval(c);
 start();

@@ -62,6 +62,24 @@ const sleep = ms => new Promise(r => setTimeout(r, ms));
   await m.mouse.up(); await sleep(400);
   ok(!(await m.evaluate(() => document.getElementById('loupe').classList.contains('on'))) && (await T(m, 'Object.keys(G.found).length')) === 1, 'doigt levé : loupe cachée, mot trouvé');
 
+  // ---- Tourniquet, solo, téléphone : clavier Motipop, mot faux effacé
+  const r = await page(P[0]); await r.goto(U + '/rond?go=solo&lvl=facile'); await sleep(4000);
+  await r.evaluate(() => { const q = [...document.querySelectorAll('#rring .rq')].filter(e => !/f1|f2/.test(e.className))[4]; q.id = 'cible' });
+  await r.tap('#cible'); await sleep(500);
+  const rk = await r.evaluate(() => ({ on: getComputedStyle(document.getElementById('mkb')).display === 'flex', sys: document.activeElement && document.activeElement.id === 'kb', clue: document.getElementById('mkClue').textContent }));
+  ok(rk.on && !rk.sys && rk.clue.length > 0, 'Tourniquet : toucher une définition affiche le clavier Motipop (« ' + rk.clue + ' »), pas celui d\'Android');
+  const qb = await r.evaluate(() => { const b = document.querySelector('#rring .rq.sel').getBoundingClientRect(); return { top: b.top, bot: b.bottom, max: innerHeight - document.getElementById('mkb').offsetHeight } });
+  ok(qb.top >= 0 && qb.bot <= qb.max, 'le cercle choisi reste visible au-dessus du clavier (' + Math.round(qb.top) + '–' + Math.round(qb.bot) + ' / ' + Math.round(qb.max) + ')');
+  const bad = await T(r, '(()=>{const [c,q]=sel.split("-").map(Number);const W=norm(P.cols[c][q].w);return W[0]==="Z"?"QQQQQQ":"ZZZZZZ"})()');
+  for (const l of bad) { await r.tap('#mkb [data-k="' + l + '"]'); await sleep(50) }
+  ok((await T(r, 'typ')) === bad, 'les 6 lettres arrivent (' + bad + ')');
+  await r.tap('#mkb [data-k="⌫"]'); await sleep(100); ok((await T(r, 'typ')) === bad.slice(0, 5), '⌫ efface une lettre');
+  await r.tap('#mkb [data-k="' + bad[0] + '"]'); await sleep(100);
+  await r.tap('#mkOk'); await sleep(600);
+  const after = await r.evaluate(() => ({ typ: window.__t('typ'), slots: document.getElementById('rSlots').textContent.replace(/\s/g, ''), bar: document.getElementById('mkTyp').textContent.replace(/[\s·]/g, '') }));
+  ok(after.typ === '' && !/[A-Z]/.test(after.slots) && after.bar === '', 'mot faux validé : tout est effacé (saisie, cases, barre)');
+  await r.screenshot({ path: SHOT + '/tj_rond.png' });
+
   // ---- ordinateur : rien ne change
   const pc = await page(P[0], 1280); await pc.goto(U + '/fleches?go=solo&lvl=normal'); await sleep(3500);
   ok(await pc.evaluate(() => !document.body.classList.contains('tj') && getComputedStyle(document.getElementById('mkb')).display === 'none'), 'ordinateur : affichage habituel, pas de clavier Motipop');
