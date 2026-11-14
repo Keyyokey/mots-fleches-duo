@@ -699,7 +699,7 @@ table.bar td,table.bar th{padding:5px 6px;border-bottom:1px solid rgba(255,255,2
 #fMsg{min-height:1em;font-size:.8rem}
 .flbar{cursor:pointer}
 .slots.myst span{cursor:pointer}
-#kb{position:fixed;left:-9999px;top:0;opacity:0;width:1px;height:1px}
+#kb{position:absolute;left:0;top:0;opacity:0;width:1px;height:1px;margin:0;padding:0;border:0;background:transparent;color:transparent;caret-color:transparent;font-size:16px;pointer-events:none;z-index:-1}
 #invBtn{margin-top:6px}
 .endrow{display:flex;align-items:center;gap:10px;padding:8px 12px;border-radius:12px;background:rgba(0,0,0,.2);margin-top:6px;text-align:left}
 :root[data-theme="light"] .endrow{background:rgba(255,255,255,.7)}
@@ -1528,8 +1528,17 @@ addEventListener("resize",()=>{if(G)draw()});
 
 // ---------- saisie ----------
 const kb=document.createElement("input");kb.id="kb";kb.setAttribute("aria-label","Saisie des lettres");kb.setAttribute("autocomplete","off");kb.setAttribute("autocapitalize","characters");kb.setAttribute("spellcheck","false");document.body.appendChild(kb);
-function focusKb(){if(matchMedia("(pointer:coarse)").matches){try{kb.focus({preventScroll:true})}catch(e){}}}
-function addL(l){if(!sel||!canPlay()||typ.length>=6)return;typ+=l;tone(880,0,.05,"triangle",.05);draw();slots();announce()}
+// le champ invisible est posé sur les cases de réponse : quand le téléphone ramène « la zone de saisie »
+// à l'écran à chaque lettre, ce sont ces cases qui restent visibles (et la page ne remonte plus en haut)
+function placeKb(){const t=$("#rSlots");if(!t||!t.offsetParent)return;const r=t.getBoundingClientRect(),op=kb.offsetParent||document.documentElement,o=op.getBoundingClientRect();
+  kb.style.left=Math.max(0,r.left-o.left+op.scrollLeft)+"px";kb.style.top=(r.top-o.top+op.scrollTop)+"px";kb.style.width=Math.max(1,r.width)+"px";kb.style.height=Math.max(1,r.height)+"px"}
+// clavier ouvert : si les cases de réponse passent sous le clavier, la page glisse juste ce qu'il faut
+function keepAnsVisible(){const vv=window.visualViewport,t=$("#rSlots");if(!vv||!t||document.activeElement!==kb)return;const r=t.getBoundingClientRect(),top=vv.offsetTop+8,bot=vv.offsetTop+vv.height-12;
+  if(r.bottom>bot)scrollBy(0,r.bottom-bot);else if(r.top<top)scrollBy(0,r.top-top)}
+if(window.visualViewport)visualViewport.addEventListener("resize",()=>setTimeout(()=>{placeKb();keepAnsVisible()},60));
+addEventListener("scroll",()=>{if(document.activeElement===kb)placeKb()},{passive:true});
+function focusKb(){if(matchMedia("(pointer:coarse)").matches){placeKb();try{kb.focus({preventScroll:true})}catch(e){}requestAnimationFrame(keepAnsVisible)}}
+function addL(l){if(!sel||!canPlay()||typ.length>=6)return;typ+=l;tone(880,0,.05,"triangle",.05);draw();slots();announce();placeKb()}
 function delL(){if(!typ)return;typ=typ.slice(0,-1);draw();slots();announce()}
 kb.addEventListener("input",()=>{const v=norm(kb.value);kb.value="";for(const l of v)addL(l)});
 kb.addEventListener("keydown",e=>{if(e.key==="Backspace"){e.preventDefault();delL()}else if(e.key==="Enter"){e.preventDefault();validate()}});
