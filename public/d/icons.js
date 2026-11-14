@@ -12,10 +12,10 @@ function svg(k,e){var s=cache[k];if(!s){var p=P[k];s=cache[k]='<svg class="ic" v
 function skip(n){for(var p=n.parentNode;p&&p!==document.body;p=p.parentNode){if(SKIP[p.nodeName]||p.namespaceURI==="http://www.w3.org/2000/svg"||(p.hasAttribute&&p.hasAttribute("data-noic")))return true}return false}
 function fix(t){var v=t.nodeValue;RE.lastIndex=0;if(!v||!RE.test(v)||skip(t))return;RE.lastIndex=0;var f=document.createDocumentFragment(),last=0,m;
   while((m=RE.exec(v))){if(m.index>last)f.appendChild(document.createTextNode(v.slice(last,m.index)));f.appendChild(svg(M[m[1]],m[0]));last=m.index+m[0].length}
-  if(last<v.length)f.appendChild(document.createTextNode(v.slice(last)));t.parentNode.replaceChild(f,t)}
+  if(last<v.length)f.appendChild(document.createTextNode(v.slice(last)));if(t.parentNode)t.parentNode.replaceChild(f,t)}
 function scan(el){if(mode==="e"||!el)return;if(el.nodeType===3)return fix(el);if((el.nodeType!==1&&el.nodeType!==11)||SKIP[el.nodeName])return;
   var w=document.createTreeWalker(el,NodeFilter.SHOW_TEXT),L=[],n;while((n=w.nextNode()))L.push(n);L.forEach(fix)}
-function unscan(){var L=[].slice.call(document.querySelectorAll("svg.ic[data-e]"));roots().forEach(function(r){L=L.concat([].slice.call(r.querySelectorAll("svg.ic[data-e]")))});for(var i=0;i<L.length;i++)L[i].parentNode.replaceChild(document.createTextNode(L[i].getAttribute("data-e")),L[i])}
+function unscan(){var L=[].slice.call(document.querySelectorAll("svg.ic[data-e]"));roots().forEach(function(r){L=L.concat([].slice.call(r.querySelectorAll("svg.ic[data-e]")))});for(var i=0;i<L.length;i++)if(L[i].parentNode)L[i].parentNode.replaceChild(document.createTextNode(L[i].getAttribute("data-e")),L[i])}
 var css=".ic{width:1.15em;height:1.15em;display:inline-block;vertical-align:-.2em;flex:none;overflow:visible}"+
  ".ic .ics{fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}.ic .icf{fill:url(#icg);stroke:none;opacity:0}"+
  ":host([data-ic=b]) .ic .icf{opacity:.8}[data-ic=b] .ic .icf{opacity:.8}.icopt[data-ic=b] .ic .icf{opacity:.8}.icopt[data-ic=a] .ic .icf{opacity:0}"+

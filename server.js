@@ -135,7 +135,7 @@ async function handleLaunch(ws, s, m) {
     if (m.gid && d.gid !== m.gid) return;
     const names = d.players.map(p => String(p.name || "").toUpperCase());
     // tous les participants doivent être de vrais comptes, présents dans le salon
-    if (names.some(n => !PSEUDO_RE.test(n))) return;
+    if (names.length < 2 || names.length > 4 || names.some(n => !PSEUDO_RE.test(n))) return;
     const here = new Set([...s.sockets].map(w => w.user));
     if (!names.every(n => here.has(n))) return;
     const lvl = CAT.level(game, d.level);
@@ -173,11 +173,14 @@ function launchOk(id, prev, next) {
 // une partie ne peut faire apparaître que le joueur connecté ; une nouvelle partie peut inviter un membre du salon ou « Invité »
 function seatsOk(prev, next, user, acc) {
   const ps = Array.isArray(next.players) ? next.players : null; if (!ps) return true;
+  if (!next.solo && ps.length > 4) return false;                                     // 4 joueurs au plus
   const fresh = !prev || prev.gid !== next.gid;
   const old = new Set(fresh ? [] : (Array.isArray(prev.players) ? prev.players : []).map(x => x && x.name));
   for (const pl of ps) {
     const n = String(pl && pl.name || "");
-    if (old.has(n) || n === user || /^invit/i.test(n)) continue;
+    if (old.has(n)) continue;
+    if (!fresh && !prev.wait) return false;                                          // personne n'entre dans une partie déjà lancée
+    if (n === user || /^invit/i.test(n)) continue;
     if (fresh && acc && acc.members[n.toUpperCase()]) continue;
     return false;
   }

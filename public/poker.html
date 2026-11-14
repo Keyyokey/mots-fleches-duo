@@ -1379,7 +1379,7 @@ function glass(root){
     while((m=RE.exec(s))){if(m.index>last)f.appendChild(document.createTextNode(s.slice(last,m.index)));const k=MAP[m[1]];const sp=document.createElement("span");sp.className="bico";sp.innerHTML=ICO[k]();f.appendChild(sp);last=m.index+m[0].length}
     let rest=s.slice(last);if(f.lastChild&&f.lastChild.className==="bico")rest=rest.replace(/^\s+/,"");if(rest)f.appendChild(document.createTextNode(rest));else if(f.lastChild&&f.lastChild.className==="bico"&&!(n.nextSibling&&String(n.nextSibling.textContent||"").trim()))f.lastChild.classList.add("only");
     // « 🔁 Rejouer » : l'icône garde un petit espace avec le texte (géré en CSS)
-    n.parentNode.replaceChild(f,n)})}
+    if(n.parentNode)n.parentNode.replaceChild(f,n)})}
 // croix de fermeture : ferme la fenêtre et laisse voir la page floutée derrière
 function cross(ov){const sh=ov.querySelector(".sheet");if(!sh||sh.querySelector(":scope>.xbtn"))return;const b=document.createElement("button");b.className="xbtn";b.type="button";b.setAttribute("aria-label","Fermer");b.title="Fermer";
   b.innerHTML='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6.5 6.5l11 11M17.5 6.5l-11 11" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></svg>';
