@@ -5,7 +5,7 @@ import lex,random,collections,json,sys,time,os
 L=lex.load();Z=lex.zipf_map()
 H=os.path.dirname(os.path.abspath(__file__))
 BLACK=set(open(os.path.join(H,'..','tourniquet','rond2_black.txt')).read().split())
-NEW=set(l.split('|')[0] for l in open(os.path.join(H,'dict','d11.txt'),encoding='utf8') if '|' in l)
+NEW=set(l.split('|')[0] for f in ('d11.txt','d12.txt') for l in open(os.path.join(H,'dict',f),encoding='utf8') if '|' in l)
 _s=open(sys.argv[1]).read();old=json.loads(_s[_s.index('=')+1:].rstrip().rstrip(';'))
 oldset=collections.Counter(c['w'] for g in old for col in g['cols'] for c in col)
 oldkeys=set(tuple(sorted(c['w'] for col in g['cols'] for c in col)) for g in old)

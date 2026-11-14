@@ -1,0 +1,873 @@
+GALERE|Situation pénible
+HONORE|Rend hommage
+AMOURS|Passions
+MASSES|Grandes quantités
+MODULE|Élément d'un ensemble
+LYCEES|Établissements scolaires
+PASSIF|Inactif
+BASQUE|De Bayonne
+MODERE|Raisonnable
+EPUISE|À bout de forces
+DOUCES|Pas rugueuses
+GAMINE|Petite fille
+COUPEE|Tranchée
+ABORDS|Alentours
+SACRES|Saints
+CLIQUE|Bande de copains
+TUEURS|Assassins
+FLEMME|Paresse familière
+FOLLES|Déraisonnables
+ALINEA|Retour à la ligne
+GACHER|Gaspiller
+MACHIN|Truc
+EGALES|Identiques
+MIXTES|Pour filles et garçons
+DRONES|Engins volants sans pilote
+SCEAUX|Cachets officiels
+CURSUS|Parcours d'études
+PERMIT|Autorisa
+SAXONS|Peuple germanique
+LACHES|Sans courage
+PERCEE|Avancée décisive
+DRAGUE|Fait la cour
+SKETCH|Courte scène comique
+RABAIS|Remise
+INDUIT|Entraîné
+ZOMBIE|Mort-vivant
+RELATE|Raconte
+GUILDE|Corporation
+ABRUTI|Hébété
+PSYCHO|Étude de l'âme, en abrégé
+CORSES|Insulaires de Bastia
+DEMENT|Fou
+EXPORT|Vente à l'étranger
+PARANO|Méfiant à l'excès
+PIZZAS|Spécialités de Naples
+EMPARE|S'… : s'approprie
+FERIES|Jours chômés
+VERBES|Se conjuguent
+ENFERS|Séjour des damnés
+MALINS|Rusés
+TENONS|Bouts d'assemblage
+APPUIS|Soutiens
+SOURDE|Assourdie
+SERREE|Comprimée
+VOIRIE|Routes de la commune
+SHERIF|Policier du Far West
+CAPOTE|Toit repliable
+VERSES|Payés
+ROYAUX|Du roi
+AVERER|S'… : se révéler
+ALLIEE|Partenaire
+CREOLE|Langue des Antilles
+MINIER|De la mine
+FERREE|Voie de chemin de fer
+ACCEDE|Parvient
+FIRMES|Entreprises
+REGENT|Gouverne à la place du roi
+ENVOLE|Parti dans les airs
+REPAND|Disperse
+RENIER|Désavouer
+LIGUES|Alliances
+VOILEE|Couverte d'un voile
+SURVIT|Reste en vie
+ADMISE|Reçue
+GASTRO|Indigestion, en abrégé
+RABBIN|Chef religieux juif
+GARDEE|Surveillée
+SOUCIE|Se … : s'inquiète
+REVISE|Repasse ses leçons
+MOCHES|Laids
+JETANT|Lançant
+EGARDS|Marques de respect
+NUDITE|État d'être nu
+COQUES|Coquillages
+PAUSES|Temps de repos
+SEVRES|Porcelaine célèbre
+SAIGNE|Perd du sang
+SOUMET|Propose
+SIEGER|Tenir séance
+CRAMER|Brûler familièrement
+PEINTE|Colorée
+ESSUIE|Sèche
+NICHES|Abris de chien
+LOUPER|Rater
+FONCER|Aller très vite
+GRACES|Charmes
+GRAVEE|Ciselée
+ELOGES|Louanges
+VARIEE|Diverse
+SURGIT|Apparaît soudain
+OBSEDE|Hante
+TIERCE|Pari hippique
+DORMEZ|Faites dodo
+CLOPES|Cigarettes familières
+EMBETE|Ennuie
+NOUNOU|Garde d'enfants
+PIETON|Marche à pied
+NATIVE|Originaire
+SAUCES|Accompagnent le plat
+BLONDS|Aux cheveux clairs
+BORDEE|Entourée
+TRAHIT|Livre son ami
+MORAUX|Conformes à la morale
+CHLORE|Désinfecte la piscine
+AVOIRS|Biens
+DEBITS|Sorties d'argent
+MUETTE|Sans voix
+PIQUES|Couleur de cartes
+GUERIT|Se rétablit
+EXILES|Bannis
+NOYAUX|Cœurs de fruits
+TRACTS|Feuilles de propagande
+EDITER|Publier
+SLALOM|Descente entre piquets
+EMERGE|Sort de l'eau
+FUMEES|Vapeurs
+FORGER|Façonner le fer
+SATURE|Plein à craquer
+NULLES|Sans valeur
+PANNES|Arrêts de fonctionnement
+FOURRE|Garni
+GRISES|Couleur de souris
+AGITEE|Nerveuse
+COIFFE|Peigne
+TRIPES|Abats
+FROTTE|Astique
+PUISER|Prendre à la source
+LACETS|Ferment les chaussures
+PIEGER|Prendre au piège
+COULEE|Flot de lave
+BALAIS|Nettoient le sol
+PILLER|Dévaliser
+BUNKER|Abri blindé
+SCOUTS|Louveteaux grandis
+GADGET|Petit objet amusant
+GOUROU|Maître spirituel
+AROMES|Parfums culinaires
+REBOND|Rebondissement
+AGITER|Secouer
+SAFARI|Chasse en Afrique
+BREVES|Courtes
+PLANER|Voler sans moteur
+FOETUS|Futur bébé
+AMBIGU|Équivoque
+INJURE|Insulte
+BALISE|Signal de piste
+POLLEN|Poussière des fleurs
+CUBAIN|De La Havane
+ICONES|Images saintes
+EPINES|Piquants de la rose
+REMOUS|Tourbillons
+NEVEUX|Fils du frère
+DUMENT|Comme il se doit
+ENCLIN|Porté à
+LASSER|Fatiguer
+VOUTES|Plafonds arrondis
+ETANGS|Plans d'eau
+BOVINS|Vaches et bœufs
+IMPORT|Achat à l'étranger
+JUMENT|Femelle du cheval
+BROCHE|Bijou à épingle
+RAVAGE|Dévaste
+SABRES|Armes de cavaliers
+BIDONS|Récipients
+CALICE|Coupe de messe
+CADETS|Plus jeunes
+UNIONS|Alliances
+GAMMES|Do ré mi fa…
+MAJORS|Premiers de promo
+TENDUS|Crispés
+REVEUR|Dans la lune
+CRASSE|Saleté
+COGNER|Frapper
+MAQUIS|Résistance armée
+AMPLES|Larges
+DICTER|Imposer
+CAMPER|Dormir sous la tente
+BARILS|Tonneaux de pétrole
+NOYADE|Accident de baignade
+FREINE|Ralentit
+NAGEUR|Champion de bassin
+PATOIS|Parler local
+CAVALE|Fuite
+TITANS|Géants
+EDUQUE|Bien élevé
+FORTIN|Petit fort
+LABOUR|Travail de la charrue
+SABOTS|Chaussures de bois
+INTRUS|Indésirable
+MECHES|Bougies ou cheveux
+BRAQUE|Attaque une banque
+FLEURI|Couvert de fleurs
+VITAUX|Essentiels
+VACANT|Libre
+REGALE|Festin
+NEGOCE|Commerce
+SECTES|Groupes fermés
+LIEUES|Anciennes mesures de distance
+TORDRE|Plier en vrille
+BANDIT|Malfaiteur
+GALETS|Cailloux de la plage
+PROMPT|Rapide
+VIGILE|Gardien
+NAQUIT|Vit le jour
+PHOQUE|Mammifère marin
+BOBINE|Rouleau de fil
+BRASSE|Nage
+GRATIS|Gratuitement
+INSERE|Introduit
+PERSES|Iraniens d'autrefois
+GLANDE|Sécrète une hormone
+TASSES|Pour le café
+RUBANS|Bandes de tissu
+ONCLES|Frères des parents
+PROIES|Victimes du prédateur
+VEUVES|Ont perdu leur mari
+LARGUE|Lâche
+SUTURE|Couture du chirurgien
+ENDUIT|Revêtement du mur
+PARURE|Ensemble de bijoux
+EMIGRE|Quitte son pays
+SCOTCH|Ruban adhésif
+PURGER|Vider
+GRATIN|Plat doré au four
+ATHEES|Sans dieu
+NOMADE|Sans domicile fixe
+RELAYE|Transmet
+SURGIR|Apparaître brusquement
+ERRANT|Vagabond
+GROGNE|Mécontentement
+MILLET|Céréale
+SELLES|Sièges du cavalier
+ALLERS|Billets simples
+HOUSSE|Enveloppe protectrice
+FINIES|Achevées
+TOUSSE|A un rhume
+ALLOUE|Attribue
+NATIFS|Originaires
+GUETTE|Épie
+CORVEE|Tâche pénible
+EXACTS|Justes
+SENSEE|Raisonnable
+DINERS|Repas du soir
+DECENT|Convenable
+DETEND|Relâche
+FABLES|Récits de La Fontaine
+PRONOM|Il ou elle
+CRABES|Marchent de côté
+TARTES|Desserts
+ABUSIF|Excessif
+COLLEE|Fixée à la colle
+GLOBES|Sphères
+EXQUIS|Délicieux
+PETARD|Explosif de fête
+MURALE|Sur le mur
+SILLON|Trace de la charrue
+GRAVER|Inciser
+FONCEE|Sombre
+SELLER|Équiper un cheval
+PUTSCH|Coup d'État
+GUIDON|Dirige le vélo
+PONDRE|Faire des œufs
+TABOUS|Interdits
+SONDES|Instruments de mesure
+PSAUME|Chant biblique
+VIVIER|Bassin à poissons
+BOEUFS|Bêtes de labour
+OCCUPA|Prit possession
+COLLES|Pots de colle
+ENCENS|Parfum d'église
+GALANT|Courtois
+DEVIER|Détourner
+PRECHE|Sermon
+SAPINS|Arbres de Noël
+DOGMES|Vérités imposées
+SURVOL|Vue d'en haut
+DEVORE|Mange goulûment
+DIACRE|Ministre du culte
+DOREES|Couleur or
+ERMITE|Solitaire
+FACIES|Visage
+ARROSE|Mouille les plantes
+PAIENS|Non chrétiens
+PERSAN|Chat à poils longs
+EGALER|Valoir autant
+VIVACE|Qui dure
+PATINS|Glissent sur la glace
+POMPER|Aspirer
+COBALT|Bleu intense
+HIPPIE|Peace and love
+CENDRE|Reste du feu
+ENFILE|Passe le fil
+APAISE|Calme
+FEINTE|Ruse
+GERMES|Microbes
+LOYAUX|Fidèles
+FAUTIF|Coupable
+STYLOS|Pour écrire
+GELEES|Confitures
+JEUDIS|Avant les vendredis
+IRRITE|Agace
+FISTON|Fils familier
+SIFFLE|Fait le merle
+FACHER|Mettre en colère
+CRANES|Boîtes crâniennes
+CAILLE|Petit gibier
+COMPAS|Trace les cercles
+EXPIRE|Souffle
+DICTON|Proverbe
+PHENIX|Renaît de ses cendres
+PSYCHE|Esprit
+VASSAL|Sujet du seigneur
+LUNDIS|Débuts de semaine
+CRETES|Sommets des vagues
+EXCEDE|Dépasse
+AJUSTE|Règle
+ETAYER|Soutenir
+HEURTS|Chocs
+FESSEE|Correction
+OPERAS|Œuvres lyriques
+INFLUE|Agit sur
+BORDER|Ourler
+HORDES|Bandes sauvages
+PERILS|Dangers
+CREMES|Desserts onctueux
+VRILLE|Tourne en spirale
+GRAPPE|Fruits de la vigne
+GRIEFS|Reproches
+HAINES|Rancunes
+RUINEE|Sans le sou
+ARETES|Os du poisson
+SMILEY|Visage souriant
+INDIGO|Bleu violet
+VENERE|Adore
+HYMNES|Chants solennels
+HAMMAM|Bain de vapeur
+COTOYE|Fréquente
+ACCROS|Dépendants
+AISEES|Riches
+CELTES|Ancêtres des Bretons
+SUBITE|Soudaine
+CLOSES|Fermées
+PONEYS|Petits chevaux
+BAVARD|Moulin à paroles
+GUERIE|Rétablie
+CHIOTS|Petits chiens
+ORNEES|Décorées
+LOYALE|Fidèle
+PALMES|Pour la plongée
+GITANS|Roms
+EMOTIF|Sensible
+RUCHES|Maisons d'abeilles
+SUMMUM|Sommet
+STEAKS|Tranches de bœuf
+EGERIE|Inspiratrice
+REFUTE|Conteste
+BASTON|Bagarre
+APACHE|Indien d'Amérique
+FUMANT|Chaud
+FEUTRE|Crayon à pointe
+SONDER|Explorer
+ESSUYE|Subit un échec
+BALAYE|Nettoie
+CRUELS|Méchants
+ILLICO|Tout de suite
+POISSE|Malchance
+JUTEUX|Plein de jus
+BANNIS|Exilés
+FAUCHE|Sans argent
+ABIMER|Endommager
+ARBORE|Porte fièrement
+LACTEE|Voie de notre galaxie
+ARMADA|Flotte
+RECELE|Cache
+TRUQUE|Falsifié
+AMADOU|Prend feu facilement
+VOYEUR|Curieux indiscret
+SHORTS|Culottes courtes
+MARDIS|Suivent les lundis
+CAVEAU|Tombe familiale
+GRONDE|Réprimande
+RAMPES|Balustrades
+DIGUES|Barrages
+HELIUM|Gonfle les ballons
+SPHINX|Gardien des pyramides
+CASSIS|Petit fruit noir
+UNIFIE|Rassemble
+TATOUE|Encré sur la peau
+ABONDE|Foisonne
+CARATS|Mesure de l'or
+EXEMPT|Dispensé
+LAITON|Cuivre jaune
+FAUVES|Lions et tigres
+MEDUSE|Animal marin urticant
+AVIDES|Gourmands
+REPLIE|Plié
+CAFARD|Blatte
+SUEURS|Transpirations
+FOURBE|Hypocrite
+BAVURE|Erreur grave
+SALEES|Assaisonnées
+SOUDES|Unis
+INHUME|Enterre
+POUSSA|Bouscula
+PIQUEE|Mordue par le moustique
+MOLLES|Pas dures
+CINTRE|Porte-manteau
+DIGERE|Assimile
+TUEUSE|Meurtrière
+STOCKE|Entrepose
+PEPERE|Grand-père familier
+RAIDES|Pas souples
+VITREE|Garnie de vitres
+IDYLLE|Amourette
+FOUINE|Petit carnassier curieux
+FRICHE|Terre inculte
+TOUTOU|Chien familier
+TYPHON|Ouragan
+FLATTE|Complimente
+STORES|Rideaux à lames
+CACHOT|Cellule de prison
+AMANTE|Amoureuse
+REVOLU|Passé
+ALTERE|Abîmé
+CYGNES|Oiseaux blancs du lac
+AVIRON|Rame
+RECLUS|Enfermé
+RALLIE|Rejoint
+BERNER|Tromper
+REFLUX|Marée descendante
+AMPUTE|Coupé d'un membre
+BOVINE|De la vache
+ENFOUI|Enterré
+CRIBLE|Tamis
+TRAHIE|Abandonnée
+SBIRES|Hommes de main
+MUTANT|Transformé
+CHICHE|Pois du couscous
+CECITE|Perte de la vue
+BARBUS|Poilus du menton
+AUMONE|Don au mendiant
+LISSER|Aplanir
+ARIDES|Secs
+VAUDOU|Culte haïtien
+BOCAGE|Paysage de haies
+OSSEUX|Maigre
+ENRAGE|Furieux
+RECIFS|Rochers à fleur d'eau
+ACUITE|Finesse
+JETEES|Digues du port
+FILONS|Veines de minerai
+DERAPE|Glisse
+MAGNAT|Riche industriel
+GUEPES|Piquent l'été
+GAINES|Étuis
+TANNER|Préparer le cuir
+BRIBES|Fragments
+DENUEE|Dépourvue
+MASSUE|Gourdin
+EDIFIE|Construit
+QUINTE|Accès de toux
+TORDUS|Pliés
+EPAVES|Bateaux naufragés
+DURCIR|Rendre dur
+NANTIS|Aisés
+ULCERE|Plaie
+AUTELS|Tables du culte
+EXILER|Bannir
+JUBILE|Exulte
+PEPINS|Graines de pomme
+POILUS|Soldats de 14-18
+DENOTE|Indique
+ARCHES|Voûtes du pont
+NOCIFS|Toxiques
+GAZEUX|Pétillant
+CANOTS|Petites embarcations
+FIGUES|Fruits du figuier
+BARBES|Poils du menton
+SEIGLE|Céréale
+SOUDER|Assembler à chaud
+PRISEE|Appréciée
+FRAYER|Se … un chemin
+SONGES|Rêves
+PINCEE|Petite quantité de sel
+PIEUSE|Dévote
+TYRANS|Despotes
+PELLES|Pour creuser
+RECITE|Dit par cœur
+CISEAU|Outil de sculpteur
+HELICO|Appareil à hélices, familier
+ACQUIT|Par … de conscience
+BENITE|Eau de l'église
+BOURDE|Gaffe
+DILUER|Allonger d'eau
+SOUPES|Potages
+LATTES|Planches minces
+HOSTIE|Pain de messe
+COUPON|Ticket détachable
+CERNES|Sous les yeux fatigués
+SOYEUX|Doux comme la soie
+TRACAS|Soucis
+CAPTIF|Prisonnier
+PATURE|Pâturage
+VAINES|Inutiles
+LENTES|Pas rapides
+AVISER|Prévenir
+CONVIE|Invite
+BOUDER|Faire la tête
+HINDOU|De l'Inde
+BOLIDE|Voiture de course
+ORGUES|Instrument d'église
+SONATE|Pièce pour piano
+ECLUSE|Ouvrage du canal
+CORAUX|Forment les récifs
+SPEECH|Discours familier
+TAMISE|Fleuve de Londres
+TRIBUN|Orateur
+CHENAL|Passage navigable
+SCRIBE|Copiste
+MACHER|Broyer avec les dents
+MADONE|Vierge Marie
+PRUNES|Fruits violets
+DIFFUS|Vague
+FOULER|Marcher sur
+FELINS|Chats et tigres
+TYMPAN|Membrane de l'oreille
+POMPON|Boule de laine
+LAPSUS|Mot de travers
+RASAGE|Coup de rasoir
+FACIAL|Du visage
+ROCADE|Voie de contournement
+SOUDEE|Unie
+LAGUNE|Étang salé
+SECHEE|Essorée
+MUTILE|Estropié
+HACHES|Outils du bûcheron
+AGACER|Énerver
+CORSET|Gaine baleinée
+ORTIES|Piquent les mollets
+SIMULE|Fait semblant
+PATINE|Usure du temps
+MADERE|Vin portugais
+TONDRE|Couper l'herbe
+POLLUE|Souillé
+COBAYE|Sujet d'expérience
+CARCAN|Contrainte
+PINCER|Serrer
+CINGLE|Fou
+CONTER|Raconter
+HUITRE|Mollusque à perle
+ADONNE|S'… : se consacre
+ECLORE|S'ouvrir
+LACUNE|Manque
+TOXINE|Poison
+NYMPHE|Divinité des eaux
+FLIRTE|Courtise
+GLANDS|Fruits du chêne
+SOBRES|Mesurés
+COURGE|Citrouille
+CABALE|Complot
+FLORAL|Des fleurs
+RONGER|Grignoter
+GARNIE|Remplie
+BRUMES|Brouillards
+LIESSE|Joie collective
+ETALEE|Étendue
+CYPRES|Arbres des cimetières
+DIVINS|Exquis
+CANINE|Dent pointue
+LAVEUR|Nettoie les vitres
+OGIVES|Têtes de missiles
+LIASSE|Paquet de billets
+FENDRE|Couper en deux
+FARCES|Blagues
+BRANDI|Levé en l'air
+ROUNDS|Reprises de boxe
+OVALES|En forme d'œuf
+JOUTES|Tournois
+GEMMES|Pierres précieuses
+NAVALS|Maritimes
+FONDUS|Liquéfiés
+ASILES|Refuges
+EPITRE|Lettre de saint Paul
+CASTES|Classes fermées
+DEDIER|Offrir
+SALINE|Marais salant
+ADJUGE|Vendu aux enchères
+PIANOS|Instruments à touches
+TERNES|Sans éclat
+GISANT|Statue couchée
+GALONS|Grades
+POTINS|Commérages
+LIMBES|Entre deux mondes
+EJECTE|Expulse
+AXIOME|Vérité première
+EGAYER|Réjouir
+CONCIS|Bref
+TOURBE|Combustible des marais
+EPILER|Retirer les poils
+DISPOS|En forme
+OUBLIS|Trous de mémoire
+VEREUX|Malhonnête
+CRIQUE|Petite baie
+CHACAL|Charognard
+TAUDIS|Logement misérable
+BOUGRE|Gaillard
+LEGUER|Transmettre
+BOISEE|Couverte d'arbres
+CADRER|Viser avec l'appareil
+PONTON|Plateforme flottante
+DEJOUE|Contrecarre
+TOCARD|Mauvais cheval
+LIMOGE|Renvoie
+YACHTS|Bateaux de luxe
+BUFFLE|Bovin sauvage
+VALETS|Domestiques
+QUILLE|Fond du bateau
+ANCRES|Arrêtent le navire
+ALLEGE|Rend plus léger
+MEULES|Tas de foin
+MOUDRE|Écraser le grain
+SOMMER|Ordonner
+TENORS|Voix aiguës
+CONFIT|Cuisiné dans la graisse
+AFFOLE|Panique
+RAMPER|Avancer à plat ventre
+ADOSSE|Appuyé
+FENTES|Ouvertures étroites
+RATEAU|Outil du jardinier
+BOUCAN|Vacarme
+BRAVER|Défier
+SIPHON|Tuyau coudé
+POELES|Pour les crêpes
+EVINCE|Écarte
+GOULET|Passage étroit
+NAVETS|Légumes ou mauvais films
+CHIMIO|Traitement, en abrégé
+TOUBIB|Médecin familier
+BALLOT|Paquet
+LANDAU|Voiture d'enfant
+ASSIDU|Régulier
+KIMONO|Habit japonais
+JALONS|Repères
+CLAPET|Soupape
+NASALE|Du nez
+LONGER|Suivre le bord
+VIRILE|Masculine
+DATTES|Fruits du palmier
+CLAMER|Crier
+AIGUES|Perçantes
+ABJECT|Ignoble
+FLUTES|Verres à champagne
+TROMBE|Pluie violente
+RAGOTS|Commérages
+PETRIN|Situation difficile
+EGARER|Perdre
+GIFLER|Claquer la joue
+PATENT|Évident
+GOMMER|Effacer
+OEDEME|Gonflement
+MANTRA|Formule répétée
+BOYAUX|Intestins
+TERTRE|Butte
+ENDURE|Supporte
+NIECES|Filles du frère
+STYLET|Petit poignard
+HACHEE|Viande en morceaux
+OVULES|Cellules féminines
+DRAPER|Envelopper de tissu
+AMORTI|Rentabilisé
+CARGOS|Navires marchands
+ANCRER|Fixer
+GERMER|Pousser
+TYPHUS|Maladie infectieuse
+FRUITE|Au goût de fruit
+CHAUME|Paille du toit
+CROUPE|Arrière du cheval
+REJOUI|Content
+DEPITE|Contrarié
+RONCES|Épines des mûres
+FROLER|Effleurer
+JOUJOU|Jouet familier
+EPERON|Pique le cheval
+MAUVES|Violet pâle
+SAULES|Arbres pleureurs
+ENROLE|Recrute
+BANCAL|Boiteux
+TRUAND|Gangster
+GARROT|Serre le bras
+CRAMPE|Contraction musculaire
+MYOPIE|Vue courte
+BUSTES|Torses sculptés
+EBLOUI|Aveuglé
+RAGOUT|Plat mijoté
+AFFRES|Tourments
+BERCER|Endormir doucement
+TERNIR|Faire perdre l'éclat
+POULIE|Roue à corde
+EXAUCE|Satisfait un vœu
+BECANE|Moto familière
+DENREE|Marchandise
+BLAZER|Veste
+FLOCON|Neige
+PRESTO|Très vite
+FASTES|Splendeurs
+MALAIS|De Kuala Lumpur
+GOSIER|Gorge
+ETRIER|Appui du cavalier
+FLANER|Se promener
+SENILE|Gâteux
+MELONS|Fruits d'été
+GLACON|Refroidit la boisson
+BUVEUR|Amateur d'alcool
+LATENT|Caché
+BOULON|Va avec l'écrou
+SPLEEN|Mélancolie
+ENTETE|Obstiné
+PLIANT|Siège portable
+RAPACE|Oiseau de proie
+AVARIE|Dommage
+EXHIBE|Montre
+ATTELE|Lié au chariot
+HATIVE|Précipitée
+SOLDER|Brader
+QUIDAM|Inconnu
+OSMOSE|Union parfaite
+TOASTS|Pains grillés
+MILORD|Lord anglais
+DAMIER|Plateau de jeu
+BUCHES|Bois de cheminée
+FENDUE|Ouverte
+FLEAUX|Calamités
+PILORI|Mis au … : livré au mépris
+FOISON|À … : en abondance
+AGREER|Accepter
+FRIAND|Amateur de
+ATTISE|Ranime le feu
+GOUJON|Petit poisson
+LUEURS|Faibles lumières
+DECELE|Découvre
+SIDERE|Stupéfait
+BOUEUX|Plein de boue
+MEDITE|Réfléchit
+GOULOT|Col de bouteille
+JAUGER|Évaluer
+TREUIL|Enrouleur de câble
+TOUPIE|Tourne sur elle-même
+EPATER|Impressionner
+EMBRUN|Poussière d'eau de mer
+ECZEMA|Maladie de peau
+HIATUS|Décalage
+HYENES|Rient dans la savane
+NATTES|Tresses
+ADROIT|Habile
+MEGOTS|Bouts de cigarette
+FAISAN|Gibier à plumes
+ENFLER|Gonfler
+ARCHET|Frotte les cordes du violon
+MOMIES|Corps embaumés
+FIACRE|Voiture à cheval
+PAITRE|Brouter
+REPLIS|Retraites
+AGILES|Souples
+AMERES|Pas sucrées
+TROTTE|Allure du cheval
+ZEBRES|Équidés rayés
+ROUAGE|Engrenage
+BLUFFE|Fait illusion
+ROTULE|Os du genou
+NONNES|Religieuses
+FRELON|Grosse guêpe
+JUPONS|Sous-jupes
+HARPON|Arme de pêche
+CHORUS|En … : ensemble
+BAFOUE|Ridiculise
+TRAIRE|Tirer le lait
+EPICEE|Relevée
+AGUETS|Aux … : sur ses gardes
+NIAISE|Sotte
+PANSER|Soigner une plaie
+APARTE|Réplique à part
+CHERIR|Aimer tendrement
+BOCAUX|Pots de verre
+PUANTE|Malodorante
+STELES|Pierres gravées
+RAFLER|Tout prendre
+GAFFES|Maladresses
+PIPEAU|Mensonge familier
+STEPPE|Plaine d'Asie
+MOITES|Humides
+APLATI|Écrasé
+BRANDY|Eau-de-vie
+GLACIS|Pente douce
+VIDEUR|Portier de boîte
+MUGUET|Fleur du 1er mai
+JOVIAL|Gai
+ACABIT|Du même … : de même nature
+VALSER|Danser à trois temps
+MEFAIT|Mauvaise action
+CHAMAN|Sorcier guérisseur
+PISTER|Suivre à la trace
+FANION|Petit drapeau
+CEDRES|Arbres du Liban
+FARCIR|Garnir
+VIAGER|Vente contre rente
+GOUSSE|D'ail ou de vanille
+BABORD|Gauche du navire
+RONFLE|Dort bruyamment
+BAQUET|Cuve
+BULBES|Oignons de fleurs
+POREUX|Perméable
+DOCKER|Ouvrier du port
+COQUET|Soigné
+ZIGZAG|Ligne brisée
+DEMUNI|Pauvre
+NARINE|Trou du nez
+LARYNX|Organe de la voix
+CROULE|S'effondre
+CAMBRE|Arqué
+ROSACE|Vitrail rond
+JOUXTE|Touche
+SHERRY|Xérès
+GERBES|Bouquets
+CHASTE|Pur
+MIMOSA|Fleur jaune
+GRACIE|Pardonné
+DOUVES|Fossés du château
+BENNES|Bacs de camion
+AMARRE|Câble du bateau
+CIERGE|Grande bougie
+EXPIER|Payer sa faute
+FEERIE|Merveille
+INFLUX|Courant nerveux
+COULIS|Purée liquide
+EXALTE|Enthousiaste
+LIGOTE|Attaché
+ROULIS|Balancement du navire
+SORBET|Glace aux fruits
+STRIES|Rayures
+MITEUX|Pitoyable
+BRODER|Enjoliver
+PINTES|Chopes
+MASTIC|Pâte du vitrier
+TUTOIE|Dit tu
+HUTTES|Cabanes
+AUVENT|Petit toit
+CARENE|Coque du navire
+VASQUE|Bassin
+TARMAC|Piste d'aéroport
+TAUPES|Creusent des galeries
+IMPUNI|Non puni
+MUFFIN|Petit gâteau
+LIANES|Plantes grimpantes
+PICHET|Carafe
+BAMBIN|Petit enfant
+DELIER|Détacher
+TROUER|Percer
+FECOND|Productif
+REBUTE|Dégoûte
+ROGNER|Réduire
+FUGACE|Passager
+RASANT|Ennuyeux
+AVISEE|Prudente
