@@ -128,8 +128,17 @@ async function handleDraw(ws, s, m) {
   return reply({ ok: true, ref: CAT.pick(adm) });
 }
 async function handleLaunch(ws, s, m) {
-  const id = String(m.id || ""); const game = { fl: "fleches", rond: "rond", meles: "meles", cg: "culture" }[id];
+  const id = String(m.id || ""); const game = { fl: "fleches", rond: "rond", meles: "meles", cg: "culture", mg: "magnetico" }[id];
   if (!game) return;
+  if (game === "magnetico") return locked1(ws.room, async () => {
+    // Magnético : pas de catalogue à vérifier, seulement les joueurs (2 à 4 vrais comptes présents dans le salon)
+    const d = s.docs[id]; if (!d || !d.wait || d.done || d.solo || (m.gid && d.gid !== m.gid)) return;
+    const names = (d.players || []).map(p => String(p.name || "").toUpperCase());
+    if (names.length < 2 || names.length > 4 || names.some(n => !PSEUDO_RE.test(n))) return;
+    const here = new Set([...s.sockets].map(w => w.user)); if (!names.every(n => here.has(n))) return;
+    d.wait = false; d.go = Date.now() + 5600; d.started = d.go; d.msg = "Le jeu est lancé !";
+    publish(ws.room, s, id, d);
+  });
   return locked1(ws.room, async () => {
     const d = s.docs[id]; if (!d || !d.wait || d.done || d.solo) return;           // déjà lancée, terminée ou solo : rien à faire
     if (m.gid && d.gid !== m.gid) return;
@@ -161,6 +170,14 @@ function markHist(p, game, ref, ev) {
 
 // seul le serveur lance une partie multijoueur (après vérification des historiques) ; le contenu d'une partie lancée ne change plus
 function launchOk(id, prev, next) {
+  if (id === "mg") {                                                                  // Magnético : mêmes règles, le contenu = la liste des mots
+    if (!next || next.solo || !Array.isArray(next.players)) return true;
+    if (!prev || prev.gid !== next.gid) return !!next.wait || !!next.done;
+    if (prev.wait && !next.wait && !next.done) return false;
+    if (!prev.wait && next.wait) return false;
+    if (!prev.wait && JSON.stringify(prev.words) !== JSON.stringify(next.words)) return false;
+    return true;
+  }
   const game = { fl: "fleches", rond: "rond", meles: "meles", cg: "culture" }[id]; if (!game || !next || next.solo || !Array.isArray(next.players)) return true;
   const same = prev && prev.gid === next.gid;
   if (!same) return !!next.wait || !!next.done;                                     // une nouvelle partie commence toujours en attente
@@ -624,7 +641,7 @@ function soloTicket(p, game, gid) {
   p.tk[k] = now;
 }
 // multijoueur : le score retenu est celui de la partie gardée par le serveur, pas celui annoncé par le navigateur
-const DOCID = { fleches: "fl", rond: "rond", meles: "meles", culture: "cg" };
+const DOCID = { fleches: "fl", rond: "rond", meles: "meles", culture: "cg", magnetico: "mg" };
 function multiScore(game, gid, name) {
   const id = DOCID[game]; if (!id) return null;
   for (const s of salons.values()) {
@@ -766,7 +783,7 @@ async function api(req, res, route) {
   if (route === "score") {
     // points d'une partie terminée, envoyés par le joueur lui-même (une seule fois par partie)
     const game = String(b.game || ""), gid = String(b.gid || "");
-    if (!/^(fleches|rond|meles|poker|mot|culture)$/.test(game) || !/^[A-Za-z0-9_-]{3,40}$/.test(gid)) return out(400, { error: "partie" });
+    if (!/^(fleches|rond|meles|poker|mot|culture|magnetico)$/.test(game) || !/^[A-Za-z0-9_-]{3,40}$/.test(gid)) return out(400, { error: "partie" });
     p.gids = Array.isArray(p.gids) ? p.gids : [];
     if (p.gids.includes(game + gid)) return out(200, { ok: true, dup: true, pts: p.pts });
     let pts = Math.max(0, Math.min(800, Math.round(Number(b.pts) || 0)));
@@ -811,7 +828,9 @@ async function api(req, res, route) {
   }
   // partie solo en cours, gardée sur le compte : on la poursuit depuis un autre appareil
   if (route === "solo") {
-    const game = String(b.game || ""); if (!CAT.GAMES.includes(game)) return bad("game", "Jeu inconnu.");
+    const game = String(b.game || "");
+    if (game === "magnetico") { const d = b.doc; if (b.op === "put" && d && typeof d === "object" && d.solo) soloTicket(p, game, d.gid); savePlayer(name); return out(200, { ok: true, doc: null, played: [] }); }
+    if (!CAT.GAMES.includes(game)) return bad("game", "Jeu inconnu.");
     p.solo = p.solo || {};
     if (b.op === "put") { const d = b.doc; if (d && typeof d === "object" && d.solo && !d.done) { p.solo[game] = { t: Date.now(), doc: d }; soloTicket(p, game, d.gid); } else delete p.solo[game]; savePlayer(name); return out(200, { ok: true }); }
     const h = (p.hist && p.hist[game]) || {};
@@ -829,7 +848,7 @@ function pack(raw) {
 // ---------- référencement : adresse canonique, aperçu de partage, robots.txt, sitemap.xml ----------
 const SITE = (process.env.SITE_URL || "https://mots-fleches-duo.onrender.com").replace(/\/$/, "");
 const OLDHOST_REDIRECT = !/\.onrender\.com/i.test(SITE);   // actif seulement quand SITE_URL est un vrai domaine
-const CANON = { "regles.html": "/regles", "legal.html": "/mentions-legales", "accueil.html": "/", "fl.html": "/fleches", "rd.html": "/rond", "mm.html": "/meles", "cg.html": "/culture", "poker.html": "/poker" };
+const CANON = { "regles.html": "/regles", "legal.html": "/mentions-legales", "accueil.html": "/", "fl.html": "/fleches", "rd.html": "/rond", "mm.html": "/meles", "mg.html": "/magnetico", "cg.html": "/culture", "poker.html": "/poker" };
 function seoTags(file, txt) {
   const c = CANON[path.basename(file)]; if (c === undefined) return "";
   const t = (txt.match(/<title>([^<]*)<\/title>/) || [])[1] || "Motipop";
@@ -844,7 +863,7 @@ const CONTACT_HTML = /^[^\s@<>"]+@[^\s@<>"]+\.[a-z]{2,}$/i.test(CEMAIL) ? '<a hr
 const EDITEUR_HTML = envClean(process.env.EDITEUR_NOM)
   ? "<b>" + escH(envClean(process.env.EDITEUR_NOM)) + "</b>" + (envClean(process.env.EDITEUR_ADRESSE) ? " — " + escH(envClean(process.env.EDITEUR_ADRESSE)) : "")
   : "Motipop est édité à titre non professionnel par un particulier. Conformément à l'article 1-1 de la loi n° 2004-575 du 21 juin 2004 pour la confiance dans l'économie numérique, ses coordonnées ont été communiquées à l'hébergeur.";
-const SITEMAP_PATHS = ["/", "/fleches", "/rond", "/meles", "/culture", "/poker", "/regles", "/mentions-legales"];
+const SITEMAP_PATHS = ["/", "/fleches", "/rond", "/meles", "/magnetico", "/culture", "/poker", "/regles", "/mentions-legales"];
 function page(file, inject) {
   const st = fs.statSync(file);
   const c = pages[file];
@@ -944,6 +963,7 @@ const server = http.createServer((req, res) => {
   if (/^\/(?:mentions-legales|confidentialite|conditions|legal)\/?$/.test(url.pathname)) return sendPage(req, res, path.join(__dirname, "public", "legal.html"));
   if (/^\/(?:[A-Za-z0-9]{5}\/)?rond\/?$/.test(url.pathname)) return sendPage(req, res, path.join(__dirname, "public", "rd.html"));
   if (/^\/(?:[A-Za-z0-9]{5}\/)?meles\/?$/.test(url.pathname)) return sendPage(req, res, path.join(__dirname, "public", "mm.html"));
+  if (/^\/(?:[A-Za-z0-9]{5}\/)?magnetico\/?$/.test(url.pathname)) return sendPage(req, res, path.join(__dirname, "public", "mg.html"));
   // icône du site (onglet du navigateur)
   // icônes Motipop : onglet (SVG) et écran d'accueil du téléphone (PNG)
   if (url.pathname === "/favicon.ico" || url.pathname === "/favicon.svg") { res.writeHead(200, { "content-type": "image/svg+xml", "cache-control": "public, max-age=86400" }); return res.end(FAVICON); }

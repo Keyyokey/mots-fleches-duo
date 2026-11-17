@@ -1,0 +1,321 @@
+IMPOSSIBLE|Qui ne peut pas se faire
+IMPORTANCE|Valeur, intérêt que l'on accorde à quelque chose
+NECESSAIRE|Dont on ne peut pas se passer
+CONVERSATION|Échange de paroles entre plusieurs personnes
+CONNAISSANCE|Ce que l'on sait, ce que l'on a appris
+EXPERIENCE|Savoir acquis en vivant et en pratiquant
+IMAGINATION|Faculté d'inventer des images et des idées
+INTELLIGENCE|Faculté de comprendre et de raisonner
+EXTRAORDINAIRE|Qui sort tout à fait de l'ordinaire
+PARTICULIER|Propre à une seule personne ou chose
+PERSONNAGE|Rôle tenu dans un roman ou un film
+INQUIETUDE|Trouble de celui qui craint quelque chose
+MAGNIFIQUE|D'une grande beauté
+EXPLICATION|Ce qui rend une chose claire et compréhensible
+SATISFACTION|Plaisir de ce qui est réussi ou obtenu
+ENTHOUSIASME|Grande joie qui pousse à agir
+DIFFERENCE|Ce qui distingue deux choses
+REPUTATION|Ce que les autres pensent de quelqu'un
+DECOUVERTE|Action de trouver ce qui était inconnu
+ATMOSPHERE|Couche d'air qui entoure la Terre
+IMPATIENCE|Manque de patience
+BIBLIOTHEQUE|Lieu où l'on range et prête des livres
+SOULAGEMENT|Fin d'une peine ou d'une inquiétude
+INCROYABLE|Difficile à croire
+RESPONSABLE|Qui doit répondre de ses actes
+ABANDONNER|Laisser tomber, renoncer
+HESITATION|Fait de ne pas savoir quoi choisir
+APPARTEMENT|Logement dans un immeuble
+RESPIRATION|Entrée et sortie de l'air dans les poumons
+RAISONNABLE|Sage et sensé
+INDIGNATION|Colère devant une injustice
+ADMIRATION|Sentiment devant ce qui est beau ou grand
+SECRETAIRE|Personne qui gère le courrier et les rendez-vous
+PLAISANTERIE|Chose dite pour faire rire
+DISSIMULER|Cacher aux yeux des autres
+DECLARATION|Annonce faite à voix haute ou par écrit
+DISPOSITION|Manière dont les choses sont placées
+INDIFFERENCE|Absence d'intérêt ou d'émotion
+REMARQUABLE|Digne d'être remarqué
+INSUPPORTABLE|Que l'on ne peut pas supporter
+APPARITION|Fait de se montrer soudain
+SILENCIEUSE|Qui ne fait aucun bruit
+NOURRITURE|Ce que l'on mange
+DESAGREABLE|Qui ne plaît pas
+COUVERTURE|Ce qui couvre un lit pour avoir chaud
+TEMOIGNAGE|Récit de ce que l'on a vu
+ENTREPRISE|Société qui produit ou vend
+PROPRIETAIRE|Personne à qui une chose appartient
+DISPARITION|Fait de ne plus être visible
+OBSERVATION|Action de regarder avec attention
+CONSEQUENCE|Ce qui découle d'un fait
+PERSPECTIVE|Vue d'ensemble, horizon
+DOMESTIQUE|Qui concerne la maison
+CONFORTABLE|Où l'on se sent bien installé
+EPOUVANTABLE|Qui fait très peur
+IDENTIFIER|Reconnaître qui est qui
+RECONNAISSANCE|Sentiment de gratitude
+INVITATION|Fait de prier quelqu'un de venir
+RESISTANCE|Action de tenir bon
+PROPOSITION|Idée que l'on soumet aux autres
+INTERLOCUTEUR|Personne à qui l'on parle
+INDISPENSABLE|Dont on ne peut absolument pas se passer
+FORMIDABLE|Extraordinaire, épatant
+COMMUNIQUER|Échanger des informations
+CATASTROPHE|Grand malheur soudain
+MYSTERIEUSE|Pleine de secret
+GOUVERNEMENT|Ensemble des ministres d'un pays
+SIGNIFICATION|Sens d'un mot ou d'un signe
+RECOMMENCER|Faire de nouveau
+COINCIDENCE|Rencontre de deux faits par hasard
+CONSIDERABLE|Très important par la taille ou la valeur
+COMPORTEMENT|Manière d'agir
+RAISONNEMENT|Suite d'idées qui mène à une conclusion
+MADEMOISELLE|Titre donné à une jeune fille
+INSPIRATION|Idée qui vient soudain
+CIRCONSTANCE|Situation au moment d'un fait
+ETABLISSEMENT|Lieu comme une école ou un hôtel
+SYMPATHIQUE|Agréable et aimable
+INTERVENTION|Action de prendre part
+INTERMINABLE|Qui ne finit jamais
+PROFESSIONNEL|Qui exerce un métier
+COMMUNICATION|Échange d'informations
+DESTINATION|Lieu où l'on va
+ADVERSAIRE|Personne contre qui l'on joue
+ELECTRIQUE|Qui fonctionne avec le courant
+REDOUTABLE|Que l'on doit craindre
+CONSIDERATION|Estime que l'on porte à quelqu'un
+MERVEILLEUSE|D'une beauté étonnante
+GENTILLESSE|Qualité de celui qui est gentil
+EXCLAMATION|Cri de surprise ou de joie
+ACCUSATION|Reproche d'avoir commis une faute
+PHILOSOPHIE|Réflexion sur le sens de la vie
+COMPARAISON|Mise en parallèle de deux choses
+AUTORISATION|Permission accordée
+ADMINISTRATION|Services qui gèrent les affaires publiques
+RESSEMBLANCE|Fait d'être semblable
+INCONVENIENT|Désavantage
+SUPPLEMENTAIRE|Qui s'ajoute en plus
+COMMENTAIRE|Remarque sur un texte ou un fait
+INEVITABLE|Que l'on ne peut pas éviter
+GENERATION|Personnes nées à la même époque
+PHOTOGRAPHIE|Image prise avec un appareil
+INTERROGATOIRE|Série de questions posées par la police
+INFORMATION|Renseignement, nouvelle
+FANTASTIQUE|Qui sort du réel, incroyable
+CONTEMPLATION|Action de regarder longuement
+ORGANISATION|Manière d'arranger les choses
+INITIATIVE|Idée d'agir le premier
+INATTENDUE|Qui surprend
+AUTHENTIQUE|Vrai, sincère
+TEMPERATURE|Degré de chaleur ou de froid
+RESOLUTION|Décision ferme
+LITTERATURE|Ensemble des œuvres écrites
+AVERTISSEMENT|Mise en garde
+REVELATION|Découverte d'un secret
+RENSEIGNEMENT|Information demandée
+CONFERENCE|Exposé devant un public
+METALLIQUE|Fait de métal
+MELANCOLIE|Tristesse douce et rêveuse
+ENTREPRENDRE|Se lancer dans un projet
+OBLIGATION|Ce que l'on est tenu de faire
+APPROBATION|Accord donné
+INVRAISEMBLABLE|Qui ne semble pas vrai
+DETERMINATION|Volonté ferme
+SURVEILLANCE|Action de garder un œil sur
+EXPEDITION|Voyage d'exploration
+STUPEFACTION|Très grande surprise
+IRRESISTIBLE|Auquel on ne peut pas résister
+CIRCULATION|Mouvement des voitures sur la route
+APPREHENSION|Crainte de ce qui va arriver
+TELEPHONER|Appeler quelqu'un
+POPULATION|Habitants d'un lieu
+ASSOCIATION|Groupe de personnes réunies
+TEMPERAMENT|Caractère d'une personne
+SCIENTIFIQUE|Qui concerne la science
+RECOMPENSE|Ce que l'on reçoit pour un mérite
+PORCELAINE|Céramique fine et blanche
+GIGANTESQUE|Énorme
+DRAMATIQUE|Grave et émouvant
+ANNIVERSAIRE|Fête du jour de naissance
+TERRITOIRE|Étendue de terre d'un pays
+PARTICIPER|Prendre part
+SEPARATION|Fait de se quitter
+REVOLUTION|Grand bouleversement
+PROTESTATION|Refus déclaré
+JOURNALISTE|Personne qui écrit les nouvelles
+DEMOISELLE|Jeune femme
+CUISINIERE|Appareil pour cuire les aliments
+COMPREHENSION|Fait de comprendre
+CIRCULAIRE|En forme de cercle
+VOLONTAIRE|Qui agit de son plein gré
+INFIRMIERE|Elle soigne les malades
+EXEMPLAIRE|Qui sert de modèle
+AFFIRMATION|Ce que l'on déclare vrai
+LAMENTABLE|Très mauvais, pitoyable
+RESIGNATION|Fait d'accepter sans lutter
+MALENTENDU|Erreur de compréhension
+CORRESPONDANCE|Échange de lettres
+CONFIRMATION|Ce qui rend une chose sûre
+COMBINAISON|Assemblage d'éléments
+ADOLESCENT|Jeune entre l'enfance et l'âge adulte
+SPECIALISTE|Expert d'un domaine
+OCCURRENCE|Fait qui se présente
+DEVELOPPER|Faire grandir
+CIVILISATION|Culture d'un peuple
+AUTORITAIRE|Qui aime commander
+QUOTIDIENNE|De chaque jour
+INSENSIBLE|Qui ne ressent rien
+SECONDAIRE|Moins important
+PERMANENCE|Fait de durer sans arrêt
+MAQUILLAGE|Fard posé sur le visage
+IMPITOYABLE|Sans pitié
+IMPERTURBABLE|Que rien ne trouble
+ARRESTATION|Fait d'être arrêté par la police
+APPLICATION|Soin mis dans un travail
+PRESSENTIMENT|Sentiment de ce qui va arriver
+DISCIPLINE|Respect des règles
+PSYCHOLOGIE|Étude de l'esprit humain
+METHODIQUE|Qui suit une méthode
+CONCENTRATION|Attention fixée sur une chose
+CARACTERISTIQUE|Trait propre à une chose
+SOLLICITUDE|Attention affectueuse
+RELIGIEUSE|Sœur qui vit au couvent
+HISTORIQUE|Qui appartient à l'histoire
+FONCTIONNAIRE|Employé de l'État
+CREPUSCULE|Lumière du soir
+PREPARATION|Ce que l'on fait avant
+PORTEFEUILLE|Étui à billets
+INDEPENDANCE|Liberté, autonomie
+HUMILIATION|Honte infligée
+COMPROMETTRE|Mettre en danger
+PREFERENCE|Ce que l'on aime le plus
+DEMONSTRATION|Preuve par l'exemple
+COLLABORATION|Travail en commun
+SIGNIFICATIF|Qui a du sens
+MALADRESSE|Manque d'adresse
+LABORATOIRE|Lieu d'expériences scientifiques
+INTERPRETER|Jouer un rôle ou une musique
+INCERTITUDE|Doute
+IMPECCABLE|Parfait, sans défaut
+EMPLACEMENT|Endroit précis
+SARCASTIQUE|Moqueur et méchant
+NEGLIGENCE|Manque de soin
+INHABITUEL|Qui sort de l'habitude
+IMPENETRABLE|Où l'on ne peut entrer
+IMPRESSIONNER|Faire forte impression
+EXACTITUDE|Précision
+BRITANNIQUE|Du Royaume-Uni
+OBSERVATEUR|Qui regarde avec attention
+INSTALLATION|Mise en place
+IMPLACABLE|Que rien n'arrête
+IMAGINAIRE|Qui n'existe que dans l'esprit
+ENCOURAGER|Donner du courage
+TELEVISION|Écran qui diffuse des émissions
+REPRESENTATION|Spectacle donné au théâtre
+REPRODUCTION|Copie d'une œuvre
+PHYSIONOMIE|Traits du visage
+INTOLERABLE|Que l'on ne peut tolérer
+HYSTERIQUE|Très agité, hors de soi
+COMMISSAIRE|Chef d'un commissariat
+BENEDICTION|Grâce accordée par Dieu
+ROMANTIQUE|Sentimental et rêveur
+REGRETTABLE|Que l'on regrette
+FABRICATION|Action de fabriquer
+ESSENTIELLE|Très importante
+CONSENTEMENT|Accord donné
+VEGETATION|Ensemble des plantes
+RECONFORTER|Redonner du courage
+MATERNELLE|École des petits
+INTERRUPTION|Arrêt momentané
+INTERROGATION|Question posée
+INTERMEDIAIRE|Qui est au milieu
+INOFFENSIF|Sans danger
+INCONCEVABLE|Que l'on ne peut imaginer
+SUPPOSITION|Hypothèse
+ROMANESQUE|Digne d'un roman
+ENGAGEMENT|Promesse
+CONSOLATION|Réconfort dans la peine
+EQUIVALENT|De même valeur
+CATEGORIQUE|Sans nuance, ferme
+SPECTACULAIRE|Qui frappe le regard
+PARTENAIRE|Coéquipier
+DEPOSITION|Déclaration d'un témoin
+BOURDONNEMENT|Bruit d'abeille
+ATTACHEMENT|Affection
+ABOMINABLE|Horrible
+OCCUPATION|Activité
+MANIFESTATION|Défilé dans la rue
+INTERPRETATION|Manière de comprendre ou de jouer
+COMMANDEMENT|Ordre donné
+BIENVEILLANCE|Bonté envers autrui
+INTONATION|Ton de la voix
+FINANCIERE|Qui concerne l'argent
+CONTRADICTION|Ce qui s'oppose
+VULNERABLE|Fragile, facile à atteindre
+MALEDICTION|Mauvais sort
+FONCTIONNEMENT|Manière de marcher d'une machine
+COMPARTIMENT|Partie d'un wagon
+AUTOMOBILE|Voiture
+SOLLICITER|Demander avec insistance
+PHILOSOPHE|Penseur
+OBSTINATION|Entêtement
+INSOUCIANCE|Absence de souci
+AUTOMATIQUE|Qui marche tout seul
+EPUISEMENT|Grande fatigue
+VOCABULAIRE|Ensemble des mots d'une langue
+PROVISOIRE|Pour un temps seulement
+ORDONNANCE|Prescription du médecin
+INTERVALLE|Espace entre deux choses
+DEVELOPPEMENT|Croissance
+CONTENANCE|Ce que peut contenir un récipient
+CONFRONTATION|Face-à-face
+CONDAMNATION|Peine prononcée par un juge
+TELEGRAMME|Message envoyé par télégraphe
+LIBERATION|Fait de rendre libre
+INEXPLICABLE|Que l'on ne peut expliquer
+IMPRUDENCE|Manque de prudence
+HIPPOPOTAME|Gros animal des fleuves d'Afrique
+CROCODILE|Reptile aux longues mâchoires
+DINOSAURE|Reptile géant disparu
+ORDINATEUR|Machine qui traite l'information
+CALCULATRICE|Petite machine à calculer
+REFRIGERATEUR|Armoire qui garde au frais
+ASPIRATEUR|Appareil qui avale la poussière
+HELICOPTERE|Appareil volant à hélice
+MONTGOLFIERE|Ballon à air chaud
+ARCHITECTURE|Art de construire les bâtiments
+ENCYCLOPEDIE|Ouvrage qui rassemble tous les savoirs
+UNIVERSITAIRE|De l'université
+ELECTRICITE|Énergie du courant
+ASTRONOMIE|Science des astres
+MATHEMATIQUES|Science des nombres et des formes
+GEOGRAPHIQUE|Qui concerne les lieux
+METEOROLOGIE|Science du temps qu'il fera
+ANTICONSTITUTIONNEL|Contraire à la constitution
+EXTRATERRESTRE|Être venu d'une autre planète
+CHRYSANTHEME|Fleur d'automne
+PARALLELOGRAMME|Quadrilatère aux côtés parallèles
+PRESTIDIGITATEUR|Artiste qui fait des tours de magie
+LABYRINTHE|Réseau de chemins où l'on se perd
+RAMIFICATION|Division en branches de plus en plus fines
+TELESCOPE|Lunette pour observer les astres
+MICROSCOPE|Instrument pour voir l'infiniment petit
+PAPILLONNER|Aller d'une chose à l'autre
+DECOURAGEMENT|Perte de courage
+EMERVEILLEMENT|Grande admiration joyeuse
+ACCOMPAGNEMENT|Ce qui va avec
+APPRENTISSAGE|Fait d'apprendre un métier
+DESOBEISSANCE|Refus d'obéir
+IMPERMEABLE|Manteau contre la pluie
+INDESTRUCTIBLE|Que l'on ne peut pas détruire
+INTERNATIONAL|Entre plusieurs pays
+MEDITERRANEE|Mer entre l'Europe et l'Afrique
+OPPORTUNITE|Occasion favorable
+PERSEVERANCE|Fait de continuer malgré tout
+POLITICIEN|Homme ou femme de politique
+RESTAURATION|Métier de la cuisine et des repas
+SUPERMARCHE|Grand magasin en libre-service
+TRAMPOLINE|Toile sur laquelle on rebondit
+VETERINAIRE|Médecin des animaux
+VOCALISATION|Chant sans paroles

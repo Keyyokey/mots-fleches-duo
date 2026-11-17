@@ -541,6 +541,23 @@ svg.chart{width:100%;height:118px;color:var(--ink);overflow:visible}
 /* jeux */
 .games{display:grid;gap:14px;margin:4px auto 0;max-width:880px}
 .g-top{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.g-new{display:grid;grid-template-columns:1fr;gap:14px}
+.tile.mgt{min-height:170px}
+.tile.mgt .vis{background:none!important;border:0!important;box-shadow:none!important;backdrop-filter:none!important;-webkit-backdrop-filter:none!important}
+.mgv{position:relative;width:224px;height:120px}
+.mgv .bb{position:absolute;left:0;top:0;width:48px;height:48px;border-radius:50%;display:grid;place-items:center;font:900 14px Nunito,Inter,sans-serif;font-style:normal;color:#fff;text-shadow:0 1px 2px rgba(0,0,0,.4);
+  background:radial-gradient(circle at 30% 26%,rgba(255,255,255,.85) 0 7%,rgba(255,255,255,.16) 18%,transparent 32%),radial-gradient(circle at 50% 60%,var(--mc),var(--mc2));border:2px solid var(--mg);box-shadow:0 0 14px var(--mg);animation:mgvA 1.9s cubic-bezier(.55,0,.45,1) infinite alternate}
+.mgv .mb1{--mg:#19e3ec;--mc:#0f7480;--mc2:#06303b}
+.mgv .mb2{--mg:#c4a2ff;--mc:#5d3bb0;--mc2:#24124d;animation-name:mgvB}
+.mgv .mb3{--mg:#ffd166;--mc:#93690f;--mc2:#3d2a05;animation-name:mgvC;animation-delay:-.95s}
+.mgv .mb4{--mg:#ff8cc0;--mc:#a12d66;--mc2:#400d28;animation-name:mgvD;animation-delay:-.95s}
+@keyframes mgvA{from{transform:translate(8px,8px) rotate(-10deg)}to{transform:translate(62px,12px) rotate(6deg)}}
+@keyframes mgvB{from{transform:translate(166px,14px) rotate(10deg)}to{transform:translate(110px,12px) rotate(-6deg)}}
+@keyframes mgvC{from{transform:translate(26px,68px) rotate(8deg)}to{transform:translate(76px,60px) rotate(-6deg)}}
+@keyframes mgvD{from{transform:translate(172px,66px) rotate(-8deg)}to{transform:translate(124px,60px) rotate(6deg)}}
+@media (prefers-reduced-motion:reduce){.mgv .bb{animation:none}}
+@media (max-width:620px){.tile.mgt{min-height:236px}.mgv{transform:scale(.78);transform-origin:top right}}
+
 .g-bot{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
 .tile{--ls:30px;--gap:6px;position:relative;display:flex;align-items:center;gap:14px;min-height:172px;padding:21px;border-radius:24px;overflow:hidden;cursor:pointer;
   background:var(--tg);border:1px solid rgba(255,255,255,.25);box-shadow:0 25px 50px rgba(0,0,0,.2),inset 0 1px 0 rgba(255,255,255,.4);color:#fff;
@@ -862,6 +879,13 @@ a.logo{text-decoration:none;color:inherit}a.logo:focus-visible{outline:2px solid
   <h2 class="sec2" id="nosJeux"><span aria-hidden="true">🎮</span> Nos jeux</h2>
 
   <div class="games">
+    <div class="g-new">
+      <div class="tile mgt" style="--tg:linear-gradient(135deg,#1b1440 0%,#3b2a8c 48%,#00ADB5 100%)" data-game="Magnético" data-key="magnetico" data-multi="1">
+        <div class="txt"><span class="tag">Nouveau · Réflexe</span><h2>Magné<br>tico</h2><p>Les syllabes s'entrechoquent : touche-les dans le bon ordre pour reformer le mot. Seul ou jusqu'à 4.</p></div>
+        <div class="vis"><div class="mgv" aria-hidden="true"><i class="bb mb1">MA</i><i class="bb mb2">GNÉ</i><i class="bb mb3">TI</i><i class="bb mb4">CO</i></div></div>
+        <div class="modes acts"><button class="abtn" data-mode="solo"><span>👤</span> Solo</button><button class="abtn" data-mode="multi"><span>👥</span> Multijoueurs</button><button class="abtn abtn-s" data-cfg="1" aria-label="Réglages de la partie"><span>⚙️</span> Réglages</button></div>
+      </div>
+    </div>
     <div class="g-top">
       <div class="tile" style="--tg:linear-gradient(135deg,#0b3d2e 0%,#0f7a4f 50%,#1fae6e 100%)" data-game="Wordflush" data-key="poker" data-multi="1">
         <div class="txt"><span class="tag">Stratégie</span><h2>Word<br>flush</h2><p>Forme le meilleur mot avec ta main, mise et bluffe pour remporter le pot.</p></div>
@@ -1249,7 +1273,7 @@ function connect(){if(!CODE||!ME||ME.stale)return;ws=new WebSocket((location.pro
 const pillMe=()=>window.innerWidth<=620?$("#mBtn"):$(".me-pill"),pillSalon=()=>window.innerWidth<=620?$("#mBtn"):$(".salon-pill");
 const PCOL=["#5ad8ff","#ffa45c","#7cf0a9","#c49bff","#ff8fb1","#ffd166"];
 const colOf=n=>PCOL[[...String(n)].reduce((a,c)=>a+c.charCodeAt(0),0)%PCOL.length];
-const GAMEL={accueil:"à l'accueil",fleches:"aux mots fléchés",rond:"au Tourniquet",meles:"aux mots mêlés",poker:"à Wordflush"};
+const GAMEL={accueil:"à l'accueil",fleches:"aux mots fléchés",rond:"au Tourniquet",meles:"aux mots mêlés",poker:"à Wordflush",magnetico:"à Magnético"};
 function renderPeers(){const box=$("#cPeers");if(!CODE||!ROOM){box.innerHTML='<div class="note">Rejoins ou crée un salon (bouton 🛋️) pour voir qui est connecté et jouer à plusieurs.</div>';return}
   const seen=new Set(),rows=[];PEERS.forEach(p=>{const pr=p.presence||{};const n=(pr.name||"").trim();const me=p.id===MYID;const key=n||p.id;if(seen.has(key))return;seen.add(key);rows.push({n:n||"Invité",me,where:pr.page||(pr.gid?"fleches":"")})});
   rows.sort((a,b)=>b.me-a.me);
@@ -1350,7 +1374,8 @@ $$("[data-open=share]").forEach(b=>b.onclick=share);
 const GAMES={fleches:{nm:"Mots fléchés",lv:[["facile","Facile",414],["normal","Normal",417],["difficile","Difficile",386]],t:true},
   rond:{nm:"Le Tourniquet",lv:[["facile","Facile",321],["moyen","Normal",320],["difficile","Difficile",319]],t:true},
   meles:{nm:"Mots mêlés",lv:[["facile","Facile",297],["moyen","Normal",297],["difficile","Difficile",297]]},
-  poker:{nm:"Wordflush",lv:[]},culture:{nm:"Culture générale",lv:[]}};
+  poker:{nm:"Wordflush",lv:[]},culture:{nm:"Culture générale",lv:[]},
+  magnetico:{nm:"Magnético",lv:[["facile","Facile",0],["normal","Normal",0],["difficile","Difficile",0]]}};
 $$(".tile").forEach(t=>t.addEventListener("click",e=>{if(e.target.closest(".modes"))return;const was=t.classList.contains("lift");$$(".tile").forEach(x=>x.classList.remove("lift"));if(!was)t.classList.add("lift")}));
 document.addEventListener("click",e=>{if(!e.target.closest(".tile"))$$(".tile").forEach(x=>x.classList.remove("lift"))});
 let CFG=null;
@@ -1367,13 +1392,13 @@ function openCfg(t,m,opp,quick){const k=t.dataset.key,G=GAMES[k];
   if(quick)return $("#cfgGo").onclick();   // un clic : on lance avec les derniers réglages (niveau retenu, grille suivante)
   $("#cfg").classList.add("on")}
 // bouton + des joueurs connectés : on choisit d'abord le jeu (5 jeux), puis ses réglages
-const PICK=[["fleches","Mots fléchés","Grille à deux"],["rond","Le Tourniquet","Six mots en rond"],["meles","Mots mêlés","Le plus rapide gagne"],["poker","Wordflush","Mots et jetons"],["culture","Culture générale","10 questions en duel"]];
+const PICK=[["magnetico","Magnético","Syllabes qui s'entrechoquent"],["fleches","Mots fléchés","Grille à deux"],["rond","Le Tourniquet","Six mots en rond"],["meles","Mots mêlés","Le plus rapide gagne"],["poker","Wordflush","Mots et jetons"],["culture","Culture générale","10 questions en duel"]];
 function pickGame(opp,mode){mode=mode||"multi";$("#pickT").textContent=mode==="solo"?"À quoi veux-tu jouer ?":"Proposer une partie à "+opp;const L=$("#pickL");
   {const n=document.querySelector("#pickG .note");if(n)n.textContent=mode==="solo"?"Choisis ton jeu : la partie démarre tout de suite. Tu pourras inviter quelqu'un ensuite.":"Choisis d'abord le jeu, puis ses réglages."}
   L.innerHTML=PICK.map(([k,n,d])=>'<button type="button" data-k="'+k+'"><b>'+n+'</b><small>'+d+'</small></button>').join("");
   L.querySelectorAll("button").forEach(b=>b.onclick=()=>{$("#pickG").classList.remove("on");const t=$$(".tile").find(x=>x.dataset.key===b.dataset.k);if(t)openCfg(t,mode,mode==="multi"?opp:undefined,mode==="solo")});
   $("#pickX").onclick=()=>$("#pickG").classList.remove("on");$("#pickG").classList.add("on");setTimeout(()=>{const f=L.querySelector("button");if(f)f.focus()},50)}
-function fillNums(){const G=GAMES[CFG.k];const i=[...$$("#lvl button")].findIndex(b=>b.classList.contains("on"));const n=(G.lv[i]||G.lv[0])[2];
+function fillNums(){const G=GAMES[CFG.k];{const gl=$("#gnum").closest("label");if(gl)gl.style.display=CFG.k==="magnetico"?"none":""}if(CFG.k==="magnetico")return;const i=[...$$("#lvl button")].findIndex(b=>b.classList.contains("on"));const n=(G.lv[i]||G.lv[0])[2];
   const g=$("#gnum");g.innerHTML='<option value="">Grille suivante (au hasard parmi les non jouées)</option>'+Array.from({length:n},(_,j)=>'<option value="'+(j+1)+'">Grille '+(j+1)+'</option>').join("")}
 function bindMode(b){b.onclick=e=>{e.stopPropagation();const t=b.closest(".tile");if(b.dataset.cfg)return openCfg(t,"solo");openCfg(t,b.dataset.mode,undefined,true)}}
 $$(".modes .abtn").forEach(bindMode);
@@ -1382,6 +1407,7 @@ $("#cfgX").onclick=()=>$("#cfg").classList.remove("on");
 const TUTO={
  fleches:[["👆","Choisis un mot","Touche une définition (ou une case) : le mot s'éclaire dans la grille. ⇄ change le sens."],["⌨️","Écris et valide","Tape les lettres puis « Valider » : 1 point par bonne lettre, 3 de plus par mot complété. 💡 révèle une lettre, sans points."],["🔢","Le mot mystère","Les cases numérotées (2 points de plus chacune) forment le mot mystère, avec un indice sous la grille. À deux, chacun son tour."]],
  rond:[["⭕","18 définitions","Chaque rond est une définition : sa réponse fait toujours 6 lettres."],["✍️","Écris tout autour","Touche un rond, tape les 6 lettres puis « Valider ». Le mot s'écrit dans les cases qui l'entourent, partagées avec les ronds voisins."],["🎯","Ricochets","Mot juste : +10 points. Si ton mot complète un voisin, c'est un ricochet : +10 de plus."]],
+ magnetico:[["🫧","Les syllabes arrivent","Elles entrent dans le cadre, flottent et s'entrechoquent. Attention : en Normal et Difficile, des syllabes pièges se glissent parmi elles."],["👆","Touche-les dans l'ordre","Chaque syllabe touchée file dans l'encadré du mot. Touche une case pour la renvoyer, puis « Valider »."],["⭐","Les points","Mot trouvé : 10 par syllabe × difficulté + bonus de vitesse. +1 par syllabe bien placée, −5 par essai faux. À plusieurs, le premier à trouver gagne +5."]],
  meles:[["🔎","Trouve les mots","Les mots de la liste sont cachés dans la grille, dans tous les sens, même à l'envers."],["👉","Glisse ou touche","Glisse du début à la fin du mot, ou touche sa 1re puis sa dernière lettre."],["⚡","Le plus rapide gagne","Chaque mot trouvé rapporte des points. À deux, un mot déjà pris ne compte plus."]],
  culture:[["❓","10 questions mélangées","Images, culture, calculs, casse-tête et une question « Tout le monde a son mot à dire »."],["⏱️","20 secondes","Choisis parmi 4 réponses (touches 1 à 4). Bonne réponse : 10 points, et jusqu'à 5 de plus si tu es rapide."],["🗣️","À toi de le dire","Pour « Tout le monde a son mot à dire », tape ta réponse en 30 s : toutes les bonnes réponses comptent, une réponse originale rapporte +3."]],
  poker:[["🃏","Tes lettres","Tu reçois 2 lettres cachées ; 5 lettres communes arrivent au milieu (3, puis 1, puis 1)."],["🪙","Mise ou couche-toi","À chaque étape : parole, suivre, relancer, tapis ou se coucher. Si tout le monde se couche, tu gagnes le pot."],["🏆","Le meilleur mot","À la fin, forme un mot avec tes lettres et celles du milieu (au moins une des tiennes). Le meilleur score emporte le pot."]]};
@@ -1416,7 +1442,7 @@ function renderKpi(){const box=$("#cKpi");if(!box)return;
 renderKpi();
 function renderResume(){$$(".tile").forEach(t=>{const k=t.dataset.key;let on=false;
   const docs=Object.assign({},(()=>{try{return JSON.parse(LS.get("fl-salon-"+CODE)||"{}").docs||{}}catch(e){return{}}})(),CODE?DOCS:{});
-  for(const id in docs){const d=docs[id];if(!d||!d.players||d.done||d.solo)continue;const g=id==="cg"?"culture":(id==="rond"||id==="meles"||id==="poker")?id:"fleches";if(g===k&&Date.now()-(d.started||0)<7*864e5)on=true}
+  for(const id in docs){const d=docs[id];if(!d||!d.players||d.done||d.solo)continue;const g=id==="cg"?"culture":id==="mg"?"magnetico":(id==="rond"||id==="meles"||id==="poker")?id:"fleches";if(g===k&&Date.now()-(d.started||0)<7*864e5)on=true}
   if(LS.get("fl-paused-"+k)||SRVSOLO.has(k))on=true;
   const m=t.querySelector(".modes");let r=m.querySelector('[data-mode="resume"]');
   if(on&&!r){r=document.createElement("button");r.className="abtn";r.dataset.mode="resume";r.innerHTML="<span>▶</span> Reprendre";m.prepend(r);bindMode(r)}if(!on&&r)r.remove()});renderCta()}
@@ -1468,7 +1494,7 @@ else if(!ME&&guestN()>=GUEST_MAX&&!LS.get("fl-guest-asked")){LS.set("fl-guest-as
 </script>
 <script>// ---------- invitations : un joueur du salon propose une partie → bandeau « Rejoindre la partie » chez les autres membres ----------
 (function(){
-const GAMES={fl:["fleches","mots fléchés"],rond:["rond","Tourniquet"],meles:["meles","mots mêlés"],cg:["culture","culture générale"]};
+const GAMES={fl:["fleches","mots fléchés"],rond:["rond","Tourniquet"],meles:["meles","mots mêlés"],cg:["culture","culture générale"],mg:["magnetico","Magnético"]};
 const LV={facile:"Facile",normal:"Normal",moyen:"Normal",difficile:"Difficile"};
 const SS={get(k){try{return sessionStorage.getItem(k)}catch(e){return null}},set(k,v){try{sessionStorage.setItem(k,v)}catch(e){}}};
 const me=()=>{try{const m=JSON.parse(localStorage.getItem("fl-me")||"null");return m&&m.name?String(m.name).toUpperCase():null}catch(e){return null}};
@@ -1498,7 +1524,7 @@ window.FLINV=function(docs,opt){opt=opt||{};const M=me(),C=code();if(!M||!C||!do
     const lv=LV[d.level]?" ("+LV[d.level]+")":"";const [path,nm]=GAMES[id];let text=null;
     if(new RegExp("/"+path+"/?$").test(location.pathname))continue;   // déjà sur la page de ce jeu : la partie s'y rejoint toute seule (le bandeau cachait la grille)
     if(mine>0)text="<b>"+esc(host)+"</b> t'invite à une partie de "+nm+lv+". Tu viens ?";
-    else if(names.includes("INVITÉ")||((id==="fl"||id==="meles")&&d.wait&&names.length<4))text="<b>"+esc(host)+"</b> propose une partie de "+nm+lv+" : une place est libre. Tu viens ?";
+    else if(names.includes("INVITÉ")||((id==="fl"||id==="meles"||id==="mg")&&d.wait&&names.length<4))text="<b>"+esc(host)+"</b> propose une partie de "+nm+lv+" : une place est libre. Tu viens ?";
     if(!text)continue;
     show(text,()=>{location.href="/"+C+"/"+path},d.gid);return}};
 })();

@@ -1653,7 +1653,7 @@ start();
 </script>
 <script>// ---------- invitations : un joueur du salon propose une partie → bandeau « Rejoindre la partie » chez les autres membres ----------
 (function(){
-const GAMES={fl:["fleches","mots fléchés"],rond:["rond","Tourniquet"],meles:["meles","mots mêlés"],cg:["culture","culture générale"]};
+const GAMES={fl:["fleches","mots fléchés"],rond:["rond","Tourniquet"],meles:["meles","mots mêlés"],cg:["culture","culture générale"],mg:["magnetico","Magnético"]};
 const LV={facile:"Facile",normal:"Normal",moyen:"Normal",difficile:"Difficile"};
 const SS={get(k){try{return sessionStorage.getItem(k)}catch(e){return null}},set(k,v){try{sessionStorage.setItem(k,v)}catch(e){}}};
 const me=()=>{try{const m=JSON.parse(localStorage.getItem("fl-me")||"null");return m&&m.name?String(m.name).toUpperCase():null}catch(e){return null}};
@@ -1683,7 +1683,7 @@ window.FLINV=function(docs,opt){opt=opt||{};const M=me(),C=code();if(!M||!C||!do
     const lv=LV[d.level]?" ("+LV[d.level]+")":"";const [path,nm]=GAMES[id];let text=null;
     if(new RegExp("/"+path+"/?$").test(location.pathname))continue;   // déjà sur la page de ce jeu : la partie s'y rejoint toute seule (le bandeau cachait la grille)
     if(mine>0)text="<b>"+esc(host)+"</b> t'invite à une partie de "+nm+lv+". Tu viens ?";
-    else if(names.includes("INVITÉ")||((id==="fl"||id==="meles")&&d.wait&&names.length<4))text="<b>"+esc(host)+"</b> propose une partie de "+nm+lv+" : une place est libre. Tu viens ?";
+    else if(names.includes("INVITÉ")||((id==="fl"||id==="meles"||id==="mg")&&d.wait&&names.length<4))text="<b>"+esc(host)+"</b> propose une partie de "+nm+lv+" : une place est libre. Tu viens ?";
     if(!text)continue;
     show(text,()=>{location.href="/"+C+"/"+path},d.gid);return}};
 })();
