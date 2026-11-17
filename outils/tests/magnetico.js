@@ -39,7 +39,7 @@ const play = (p, wrong) => p.evaluate(w => window.__t(`(()=>{const x=word(cur);c
   s = await st(a); ok(!s.wait && s.cur === 0, 'partie lancée, même mot pour tous (' + s.ph + ')');
   const wa = await a.evaluate(() => window.__t('word(cur).s.join("-")')), wb = await b.evaluate(() => window.__t('word(cur).s.join("-")'));
   ok(wa === wb, 'mêmes syllabes chez chacun (' + wa + ')');
-  ok(await play(c) === 'ok', 'C trouve en premier'); await sleep(1500); ok(await play(a, true) === 'ok', 'A se trompe'); await sleep(5000); {const r=await play(a);ok(r === 'ok', 'A trouve ensuite ('+r+')')} await sleep(1500);
+  ok(await play(c) === 'ok', 'C trouve en premier'); await sleep(1500); ok(await play(a, true) === 'ok', 'A se trompe'); await sleep(5000); {const r=await play(a);const dbg=r==='ok'?'':await a.evaluate(()=>window.__t('JSON.stringify({ph:phase,q:queue.map(b=>b.t),ent:ent&&ent.b.t,balls:balls.map(b=>[b.t,b.on,b.entering,Math.round(b.x),Math.round(b.y)]),W,H,placed:placed.map(b=>b&&b.t)})'));ok(r === 'ok', 'A trouve ensuite ('+r+') '+dbg)} await sleep(1500);
   s = await st(b); ok(s.sc[2] > s.sc[0] && s.sc[0] > 0, 'scores : C (premier, +5) devant A ' + JSON.stringify(s.sc));
   await b.screenshot({ path: SHOT + '/mg_multi_jeu.png' });
   const rk = await b.evaluate(() => [...document.querySelectorAll('.mgpc')].map(e => ({ n: e.querySelector('.mgn').textContent, l: parseFloat(e.style.left) })).sort((x, y) => x.l - y.l).map(x => x.n));

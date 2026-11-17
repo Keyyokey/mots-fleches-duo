@@ -5,16 +5,16 @@ D = os.path.dirname(os.path.abspath(__file__)); ROOT = os.path.abspath(os.path.j
 mm = open(os.path.join(ROOT, "public/mm.html"), encoding="utf8").read()
 def between(a, b, s=mm, inc_b=True):
     i = s.index(a); j = s.index(b, i + len(a)); return s[i:j + (len(b) if inc_b else 0)]
-head = mm[:mm.index("<style>")]
+head = mm[:min(x for x in (mm.find("<style>"), mm.find('<link rel="stylesheet" href="/d/jeu-')) if x >= 0)]
 head = head.replace("<title>Mots mêlés — Motipop</title>", "<title>Magnético — Motipop</title>")
 head = re.sub(r'<meta name="description" content="[^"]*">', '<meta name="description" content="Magnético : reforme le mot avec les syllabes qui s\'entrechoquent, en solo ou jusqu\'à 4 joueurs.">', head)
-css_main = between("<style>", "</style>")
+SITE = os.path.join(ROOT, "outils", "site"); site = lambda n: open(os.path.join(SITE, n), encoding="utf8").read()
+css_main = "<style>" + site("jeu.css") + "</style>"
 css_fl = between("<style>/* mots fléchés : compléments", "</style>")
-css_sk = between('<style id="sk-css">', "</style>")
-sk_js = between("<script>window.SK_HDR=1;</script>", "</script>\n<script>// données des mots mêlés", inc_b=False)
-sk_js = sk_js.replace('/\\/meles\\/?$/.test(location.pathname)?"meles":"fleches"', '/\\/meles\\/?$/.test(location.pathname)?"meles":/\\/magnetico\\/?$/.test(location.pathname)?"magnetico":"fleches"')
+css_sk = '<style id="sk-css">' + site("sk.css") + "</style>"
+sk_js = '<script>window.SK_HDR=1;</script><script id="sk-js">' + site("sk.js")
 inv = between("<script>// ---------- invitations", "</script>")
-icons = between("<script>// ---------- fenêtres et boutons", "</script>")
+icons = "<script>" + site("icones.js") + "</script>"
 data = sorted(glob.glob(os.path.join(ROOT, "public/d/magnetico-*.js")))[-1]
 body = open(os.path.join(D, "mg_body.html"), encoding="utf8").read()
 css = open(os.path.join(D, "mg_style.css"), encoding="utf8").read()
@@ -26,3 +26,6 @@ out = (head + css_main + "\n" + css_fl + "\n" + css_sk + '\n<script src="/d/icon
   + '<script src="/d/' + os.path.basename(data) + '" defer></script>\n<script>' + eng + "</script>\n" + inv + "\n" + icons + "\n</body></html>\n")
 open(os.path.join(ROOT, "public/mg.html"), "w", encoding="utf8").write(out)
 print("public/mg.html", len(out) // 1024, "Ko")
+
+import subprocess, sys
+subprocess.run([sys.executable, os.path.join(ROOT, "outils", "site", "partage.py")], check=True)

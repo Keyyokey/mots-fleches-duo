@@ -1,0 +1,212 @@
+/* ---------- habillage du site (maquette validée) ---------- */
+body.sk{--skbg1:#0b1d2a;--skbg2:#1b1440;--skbg3:#0f3b3f;--skglass:rgba(255,255,255,.08);--skglass2:rgba(255,255,255,.14);--skstroke:rgba(255,255,255,.18);--skgold:#ffc857;
+  background:radial-gradient(1200px 700px at 10% -10%,var(--skbg3),transparent 60%),radial-gradient(900px 600px at 100% 10%,var(--skbg2),transparent 55%),linear-gradient(160deg,var(--skbg1),var(--skbg2))!important;background-attachment:fixed!important}
+body.sk.light{--skbg1:#dff3f6;--skbg2:#e9e1ff;--skbg3:#d5f1e6;--skglass:rgba(255,255,255,.55);--skglass2:rgba(255,255,255,.75);--skstroke:rgba(255,255,255,.9)}
+.skblob{position:fixed;border-radius:50%;filter:blur(60px);opacity:.45;pointer-events:none;z-index:0}
+.skblob.b1{width:340px;height:340px;background:#00ADB5;left:-80px;top:40%}.skblob.b2{width:300px;height:300px;background:#A26BFF;right:-60px;top:15%}.skblob.b3{width:260px;height:260px;background:#ff8fab;left:45%;bottom:-120px;opacity:.25}
+#skTop{max-width:1180px;margin:0 auto;width:100%}
+body.sk>.wrap{position:relative;z-index:1;background:transparent!important}
+body.sk>.wrap>header,body.sk .online,body.sk #online{display:none!important}
+body.sk .gname{display:none!important}
+/* page de jeu : en-tête du site au-dessus, puis le jeu */
+body.sk.playing{display:flex;flex-direction:column}
+body.sk.playing #skTop{flex:none}
+body.sk.playing>.wrap{height:auto!important;flex:1 1 auto;min-height:0;padding-top:0!important;width:100%;min-width:0;box-sizing:border-box}
+/* cartes vitrées */
+.skcard{background:var(--skglass)!important;border:1px solid var(--skstroke)!important;border-radius:20px!important;backdrop-filter:blur(18px) saturate(140%);-webkit-backdrop-filter:blur(18px) saturate(140%);box-shadow:0 10px 40px rgba(0,0,0,.25);padding:14px 16px!important}
+body.sk.light .skcard{box-shadow:0 10px 30px rgba(40,60,90,.15)}
+.skplayers{display:flex;flex-direction:column;gap:10px}
+.skplayers .scores{display:flex;flex-direction:column;gap:10px}
+.skplayers .tline{position:relative!important;top:auto!important;margin:0!important;width:100%!important;flex:none!important}
+.skrow{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.skrow .tinfo{margin:0!important;justify-content:flex-start}
+.skinfo{width:28px;height:28px;min-height:0!important;padding:0!important;border-radius:50%!important;border:1px solid var(--skstroke)!important;background:var(--skglass2)!important;color:inherit;font:italic 800 .95rem Georgia,serif!important;cursor:pointer;flex:none;box-shadow:none!important}
+.skinfo.on{background:linear-gradient(135deg,#00ADB5,#A26BFF)!important;color:#fff;border-color:transparent!important}
+.skinfotxt{display:none;padding:10px 12px;border-radius:12px;background:rgba(0,0,0,.18);border:1px solid var(--skstroke);font-size:.82rem;line-height:1.45;color:var(--muted)}
+.skinfotxt b{color:var(--ink)}
+body.sk.light .skinfotxt{background:rgba(255,255,255,.6)}
+.skinfotxt.on{display:block}
+.skplayers .statusrow{min-height:0}.skplayers .status{font-size:.85rem!important}
+.ginfo.skmyst{display:flex;flex-direction:column;gap:8px}
+/* grille : surcouches attente / compte à rebours / pause */
+.skgrid{position:relative}
+.skov{position:absolute;inset:0;z-index:15;display:none;place-items:center;border-radius:16px;background:rgba(5,10,20,.3);backdrop-filter:blur(7px);-webkit-backdrop-filter:blur(7px)}
+body.sk.light .skov{background:rgba(255,255,255,.35)}
+.skov.on{display:grid}
+.skob{display:flex;flex-direction:column;align-items:center;gap:8px;text-align:center;max-width:82%;padding:18px 22px;border-radius:18px;background:var(--skglass2);border:1px solid var(--skstroke);box-shadow:0 10px 30px rgba(0,0,0,.25);font-size:.95rem;color:var(--ink)}
+.skob b{font-size:1.15rem}.sknote{color:var(--muted);font-size:.85rem}
+.skov.cd{background:rgba(5,10,20,.35)}.skov.cd .skob{background:none;border:none;box-shadow:none}
+.skn{font-size:7rem!important;font-weight:800;line-height:1;background:linear-gradient(135deg,#fff,#00ADB5);-webkit-background-clip:text;background-clip:text;color:transparent;animation:skheart .9s ease-in-out}
+.skgo{font-size:2.2rem!important;font-weight:800}
+@keyframes skheart{0%{transform:scale(.6);opacity:0}25%{transform:scale(1.15);opacity:1}45%{transform:scale(.95)}65%{transform:scale(1.06)}100%{transform:scale(1)}}
+.skspin{width:28px;height:28px;border-radius:50%;border:3px solid rgba(255,255,255,.25);border-top-color:#00ADB5;animation:skspin 1s linear infinite}
+@keyframes skspin{to{transform:rotate(360deg)}}
+.skbtn{margin-top:4px;min-height:40px;padding:8px 16px;border-radius:14px;border:1px solid var(--skstroke);background:var(--skglass2);font-weight:700;cursor:pointer;color:inherit}
+/* notification discrète */
+#skToast{position:fixed;top:14px;left:50%;z-index:200;display:flex;align-items:center;gap:10px;max-width:calc(100vw - 24px);padding:10px 16px;border-radius:40px;background:rgba(30,30,50,.85);color:#fff;border:1px solid #ffc857;backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);box-shadow:0 10px 30px rgba(0,0,0,.3);font-size:.88rem;transform:translate(-50%,-140%);opacity:0;transition:transform .45s cubic-bezier(.2,1.3,.4,1),opacity .3s;pointer-events:none}
+body.sk.light #skToast{background:rgba(255,255,255,.95);color:#14202b}
+#skToast.on{transform:translate(-50%,0);opacity:1}
+#skToast .ti{display:inline-block;font-size:1.1rem;transform-origin:50% 10%}#skToast.on .ti{animation:skring 1s ease-in-out 2}
+@keyframes skring{20%{transform:rotate(18deg)}40%{transform:rotate(-14deg)}60%{transform:rotate(8deg)}80%{transform:rotate(-4deg)}}
+@media (max-width:620px){#skToast{white-space:nowrap;font-size:.8rem;padding:8px 14px}}
+/* définitions : contraste renforcé en mode clair (bleu canard foncé, texte blanc) */
+body.sk.light{--clue:#0b5a6b;--clue-ink:#ffffff}
+
+/* ---------- mots fléchés : grande grille à gauche, joueurs et infos à droite ---------- */
+@media (min-width:900px){
+  body.sk-fleches.playing .wrap{max-width:1180px!important}
+  body.sk-fleches.playing #game{grid-template-columns:minmax(0,1fr) 330px!important;grid-template-rows:auto auto auto auto minmax(0,1fr)!important;
+    grid-template-areas:"grid left" "grid tools" "grid clue" "grid acts" "grid win"!important;gap:12px 18px!important}
+  body.sk-fleches .gleft{gap:12px;min-height:0;overflow:auto}
+  body.sk-fleches .qreact,body.sk-fleches .gsalon{display:none!important}
+  body.sk-fleches .ginfo .gi-row:not(.gi-myst),body.sk-fleches .ginfo #prog{display:none!important}
+  body.sk-fleches .menubtn{height:42px!important;font-size:.95rem!important}
+  body.sk-fleches #gridbox{grid-row:1/-1!important;min-height:0}
+  body.sk-fleches .gtools{align-self:stretch}
+  body.sk-fleches .cluebar{background:var(--skglass)!important;border:1px solid var(--skstroke)!important;border-radius:20px!important;backdrop-filter:blur(18px)}
+  body.sk-fleches .acts{align-self:start!important;flex-direction:column!important}
+  body.sk-fleches .acts .k.go{min-height:52px!important}
+  body.sk-fleches .chip{padding:10px 14px!important;border-radius:14px!important}
+  body.sk-fleches .chip .clk{font-size:1.15rem!important;padding:4px 0!important}
+  body.sk-fleches .chip b{font-size:1.4rem!important}
+}
+/* téléphone : mot mystère, joueur 1, grille, joueur 2 */
+@media (max-width:899px){
+  body.sk-fleches.playing #game{display:flex!important;flex-direction:column;gap:6px!important}
+  body.sk-fleches .gleft,body.sk-fleches .skplayers,body.sk-fleches .skplayers .scores{display:contents!important}
+  body.sk-fleches .ginfo.skmyst{order:1;display:flex!important;padding:8px 12px!important;flex-direction:row;flex-wrap:wrap;align-items:center;gap:6px 10px}
+  body.sk-fleches .ginfo .gi-myst.gi-row{display:flex!important;gap:6px;font-size:.8rem;color:var(--muted)}
+  body.sk-fleches .minimyst span{width:24px!important;height:24px!important;font-size:.75rem!important}
+  body.sk-fleches .ginfo .gi-row:not(.gi-myst){display:none!important}body.sk-fleches .ginfo #prog{display:none!important}
+  body.sk-fleches .gtools{order:0;align-self:flex-end;display:flex;gap:6px;margin-top:-4px}
+  body.sk-fleches .menubtn{height:38px!important;min-height:38px!important}
+  body.sk-fleches.playing .wrap{overflow-x:hidden}
+  body.sk-fleches #gridbox{width:100%;max-width:100%}
+  body.sk-fleches #scores>.chip:nth-child(1){order:2}
+  body.sk-fleches .skplayers .tline{order:3}
+  body.sk-fleches .skrow{order:4}
+  body.sk-fleches .skinfotxt{order:4}
+  body.sk-fleches #gridbox{order:5}
+  body.sk-fleches #scores>.chip:nth-child(2){order:6}
+  body.sk-fleches #scores>.chip:nth-child(n+3){order:6}
+  body.sk-fleches .statusrow{order:7}
+  body.sk-fleches #winbox{order:8}
+  body.sk-fleches .qreact,body.sk-fleches .gsalon{display:none!important}
+  body.sk-fleches .chip{display:grid!important;grid-template-columns:auto minmax(0,1fr) auto auto!important;padding:6px 10px!important;border-radius:12px!important;background:var(--skglass)!important;border:1px solid var(--skstroke)!important}
+  body.sk-fleches .chip .who{grid-column:2}body.sk-fleches .chip b{grid-column:4;font-size:1.15rem!important}body.sk-fleches .chip .clk{grid-column:3;grid-row:1;font-size:.85rem!important;padding:2px 8px!important;min-width:0!important}
+}
+/* l'accueil gère l'arrivée dans un salon : pas de seconde confirmation sur les pages de jeu */
+body.sk-fleches .overlay.joinbox{display:none!important}
+/* cartes joueurs compactes, comme la maquette : avatar · pseudo · chrono · score */
+body.sk .chip{display:grid!important;grid-template-columns:auto minmax(0,1fr) auto auto!important;grid-template-areas:"av who ck sc"!important;align-items:center!important;column-gap:10px!important;row-gap:0!important;padding:10px 14px!important;border-radius:14px!important;background:rgba(0,0,0,.2)!important}
+body.sk.light .chip{background:rgba(255,255,255,.7)!important}
+body.sk .chip .av{grid-area:av!important;width:30px!important;height:30px!important}
+body.sk .chip .who{grid-area:who!important}
+body.sk .chip .nm{font-size:1rem!important;font-weight:700}
+body.sk .chip .clk{grid-area:ck!important;grid-row:auto!important;font-size:.95rem!important;padding:3px 9px!important;border-radius:9px!important;min-width:0!important}
+body.sk .chip b{grid-area:sc!important;font-size:1.4rem!important}
+body.sk .chip::before{width:4px!important}
+/* le bouton maison de l'en-tête remplace l'ancien retour */
+body.sk #retour,body.sk #back{display:none!important}
+
+/* sur la page de jeu, l'invitation à la partie qu'on joue déjà est inutile */
+body.sk.playing #invBanner{display:none!important}
+body.sk-fleches .ginfo .minimyst{display:flex!important}
+body.sk-fleches .acts{grid-template-columns:1fr!important}
+@media (max-width:899px){body.sk-fleches .acts .k.go{width:100%}}
+
+/* ---------- Tourniquet et mots mêlés : une colonne comme la maquette ---------- */
+body.sk-rond .sktl,body.sk-meles .sktl{height:10px;border-radius:99px;background:rgba(0,0,0,.4);overflow:hidden;box-shadow:inset 0 1px 2px rgba(0,0,0,.4)}
+body.sk.light .sktl{background:rgba(15,19,26,.14)}
+.sktl i{display:block;height:100%;border-radius:99px;transition:width .25s linear,background .25s linear;box-shadow:0 0 10px rgba(0,0,0,.15)}
+.sktl[hidden]{display:none}
+.skboard{padding:14px!important;display:flex;justify-content:center;overflow:auto;min-height:0}
+.skboard .board{flex:1;min-height:0;height:100%;overflow:auto!important;display:flex;justify-content:center;align-items:flex-start}
+body.sk-rond.playing #game,body.sk-meles.playing #game{max-width:860px;width:100%;margin:0 auto;display:grid!important;grid-template-columns:minmax(0,1fr) auto!important;gap:12px!important}
+body.sk-rond.playing #game{grid-template-rows:auto minmax(0,1fr) auto auto!important;grid-template-areas:"left tools" "board board" "under under" "acts acts"!important}
+body.sk-meles.playing #game{grid-template-rows:auto auto minmax(0,1fr) auto!important;grid-template-areas:"left tools" "under under" "board board" "acts acts"!important}
+body.sk-rond .skboard,body.sk-meles .skboard{grid-area:board}
+body.sk-rond .gleft,body.sk-meles .gleft{gap:10px}
+body.sk-rond .gleft .progress,body.sk-meles .gleft .progress,body.sk-rond .qreact,body.sk-meles .qreact,body.sk-rond .gsalon,body.sk-meles .gsalon{display:none!important}
+body.sk-rond .skplayers .scores,body.sk-meles .skplayers .scores{display:flex!important;flex-direction:row!important;gap:10px}
+body.sk-rond .skplayers .chip,body.sk-meles .skplayers .chip{flex:1;min-width:0}
+body.sk-rond .gtools,body.sk-meles .gtools{align-self:start}
+body.sk-rond .acts,body.sk-meles .acts{display:flex!important;flex-direction:row!important;justify-content:flex-end}
+body.sk-rond .acts .k.go,body.sk-meles .acts .k.go{min-width:200px}
+body.sk-rond .under .answer{background:var(--skglass);border:1px solid var(--skstroke);border-radius:20px;backdrop-filter:blur(18px);padding:12px 16px;display:flex;align-items:center;gap:14px;flex-wrap:wrap;position:relative}
+body.sk-rond .under .answer .clue{flex:1 1 200px;font-weight:700;font-size:1.05rem}
+body.sk-rond .under .answer .clue::before{content:"DÉFINITION";display:inline-block;margin-right:8px;font-size:.62rem;font-weight:800;letter-spacing:1.5px;padding:3px 8px;border-radius:999px;background:var(--skglass2);border:1px solid var(--skstroke);vertical-align:middle}
+.skans{position:absolute!important;opacity:0!important;width:1px!important;height:1px!important;pointer-events:none}
+.skslots{display:flex;gap:6px;cursor:text}
+.skslots span{width:40px;height:46px;border-radius:10px;display:grid;place-items:center;font-weight:800;font-size:1.2rem;background:rgba(0,0,0,.2);border:1px solid var(--skstroke)}
+body.sk.light .skslots span{background:rgba(255,255,255,.85)}
+.skslots span.on{border-color:#34d399;box-shadow:0 0 0 2px rgba(52,211,153,.35)}
+body.sk-meles .under .mwords{background:var(--skglass);border:1px solid var(--skstroke);border-radius:20px;backdrop-filter:blur(18px);padding:12px 16px}
+@media (max-width:620px){
+  body.sk-rond.playing #game,body.sk-meles.playing #game{gap:8px!important}
+  body.sk-rond .skplayers .scores,body.sk-meles .skplayers .scores{flex-direction:column!important}
+  .skslots span{width:34px;height:40px;font-size:1rem}
+  body.sk-rond .acts .k.go,body.sk-meles .acts .k.go{flex:1;min-width:0}
+  .skboard{padding:8px!important}
+}
+/* mots mêlés : capsules à la place du remplissage des cases */
+body.sk-meles .mgrid{position:relative}
+body.sk-meles svg.skcaps{position:absolute;left:0;top:0;pointer-events:none;z-index:2;overflow:visible}
+body.sk-meles .ml.f,body.sk-meles .ml.f2{background:var(--cellbg)!important;box-shadow:none!important;color:inherit!important}
+body.sk-meles .mw.f{background:color-mix(in srgb,var(--fc) 30%,transparent)!important;border:1px solid var(--fc)!important;text-decoration:line-through;text-decoration-thickness:2px}
+/* Poker : même en-tête que les autres pages (pseudo, salon, partage, thème, décor, son) */
+body.sk-poker #hdr,body.sk-poker .wrap>.hline{display:none!important}
+body.sk-poker #skTop{position:relative;z-index:30}
+body.sk-poker .wrap{padding-top:0!important}
+@media (max-width:620px){body.sk-poker .pkact{grid-template-columns:1fr 1fr!important}}
+
+/* ---------- toutes les fenêtres des jeux au style de la maquette (verre dépoli) ---------- */
+body.sk .overlay{background:rgba(5,10,25,.35)!important;backdrop-filter:blur(8px)!important;-webkit-backdrop-filter:blur(8px)!important}
+body.sk .overlay>.sheet,body.sk .overlay>.seat,body.sk .overlay>form,body.sk .overlay>div:not(.skov){background:rgba(255,255,255,.14)!important;border:1px solid rgba(255,255,255,.18)!important;border-radius:20px!important;backdrop-filter:blur(24px) saturate(160%)!important;-webkit-backdrop-filter:blur(24px) saturate(160%)!important;box-shadow:0 18px 50px rgba(0,0,0,.4)!important;color:#eef2f7;padding:20px!important;gap:12px!important}
+body.sk.light .overlay>.sheet,body.sk.light .overlay>.seat,body.sk.light .overlay>form,body.sk.light .overlay>div:not(.skov){background:rgba(255,255,255,.75)!important;border-color:rgba(255,255,255,.9)!important;color:#14202b;box-shadow:0 18px 50px rgba(40,60,90,.2)!important}
+body.sk .overlay h2,body.sk .overlay h3{font-family:Inter,system-ui,sans-serif;font-weight:800;font-size:1.2rem;margin:0}
+body.sk .overlay button{border:1px solid rgba(255,255,255,.18)!important;background:rgba(255,255,255,.14)!important;border-radius:14px!important;min-height:44px;font-weight:700!important;color:inherit!important;box-shadow:none!important;backdrop-filter:blur(10px)}
+body.sk.light .overlay button{background:rgba(255,255,255,.8)!important;border-color:rgba(15,25,40,.12)!important}
+body.sk .overlay button:hover{background:rgba(255,255,255,.22)!important}
+body.sk .overlay button.primary,body.sk .overlay button.go,body.sk .overlay button[type=submit],body.sk .overlay #mystBtn,body.sk .overlay .tuto button:last-child{background:linear-gradient(135deg,#00ADB5,#A26BFF)!important;border:none!important;color:#fff!important;box-shadow:0 6px 20px rgba(0,173,181,.35)!important}
+body.sk .overlay input{background:rgba(0,0,0,.22)!important;border:1px solid rgba(255,255,255,.18)!important;border-radius:14px!important;color:inherit!important;min-height:46px;font-weight:700}
+body.sk.light .overlay input{background:rgba(255,255,255,.9)!important;border-color:rgba(15,25,40,.15)!important}
+body.sk .overlay input:focus{outline:none;border-color:#00ADB5!important;box-shadow:0 0 0 3px rgba(0,173,181,.25)!important}
+body.sk .overlay .muted,body.sk .overlay p{color:#a9b3c7}
+body.sk.light .overlay .muted,body.sk.light .overlay p{color:#4f5d6e}
+/* l'ancien écran de choix des grilles n'apparaît plus jamais */
+body.sk #lobby{display:none!important}
+
+/* ---------- grille des mots fléchés : rendu de la maquette ---------- */
+body.sk-fleches .grid{gap:2px!important;padding:0!important;background:rgba(255,255,255,.18)!important;border:2px solid rgba(255,255,255,.18)!important;border-radius:14px!important;box-shadow:0 10px 40px rgba(0,0,0,.3)}
+body.sk-fleches #gridbox{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.18);border-radius:20px;padding:12px;backdrop-filter:blur(18px) saturate(140%);-webkit-backdrop-filter:blur(18px) saturate(140%)}
+body.sk-fleches .c{border-radius:0!important;background:rgba(10,20,40,.62)!important;color:#f2f5fb}
+body.sk-fleches .c .L{color:#f2f5fb}
+body.sk-fleches .grid>:first-child{border-top-left-radius:12px!important}
+body.sk-fleches .q{border-radius:0!important;background:linear-gradient(160deg,#0f4c5c,#0b3a47)!important}
+body.sk-fleches .q>div{color:#e8fbff!important;font-family:Inter,system-ui,sans-serif!important;font-weight:700!important;text-transform:uppercase;letter-spacing:.01em}
+body.sk-fleches .q>div+div{border-top:1px solid rgba(255,255,255,.35)!important}
+body.sk-fleches .q>div.hl{background:linear-gradient(135deg,#00ADB5,#A26BFF)!important;color:#fff!important}
+body.sk-fleches .ar{color:#ffc857!important;text-shadow:0 0 3px rgba(0,0,0,.6);z-index:4}
+body.sk-fleches .c .n{right:2px!important;top:auto!important;bottom:2px;width:1.35em;height:1.35em;border-radius:50%;display:grid;place-items:center;background:#ffc857;color:#1b1300!important;font-weight:800!important}
+body.sk-fleches .c.f{background:color-mix(in srgb,var(--fc) 32%,rgba(10,20,40,.62))!important;box-shadow:none!important}
+body.sk-fleches .c.f .L{color:#fff!important}
+body.sk-fleches .c.pp .L{color:#9aa3b5!important}
+body.sk-fleches .c.word{background:color-mix(in srgb,#34d399 14%,rgba(10,20,40,.62))!important;box-shadow:inset 0 0 0 2px #34d399!important}
+body.sk-fleches .c.sel{background:color-mix(in srgb,#34d399 30%,rgba(10,20,40,.62))!important;box-shadow:inset 0 0 0 2px #34d399,0 0 14px rgba(52,211,153,.5)!important;transform:none!important}
+body.sk-fleches .c.sel .L{color:#fff!important}
+body.sk-fleches #g .lastp{box-shadow:inset 0 0 0 2px var(--fc),0 0 12px var(--fc)!important}
+body.sk-fleches .c.db{box-shadow:inset 0 -3px 0 #ffc857!important}body.sk-fleches .c.dr{box-shadow:inset -3px 0 0 #ffc857!important}
+/* mode clair */
+body.sk-fleches.light .grid{background:#b9c4d2!important;border-color:#b9c4d2!important}
+body.sk-fleches.light #gridbox{background:rgba(255,255,255,.55);border-color:rgba(255,255,255,.9)}
+body.sk-fleches.light .c{background:#d5deea!important}
+body.sk-fleches.light .c .L{color:#0f131a}
+body.sk-fleches.light .q{background:#0b5a6b!important}
+body.sk-fleches.light .q>div{color:#fff!important}
+body.sk-fleches.light .c.f{background:color-mix(in srgb,var(--fc) 24%,#fff)!important}
+body.sk-fleches.light .c.f .L{color:#0f131a!important}
+body.sk-fleches.light .c.word{background:color-mix(in srgb,#059669 12%,#fff)!important;box-shadow:inset 0 0 0 2px #059669!important}
+body.sk-fleches.light .c.sel{background:color-mix(in srgb,#059669 25%,#fff)!important;box-shadow:inset 0 0 0 2px #059669!important}
+body.sk-fleches.light .c.sel .L{color:#0f131a!important}
+body.sk-fleches.light .c.pp .L{color:#8a93a3!important}
