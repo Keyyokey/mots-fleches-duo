@@ -754,6 +754,16 @@ table.bar td,table.bar th{padding:5px 6px;border-bottom:1px solid rgba(255,255,2
 .pkbet #betGo{flex:1 1 auto;min-width:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;min-height:58px;border-radius:16px;font-weight:900;line-height:1.1}
 .pkbet #betGo .bv{font-size:1.15rem}
 @media (max-width:620px){.pkleft .pkact.v2{grid-template-columns:1fr 2fr!important}.pkbet .bstep{flex-basis:42px}}
+/* zone de mise épurée : plus d'étapes, plus de jauge détaillée ni de conseils ; une ligne + deux boutons */
+#pkSteps,#pkForce{display:none!important}
+#pkRisk.pkrisk{font-size:.9rem!important;color:#cfe3ea;margin:0 0 8px!important;gap:6px;flex-wrap:nowrap;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;justify-content:center}
+#pkRisk .yt{font-size:.95rem!important}
+#pkRisk b{color:var(--gold)}
+.pkleft .pkact.v2 [data-a="fold"],.pkbet .bstep,.pkbet #betGo{min-height:50px!important;font-size:.98rem!important;border-radius:14px!important}
+.pkbet #betGo{flex-direction:row!important;gap:6px}
+.pkbet #betGo .bv{font-size:1.08rem}
+.fdots{display:inline-flex;gap:2px;margin-right:2px}.fdots i{width:5px;height:13px;border-radius:2px;background:rgba(255,255,255,.18)}
+.fdots.l1 i.on{background:#ff5d7a}.fdots.l2 i.on{background:#ffb347}.fdots.l3 i.on,.fdots.l4 i.on{background:#3ddc97}
 </style>
 <style id="lis">.pkact.myturn .btn:not(:disabled){box-shadow:0 0 0 2px rgba(244,190,77,.85),0 0 18px rgba(244,190,77,.3)}#pkRisk .yt{color:#F4BE4D}#pkRisk{font-size:1rem}</style>
 <script src="/d/icons.js" defer></script><style id="wf3">
@@ -1088,7 +1098,10 @@ function render(){const st=ST;document.body.dataset.ph=st&&st.started?st.phase:"
   // deux choix : S'arrêter ou Miser (au moins la mise minimale, ou la mise en cours ; + et − pour monter)
   const maxTo=me?me.roundBet+me.stack:0,minTo=Math.min(maxTo,Math.max(st.bet||0,st.minBet||st.ante*2));
   if(myTurn){if(!BET||BET.key!==st.hand+"/"+st.shown+"/"+st.bet)BET={key:st.hand+"/"+st.shown+"/"+st.bet,v:minTo};BET.min=minTo;BET.max=maxTo;BET.v=Math.max(minTo,Math.min(BET.v,maxTo));betShow()}
-  stepsShow(st,me);forceShow(st,me);$(".pkact").classList.toggle("myturn",!!myTurn);$("#pkRisk").innerHTML=myTurn?"<b class='yt'>À toi de jouer</b><span class='wfk'>"+(owe?"Pour rester : <b>"+Math.min(owe,me.stack)+"</b>":"Mise minimale <b>"+minTo+"</b>")+"</span><span class='wfk'>Solde <b>"+me.stack+"</b></span><span class='wfk'>Pot <b>"+st.pot+"</b></span>"+(owe>=me.stack?"<span class='wfk warn'>suivre = tapis</span>":"")+coachTip(st,owe):(st.phase==="mise"&&st.seats&&st.seats[st.turn]?"⏳ Tour de <b>"+esc(st.seats[st.turn].name)+"</b> · pot <b>"+st.pot+"</b>":"");
+  stepsShow(st,me);forceShow(st,me);$(".pkact").classList.toggle("myturn",!!myTurn);
+  // une seule ligne, courte : ce qu'il faut faire maintenant (Juvenal, 17/11 : « intuitif »)
+  const fl=st.force&&me&&!me.folded?st.force.level:0,dots=fl?"<span class='fdots l"+fl+"' aria-label='Force de ta main : "+FLV[fl]+"'>"+[1,2,3,4].map(k=>"<i"+(k<=fl?" class='on'":"")+"></i>").join("")+"</span>":"";
+  $("#pkRisk").innerHTML=myTurn?dots+"<b class='yt'>À toi !</b><span>"+(owe?"Mise <b>"+st.bet+"</b> pour rester, ou arrête-toi":"Mise au moins <b>"+minTo+"</b>, ou arrête-toi")+"</span>":(st.phase==="mise"&&st.seats&&st.seats[st.turn]?esc(st.seats[st.turn].name)+" réfléchit…":"");
   if(!myTurn){$("#pkRaise").hidden=true;$("#pkAllin").hidden=true}else RZ={min:Math.min(minTo,maxTo),max:maxTo,pot:st.pot,bet:st.bet,owe,stack:me.stack,mine:me.roundBet||0};
   wfRender(st,me,myTurn);
   // phase « mot »
@@ -1195,7 +1208,7 @@ if(innerWidth<620){$("#pkDeckCard").classList.add("closed");$("#pkDeckBtn").setA
 // ---------- actions ----------
 let BET=null;
 function betShow(){if(!BET)return;const me=ST&&ST.seats&&ST.seats[ST.me],add=Math.max(0,BET.v-(me?me.roundBet||0:0)),all=BET.v>=BET.max;
-  $("#betGo").innerHTML=(all?"Miser tout":"Miser")+" <b class='bv'>"+BET.v+"</b><small class='ch'>"+(add?"tu ajoutes "+add:"")+"</small>";$("#betGo").classList.toggle("gold",all);
+  $("#betGo").innerHTML=(all?"Tout miser":"Miser")+" <b class='bv'>"+BET.v+"</b>";$("#betGo").classList.toggle("gold",all);
   $("#betMinus").disabled=!(ST&&ST.turn===ST.me)||BET.v<=BET.min;$("#betPlus").disabled=!(ST&&ST.turn===ST.me)||BET.v>=BET.max}
 $("#betMinus").onclick=()=>{if(BET){BET.v=Math.max(BET.min,BET.v-1);betShow()}};
 $("#betPlus").onclick=()=>{if(BET){BET.v=Math.min(BET.max,BET.v+1);betShow()}};
