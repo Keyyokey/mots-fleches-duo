@@ -3,3 +3,4 @@ data/
 outils/grilles/zmap.pkl
 outils/grilles/__pycache__/
 outils/grilles/new_*.json
+__pycache__/
