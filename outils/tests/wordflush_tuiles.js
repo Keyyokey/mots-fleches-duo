@@ -7,14 +7,14 @@ async function partie(b,mobile){const p=await b.newPage(mobile?{viewport:{width:
   for(let i=0;i<200&&!(vu.mise&&vu.mot&&vu.res);i++){await p.waitForTimeout(600);const s=await p.evaluate(()=>({ph:ST&&ST.started?ST.phase:"",my:!!ST&&ST.phase==="mise"&&ST.turn===ST.me}));
     if(s.ph==="mise"&&s.my&&!vu.mise){vu.mise=1;await p.waitForTimeout(400);
       const d=await p.evaluate(()=>{const c=document.querySelector(".pkleft>.pkcard"),r=c.getBoundingClientRect(),me=document.querySelector("#pkMe .seat").getBoundingClientRect(),vis=e=>{const q=e.getBoundingClientRect();return q.width>0&&q.top>=0&&q.bottom<=innerHeight+1};
-        return{pos:getComputedStyle(c).position,bas:Math.round(innerHeight-r.bottom),haut:r.top,moi:me.bottom,btn:[...document.querySelectorAll(".pkact .btn")].map(e=>[e.dataset.a,vis(e),e.disabled]),barre:document.querySelector("#wfBar").classList.contains("on"),ph:document.body.dataset.ph}});
+        return{pos:getComputedStyle(c).position,bas:Math.round(innerHeight-r.bottom),haut:r.top,moi:me.bottom,btn:[...document.querySelectorAll(".pkact .btn")].map(e=>[e.dataset.a||e.id,vis(e),e.disabled]),barre:document.querySelector("#wfBar").classList.contains("on"),ph:document.body.dataset.ph}});
       if(mobile){T(d.pos==="fixed"&&d.bas===0,L+" : les actions sont collées en bas de l'écran ("+d.pos+", écart "+d.bas+")");T(d.moi<=d.haut,L+" : mes lettres restent visibles au-dessus des actions ("+Math.round(d.moi)+" ≤ "+Math.round(d.haut)+")");
-        T(d.btn.filter(x=>x[1]).map(x=>x[0]).join()==="fold,call,raise",L+" : 3 boutons visibles sans défiler, Tapis rangé dans la relance ("+d.btn.filter(x=>x[1]).map(x=>x[0])+")")}
-      else T(d.btn.filter(x=>x[1]).length===4,L+" : 4 boutons visibles dont Tapis");
+        T(d.btn.filter(x=>x[1]).map(x=>x[0]).join()==="fold,betMinus,bet,betPlus",L+" : S'arrêter et Miser (− / +) visibles sans défiler ("+d.btn.filter(x=>x[1]).map(x=>x[0])+")")}
+      else T(d.btn.filter(x=>x[1]).map(x=>x[0]).join()==="fold,betMinus,bet,betPlus",L+" : S'arrêter et Miser (− / +) visibles");
       T(d.barre&&d.ph==="mise",L+" : barre de temps active à mon tour");
-      await p.click('.pkact [data-a="raise"]');await p.waitForTimeout(300);await p.click('.rzq [data-q="max"]');const t=await p.textContent("#rzOk"),cache=await p.evaluate(()=>getComputedStyle(document.querySelector(".pkact")).display);
-      T(/^Tapis · \d+$/.test(t)&&cache==="none",L+" : relance au maximum = « "+t+" », les 3 boutons laissent la place au réglage");await p.click("#rzCancel")}
-    if(s.ph==="mise"&&s.my)await p.click('.pkact [data-a="call"]').catch(()=>{});
+      const v0=await p.textContent("#betGo .bv");await p.click("#betPlus");const v1=await p.textContent("#betGo .bv");await p.click("#betMinus");const v2=await p.textContent("#betGo .bv");
+      T(+v1===+v0+1&&+v2===+v0,L+" : + et − changent la mise ("+v0+" → "+v1+" → "+v2+")")}
+    if(s.ph==="mise"&&s.my)await p.click('#betGo').catch(()=>{});
     if(s.ph==="mot"&&!vu.mot){vu.mot=1;await p.waitForTimeout(2600);const rack=await p.$$eval("#pkWL button",x=>x.map(e=>e.dataset.l));T(rack.length===7,L+" : 7 tuiles (2 à moi + 5 communes) : "+rack.join(""));
       if(mobile){const m=await p.evaluate(()=>{const c=document.querySelector("#pkWordCard"),r=c.getBoundingClientRect();return{im:document.querySelector("#pkIn").getAttribute("inputmode"),foc:document.activeElement&&document.activeElement.id,pos:getComputedStyle(c).position,bas:Math.round(innerHeight-r.bottom),ligne:new Set([...document.querySelectorAll("#pkWL button")].map(e=>Math.round(e.getBoundingClientRect().top))).size}});
         T(m.im==="none"&&m.foc!=="pkIn",L+" : aucun clavier ne s'ouvre (inputmode "+m.im+", focus « "+(m.foc||"aucun")+" »)");T(m.pos==="fixed"&&m.bas===0&&m.ligne===1,L+" : le compositeur est collé en bas, tuiles sur une seule ligne");

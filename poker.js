@@ -79,6 +79,7 @@ function botWord(hand, board, lvl) {
   return all[Math.min(all.length - 1, rnd(Math.min(all.length, 10)))];
 }
 
+const LONG_BONUS = 3;                // jetons offerts par l'Académicien au mot le plus long de chaque coup
 const tables = new Map();            // salle -> table
 function table(room) { return tables.get(room); }
 
@@ -104,7 +105,7 @@ module.exports = function (hooks) {
     const show = t.phase === "abattage" || t.phase === "fin";
     return {
       room: t.room, started: t.started, phase: t.phase, hand: t.hand, maxHands: t.maxHands, buy: t.buy, ante: t.ante, dec: t.dec, solo: t.solo,
-      pot: t.pot || 0, carry: 0, dealEnd: t.dealEnd || 0, bank: 0, jackpot: jpGet(t), minInc: t.minInc || t.ante * 2, botLvl: t.botLvl, bareme: BAREME, dict: DICT_VERSION, bet: t.bet || 0, turn: t.turn, deadline: t.deadline, now: Date.now(), commit: t.commit || "", reveal: t.phase === "abattage" || t.phase === "fin" ? t.revealDeck || "" : "",
+      pot: t.pot || 0, carry: 0, dealEnd: t.dealEnd || 0, bank: 0, jackpot: jpGet(t), minInc: 1, minBet: t.ante * 2, botLvl: t.botLvl, bareme: BAREME, dict: DICT_VERSION, bet: t.bet || 0, turn: t.turn, deadline: t.deadline, now: Date.now(), commit: t.commit || "", reveal: t.phase === "abattage" || t.phase === "fin" ? t.revealDeck || "" : "",
       board: (t.board || []).map((c, i) => i < (t.shown || 0) ? c : null), shown: t.shown || 0,
       deckLeft: me ? leftFor(t, me) : null,
       force: me && me.hand && !me.folded && !me.bot && t.phase === "mise" ? forceOf(t, me) : null,
@@ -149,7 +150,7 @@ module.exports = function (hooks) {
     startRound(t);
   }
   function startRound(t) {
-    t.bet = 0; t.minInc = t.ante * 2; t.seats.forEach(s => { s.roundBet = 0; s.acted = false; });
+    t.bet = 0; t.minInc = 1; t.seats.forEach(s => { s.roundBet = 0; s.acted = false; });
     if (canAct(t).length < 2) return nextStreet(t);
     t.turn = nextFrom(t, t.first - 1); ask(t);
   }
@@ -158,7 +159,7 @@ module.exports = function (hooks) {
     const s = t.seats[t.turn];
     // temps du croupier (distribution, lettres retournées) : le chrono du joueur ne démarre qu'après
     const g = t.grace || 0; t.grace = 0;
-    setTimer(t, t.dec + g, () => act(t, t.turn, (t.bet - (s.roundBet || 0)) > 0 ? "fold" : "call", true));
+    setTimer(t, t.dec + g, () => act(t, t.turn, "fold", true));   // temps écoulé : le joueur s'arrête
     t.dealEnd = Date.now() + g * 1000;
     broadcast(t);
     const i = t.turn;
@@ -169,17 +170,17 @@ module.exports = function (hooks) {
     if (t.phase !== "mise" || i !== t.turn) return;
     const s = t.seats[i]; const owe = t.bet - s.roundBet;
     const put = n => { n = Math.max(0, Math.min(n, s.stack)); s.stack -= n; s.roundBet += n; s.inPot += n; t.pot += n; if (!s.stack) s.allin = true; return n; };
-    if (a === "fold") { s.folded = true; s.last = auto ? "temps écoulé : couché" : "couché"; }
-    else if (a === "call") { const n = put(owe); s.last = n ? "suit " + n : "parole"; }
-    else if (a === "raise") {
-      // relance au choix : « relancer à » un montant entre la relance minimale et le tapis du joueur
-      const minTo = t.bet + (t.minInc || t.ante * 2), maxTo = s.roundBet + s.stack;
+    // Wordflush simplifié (17/11/2026) : deux choix seulement, « S'arrêter » ou « Miser ».
+    // Miser = au moins la mise minimale (2 × mise de départ) quand personne n'a misé, sinon au moins la mise en cours ; on peut monter librement (+1, +2…).
+    const minBet = t.ante * 2;
+    if (a === "call" || a === "raise" || a === "allin") { amt = a === "allin" ? s.roundBet + s.stack : a === "call" ? Math.max(t.bet, minBet) : amt; a = "bet"; }
+    if (a === "fold") { s.folded = true; s.last = auto ? "temps écoulé : s'arrête" : "s'arrête"; }
+    else if (a === "bet") {
+      const maxTo = s.roundBet + s.stack, minTo = Math.min(maxTo, Math.max(t.bet, minBet));
       let to = Math.floor(Number(amt)); if (!Number.isFinite(to)) to = minTo; to = Math.max(minTo, Math.min(to, maxTo));
-      if (to <= t.bet) { const n = put(owe); s.last = n ? "suit " + n : "parole"; }       // pas assez pour relancer : il suit
-      else { const prevBet = t.bet; put(to - s.roundBet); const inc = s.roundBet - prevBet;
-        if (s.roundBet > t.bet) { t.bet = s.roundBet; if (inc >= (t.minInc || 0)) t.minInc = inc; t.seats.forEach((o, k) => { if (k !== i) o.acted = false; }); }
-        s.last = s.allin ? "tapis ! (" + s.roundBet + ")" : "relance à " + s.roundBet; } }
-    else if (a === "allin") { put(s.stack); if (s.roundBet > t.bet) { t.bet = s.roundBet; t.seats.forEach((o, k) => { if (k !== i) o.acted = false; }); } s.last = "tapis !"; }
+      put(to - s.roundBet);
+      if (s.roundBet > t.bet) { t.bet = s.roundBet; t.seats.forEach((o, k) => { if (k !== i) o.acted = false; }); }
+      s.last = s.allin ? "mise tout (" + s.roundBet + ")" : "mise " + s.roundBet; }
     else return;
     s.acted = true;
     if (!s.bot && s.name) hooks.bet && hooks.bet(s.name, s.inPot);
@@ -190,7 +191,7 @@ module.exports = function (hooks) {
     ask(t);
   }
   function nextStreet(t) {
-    if (t.shown < 5) { t.shown++; t.round++; t.grace = 5; t.msg = (t.shown === 4 ? "4e" : "5e") + " lettre retournée"; return startRound(t); }
+    if (t.shown < 5) { t.shown = 5; t.round = 2; t.grace = 7; t.msg = "L'Académicien retourne les 2 dernières lettres"; return startRound(t); }
     wordPhase(t);
   }
   function wordPhase(t) {
@@ -236,11 +237,16 @@ module.exports = function (hooks) {
     // cagnotte : un gagnant de l'abattage avec un mot valide de 6 ou 7 lettres la remporte (partage égal, le reste indivisible y reste)
     const W = [...winnersAll], jw = W.filter(s => (s.result.len || 0) >= 6), jp = jpGet(t);
     if (jw.length && jp > 0) { const each = Math.floor(jp / jw.length); if (each > 0) { jw.forEach(s => { gain[t.seats.indexOf(s)] += each; s.result.jackpot = each; }); jpAdd(t, -each * jw.length); t.jpWon = { names: jw.map(s => s.name), each }; } }
+    // bonus du mot le plus long : toujours donné par l'Académicien (en plus du pot), partagé en cas d'égalité de longueur
+    const okRes = res.filter(s => s.result.ok), Lmax = okRes.length ? Math.max(...okRes.map(s => s.result.len || 0)) : 0;
+    t.longWon = null;
+    if (Lmax > 0) { const lw = okRes.filter(s => (s.result.len || 0) === Lmax), each = Math.max(1, Math.round(LONG_BONUS / lw.length));
+      lw.forEach(s => { gain[t.seats.indexOf(s)] += each; s.result.longBonus = each; }); t.longWon = { names: lw.map(s => s.name), each, len: Lmax }; }
     t.seats.forEach((s, i) => { if (gain[i]) { s.stack += gain[i]; s.result.win = s.result.win || winnersAll.has(s); s.result.gain = gain[i]; } });
     t.seats.forEach((s, i) => { if (!s.bot && s.name && gain[i] > (s.inPot || 0)) hooks.points && hooks.points(s.name, gain[i] - (s.inPot || 0)); });
     jpAdd(t, toBank);
     t.msg = !W.length ? "Personne n'a de mot valide : le pot (" + t.pot + ") part dans la cagnotte"
-      : (W.length > 1 ? "Partage : " + W.map(s => s.name + " +" + gain[t.seats.indexOf(s)]).join(", ") : W[0].name + " gagne " + gain[t.seats.indexOf(W[0])]) + (t.jpWon ? " · 🎰 CAGNOTTE " + t.jpWon.each * t.jpWon.names.length + " !" : "") + (toBank ? " · cagnotte +" + toBank : "");
+      : (W.length > 1 ? "Partage : " + W.map(s => s.name + " +" + gain[t.seats.indexOf(s)]).join(", ") : W[0].name + " gagne " + gain[t.seats.indexOf(W[0])]) + (t.jpWon ? " · 🎰 CAGNOTTE " + t.jpWon.each * t.jpWon.names.length + " !" : "") + (t.longWon ? " · mot le plus long +" + t.longWon.each + " : " + t.longWon.names.join(", ") : "") + (toBank ? " · cagnotte +" + toBank : "");
     // Mot Max de chaque joueur encore en lice (affiché à lui seul)
     res.forEach(s => { if (!s.bot) { const b = bestWord(s.hand, t.board); s.max = b ? { word: b.w, ...evaluateWord(b.w, s.hand, t.board) } : null; } });
     t.results = res.map(s => ({ name: s.name, ...s.result })); t.pot = 0;
@@ -274,7 +280,7 @@ module.exports = function (hooks) {
       else if (owe === 0 && r < 10) { a = "raise"; amt = t.bet + Math.max(t.minInc || 0, Math.round(pot * .5)); }        // bluff mesuré
       else if (b.pts < 14 && owe > pot / 3 && r < 70) a = "fold";
     } else { if (b.pts >= 22 && r < 45) { a = "raise"; amt = r < 20 ? t.bet + Math.max(t.minInc || 0, Math.round(pot / 2)) : minTo; } else if (b.pts < 12 && owe > t.ante * 2 && r < 60) a = "fold"; else if (r < 6) { a = "raise"; amt = minTo; } }
-    if (a === "fold" && owe === 0) a = "call";                                     // inutile de se coucher quand on peut dire parole
+    if (a === "fold" && owe === 0 && b.pts >= 8) a = "call";                       // personne n'a misé : il mise le minimum, sauf main très faible
     act(t, i, a, false, amt);
   }
 

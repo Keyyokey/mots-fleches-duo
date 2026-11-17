@@ -747,6 +747,14 @@ table.bar td,table.bar th{padding:5px 6px;border-bottom:1px solid rgba(255,255,2
 @media (max-width:600px){.pkdealer{padding:4px 10px 4px 4px;gap:8px}.pkdealer .dav{width:36px;height:36px}.pkdealer .dav svg{width:32px;height:32px}.pkdealer .dtxt{min-width:96px}}
 .pkin:disabled{opacity:.55}
 </style>
+<style id="wf-simple">
+.pkact.v2{display:grid;grid-template-columns:1fr 1.9fr!important;gap:8px}
+.pkbet{display:flex;gap:6px;min-width:0}
+.pkbet .bstep{flex:0 0 46px;font-size:1.5rem!important;font-weight:900;padding:0!important;min-height:58px;border-radius:16px}
+.pkbet #betGo{flex:1 1 auto;min-width:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;min-height:58px;border-radius:16px;font-weight:900;line-height:1.1}
+.pkbet #betGo .bv{font-size:1.15rem}
+@media (max-width:620px){.pkleft .pkact.v2{grid-template-columns:1fr 2fr!important}.pkbet .bstep{flex-basis:42px}}
+</style>
 <style id="lis">.pkact.myturn .btn:not(:disabled){box-shadow:0 0 0 2px rgba(244,190,77,.85),0 0 18px rgba(244,190,77,.3)}#pkRisk .yt{color:#F4BE4D}#pkRisk{font-size:1rem}</style>
 <script src="/d/icons.js" defer></script><style id="wf3">
 /* ===== Wordflush v3 : table plus lisible, dock d'actions au pouce, mot composé en tuiles ===== */
@@ -941,8 +949,8 @@ body[data-ph=""] #pkPrep,body:not([data-ph]) #pkPrep{display:none}
     <div class="pkleft"><div class="pkfelt">
       <div class="seats pkopp" id="pkOpp"></div>
       <div class="pkmid">
-        <div class="pkdealer" id="pkDealer"><div class="dav" aria-hidden="true"><svg viewBox="0 0 48 48"><defs><linearGradient id="dvg" x1=".2" y1="0" x2=".8" y2="1"><stop offset="0" stop-color="#fef3c7"/><stop offset="1" stop-color="#f59e0b"/></linearGradient><linearGradient id="dvs" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#334155"/><stop offset="1" stop-color="#0f172a"/></linearGradient></defs><path d="M8 46c0-9 7-15 16-15s16 6 16 15z" fill="url(#dvs)"/><path d="M20 31l4 7 4-7z" fill="#fff"/><path d="M19 33.5l5 2.5 5-2.5v4l-5-1.5-5 1.5z" fill="#e11d48"/><circle cx="24" cy="19" r="9.5" fill="url(#dvg)"/><path d="M13.5 15.5c2-6 19-6 21 0l-2 1.5c-4-3-13-3-17 0z" fill="#16a34a"/><rect x="12" y="15" width="24" height="3" rx="1.5" fill="#15803d"/><circle cx="20.5" cy="20" r="1.2" fill="#1f2937"/><circle cx="27.5" cy="20" r="1.2" fill="#1f2937"/><path d="M21 24c2 1.6 4 1.6 6 0" stroke="#1f2937" stroke-width="1.4" fill="none" stroke-linecap="round"/></svg></div><div class="dtxt"><b>Croupier</b><span class="dsay" id="pkDealerSay">Faites vos jeux</span></div><div class="pile" id="pkPile" title="Paquet du croupier"><i></i><i></i><i></i></div></div>
-        <div class="pkstage" id="pkStage"><span>3 lettres</span><span>4e lettre</span><span>5e lettre</span></div>
+        <div class="pkdealer" id="pkDealer"><div class="dav" aria-hidden="true"><svg viewBox="0 0 48 48"><defs><linearGradient id="dvg" x1=".2" y1="0" x2=".8" y2="1"><stop offset="0" stop-color="#fef3c7"/><stop offset="1" stop-color="#f59e0b"/></linearGradient><linearGradient id="dvs" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#334155"/><stop offset="1" stop-color="#0f172a"/></linearGradient></defs><path d="M8 46c0-9 7-15 16-15s16 6 16 15z" fill="url(#dvs)"/><path d="M20 31l4 7 4-7z" fill="#fff"/><path d="M19 33.5l5 2.5 5-2.5v4l-5-1.5-5 1.5z" fill="#e11d48"/><circle cx="24" cy="19" r="9.5" fill="url(#dvg)"/><path d="M13.5 15.5c2-6 19-6 21 0l-2 1.5c-4-3-13-3-17 0z" fill="#16a34a"/><rect x="12" y="15" width="24" height="3" rx="1.5" fill="#15803d"/><circle cx="20.5" cy="20" r="1.2" fill="#1f2937"/><circle cx="27.5" cy="20" r="1.2" fill="#1f2937"/><path d="M21 24c2 1.6 4 1.6 6 0" stroke="#1f2937" stroke-width="1.4" fill="none" stroke-linecap="round"/></svg></div><div class="dtxt"><b>L'Académicien</b><span class="dsay" id="pkDealerSay">Faites vos jeux</span></div><div class="pile" id="pkPile" title="Paquet du croupier"><i></i><i></i><i></i></div></div>
+        <div class="pkstage" id="pkStage"><span>3 lettres</span><span>2 dernières lettres</span></div>
         <div class="cards pkboard" id="pkBoard"></div>
         <div class="pot">Pot : <b id="pkPot">🪙 0</b></div>
         <div class="pkres" id="pkRes" hidden></div>
@@ -955,7 +963,7 @@ body[data-ph=""] #pkPrep,body:not([data-ph]) #pkPrep{display:none}
         <div class="pksteps" id="pkSteps" aria-label="Étapes du coup"><span data-s="mise">① Mises</span><span data-s="mot">② Ton mot</span><span data-s="abattage">③ Résultat</span></div>
         <div class="pkforce" id="pkForce" hidden></div>
         <div class="pkrisk" id="pkRisk" aria-live="polite"></div>
-        <div class="pkact"><button class="btn" data-a="fold">Se coucher</button><button class="btn" data-a="call">Suivre</button><button class="btn primary" data-a="raise">Relancer</button><button class="btn gold" data-a="allin">Tapis</button></div>
+        <div class="pkact v2"><button class="btn" data-a="fold">S'arrêter</button><div class="pkbet"><button class="btn bstep" id="betMinus" aria-label="Miser moins">−</button><button class="btn primary" data-a="bet" id="betGo">Miser</button><button class="btn bstep" id="betPlus" aria-label="Miser plus">+</button></div></div>
         <div class="pkraise" id="pkRaise" hidden>
           <div class="rzhead"><span>Relancer à <b id="rzTo">0</b></span><span class="note" id="rzSub"></span></div>
           <input type="range" id="rzRange" min="0" max="0" step="1" aria-label="Montant de la relance">
@@ -966,7 +974,7 @@ body[data-ph=""] #pkPrep,body:not([data-ph]) #pkPrep{display:none}
       </div>
       <div class="glass pkcard" id="pkWordCard">
         <div class="flrow"><span class="tag2">Ton mot</span><span class="wbadges" id="wfBadges"></span><span class="rclk pkwclk" id="pkWClk" style="display:none">0:45</span><button class="infobtn" id="pkInfoBtn" aria-expanded="false" title="Règles">i</button></div>
-        <div class="note flinfo" id="pkInfo"><b>Règles de Wordflush</b> <span class="rver">barème V2</span><br>• Comme au Texas Hold'em : 2 lettres cachées par joueur, 5 lettres communes retournées en 3 fois (3, puis 1, puis 1), un tour de mise à chaque fois.<br>• À ton tour : <b>parole</b> (rien à payer), <b>suivre</b>, <b>relancer du montant de ton choix</b> (au moins la relance minimale, au plus ton tapis), <b>tapis</b> ou <b>te coucher</b>. Temps limité pour décider, sinon tu te couches (ou tu dis « parole » si personne n'a misé).<br>• Si tous les autres se couchent, <b>tu gagnes le pot sans montrer ton mot</b> (bluff réussi).<br>• À la fin, chacun a <b>45 s pour taper et verrouiller son mot</b> (2 à 7 lettres) avec ses lettres et celles du milieu, <b>dont au moins une de ses lettres cachées</b>. Dès que tous ont verrouillé, on passe à l'abattage. Les autres voient seulement <b>combien de lettres</b> tu as verrouillées.<br>• <b>Score = valeur des lettres + bonus de longueur + bonus Main Pleine.</b> Bonus de longueur : 2 lettres +0 · 3 lettres +3 · 4 lettres +6 · 5 lettres +10 · 6 lettres +15 · 7 lettres +22. <b>Main Pleine : +5</b> si tes 2 lettres cachées sont dans ton mot.<br>• Le meilleur score gagne ; à égalité, <b>le mot le plus long</b> ; encore à égalité, le pot est partagé (le reste indivisible va dans la cagnotte).<br>• Mot inexistant, lettre absente ou aucune de tes lettres cachées : ton mot ne compte pas.<br>• <b>Cagnotte du salon</b> 🎰 : les pots que personne ne gagne (aucun mot valide) et les restes de partage l'alimentent. Elle est remportée par le gagnant de l'abattage qui joue un <b>mot de 6 ou 7 lettres</b> (jamais sur un abandon des autres).<br>• Après chaque coup, ton <b>Mot Max</b> s'affiche : le meilleur mot possible avec tes lettres, pour progresser.<br>• <b>Léo</b> est un robot : il ne voit que ses propres lettres et les lettres communes, comme toi. Trois niveaux : débutant, intermédiaire, confirmé.<br>• <b>Pots séparés</b> : un joueur à tapis ne peut gagner que ce qu'il a pu suivre.<br>• Si tous les joueurs quittent la table, <b>chacun récupère sa mise du coup</b>.<br>• <b>Tirage équitable</b> : paquet mélangé par le serveur avec un générateur cryptographique ; son empreinte est affichée avant le coup et le paquet dévoilé après.<br><span class="rver" id="pkDictV"></span></div>
+        <div class="note flinfo" id="pkInfo"><b>Règles de Wordflush</b> <span class="rver">barème V2</span><br>• Chacun met une <b>mise de départ</b> : il y a toujours un pot. Tu reçois <b>2 lettres cachées</b>, puis <b>l'Académicien</b> retourne <b>3 lettres</b> au milieu.<br>• <b>1er tour</b> : <b>S'arrêter</b> ou <b>Miser</b> (au moins la mise minimale, ou la mise en cours si quelqu'un a déjà misé ; touche <b>+</b> pour monter). Si quelqu'un mise plus que toi, tu dois égaler sa mise ou t'arrêter. Temps limité : sans réponse, tu t'arrêtes.<br>• L'Académicien retourne les <b>2 dernières lettres</b>, puis <b>2e tour</b> de mise, pareil.<br>• Si tous les autres s'arrêtent, <b>tu gagnes le pot sans montrer ton mot</b>.<br>• À la fin, chacun a <b>45 s pour taper et verrouiller son mot</b> (2 à 7 lettres) avec ses lettres et celles du milieu, <b>dont au moins une de ses lettres cachées</b>. Dès que tous ont verrouillé, on passe à l'abattage. Les autres voient seulement <b>combien de lettres</b> tu as verrouillées.<br>• <b>Score = valeur des lettres + bonus de longueur + bonus Main Pleine.</b> Bonus de longueur : 2 lettres +0 · 3 lettres +3 · 4 lettres +6 · 5 lettres +10 · 6 lettres +15 · 7 lettres +22. <b>Main Pleine : +5</b> si tes 2 lettres cachées sont dans ton mot.<br>• <b>Bonus du mot le plus long : +3 jetons</b> offerts par l'Académicien à chaque coup (partagés en cas d'égalité).<br>• Le meilleur score gagne le pot ; à égalité, <b>le mot le plus long</b> ; encore à égalité, le pot est partagé (le reste indivisible va dans la cagnotte).<br>• Mot inexistant, lettre absente ou aucune de tes lettres cachées : ton mot ne compte pas.<br>• <b>Cagnotte du salon</b> 🎰 : les pots que personne ne gagne (aucun mot valide) et les restes de partage l'alimentent. Elle est remportée par le gagnant de l'abattage qui joue un <b>mot de 6 ou 7 lettres</b> (jamais sur un abandon des autres).<br>• Après chaque coup, ton <b>Mot Max</b> s'affiche : le meilleur mot possible avec tes lettres, pour progresser.<br>• <b>Léo</b> est un robot : il ne voit que ses propres lettres et les lettres communes, comme toi. Trois niveaux : débutant, intermédiaire, confirmé.<br>• <b>Pots séparés</b> : un joueur à tapis ne peut gagner que ce qu'il a pu suivre.<br>• Si tous les joueurs quittent la table, <b>chacun récupère sa mise du coup</b>.<br>• <b>Tirage équitable</b> : paquet mélangé par le serveur avec un générateur cryptographique ; son empreinte est affichée avant le coup et le paquet dévoilé après.<br><span class="rver" id="pkDictV"></span></div>
         <div class="wlater" id="pkLater">✍️ <span>Ton mot se joue <b>après les mises</b>, quand les 5 lettres seront retournées.</span><button class="btn sm" type="button" id="pkPrep">Le préparer</button></div>
         <div class="wfbar" id="wfWBar"><i></i></div>
         <div class="wslots" id="wfSlots" aria-label="Ton mot : touche une tuile pour la retirer"></div>
@@ -1067,7 +1075,7 @@ function render(){const st=ST;document.body.dataset.ph=st&&st.started?st.phase:"
   $("#pkMe").innerHTML=me?seatHTML(st,me,st.me,true):"";
   // milieu
   {const bd=st.board&&st.board.length?st.board:[null,null,null,null,null];$("#pkBoard").innerHTML=bd.map((c,i)=>c?card(c,"","b"+i):'<div class="card-l slot wait" data-ck="b'+i+'" data-n="'+(st.started&&i>2?["4e","5e"][i-3]:"")+'"></div>').join("")}
-  $$("#pkStage span").forEach((x,i)=>x.classList.toggle("on",st.shown>=[3,4,5][i]&&st.started));
+  $$("#pkStage span").forEach((x,i)=>x.classList.toggle("on",st.shown>=[3,5][i]&&st.started));
   $("#pkPot").innerHTML="🪙 "+st.pot+" <small class='carrytag jp' title='Cagnotte du salon : remportée par un mot de 6 ou 7 lettres gagnant à l\'abattage'>🎰 cagnotte "+(st.jackpot||0)+"</small>";
   if($("#pkDictV"))$("#pkDictV").textContent="Barème "+(st.bareme||"V2")+" · "+(st.dict||"");
   // résultats
@@ -1077,11 +1085,10 @@ function render(){const st=ST;document.body.dataset.ph=st&&st.started?st.phase:"
   // actions
   const myTurn=me&&st.phase==="mise"&&st.turn===st.me;const owe=me?Math.max(0,st.bet-me.roundBet):0;
   $$(".pkact .btn").forEach(b=>b.disabled=!myTurn);
-  $('[data-a="call"]').innerHTML=owe?"Suivre<small class='ch'>"+Math.min(owe,me?me.stack:0)+"</small>":"Parole<small>gratuit</small>";$('[data-a="fold"]').innerHTML="Se coucher";
-  const minTo=st.bet+(st.minInc||st.ante*2),maxTo=me?me.roundBet+me.stack:0;
-  $('[data-a="raise"]').innerHTML="Relancer<small>"+(me&&maxTo>st.bet?"choisir le montant":"impossible")+"</small>";$('[data-a="raise"]').disabled=!myTurn||maxTo<=st.bet;
-  $('[data-a="allin"]').innerHTML="Tapis"+(me&&me.stack?"<small class='ch'>"+me.stack+"</small>":"");$('[data-a="allin"]').disabled=!myTurn||!me||!me.stack;
-  stepsShow(st,me);forceShow(st,me);$(".pkact").classList.toggle("myturn",!!myTurn);$("#pkRisk").innerHTML=myTurn?"<b class='yt'>À toi de jouer</b><span class='wfk'>"+(owe?"À payer <b>"+Math.min(owe,me.stack)+"</b>":"Rien à payer")+"</span><span class='wfk'>Solde <b>"+me.stack+"</b></span><span class='wfk'>Pot <b>"+st.pot+"</b></span>"+(owe>=me.stack?"<span class='wfk warn'>suivre = tapis</span>":"")+coachTip(st,owe):(st.phase==="mise"&&st.seats&&st.seats[st.turn]?"⏳ Tour de <b>"+esc(st.seats[st.turn].name)+"</b> · pot <b>"+st.pot+"</b>":"");
+  // deux choix : S'arrêter ou Miser (au moins la mise minimale, ou la mise en cours ; + et − pour monter)
+  const maxTo=me?me.roundBet+me.stack:0,minTo=Math.min(maxTo,Math.max(st.bet||0,st.minBet||st.ante*2));
+  if(myTurn){if(!BET||BET.key!==st.hand+"/"+st.shown+"/"+st.bet)BET={key:st.hand+"/"+st.shown+"/"+st.bet,v:minTo};BET.min=minTo;BET.max=maxTo;BET.v=Math.max(minTo,Math.min(BET.v,maxTo));betShow()}
+  stepsShow(st,me);forceShow(st,me);$(".pkact").classList.toggle("myturn",!!myTurn);$("#pkRisk").innerHTML=myTurn?"<b class='yt'>À toi de jouer</b><span class='wfk'>"+(owe?"Pour rester : <b>"+Math.min(owe,me.stack)+"</b>":"Mise minimale <b>"+minTo+"</b>")+"</span><span class='wfk'>Solde <b>"+me.stack+"</b></span><span class='wfk'>Pot <b>"+st.pot+"</b></span>"+(owe>=me.stack?"<span class='wfk warn'>suivre = tapis</span>":"")+coachTip(st,owe):(st.phase==="mise"&&st.seats&&st.seats[st.turn]?"⏳ Tour de <b>"+esc(st.seats[st.turn].name)+"</b> · pot <b>"+st.pot+"</b>":"");
   if(!myTurn){$("#pkRaise").hidden=true;$("#pkAllin").hidden=true}else RZ={min:Math.min(minTo,maxTo),max:maxTo,pot:st.pot,bet:st.bet,owe,stack:me.stack,mine:me.roundBet||0};
   wfRender(st,me,myTurn);
   // phase « mot »
@@ -1095,7 +1102,7 @@ function render(){const st=ST;document.body.dataset.ph=st&&st.started?st.phase:"
   renderDeck(st.deckLeft);tick()}
 function seatHTML(st,s,i,mine){const turn=st.phase==="mise"&&st.turn===i;const cls="seat"+(mine?" me":"")+(turn?" turn":st.started&&st.phase==="mise"?" idle":"")+(s.folded||s.out||s.gone?" out":"");
   const hand=s.hand?s.hand.map((c,k)=>card(c,"mine","s"+i+"-"+k)).join(""):(st.started&&!s.out?card(null,"back","s"+i+"-0")+card(null,"back","s"+i+"-1"):"");
-  return '<div class="'+cls+'" data-i="'+i+'" style="--c:'+(mine?"var(--gold)":PCOL[i%6])+'"><div class="shead"><span class="ava" style="background:'+PCOL[i%6]+'">'+esc(s.name[0])+'</span><b>'+esc(s.name)+'</b>'+(s.bot?' <span class="botb" title="Robot : il ne voit que ses lettres et les lettres communes">Robot</span>':"")+'<span class="rclk" data-clk="'+i+'">'+(turn?"":"–")+'</span></div><div class="chips">🪙 '+s.stack+(s.inPot?" · mise "+s.inPot:"")+(s.last&&st.phase==="mise"?'<em class="wfsay '+(/couch/.test(s.last)?"wsf":/relance|tapis/.test(s.last)?"wsr":"wsc")+'">'+esc(s.last)+'</em>':s.last?" · "+esc(s.last):"")+(s.gone?" · parti":"")+(st.phase==="mot"&&!s.folded?(s.wordDone?" · 🔒 "+(s.wordLen?s.wordLen+" lettres verrouillées":"verrouillé"):" · ✍️…"):"")+'</div><div class="cards'+(mine?"":" sm")+'">'+hand+'</div></div>'}
+  return '<div class="'+cls+'" data-i="'+i+'" style="--c:'+(mine?"var(--gold)":PCOL[i%6])+'"><div class="shead"><span class="ava" style="background:'+PCOL[i%6]+'">'+esc(s.name[0])+'</span><b>'+esc(s.name)+'</b>'+(s.bot?' <span class="botb" title="Robot : il ne voit que ses lettres et les lettres communes">Robot</span>':"")+'<span class="rclk" data-clk="'+i+'">'+(turn?"":"–")+'</span></div><div class="chips">🪙 '+s.stack+(s.inPot?" · mise "+s.inPot:"")+(s.last&&st.phase==="mise"?'<em class="wfsay '+(/couch|arr/.test(s.last)?"wsf":/tout|relance|tapis/.test(s.last)?"wsr":"wsc")+'">'+esc(s.last)+'</em>':s.last?" · "+esc(s.last):"")+(s.gone?" · parti":"")+(st.phase==="mot"&&!s.folded?(s.wordDone?" · 🔒 "+(s.wordLen?s.wordLen+" lettres verrouillées":"verrouillé"):" · ✍️…"):"")+'</div><div class="cards'+(mine?"":" sm")+'">'+hand+'</div></div>'}
 // jauge « force de ta main » pendant les mises (calculée par le serveur, sans jamais donner le mot)
 const FLV=["Aucun mot","Faible","Correcte","Bonne","Très forte"];
 function forceShow(st,me){const b=$("#pkForce");if(!b)return;const f=st&&st.force;if(!f||!me||me.folded||(st.dealEnd&&Date.now()+skew<st.dealEnd)){b.hidden=true;return}const key=JSON.stringify(f)+LS.get("fl-pkforce");if(!b.hidden&&b.dataset.k===key)return;b.dataset.k=key;b.hidden=false;b.dataset.l=f.level;
@@ -1105,7 +1112,7 @@ function forceShow(st,me){const b=$("#pkForce");if(!b)return;const f=st&&st.forc
 document.addEventListener("click",e=>{if(e.target.closest("#pkForce")){$("#pkForce").dataset.k="";LS.set("fl-pkforce",LS.get("fl-pkforce")==="off"?"on":"off");forceShow(ST,ST&&ST.seats?ST.seats[ST.me]:null)}});
 // conseils de premier jeu : affichés pendant les 3 premiers coups où l'on joue
 function coachTip(st,owe){let n=+LS.get("fl-pkcoach")||0;if(coachTip.h!==st.hand){coachTip.h=st.hand;if(st.phase==="mise")LS.set("fl-pkcoach",++n)}if(n>3||!st.force)return"";const l=st.force.level;
-  return '<br><span class="note">💡 '+(l<=1?(owe?"Main faible : « Se coucher » t'évite de perdre plus de jetons.":"Main faible : « Parole » ne coûte rien, tu verras la lettre suivante."):l===2?"Main correcte : « Suivre » ou « Parole » pour voir la suite sans trop risquer.":"Main forte : « Relancer » fait grossir le pot que tu peux gagner.")+"</span>"}
+  return '<br><span class="note">💡 '+(l<=1?"Main faible : « S\u2019arrêter » t\u2019évite de perdre plus de jetons.":l===2?"Main correcte : mise le minimum pour voir la suite.":"Main forte : monte ta mise avec + pour faire grossir le pot.")+"</span>"}
 // étapes du coup : ① mises → ② mot → ③ résultat
 function stepsShow(st,me){const ph=st&&st.started?st.phase:"";const ord=["mise","mot","abattage"],k=ord.indexOf(ph);$$("#pkSteps span").forEach((e,i)=>{e.classList.toggle("on",i===k);e.classList.toggle("done",k>i)});$("#pkSteps").hidden=k<0}
 // lettres utilisables, affichées sous le champ du mot (restent visibles quand le clavier du téléphone est ouvert) ; un toucher ajoute la lettre
@@ -1186,7 +1193,14 @@ function renderDeck(left){const g=$("#pkDeck");if(!left){$("#pkDeckSum").innerHT
 $("#pkDeckBtn").onclick=()=>{const c=$("#pkDeckCard").classList.toggle("closed");$("#pkDeckBtn").setAttribute("aria-expanded",!c)};
 if(innerWidth<620){$("#pkDeckCard").classList.add("closed");$("#pkDeckBtn").setAttribute("aria-expanded","false")}
 // ---------- actions ----------
-$$(".pkact .btn").forEach(b=>b.onclick=()=>{const a=b.dataset.a;if(a==="raise")return rzShow();if(a==="allin"){const me=ST&&ST.seats[ST.me];$("#aiN").textContent=me?me.stack:0;$("#pkRaise").hidden=true;$("#pkAllin").hidden=false;return}pk({a:"act",act:a})});
+let BET=null;
+function betShow(){if(!BET)return;const me=ST&&ST.seats&&ST.seats[ST.me],add=Math.max(0,BET.v-(me?me.roundBet||0:0)),all=BET.v>=BET.max;
+  $("#betGo").innerHTML=(all?"Miser tout":"Miser")+" <b class='bv'>"+BET.v+"</b><small class='ch'>"+(add?"tu ajoutes "+add:"")+"</small>";$("#betGo").classList.toggle("gold",all);
+  $("#betMinus").disabled=!(ST&&ST.turn===ST.me)||BET.v<=BET.min;$("#betPlus").disabled=!(ST&&ST.turn===ST.me)||BET.v>=BET.max}
+$("#betMinus").onclick=()=>{if(BET){BET.v=Math.max(BET.min,BET.v-1);betShow()}};
+$("#betPlus").onclick=()=>{if(BET){BET.v=Math.min(BET.max,BET.v+1);betShow()}};
+$('[data-a="fold"]').onclick=()=>pk({a:"act",act:"fold"});
+$("#betGo").onclick=()=>{if(BET)pk({a:"act",act:"bet",amt:BET.v})};
 let CHK=null,LOCKED="";
 function typed(){if(LOCKED)return;const v=$("#pkIn").value.normalize("NFD").replace(/[\u0300-\u036f]/g,"").toUpperCase().replace(/[^A-Z]/g,"").slice(0,7);$("#pkIn").value=v;wfSlots();wfPts(null);
   clearTimeout(CHK);if(!v){$("#pkCalc").innerHTML="Score potentiel : lettres + bonus de longueur + bonus Main Pleine";return}
@@ -1290,7 +1304,7 @@ function dealer(P,st){if(!P||!st)return;const d=$("#pkDealer");if(d)d.classList.
     setTimeout(()=>{if(st.me>=0&&ST&&ST.turn===st.me&&ST.phase==="mise")talk("À vous de parler")},t+300);return}
   // nouvelle lettre commune (4e, 5e)
   if(st.started&&P.hand===st.hand&&(st.shown||0)>(P.shown||0)){const keys=[];for(let b=P.shown||0;b<st.shown;b++)keys.push("b"+b);keys.forEach(k=>{DEAL.hide.add(k);DEAL.down.add(k)});applyHide();
-    talk(st.shown===4?"4e lettre":"5e lettre, la dernière");announce((st.shown===4?"2e":"3e")+" tour de mise",st.shown===4?"4e lettre":"5e et dernière lettre");let t=2200;burn(t);t+=1300;keys.forEach(k=>{DEAL.down.add(k);fly(k,t,{board:true});turnUp(k,t+1600);t+=850});return}
+    talk("Les 2 dernières lettres");announce("2e tour de mise","2 dernières lettres");let t=2200;burn(t);t+=1300;keys.forEach(k=>{DEAL.down.add(k);fly(k,t,{board:true});turnUp(k,t+1600);t+=850});return}
   // abattage : les lettres cachées des adversaires se retournent une à une
   if(P.phase!=="abattage"&&st.phase==="abattage"){DEAL.down.clear();st.seats.forEach((s,i)=>{if(i!==st.me&&s.hand)[0,1].forEach(r=>DEAL.down.add("s"+i+"-"+r))});talk("Abattage !");announce("Abattage","Les lettres se dévoilent",true);let t=1600;st.seats.forEach((s,i)=>{if(i===st.me||!s.hand)return;[0,1].forEach(r=>{setTimeout(()=>{const e=faceUp("s"+i+"-"+r);if(e){e.classList.remove("flip");void e.offsetWidth;e.classList.add("flip");flipSnd()}},t);t+=650})})}
   if(P.phase!=="mot"&&st.phase==="mot"){talk("Faites vos mots !");announce("Faites vos mots","45 secondes",true)}
