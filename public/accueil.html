@@ -74,7 +74,7 @@ button{font:inherit;color:inherit;cursor:pointer}
 .qobj{width:100%;height:100%;position:relative;transform-style:preserve-3d;transition:transform .8s cubic-bezier(.34,1.56,.64,1)}
 .tile.cg:hover .qobj,.tile.cg.lift .qobj{transform:rotateY(180deg)}
 .face{position:absolute;inset:0;backface-visibility:hidden;-webkit-backface-visibility:hidden;border-radius:18px;display:grid;place-items:center;background:#fff;box-shadow:0 12px 28px rgba(0,0,0,.25),inset 0 0 0 2px rgba(255,255,255,.5)}
-.face.front{color:#064e3b;font-family:"Playfair Display",serif;font-size:3rem;font-weight:700}
+.face.front{color:#9a3b12;font-family:"Playfair Display",serif;font-size:3rem;font-weight:700}
 .face.back{transform:rotateY(180deg);background:linear-gradient(135deg,#fff,#fef3c7);box-shadow:0 12px 28px rgba(0,0,0,.25),0 0 34px rgba(250,204,21,.6)}
 .face.back svg{width:40px;height:40px;fill:#d97706;filter:drop-shadow(0 4px 6px rgba(217,119,6,.4))}
 .tile.cg .modes.acts{left:auto;right:34px;bottom:auto;top:50%;flex-direction:column;gap:12px;transform:translateY(-50%) translateX(30px);transition:all .6s cubic-bezier(.25,1,.5,1)}
@@ -774,7 +774,31 @@ a.logo{text-decoration:none;color:inherit}a.logo:focus-visible{outline:2px solid
 .rtabs button.on{background:rgba(255,255,255,.2);border-color:rgba(255,255,255,.35);box-shadow:inset 0 1px 0 rgba(255,255,255,.25)}.rtabs button:focus-visible{outline:2px solid #2DE2C8;outline-offset:2px}
 .sitefoot{text-align:center}
 .dash{align-items:stretch}.dash .rankcard{flex:1 1 auto}.rtabs{flex-wrap:nowrap}.rtabs button{flex:1 1 0;min-width:0;line-height:1.2}
-@media (max-width:620px){.rtabs{gap:6px}.rtabs button{padding:8px 6px;font-size:.84rem}}</style></head>
+@media (max-width:620px){.rtabs{gap:6px}.rtabs button{padding:8px 6px;font-size:.84rem}}</style><style id="refonte-1911">
+/* couleur signature : liseré de verre et halo teinté propres à chaque jeu */
+.tile{box-shadow:0 22px 46px -16px color-mix(in srgb,var(--ga,#000) 55%,transparent),0 10px 24px rgba(0,0,0,.18),inset 0 1px 0 rgba(255,255,255,.4)}
+.tile::before{content:"";position:absolute;inset:0;border-radius:inherit;padding:1.5px;background:linear-gradient(135deg,var(--ga,#fff) 0%,transparent 34%,transparent 66%,var(--ga,#fff) 100%);-webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask-composite:exclude;opacity:.5;z-index:2;pointer-events:none;transition:opacity .4s}
+.tile:hover::before,.tile.lift::before,.tile:focus-visible::before{opacity:1}
+.tile:hover,.tile.lift{box-shadow:0 34px 64px -18px color-mix(in srgb,var(--ga,#000) 70%,transparent),0 16px 34px rgba(0,0,0,.24),inset 0 1px 0 rgba(255,255,255,.5)}
+.tile .tag{background:color-mix(in srgb,var(--ga,#fff) 26%,transparent);border-color:color-mix(in srgb,var(--ga,#fff) 55%,transparent)}
+.tile h2{letter-spacing:-.01em}
+.abtn:focus-visible,.btn:focus-visible,.rtabs button:focus-visible,.chartTabs button:focus-visible,.skf button:focus-visible{outline:2px solid var(--accent-cyan,#00ADB5);outline-offset:2px}
+/* casier : filtres */
+.skf{display:flex;gap:6px;overflow-x:auto;contain:inline-size;max-width:100%;padding:2px 2px 8px;margin:6px 0 2px;scrollbar-width:none}.skf::-webkit-scrollbar{display:none}
+.skf button{all:unset;flex:none;cursor:pointer;box-sizing:border-box;min-height:34px;padding:6px 12px;border-radius:999px;font:700 .78rem Nunito,Inter,sans-serif;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.22);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px)}
+.skf button i{display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:6px;background:var(--c,#fff);vertical-align:0}
+.skf button.on{background:rgba(255,255,255,.26);border-color:#fff}
+[data-theme=light] .skf button{background:rgba(15,25,40,.06);border-color:rgba(15,25,40,.18)}[data-theme=light] .skf button.on{background:rgba(15,25,40,.14);border-color:rgba(15,25,40,.5)}
+.sksr[hidden],.skgrid[hidden],.sktile[hidden]{display:none!important}
+/* téléphone : les jeux d'abord, puis mon espace ; boutons assez grands pour le doigt */
+@media (max-width:760px){
+#v-accueil.on{display:flex;flex-direction:column}
+#v-accueil>.sec2{order:0;margin-top:6px}#v-accueil>.games{order:1}#v-accueil>.hero2{order:2;margin-top:22px}#v-accueil>.sitefoot{order:3}
+.tile .abtn{min-height:44px}
+.sitefoot a{padding:10px 4px}
+}
+</style>
+</head>
 <body>
 <div class="blob b1"></div><div class="blob b2"></div><div class="blob b3"></div>
 <div class="wrap">
@@ -882,19 +906,19 @@ a.logo{text-decoration:none;color:inherit}a.logo:focus-visible{outline:2px solid
 
   <div class="games">
     <div class="g-new">
-      <div class="tile mgt" style="--tg:linear-gradient(135deg,#1b1440 0%,#3b2a8c 48%,#00ADB5 100%)" data-game="Magnético" data-key="magnetico" data-multi="1">
-        <div class="txt"><span class="tag">Nouveau · Réflexe</span><h2>Magné<br>tico</h2><p>Les syllabes s'entrechoquent : touche-les dans le bon ordre pour reformer le mot. Seul ou jusqu'à 4.</p></div>
+      <div class="tile mgt" style="--tg:linear-gradient(135deg,#1b1440 0%,#3b2a8c 48%,#00ADB5 100%);--ga:#7cf3ff" data-game="Magnético" data-key="magnetico" data-multi="1">
+        <div class="txt"><span class="tag">Nouveau · Réflexe</span><h2>Magnético</h2><p>Les syllabes s'entrechoquent : touche-les dans le bon ordre pour reformer le mot. Seul ou jusqu'à 4.</p></div>
         <div class="vis"><div class="mgv" aria-hidden="true"><i class="bb mb1">MA</i><i class="bb mb2">GNÉ</i><i class="bb mb3">TI</i><i class="bb mb4">CO</i></div></div>
         <div class="modes acts"><button class="abtn" data-mode="solo"><span>👤</span> Solo</button><button class="abtn" data-mode="multi"><span>👥</span> Multijoueurs</button><button class="abtn abtn-s" data-cfg="1" aria-label="Réglages de la partie"><span>⚙️</span> Réglages</button></div>
       </div>
     </div>
     <div class="g-top">
-      <div class="tile" style="--tg:linear-gradient(135deg,#0b3d2e 0%,#0f7a4f 50%,#1fae6e 100%)" data-game="Wordflush" data-key="poker" data-multi="1">
-        <div class="txt"><span class="tag">Stratégie</span><h2>Word<br>flush</h2><p>Forme le meilleur mot avec ta main, mise et bluffe pour remporter le pot.</p></div>
+      <div class="tile" style="--tg:linear-gradient(135deg,#0b3d2e 0%,#0f7a4f 50%,#1fae6e 100%);--ga:#f4be4d" data-game="Wordflush" data-key="poker" data-multi="1">
+        <div class="txt"><span class="tag">Stratégie</span><h2>Wordflush</h2><p>Forme le meilleur mot avec ta main, mise et bluffe pour remporter le pot.</p></div>
         <div class="vis"><div class="fan"><div class="cd">M<small>2</small></div><div class="cd">O<small>1</small></div><div class="cd">X<small>10</small></div><div class="chip" style="left:8px"></div><div class="chip" style="left:30px;bottom:6px"></div></div></div>
         <div class="modes acts"><button class="abtn" data-mode="solo"><span>👤</span> Solo</button><button class="abtn" data-mode="multi"><span>👥</span> Multijoueurs</button><button class="abtn abtn-s" data-cfg="1" aria-label="Réglages de la partie"><span>⚙️</span> Réglages</button></div>
       </div>
-      <div class="tile cg" style="--tg:linear-gradient(135deg,#134E5E 0%,#71B280 100%)" data-game="Jeu du mois · culture générale" data-key="culture" data-multi="1">
+      <div class="tile cg" style="--tg:linear-gradient(135deg,#3a1607 0%,#a8461a 52%,#f2a93b 100%);--ga:#ffd27a" data-game="Jeu du mois · culture générale" data-key="culture" data-multi="1">
         <div class="txt"><span class="tag">Savoir</span><h2>Culture<br>Générale</h2><p>Teste tes connaissances et apprends chaque jour de nouvelles anecdotes.</p></div>
         <div class="illu"><div class="ring2"></div><i class="pt p1"></i><i class="pt p2"></i><i class="pt p3"></i><i class="pt p4"></i>
           <div class="scene"><div class="qobj"><div class="face front">?</div><div class="face back"><svg viewBox="0 0 24 24"><path d="M12 2C7.589 2 4 5.589 4 9.995 3.971 16.44 11.696 21.784 11 22h2c-.696-.216 7.029-5.56 7-12.005C20 5.589 16.411 2 12 2zm0 18c-3.155-2.738-6-6.61-6-10.005C6 6.691 8.691 4 12 4s6 2.691 6 5.995C18 13.39 15.155 17.262 12 20z"/><path d="M11 14h2v2h-2zM11 6h2v6h-2z"/></svg></div></div></div></div>
@@ -902,18 +926,18 @@ a.logo{text-decoration:none;color:inherit}a.logo:focus-visible{outline:2px solid
       </div>
     </div>
     <div class="g-bot">
-      <div class="tile" style="--tg:linear-gradient(135deg,#0c2a33 0%,#16707d 50%,#2fb3b8 100%)" data-game="Mots fléchés" data-key="fleches" data-multi="1">
+      <div class="tile" style="--tg:linear-gradient(135deg,#0c2a33 0%,#16707d 50%,#2fb3b8 100%);--ga:#5eead4" data-game="Mots fléchés" data-key="fleches" data-multi="1">
         <div class="vis"><div class="fg"><span class="q">▸</span><span class="l">M</span><span class="l">O</span><span class="l">T</span><span class="l">S</span><span class="q">▾</span><span class="l">A</span><span></span><span class="q">▸</span><span></span><span></span><span class="l">I</span><span></span><span></span><span></span><span></span><span class="l">R</span><span></span><span></span><span></span></div></div>
         <div class="txt"><span class="tag">Duo</span><h2>Mots<br>Fléchés</h2><p>Remplis la grille à deux ou en solo.</p></div>
         <div class="modes acts"><button class="abtn" data-mode="solo"><span>👤</span> Solo</button><button class="abtn" data-mode="multi"><span>👥</span> Multijoueurs</button><button class="abtn abtn-s" data-cfg="1" aria-label="Réglages de la partie"><span>⚙️</span> Réglages</button></div>
       </div>
-      <div class="tile" style="--tg:linear-gradient(135deg,#0f172a 0%,#1e3a5f 50%,#3b6e9e 100%)" data-game="Le Tourniquet" data-key="rond" data-multi="1">
+      <div class="tile" style="--tg:linear-gradient(135deg,#0f172a 0%,#1e3a5f 50%,#3b6e9e 100%);--ga:#93c5fd" data-game="Le Tourniquet" data-key="rond" data-multi="1">
         <div class="vis"><div class="ring"><div class="ctr">MOT EN<br>ROND</div><div class="orb">
           <span class="b" style="left:50%;top:6%">S</span><span class="b" style="left:88%;top:28%">T</span><span class="b" style="left:88%;top:72%">O</span><span class="b" style="left:50%;top:94%">R</span><span class="b" style="left:12%;top:72%">E</span><span class="b" style="left:12%;top:28%">U</span></div></div></div>
         <div class="txt"><span class="tag">Mots en rond</span><h2>Le<br>Tourniquet</h2><p>Six lettres autour de chaque définition.</p></div>
         <div class="modes acts"><button class="abtn" data-mode="solo"><span>👤</span> Solo</button><button class="abtn" data-mode="multi"><span>👥</span> Multijoueurs</button><button class="abtn abtn-s" data-cfg="1" aria-label="Réglages de la partie"><span>⚙️</span> Réglages</button></div>
       </div>
-      <div class="tile" style="--tg:linear-gradient(135deg,#022c22 0%,#059669 45%,#10b981 100%)" data-game="Mots mêlés" data-key="meles" data-multi="1">
+      <div class="tile" style="--tg:linear-gradient(135deg,#1a2e05 0%,#3f7a12 48%,#9bd534 100%);--ga:#d9f99d" data-game="Mots mêlés" data-key="meles" data-multi="1">
         <div class="vis"><div class="hl" style="--row:2"></div><div class="wg"><span>C</span><span>H</span><span>I</span><span>E</span><span>N</span><span>A</span><span>O</span><span>U</span><span>R</span><span>S</span><span>T</span><span>E</span><span>M</span><span>P</span><span>S</span><span>V</span><span>B</span><span>L</span><span>A</span><span>N</span><span>O</span><span>C</span><span>E</span><span>A</span><span>N</span></div></div>
         <div class="txt"><span class="tag">Observation</span><h2>Mots<br>Mêlés</h2><p>Trouve tous les mots cachés avant la fin du chrono.</p></div>
         <div class="modes acts"><button class="abtn" data-mode="solo"><span>👤</span> Solo</button><button class="abtn" data-mode="multi"><span>👥</span> Multijoueurs</button><button class="abtn abtn-s" data-cfg="1" aria-label="Réglages de la partie"><span>⚙️</span> Réglages</button></div>
@@ -935,7 +959,7 @@ a.logo{text-decoration:none;color:inherit}a.logo:focus-visible{outline:2px solid
 </div></div>
 <div class="overlay" id="skins" role="dialog" aria-modal="true" aria-labelledby="skT"><div class="glass sheet skbox">
   <h3 id="skT">🎭 Mes skins</h3><div class="note" id="skSub"></div>
-  <div class="skscroll" id="skList"></div><div class="err" id="skErr"></div>
+  <div class="skf" id="skF" role="group" aria-label="Filtrer les skins"></div><div class="skscroll" id="skList"></div><div class="err" id="skErr"></div>
   <div class="tutobt"><button class="btn" id="skNone" type="button" onclick="pickSkin('')">Retirer mon skin</button><button class="btn primary" type="button" onclick="document.getElementById('skins').classList.remove('on')">Fermer</button></div>
 </div></div>
 <div class="overlay" id="tuto" role="dialog" aria-modal="true" aria-labelledby="tutoT"><div class="glass sheet tuto">
@@ -1296,7 +1320,13 @@ function openSkins(){if(!ME||ME.stale)return;const box=$("#skins"),tot=(PTS&&PTS
       +(o.full?'<span class="skfull" style="background:linear-gradient(160deg,'+r.c1+','+r.c2+')"><img src="/d/skins/'+o.full+'" alt="" loading="lazy" onerror="this.remove()"></span>':skinAv(o.id,"?","skav big"))+'<b>'+esc(o.skinNom.replace(/^(La |Le |L')/,""))+'</b><small>'+esc(o.habNom)+'</small><em>'+(ok?r.nom:"🔒 "+SKINS.condition(o.id))+'</em></button>'}).join("")+'</div>').join("");
   $("#skNone").hidden=!ME.skin;$("#skErr").textContent="";
   $$("#skList .sktile").forEach(b=>b.onclick=()=>{if(b.classList.contains("lock")){$("#skErr").textContent="« "+b.title.split(" — ")[0]+" » : "+SKINS.condition(b.dataset.id)+".";return}pickSkin(b.dataset.id)});
-  box.classList.add("on")}
+  skFilters(tot,mois);box.classList.add("on")}
+let SKF="all";
+function skFilters(tot,mois){const f=$("#skF");if(!f)return;const R=SKINS.RAR,rars=Object.keys(R).filter(k=>SKINS.LIST.some(o=>o.rar===k));
+  const chips=[["all","Tous",""],["ok","Débloqués",""]].concat(rars.map(k=>[k,R[k].nom,R[k].c1]));
+  f.innerHTML=chips.map(c=>'<button type="button" data-f="'+c[0]+'" class="'+(SKF===c[0]?"on":"")+'" aria-pressed="'+(SKF===c[0])+'">'+(c[2]?'<i style="--c:'+c[2]+'"></i>':"")+esc(c[1])+'</button>').join("");
+  const apply=()=>{$$("#skList .skgrid").forEach(g=>{let n=0;g.querySelectorAll(".sktile").forEach(b=>{const o=SKINS.BY[b.dataset.id],show=SKF==="all"||(SKF==="ok"?!b.classList.contains("lock"):o.rar===SKF);b.hidden=!show;if(show)n++});g.hidden=!n;const h=g.previousElementSibling;if(h&&h.classList.contains("sksr"))h.hidden=!n})};
+  f.querySelectorAll("button").forEach(b=>b.onclick=()=>{SKF=b.dataset.f;f.querySelectorAll("button").forEach(x=>{x.classList.toggle("on",x===b);x.setAttribute("aria-pressed",x===b)});apply()});apply()}
 async function pickSkin(id){const r=await call("skin",{name:ME.name,token:ME.token,skin:id});
   if(r.status!==200){$("#skErr").textContent=r.error||"Impossible d'enregistrer le skin.";return}
   ME.skin=r.skin||"";store();updPills();renderRank();openSkins();toast("🎭",ME.skin?"Skin choisi : <b>"+esc(SKINS.BY[ME.skin].skinNom+" · "+SKINS.BY[ME.skin].habNom)+"</b>":"Skin retiré")}
