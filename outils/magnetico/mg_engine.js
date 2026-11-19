@@ -276,24 +276,36 @@ function boot(){const go=Q.get("go"),lvl=Q.get("lvl")||"facile";
     if(d&&d.players&&!d.solo){open(d);return}location.replace(HOME)}},100)}
 function start(){if(window.MG_MOTS)return boot();const t=setInterval(()=>{if(window.MG_MOTS){clearInterval(t);boot()}},50)}
 // accès réservé aux tests automatiques sur la copie locale (jamais sur le site en ligne)
+window.__mgOn=()=>({R,balls:balls.filter(b=>b.on&&!b.entering)});   // pour les bulles de passage (chocs)
 if(location.hostname==="localhost")window.__t=c=>eval(c);
 requestAnimationFrame(loop);start();
 })();
 
-/* ---------- bulles de passage (20/11, demande de Juvenal) : 2 à 5 bulles sans syllabe traversent la zone de part en part,
-   de temps en temps, pour que le cadre soit moins vide ; décor seulement (pas de choc, pas de clic) ---------- */
-(function(){const F=document.getElementById("mgField");if(!F||matchMedia("(prefers-reduced-motion:reduce)").matches)return;
+/* ---------- bulles de passage (20/11, demande de Juvenal) : 2 à 5 petites bulles sans syllabe traversent la zone ;
+   elles COGNENT les syllabes (et entre elles) en rebondissant, mais aux bords du cadre elles sortent et ne reviennent pas ---------- */
+(function(){const F=document.getElementById("mgField");if(!F)return;const calm=matchMedia("(prefers-reduced-motion:reduce)").matches;
   const COL=["#19e3ec","#c4a2ff","#ffd166","#ff8cc0","#7cf3ff"],pool=[];let want=2+Math.floor(Math.random()*4),nextAt=0,last=performance.now();
   for(let i=0;i<5;i++){const e=document.createElement("span");e.className="mgpass";e.setAttribute("aria-hidden","true");F.insertBefore(e,F.firstChild);pool.push({e,on:false})}
-  function spawn(now){const p=pool.find(x=>!x.on);if(!p)return;const w=F.clientWidth,h=F.clientHeight;if(w<60||h<60)return;
-    const r=12+Math.random()*16,side=Math.floor(Math.random()*4),sp=.6+Math.random()*1.1;let x,y,tx,ty;
-    if(side===0){x=-2*r;y=Math.random()*h;tx=w+2*r;ty=Math.random()*h}else if(side===1){x=w+2*r;y=Math.random()*h;tx=-2*r;ty=Math.random()*h}
-    else if(side===2){x=Math.random()*w;y=-2*r;tx=Math.random()*w;ty=h+2*r}else{x=Math.random()*w;y=h+2*r;tx=Math.random()*w;ty=-2*r}
-    const d=Math.hypot(tx-x,ty-y)||1;Object.assign(p,{on:true,x,y,vx:(tx-x)/d*sp,vy:(ty-y)/d*sp,r,ph:Math.random()*6.3,wob:4+Math.random()*8,t0:now,life:d/sp*16.67});
-    p.e.style.width=p.e.style.height=2*r+"px";p.e.style.setProperty("--g",COL[Math.floor(Math.random()*COL.length)])}
-  function frame(now){requestAnimationFrame(frame);const dt=Math.min(3,(now-last)/16.67);last=now;if(document.hidden)return;
-    const act=pool.filter(p=>p.on).length;if(now>=nextAt&&act<want){spawn(now);nextAt=now+900+Math.random()*2600;if(Math.random()<.25)want=2+Math.floor(Math.random()*4)}
-    pool.forEach(p=>{if(!p.on)return;p.x+=p.vx*dt;p.y+=p.vy*dt;const a=(now-p.t0)/p.life,fade=Math.min(1,a*6,(1-a)*6);
-      if(a>=1){p.on=false;p.e.style.opacity=0;return}const ox=Math.sin(now/700+p.ph)*p.wob*(-p.vy),oy=Math.sin(now/700+p.ph)*p.wob*p.vx;
-      p.e.style.opacity=(.55*Math.max(0,fade)).toFixed(2);p.e.style.transform="translate("+(p.x-p.r+ox).toFixed(1)+"px,"+(p.y-p.r+oy).toFixed(1)+"px)"})}
+  function spawn(){const p=pool.find(x=>!x.on);if(!p)return;const w=F.clientWidth,h=F.clientHeight;if(w<60||h<60)return;
+    const r=12+Math.random()*14,side=Math.floor(Math.random()*4),sp=(calm?.5:.9)+Math.random()*1.2;let x,y,tx,ty;
+    if(side===0){x=-r;y=r+Math.random()*(h-2*r);tx=w;ty=Math.random()*h}else if(side===1){x=w+r;y=r+Math.random()*(h-2*r);tx=0;ty=Math.random()*h}
+    else if(side===2){x=r+Math.random()*(w-2*r);y=-r;tx=Math.random()*w;ty=h}else{x=r+Math.random()*(w-2*r);y=h+r;tx=Math.random()*w;ty=0}
+    const d=Math.hypot(tx-x,ty-y)||1;Object.assign(p,{on:true,x,y,vx:(tx-x)/d*sp,vy:(ty-y)/d*sp,r,inside:false,born:performance.now()});
+    p.e.style.width=p.e.style.height=2*r+"px";p.e.style.setProperty("--g",COL[Math.floor(Math.random()*COL.length)]);p.e.style.opacity=.7}
+  // choc élastique entre deux disques de masses proportionnelles à leur surface
+  function hit(a,b,ra,rb,ma,mb){const dx=b.x-a.x,dy=b.y-a.y,d=Math.hypot(dx,dy);if(d>=ra+rb||d<.01)return false;const nx=dx/d,ny=dy/d,rel=(a.vx-b.vx)*nx+(a.vy-b.vy)*ny;
+    const ov=ra+rb-d,ta=mb/(ma+mb),tb=ma/(ma+mb);a.x-=nx*ov*ta;a.y-=ny*ov*ta;b.x+=nx*ov*tb;b.y+=ny*ov*tb;if(rel<=0)return false;
+    const j=2*rel/(ma+mb);a.vx-=j*mb*nx;a.vy-=j*mb*ny;b.vx+=j*ma*nx;b.vy+=j*ma*ny;return true}
+  function frame(now){requestAnimationFrame(frame);const dt=Math.min(3,(now-last)/16.67);last=now;if(document.hidden)return;const w=F.clientWidth,h=F.clientHeight;
+    const act=pool.filter(p=>p.on);if(now>=nextAt&&act.length<want){spawn();nextAt=now+900+Math.random()*2600;if(Math.random()<.25)want=2+Math.floor(Math.random()*4)}
+    const S=window.__mgOn?window.__mgOn():{R:36,balls:[]};
+    act.forEach(p=>{p.x+=p.vx*dt;p.y+=p.vy*dt;
+      // chocs avec les syllabes : la petite bulle rebondit, la syllabe reçoit une petite poussée (masse plus forte)
+      S.balls.forEach(b=>{if(hit(p,b,p.r,S.R,p.r*p.r,S.R*S.R)){window.__mgPassHits=(window.__mgPassHits||0)+1;if(b.core){b.core.classList.remove("hit");void b.core.offsetWidth;b.core.classList.add("hit")}}});
+      // la vitesse reste vive après un choc
+      const sp=Math.hypot(p.vx,p.vy);if(sp<.7){p.vx*=.7/(sp||1);p.vy*=.7/(sp||1)}else if(sp>2.6){p.vx*=2.6/sp;p.vy*=2.6/sp}});
+    for(let i=0;i<act.length;i++)for(let k=i+1;k<act.length;k++)hit(act[i],act[k],act[i].r,act[k].r,act[i].r*act[i].r,act[k].r*act[k].r);
+    act.forEach(p=>{const out=p.x<-p.r-2||p.x>w+p.r+2||p.y<-p.r-2||p.y>h+p.r+2;   // aux bords : elle sort, sans rebond, et ne revient pas
+      if(out&&(p.inside||now-p.born>4000)){p.on=false;p.e.style.opacity=0;return}if(!out&&p.x>p.r&&p.x<w-p.r&&p.y>p.r&&p.y<h-p.r)p.inside=true;
+      p.e.style.transform="translate("+(p.x-p.r).toFixed(1)+"px,"+(p.y-p.r).toFixed(1)+"px)"})}
   requestAnimationFrame(frame)})();
