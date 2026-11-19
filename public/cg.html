@@ -782,7 +782,7 @@ body.booting #boot{display:flex;position:fixed;inset:0;z-index:50;align-items:ce
 @media (max-width:899px){.cgfig img{height:clamp(90px,calc(100vh - 560px),240px)}.cg2 .cgcard{padding:16px;gap:12px}}
 @media (max-width:600px){.cgfig img{height:clamp(70px,calc(100vh - 610px),200px)}.cgans{grid-template-columns:1fr 1fr!important;gap:8px}.cgans button{min-height:48px;padding:8px 8px 8px 36px;font-size:.88rem;line-height:1.2}.cgans button::before{left:8px;width:22px;height:22px}.cgq{font-size:1.1rem}.cg2{gap:10px}.cg2 .cgcard{padding:12px;gap:10px}.cgside .rdtop{padding:10px 12px}.cgside .scores2 .sc{padding:4px 8px}}
 </style>
-<link rel="stylesheet" href="/d/sk-ddfbb9d007.css">
+<link rel="stylesheet" href="/d/sk-19c7afd1cc.css">
 <style id="lis">.cgtbar{height:7px;border-radius:9px;background:rgba(255,255,255,.12);overflow:hidden;margin:-4px 0 4px}.cgtbar i{display:block;height:100%;border-radius:9px;background:linear-gradient(90deg,#22BD92,#F4BE4D);transition:width .25s linear}.cgtbar.low i{background:#ff5d7a}.cgtbar[hidden]{display:none}@media (max-width:899px){.cgtbar{display:none!important}}</style>
 <style id="scorebar">@media (max-width:620px){
 .scores2.linked{display:flex!important;flex-direction:row!important;flex-wrap:nowrap!important;gap:0!important;position:relative;width:100%;border-radius:18px;background:rgba(6,12,28,.5);border:1px solid rgba(255,255,255,.12);padding:0!important;margin:0}
@@ -832,11 +832,11 @@ body.booting #boot{display:flex;position:fixed;inset:0;z-index:50;align-items:ce
 </main>
 </div>
 <div class="overlay" id="leave"><div class="glass sheet qbox"><div class="ico-big">⏸️</div><h3>Ta grille n'est pas terminée</h3><div class="note" id="leaveTxt">Que veux-tu faire ?</div>
-<button class="btn primary" id="lvPause">Mettre en pause</button><button class="btn" id="lvQuit">Quitter la partie</button><button class="btn" id="lvStay" style="background:transparent">Continuer à jouer</button>
+<button class="btn primary" id="lvPause">Mettre en pause</button><button class="btn" id="lvQuit">Annuler la partie</button><button class="btn" id="lvStay" style="background:transparent">Continuer à jouer</button>
 <div class="note" id="leaveRule">En pause, la partie est gardée : « Reprendre » apparaît sur la case du jeu.</div></div></div>
 <div class="overlay" id="mystWin"><div class="glass sheet"><h3>Mot mystère</h3><div class="note">Trouve le mot formé par les cases numérotées : <b>+20 points</b>. Faux : tu passes ton tour.</div><input class="in" id="mystIn" maxlength="14" autocomplete="off" placeholder="TA PROPOSITION" style="text-transform:uppercase;letter-spacing:.12em;text-align:center;font-weight:800"><div style="display:flex;gap:8px"><button class="btn" id="mystX" style="flex:1">Fermer</button><button class="btn primary" id="mystGo" style="flex:2">Proposer (+20)</button></div></div></div>
 <div class="overlay" id="endWin"><div class="glass sheet qbox"><h3 id="endT"></h3><div class="note" id="endB"></div><button class="btn primary" id="endAgain">🎲 Nouvelles questions</button><button class="btn" id="endSame">🔁 Rejouer ces questions</button><button class="btn" id="endHome">🏠 Accueil</button></div></div>
-<script>window.SK_HDR=1;</script><script src="/d/sk-0997f471dc.js"></script>
+<script>window.SK_HDR=1;</script><script src="/d/sk-e368b494a6.js"></script>
 <script src="/d/cg-index.js"></script>
 <script>// ===== Culture générale — moteur branché sur l'écran de l'artefact =====
 // 10 questions, 4 réponses, 20 s par question. Bonne réponse : 10 pts + jusqu'à 5 pts de rapidité.
@@ -898,7 +898,7 @@ function waitCheck(){if(!G||G.solo||G.done||!G.wait||mySeat()===null)return;cons
 function claimGuest(){if(!G||G.solo||!ME||mySeat()!==null)return;const i=G.players.findIndex(p=>p.name==="Invité");if(i<0)return;G.players[i].name=ME.name;save();announce()}
 function pauseGame(){if(!G||G.done)return;if(G.solo){G.pauseAt=Date.now();save();return}const s=mySeat();if(s===null)return;G.away=G.away||{};if(!away().length)G.pauseAt=Date.now();G.away[s]=Date.now();save()}
 function resumeGame(){if(!G||G.solo||!G.away)return;const s=mySeat();if(s===null||G.away[s]===undefined)return;delete G.away[s];if(!away().length){const d=Date.now()-(G.pauseAt||Date.now());G.started+=d;if(G.qStart)G.qStart+=d;delete G.away;delete G.pauseAt}save()}
-function quitGame(){if(!G)return;if(G.solo){LS.del(SOLOKEY);LS.del("fl-paused-culture");soloDrop();return}const s=mySeat();if(s===null||G.done)return;G.away=G.away||{};G.away[s]=0;G.quitBy=G.players[s].name;awayCheck(true);save()}
+function quitGame(){if(!G)return;if(G.solo){LS.del(SOLOKEY);LS.del("fl-paused-culture");G=null;return soloDrop()}const s=mySeat();if(s===null||G.done)return;G.away=G.away||{};G.away[s]=0;G.quitBy=G.players[s].name;awayCheck(true);save()}
 function awayCheck(force){if(!G||G.solo||G.done||!G.away)return;const now=Date.now();if(!Object.keys(G.away).some(k=>G.away[k]===0||now-G.away[k]>=300000))return;
   const stay=G.players.map((p,i)=>i).filter(i=>G.away[i]===undefined);
   if(!stay.length){G.players.forEach(p=>p.score=0);G.msg="Les deux joueurs ont quitté la partie : pas de points."}
@@ -998,8 +998,8 @@ function sameAgain(){const o=G;if(!o||!o.solo)return again();open(newGame(o.play
 // points d'une grille rejouée : 10 la 2e fois, 3 ensuite (décompte fait par le serveur)
 function repNote(r){if(!r||(!r.rep&&!(r.f<1)))return;const b=$("#endB");if(!b||document.getElementById("repNote"))return;const t=r.rep?"Série de questions déjà jouée"+(r.rep===1?" une fois : <b>+10 points</b> seulement.":" plusieurs fois : <b>+3 points</b> seulement."):r.nth+"e partie de la journée à ce jeu : points à <b>"+Math.round(r.f*100)+" %</b> (+"+r.add+"). Le barème est dégressif : il repart à 100 % demain.";b.insertAdjacentHTML("beforeend",'<div id="repNote" class="note" style="margin-top:8px">'+t+"</div>")}
 
-$(".homebtn").onclick=()=>{if(!G||G.done){location.href=HOME;return}$("#leaveRule").textContent=G.solo?"En pause, la partie est gardée : « Reprendre » apparaît sur la case du jeu. « Quitter » l'efface.":"En multijoueur, la pause dure 5 minutes maximum et le chrono s'arrête : au-delà, le joueur resté gagne et reçoit la moitié de ses points (arrondie au supérieur). Si vous quittez tous les deux, personne ne marque de points.";$("#leave").classList.add("on")};
-const leave=fn=>{fn();setTimeout(()=>location.href=G&&G.solo?"/":HOME,350)};
+$(".homebtn").onclick=()=>{if(!G||G.done){location.href=HOME;return}$("#lvQuit").textContent=G.solo?"Annuler la partie":"Quitter la partie";$("#leaveRule").textContent=G.solo?"En pause, la partie est gardée : « Reprendre » apparaît sur la case du jeu. « Annuler » l'efface pour de bon.":"En multijoueur, la pause dure 5 minutes maximum et le chrono s'arrête : au-delà, le joueur resté gagne et reçoit la moitié de ses points (arrondie au supérieur). Si vous quittez tous les deux, personne ne marque de points.";$("#leave").classList.add("on")};
+const leave=fn=>{const solo=!!(G&&G.solo);let pr=null;try{pr=fn()}catch(e){}const go=()=>location.href=solo?"/":HOME;Promise.race([Promise.resolve(pr),new Promise(r=>setTimeout(r,2000))]).then(()=>setTimeout(go,150),go)};
 $("#lvPause").onclick=()=>leave(pauseGame);$("#lvQuit").onclick=()=>leave(quitGame);$("#lvStay").onclick=()=>$("#leave").classList.remove("on");
 
 // ---------- tirage des questions ----------
@@ -1045,9 +1045,9 @@ function guestRecord(q,ev){try{if(!G||!G.solo)return;const h=JSON.parse(LS.get("
   const g=JSON.parse(LS.get("fl-guest-g")||"[]");if(!g.includes(G.gid)){g.push(G.gid);LS.set("fl-guest-g",JSON.stringify(g))}}catch(e){}}
 function guestNote(){if(ME||!G||!G.solo||!G.done||guestCount()<GUEST_MAX||document.getElementById("guestNote"))return;const b=$("#endB");if(!b)return;
   b.insertAdjacentHTML("beforeend",'<div id="guestNote" class="note" style="margin-top:10px">Tu as joué '+GUEST_MAX+' parties sans compte. Crée ton pseudo pour continuer à jouer : tes parties seront gardées.</div><a class="btn primary" href="/?need=compte" style="display:inline-flex;margin-top:8px;text-decoration:none">Créer mon compte</a>')}
-function soloPost(doc){return fetch("/api/p/solo",{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({name:ME.name,token:ME.token,game:GAME,op:"put",doc})}).catch(()=>{})}
+function soloPost(doc){return fetch("/api/p/solo",{method:"POST",keepalive:true,headers:{"content-type":"application/json"},body:JSON.stringify({name:ME.name,token:ME.token,game:GAME,op:"put",doc})}).catch(()=>{})}
 function soloPut(){if(!G||!G.solo||!ME||!ME.token)return;clearTimeout(soloPut.t);const doc=G.done?null:JSON.parse(JSON.stringify(G));soloPut.t=setTimeout(()=>soloPost(doc),G.done?0:1500)}
-function soloDrop(){if(ME&&ME.token){clearTimeout(soloPut.t);soloPost(null)}}
+function soloDrop(){clearTimeout(soloPut.t);return ME&&ME.token?soloPost(null):Promise.resolve()}
 function soloGet(){if(!ME||!ME.token)return Promise.resolve(null);return Promise.race([fetch("/api/p/solo",{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({name:ME.name,token:ME.token,game:GAME})}).then(r=>r.ok?r.json():null).catch(()=>null),new Promise(r=>setTimeout(()=>r(null),1500))])}
 function soloBoot(go){let loc=null;try{loc=JSON.parse(LS.get(SOLOKEY)||"null")}catch(e){}
   soloGet().then(r=>{const sv=r&&r.doc;const old=g=>g&&g.solo&&!g.done&&Array.isArray(g.qs)&&g.qs.every(id=>KIND[id]);

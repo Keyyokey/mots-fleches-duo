@@ -797,7 +797,7 @@ a.logo{text-decoration:none;color:inherit}a.logo:focus-visible{outline:2px solid
 .tile .abtn{min-height:44px}
 .sitefoot a{padding:10px 4px}
 }
-</style>
+.slm{display:flex!important;align-items:stretch;gap:0;padding:0!important;overflow:hidden}.slm .slo{all:unset;box-sizing:border-box;display:flex;align-items:center;gap:8px;flex:1;min-width:0;padding:10px 12px;cursor:pointer}.slm .slx{all:unset;box-sizing:border-box;cursor:pointer;padding:0 12px;min-height:44px;display:flex;align-items:center;font-weight:700;font-size:.76rem;opacity:.8;border-left:1px solid rgba(255,255,255,.16)}.slm .slx:hover,.slm .slx:focus-visible{opacity:1;color:#ff8fa3}.slm .slo:focus-visible,.slm .slx:focus-visible{outline:2px solid #00ADB5;outline-offset:-2px}</style>
 </head>
 <body>
 <div class="blob b1"></div><div class="blob b2"></div><div class="blob b3"></div>
@@ -1144,6 +1144,14 @@ function makeAcctUI(env){
     Promise.all(Object.entries(by).map(([game,items])=>env.call("hist",{name,token,game,items:items.slice(-50)}))).then(rs=>{if(rs.every(r=>r.status===200)){["fl-guest-h","fl-guest-g","fl-guest-asked"].forEach(k=>localStorage.removeItem(k))}})}catch(e){}}                                   // dernière liste reçue du serveur
   function rows(L){return L.map(x=>'<button class="sl'+(x.code===env.code()?" here":"")+'" data-c="'+x.code+'"><span class="nm2">'+esc(x.name||"Salon")+'</span>'+(x.role==="owner"?'<span class="live" title="Tu es responsable de ce salon">★</span>':"")+(x.live?'<span class="live">'+x.live+' en ligne</span>':"")+'<span class="code" style="margin-left:auto;letter-spacing:.02em">Ouvrir ›</span></button>').join("")}
   const openRoom=id=>{if(env.open)return env.open(id);location.href="/"+id};
+  // liste avec action : le responsable peut supprimer son salon, un membre peut le quitter (19/11/2026)
+  function rowsMng(L){return L.map(x=>'<div class="sl slm'+(x.code===env.code()?" here":"")+'"><button type="button" class="slo" data-c="'+x.code+'"><span class="nm2">'+esc(x.name||"Salon")+'</span>'+(x.role==="owner"?'<span class="live" title="Tu es responsable de ce salon">★</span>':"")+(x.live?'<span class="live">'+x.live+' en ligne</span>':"")+'<span class="code" style="margin-left:auto;letter-spacing:.02em">Ouvrir ›</span></button><button type="button" class="slx" data-x="'+x.code+'" title="'+(x.role==="owner"?"Supprimer ce salon":"Quitter ce salon")+'" aria-label="'+(x.role==="owner"?"Supprimer ":"Quitter ")+esc(x.name||"le salon")+'">'+(x.role==="owner"?"Supprimer":"Quitter")+'</button></div>').join("")}
+  function delForm(p,btn,s){const ME=env.getME();const n=(s.members||[]).length;
+    p.innerHTML='<h4>Supprimer le salon</h4><div class="note">« <b>'+esc(s.name)+'</b> » sera supprimé pour de bon'+(n>2?' : ses '+(n-1)+' autres membres n\'y auront plus accès':n===2?' : son autre membre n\'y aura plus accès':'')+'. Son code d\'accès ne marchera plus.</div><div class="err" id="dlErr"></div><div style="display:flex;gap:8px"><button class="btn" id="dlNo" style="flex:1">Annuler</button><button class="btn primary" id="dlYes" style="flex:1">Supprimer</button></div>';
+    p.querySelector("#dlNo").onclick=()=>drawList(p,btn);
+    p.querySelector("#dlYes").onclick=async e=>{e.target.disabled=true;const r=await env.call("sdelete",{name:ME.name,token:ME.token,salon:s.code});e.target.disabled=false;
+      if(r.status===200){LIST=r.salons||[];ME.salons=LIST;env.setME(ME);if(s.code===env.code()){try{sessionStorage.setItem("fl-flash",r.msg||"Salon supprimé.")}catch(x){}location.href="/";return}drawList.all=true;drawList(p,btn,r.msg||"Salon supprimé.");drawList.all=false}
+      else if(r.status===401){ME.stale=true;env.setME(ME);openMe(btn)}else p.querySelector("#dlErr").innerHTML=say(r)}}
 
   // ----- Pseudo -----
   function openMe(btn){const p=env.q("#popMe");const ME=env.getME();
@@ -1195,10 +1203,11 @@ function makeAcctUI(env){
       const mg=p.querySelector("#slMng");if(mg)mg.onclick=()=>manage(p,btn,here);return}
     const cur=L.find(x=>x.code===env.code()&&x.role==="owner");
     p.innerHTML='<h4>Mes salons</h4>'+(flash?'<div class="note" style="color:var(--accent);font-weight:700">'+esc(flash)+'</div>':"")
-      +(L.length?'<div class="list" style="max-height:min(46vh,320px);overflow:auto">'+rows(L)+'</div>':'<div class="note">Tu n\'as accès à aucun salon pour le moment. Rejoins un salon avec son nom et son code d\'accès.</div>')
+      +(L.length?'<div class="list" style="max-height:min(46vh,320px);overflow:auto">'+rowsMng(L)+'</div>':'<div class="note">Tu n\'as accès à aucun salon pour le moment. Rejoins un salon avec son nom et son code d\'accès.</div>')
       +'<div style="display:flex;gap:8px"><button class="btn primary" id="slJoin" style="flex:1">Rejoindre un salon</button><button class="btn" id="slNew" style="flex:1">Créer un salon</button></div>'
       +(cur?'<button class="lnk" id="slMng">Gérer ce salon</button>':"");
-    p.querySelectorAll(".sl").forEach(b=>b.onclick=()=>openRoom(b.dataset.c));
+    p.querySelectorAll(".slo").forEach(b=>b.onclick=()=>openRoom(b.dataset.c));
+    p.querySelectorAll(".slx").forEach(b=>b.onclick=e=>{e.stopPropagation();const s=L.find(x=>x.code===b.dataset.x);if(!s)return;if(s.role==="owner")delForm(p,btn,s);else leaveForm(p,btn,s)});
     p.querySelector("#slJoin").onclick=()=>joinForm(p,btn);p.querySelector("#slNew").onclick=()=>createForm(p,btn);
     if(cur)p.querySelector("#slMng").onclick=()=>manage(p,btn,cur);
     if(here){p.insertAdjacentHTML("beforeend",'<button class="lnk" id="slBack">Retour</button>');p.querySelector("#slBack").onclick=()=>drawList(p,btn)}}
@@ -1206,7 +1215,7 @@ function makeAcctUI(env){
     p.innerHTML='<h4>Quitter le salon</h4><div class="note">Tu ne seras plus membre de « <b>'+esc(s.name)+'</b> ». Pour revenir, il te faudra son nom et son code d\'accès, ou le lien d\'invitation du responsable.</div><div class="err" id="lvErr"></div><div style="display:flex;gap:8px"><button class="btn" id="lvNo" style="flex:1">Annuler</button><button class="btn primary" id="lvYes" style="flex:1">Quitter le salon</button></div>';
     p.querySelector("#lvNo").onclick=()=>drawList(p,btn);
     p.querySelector("#lvYes").onclick=async e=>{e.target.disabled=true;const r=await env.call("sleave",{name:ME.name,token:ME.token,salon:s.code});e.target.disabled=false;
-      if(r.status===200){LIST=r.salons||[];ME.salons=LIST;env.setME(ME);try{sessionStorage.setItem("fl-flash",r.msg||"Tu as quitté le salon.")}catch(x){}location.href="/"}
+      if(r.status===200){LIST=r.salons||[];ME.salons=LIST;env.setME(ME);if(s.code!==env.code()){drawList.all=true;drawList(p,btn,r.msg||"Tu as quitté le salon.");drawList.all=false;return}try{sessionStorage.setItem("fl-flash",r.msg||"Tu as quitté le salon.")}catch(x){}location.href="/"}
       else if(r.status===401){ME.stale=true;env.setME(ME);openMe(btn)}else p.querySelector("#lvErr").innerHTML=say(r)}}
   function joinForm(p,btn,pre){const ME=env.getME();
     p.innerHTML='<h4>Rejoindre un salon</h4><input class="in" id="jnName" maxlength="40" placeholder="NOM DU SALON" autocomplete="off" style="letter-spacing:.04em"><input class="in" id="jnCode" maxlength="7" placeholder="CODE D\'ACCÈS · 6 CARACTÈRES" autocomplete="off" style="letter-spacing:.2em"><div class="err" id="jnErr"></div><button class="btn primary" id="jnGo">Rejoindre</button><button class="lnk" id="jnBack">Retour</button>';
@@ -1233,8 +1242,8 @@ function makeAcctUI(env){
     p.querySelector("#nsGo").onclick=go;N.onkeydown=e=>{if(e.key==="Enter")go()};setTimeout(()=>N.focus(),50)}
   function manage(p,btn,s,flash){const ME=env.getME();
     p.innerHTML='<h4>'+esc(s.name)+'</h4>'+(flash?'<div class="note" style="font-weight:700">'+esc(flash)+'</div>':"")+'<div class="note">Code d\'accès : <b style="letter-spacing:.2em;font-size:1.1em">'+esc(s.acode)+'</b></div><button class="btn primary" id="mgLink">Copier le lien d\'invitation</button><div class="note" id="mgLinkTxt" style="word-break:break-all"></div><button class="btn" id="mgCode">Créer un nouveau code</button><div class="note">Membres</div><div class="list" style="max-height:200px;overflow:auto">'
-      +(s.members||[]).map(m=>'<div class="sl"><span class="nm2">'+esc(m)+(m===ME.name?" (toi)":"")+'</span>'+(m===ME.name?"":'<button class="lnk" data-m="'+esc(m)+'" style="margin-left:auto">Retirer</button>')+'</div>').join("")+'</div><div class="err" id="mgErr"></div><button class="lnk" id="mgBack">Retour</button>';
-    p.querySelector("#mgBack").onclick=()=>drawList(p,btn);
+      +(s.members||[]).map(m=>'<div class="sl"><span class="nm2">'+esc(m)+(m===ME.name?" (toi)":"")+'</span>'+(m===ME.name?"":'<button class="lnk" data-m="'+esc(m)+'" style="margin-left:auto">Retirer</button>')+'</div>').join("")+'</div><div class="err" id="mgErr"></div><button class="btn" id="mgDel">Supprimer ce salon</button><button class="lnk" id="mgBack">Retour</button>';
+    p.querySelector("#mgBack").onclick=()=>drawList(p,btn);p.querySelector("#mgDel").onclick=()=>delForm(p,btn,s);
     // lien d'invitation : le nom et le code sont après « # » (jamais envoyés au serveur ni gardés dans ses journaux)
     p.querySelector("#mgLink").onclick=e=>{const link=location.origin+"/#rejoindre="+encodeURIComponent(s.name)+"&code="+encodeURIComponent(s.acode);const t=p.querySelector("#mgLinkTxt");
       (navigator.clipboard?navigator.clipboard.writeText(link):Promise.reject()).then(()=>{e.target.textContent="Lien copié ✓";t.textContent=link},()=>{t.textContent=link})};
@@ -1421,7 +1430,7 @@ function openCfg(t,m,opp,quick){const k=t.dataset.key,G=GAMES[k];
     lv.querySelectorAll("button").forEach((b,i)=>b.onclick=()=>{lv.querySelectorAll("button").forEach(x=>x.classList.toggle("on",x===b));LS.set("fl-cfg-lvl-"+k,i);fillNums()});
     fillNums()}
   $("#cfgNote").textContent=m==="resume"?"La partie en cours reprend là où elle s'est arrêtée.":m==="multi"?(opp?"Partie avec "+opp+" : « Suivant » ouvre la table, la partie démarre quand vous êtes deux.":"« Suivant » ouvre la table du salon : invite ton adversaire, la partie démarre quand vous êtes deux."):"« Suivant » lance directement la partie.";
-  if(m==="multi"&&!CODE&&!pk)$("#cfgNote").textContent+=" Un salon sera créé pour vous.";
+  if(m==="multi"&&!CODE&&!pk)$("#cfgNote").textContent+=" La partie se joue dans ton salon (créé s'il n'existe pas encore).";
   if(quick)return $("#cfgGo").onclick();   // un clic : on lance avec les derniers réglages (niveau retenu, grille suivante)
   $("#cfg").classList.add("on")}
 // bouton + des joueurs connectés : on choisit d'abord le jeu (5 jeux), puis ses réglages
@@ -1455,7 +1464,9 @@ $("#cfgGo").onclick=()=>{if(CFG.m!=="resume"&&!CFG.opp&&TUTO[CFG.k]&&!LS.get("fl
   const lv=k==="culture"?"":($("#lvl .on")||{}).dataset?.v||"";const q=new URLSearchParams({go:m});if(lv&&m!=="resume")q.set("lvl",lv);const n=k==="culture"?"":$("#gnum").value;if(n&&m!=="resume")q.set("n",n);
   if((k==="fleches"||k==="rond")&&m==="multi")q.set("t","-1");if(opp)q.set("opp",opp);
   if(k==="poker"){q.set("fmt",($("#pkFmt .on")||{}).dataset?.v||"10");q.set("mise",$("#pkMise").value);q.set("dec",$("#pkDec").value);if(m==="solo")q.set("lvl",$("#pkLvl").value)}
-  if(m==="multi"&&!(CODE&&ROOM)){call("screate",{name:ME.name,token:ME.token,sname:"Salon de "+ME.name}).then(r=>{if(r.status===200)location.href="/"+r.salon.code+"/"+k+"?"+q;else toast("⚠️",esc(r.msg||"Création du salon impossible."))});return}
+  if(m==="multi"&&!(CODE&&ROOM)){const goTo=c=>location.href="/"+c+"/"+k+"?"+q;   // 19/11 : on reprend le salon du joueur au lieu d'en créer un nouveau à chaque partie
+    call("salons",{name:ME.name,token:ME.token}).then(rs=>{const own=(rs&&rs.status===200&&Array.isArray(rs.salons)?rs.salons:[]).filter(x=>x.role==="owner");const pick=own.find(x=>x.name==="Salon de "+ME.name)||own[0];if(pick)return goTo(pick.code);
+      call("screate",{name:ME.name,token:ME.token,sname:"Salon de "+ME.name}).then(r=>{if(r.status===200)goTo(r.salon.code);else toast("⚠️",esc(r.msg||"Création du salon impossible."))})});return}
   location.href=(CODE?"/"+CODE+"/"+k:"/"+k)+"?"+q}
 $$("#pkFmt button").forEach(b=>b.onclick=()=>$$("#pkFmt button").forEach(x=>x.classList.toggle("on",x===b)));
 // « Reprendre » : une partie non terminée est gardée dans le navigateur pour ce salon

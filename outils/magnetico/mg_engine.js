@@ -73,7 +73,7 @@ function presentSeats(){const s=seatsHere();return G.players.map((p,i)=>i).filte
 let lastLaunch=0;function askLaunch(){if(Date.now()-lastLaunch<1500)return;lastLaunch=Date.now();send({t:"launch",id:DOC,gid:G.gid})}
 function launchNow(){if(!G||!G.wait||G.done||mySeat()===null)return;const keep=presentSeats().map(i=>G.players[i]);if(keep.length<2){toast("⏳","Il faut au moins 2 joueurs présents pour lancer.");return}
   if(keep.length!==G.players.length)G.players=keep.map(p=>({name:p.name,score:0}));save();setTimeout(askLaunch,350)}
-function quitGame(){if(!G||G.done)return;if(G.solo){LS.del("fl2-solo-mg");return}const s=mySeat();if(s===null)return;patch("out",s,1,{score:{i:s,add:-(G.players[s].score||0)}}).catch(()=>{})}
+function quitGame(){if(!G||G.done)return;if(G.solo){LS.del("fl2-solo-mg");LS.del("fl-paused-magnetico");G=null;return}const s=mySeat();if(s===null)return;patch("out",s,1,{score:{i:s,add:-(G.players[s].score||0)}}).catch(()=>{})}
 // connexion perdue plus d'1 minute : le joueur sort de la partie avec 0 point (règle de Motipop)
 const seenAt={};function lostCheck(){if(!G||G.solo||G.done||G.wait)return;const now=Date.now(),here=seatsHere();
   G.players.forEach((p,i)=>{if(here.has(i)||seenAt[G.gid+":"+i]===undefined)seenAt[G.gid+":"+i]=now});
@@ -255,8 +255,8 @@ function soloTicket(){if(!G||!G.solo||!ME||!ME.token)return;fetch("/api/p/solo",
 /* ---------- commandes ---------- */
 $("#mgOk").onclick=validate;$("#mgPass").onclick=passWord;
 $("#mgClear").onclick=()=>{if(phase!=="play")return;let n=0;placed=placed.map((b,k)=>{if(b&&!locked[k]){queue.push(b);n++;return null}return b});if(n)SFX.back();slots()};
-$(".homebtn").onclick=()=>{if(!G||G.done||mySeat()===null){location.href=HOME;return}$("#leaveRule").textContent=G.solo?"La partie solo n'est pas gardée.":"Si tu quittes (ou après 1 minute sans connexion), la partie continue sans toi et tu repars avec 0 point.";$("#leave").classList.add("on")};
-$("#lvQuit").onclick=()=>{quitGame();setTimeout(()=>location.href=G&&G.solo?"/":HOME,350)};$("#lvStay").onclick=()=>$("#leave").classList.remove("on");
+$(".homebtn").onclick=()=>{if(!G||G.done||mySeat()===null){location.href=HOME;return}$("#lvQuit").textContent=G.solo?"Annuler la partie":"Quitter la partie";$("#leaveRule").textContent=G.solo?"La partie solo n'est pas gardée.":"Si tu quittes (ou après 1 minute sans connexion), la partie continue sans toi et tu repars avec 0 point.";$("#leave").classList.add("on")};
+$("#lvQuit").onclick=()=>{const solo=!!(G&&G.solo);quitGame();setTimeout(()=>location.href=solo?"/":HOME,350)};$("#lvStay").onclick=()=>$("#leave").classList.remove("on");
 $("#endHome").onclick=()=>{location.href=HOME};$("#endAgain").onclick=e=>{if(e.target.closest("[data-lv]"))return;$("#endWin").classList.remove("on");again()};document.querySelectorAll("#endAgain [data-lv]").forEach(b=>b.onclick=e=>{e.stopPropagation();$("#endWin").classList.remove("on");again(b.dataset.lv)});new MutationObserver(()=>{if($("#endWin").classList.contains("on")&&G)document.querySelectorAll("#endAgain [data-lv]").forEach(b=>b.classList.toggle("on",b.dataset.lv===G.level))}).observe($("#endWin"),{attributes:true,attributeFilter:["class"]});
 
 /* ---------- lancement ---------- */

@@ -217,3 +217,4 @@ body.g-meles .hline{background:linear-gradient(90deg,transparent,#3f7a12 12%,#d9
 body.g-culture .hline{background:linear-gradient(90deg,transparent,#a8461a 12%,#ffd27a 88%,transparent)!important;opacity:.9}
 body.g-mg .hline{background:linear-gradient(90deg,transparent,#3b2a8c 12%,#7cf3ff 88%,transparent)!important;opacity:.9}
 .homebtn:focus-visible,#skTop button:focus-visible{outline:2px solid var(--accent-cyan,#00ADB5);outline-offset:2px}
+

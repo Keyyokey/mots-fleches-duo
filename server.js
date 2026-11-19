@@ -462,7 +462,7 @@ function evict(id, who) {
   broadcastPeers(s);
 }
 async function salonApi(route, name, p, b, ip, out, bad) {
-  const ROUTES = ["salons", "sjoin", "screate", "skick", "scode", "sleave"];
+  const ROUTES = ["salons", "sjoin", "screate", "skick", "scode", "sleave", "sdelete"];
   if (!ROUTES.includes(route)) return undefined;
   try {
     if (route === "salons") return out(200, { salons: await salonList(name, p) });
@@ -515,6 +515,19 @@ async function salonApi(route, name, p, b, ip, out, bad) {
       const q = await getPlayer(who); if (q && q.acc) { delete q.acc[id]; savePlayer(who); }
       evict(id, who);
       return out(200, { msg: "Accès retiré.", members: Object.keys(m.members) });
+    }
+    // le responsable supprime son salon : plus personne n'y a accès, le code d'accès ne marche plus (19/11/2026)
+    if (route === "sdelete") {
+      for (const w of Object.keys(m.members)) {
+        if (w === name) { if (p.acc) delete p.acc[id]; continue; }
+        const q = await getPlayer(w); if (q && q.acc && q.acc[id]) { delete q.acc[id]; savePlayer(w); }
+        evict(id, w);
+      }
+      evict(id, name);
+      const old = m.code; m.members = {}; m.code = null; m.deleted = Date.now(); saveAcc(m); savePlayer(name);
+      if (old) { codeIdx.delete(old); if (REDIS) redis(["DEL", "sc:" + old]).catch(() => {}); }
+      const live = salons.get(id); if (live && !live.sockets.size) salons.delete(id);
+      return out(200, { msg: "Salon « " + m.name + " » supprimé.", salons: await salonList(name, p) });
     }
     if (route === "scode") {
       const old = m.code; m.code = await reserveCode(id); saveAcc(m);
@@ -752,7 +765,7 @@ async function api(req, res, route) {
     return out(200, { name, token, salons: list });
   }
   if (!authed()) return out(401, { error: "jeton", msg: "Reconnecte-toi avec ton code secret." });
-  if (["salons", "sjoin", "screate", "skick", "scode", "sleave"].includes(route)) return void await salonApi(route, name, p, b, ip, out, bad);
+  if (["salons", "sjoin", "screate", "skick", "scode", "sleave", "sdelete"].includes(route)) return void await salonApi(route, name, p, b, ip, out, bad);
   if (route === "me") { let list = null; try { list = await salonList(name, p); } catch {} return out(200, { name, salons: list, pts: ptsOut(p), solo: Object.keys(p.solo || {}), coins: ensureWallet(p).coins, skin: p.skin || "" }); }
   // skin du profil : le serveur vérifie que l'habillage existe et qu'il est débloqué (points au total, ou mois de décembre pour l'Hiver)
   if (route === "skin") {
@@ -933,7 +946,7 @@ const server = http.createServer((req, res) => {
   // /healthz répond 503 si le stockage refuse l'accès : UptimeRobot (qui surveille /healthz) envoie alors une alerte par e-mail
   if (url.pathname === "/healthz" && url.searchParams.get("ip") === "1") { res.writeHead(200, { "content-type": "application/json", "cache-control": "no-store" }); return res.end(JSON.stringify(ipSource(req))); }   // quels en-têtes d'adresse arrivent (sans les valeurs)
   if (url.pathname === "/healthz") { const bad = REDIS && storage.ok === false; res.writeHead(bad ? 503 : 200, { "content-type": "text/plain; charset=utf-8" }); return res.end(bad ? "STOCKAGE KO depuis " + storage.since + " : " + storage.msg : "ok " + salons.size + (REDIS ? " redis" : "")); }
-  const am = url.pathname.match(/^\/api\/p\/(create|login|me|pin|logout|rank|score|wallet|conv|salons|sjoin|screate|skick|scode|sleave|hist|solo|skin)$/);
+  const am = url.pathname.match(/^\/api\/p\/(create|login|me|pin|logout|rank|score|wallet|conv|salons|sjoin|screate|skick|scode|sleave|sdelete|hist|solo|skin)$/);
   if (am) return void api(req, res, am[1]).catch(e => { console.error(e); try { res.writeHead(500); res.end("{}"); } catch {} });
   // culture générale : index léger des questions (identifiant → type), puis seulement les questions de la partie
   if (url.pathname === "/d/cg-index.js") { cgIdx = cgIdx || pack(Buffer.from("window.__CGI=" + JSON.stringify(CAT.cgIndex()) + ";")); return sendBody(req, res, cgIdx, STATIC.js, "public, max-age=600"); }
