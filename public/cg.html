@@ -825,7 +825,7 @@ body.booting #boot{display:flex;position:fixed;inset:0;z-index:50;align-items:ce
       <div class="cgq" id="cgQ"></div>
       <div class="cgans" id="cgA"></div>
       <div class="cgsond" id="cgS" hidden></div>
-      <div class="cgfact" id="cgFact" hidden><b>💡 Le savais-tu ?</b> <span id="cgX"></span><div class="note" id="cgFrom"></div></div>
+      <div class="cgfact" id="cgFact" hidden><b>💡 Le savais-tu ?</b> <span id="cgX"></span><div class="note" id="cgFrom" hidden></div></div>
       <button class="btn primary" id="cgNext" hidden>Question suivante →</button>
     </div>
   </div>
@@ -907,6 +907,7 @@ function awayCheck(force){if(!G||G.solo||G.done||!G.away)return;const now=Date.n
 
 // ---------- déroulement d'une question ----------
 function qLeft(){const T=tqOf(curQ());if(!G||!G.qStart)return T;const now=frozen()?(G.pauseAt||G.go||Date.now()):Date.now();return Math.max(0,G.qStart+T-Math.max(now,G.qStart))}
+function shownLeft(){const T=tqOf(curQ());if(!G||!G.qStart)return T;const me=mySeat();const a=me!==null&&me!==undefined?ansOf(G.i,me):null;let stop=a&&a.at?a.at:null;if(revealed()){const ra=revealAt();stop=stop?Math.min(stop,ra):ra}if(stop)return Math.max(0,G.qStart+T-Math.max(stop,G.qStart));return qLeft()}   // 20/11 : le chrono s'arrête net à la réponse
 function revealed(){if(!G||G.done&&!curQ())return true;const n=G.players.length;let all=true;for(let s=0;s<n;s++)if(!ansOf(G.i,s))all=false;return all||qLeft()<=0}
 function revealAt(){let t=G.qStart+tqOf(curQ());const n=G.players.length;let mx=0,all=true;for(let s=0;s<n;s++){const a=ansOf(G.i,s);if(!a)all=false;else mx=Math.max(mx,a.at||0)}return all?Math.min(t,mx||t):t}
 function answer(k,txt){if(!canPlay()){if(G&&!G.done)toast("⏳",frozen()?"Attends le lancement de la partie.":"Tu regardes la partie.");return}
@@ -945,11 +946,11 @@ function render(){document.body.classList.remove("booting");if(!G)return;documen
       if(h){if(!w){w=document.createElement("span");w.className="who";b.appendChild(w)}w.innerHTML=h}else if(w)w.remove()}else if(w)w.remove()});
   if(q.k==="sond")sondRender(q,rv,s,mine);
   $("#cgFact").hidden=!rv;$("#cgNext").hidden=!rv||s===null;
-  if(rv){$("#cgX").textContent=q.k==="sond"?sondX(q):q.x;$("#cgFrom").textContent="Source : "+q.s;$("#cgNext").textContent=G.i+1<G.qs.length?"Question suivante →":"Voir le résultat 🏆"}
+  if(rv){$("#cgX").textContent=q.k==="sond"?sondX(q):q.x;$("#cgFrom").textContent="";$("#cgNext").textContent=G.i+1<G.qs.length?"Question suivante →":"Voir le résultat 🏆"}
   if(G.done)endShow();tick()}
 const KLAB={calc:"🧮 ",puz:"🧩 ",sond:"🗣️ "};
 function draw(q){$("#cgTheme").textContent=(KLAB[q.k]||"")+q.t;$("#cgA").hidden=q.k==="sond";$("#cgS").hidden=q.k!=="sond";if(q.k==="sond"){$("#cgSrc").textContent="";$("#cgQ").textContent=q.q;sondDraw(q);return}$("#cgS").innerHTML="";$("#cgSrc").textContent="";$("#cgQ").textContent=q.q;
-  const f=$("#cgFig");if(q.img){f.hidden=false;const im=f.querySelector("img");im.alt="Illustration de la question";im.src=q.img;f.querySelector("figcaption").innerHTML=esc(q.cr||"")+(q.src?' · <a href="'+esc(q.src)+'" target="_blank" rel="noopener">source</a>':"")}else{f.hidden=true;f.querySelector("img").removeAttribute("src")}
+  const f=$("#cgFig");if(q.img){f.hidden=false;const im=f.querySelector("img");im.alt="Illustration de la question";im.src=q.img;f.querySelector("figcaption").innerHTML=""}else{f.hidden=true;f.querySelector("img").removeAttribute("src")}
   const A=$("#cgA");A.innerHTML="";order(q).forEach((k,i)=>{const b=document.createElement("button");b.dataset.l="ABCD"[i];b.dataset.k=k;b.textContent=q.a[k];b.onclick=()=>answer(k);A.appendChild(b)})}
 function sondDraw(q){const f=$("#cgFig");f.hidden=true;f.querySelector("img").removeAttribute("src");$("#cgA").innerHTML="";
   $("#cgS").innerHTML='<form class="cgsf" autocomplete="off"><input id="cgIn" maxlength="40" placeholder="Ta réponse…" aria-label="Ta réponse" enterkeyhint="send"><button class="btn primary" type="submit">Valider</button></form><div class="note cgshint">Toutes les bonnes réponses comptent. Une réponse originale rapporte <b>+3</b>. 30 secondes.</div><div id="cgSL"></div>';
@@ -968,7 +969,7 @@ function endShow(){if(!G.done||shownEnd===G.gid)return;shownEnd=G.gid;if(!G.solo
   endOpen()}
 let cdShown="";
 function tick(){if(!G)return;const now=Date.now();if(!G.solo&&!G.done){waitCheck();awayCheck()}
-  const q=curQ();if(q&&!G.done){const L=qLeft(),r=L/TQ,c=$("#cgC");c.textContent="0:"+String(Math.ceil(L/1000)).padStart(2,"0");c.classList.toggle("low",L<=10000);$("#cgTl").style.width=(r*100)+"%";$("#cgTl").style.background=r>.3?"linear-gradient(90deg,#f2a93b,#ffd27a)":"linear-gradient(90deg,#ff5d7a,#ff9a6b)";$("#cgTl").style.boxShadow=r>.3?"0 0 10px rgba(255,200,110,.55)":"0 0 10px rgba(255,93,122,.6)";
+  const q=curQ();if(q&&!G.done){const L=shownLeft(),r=L/TQ,c=$("#cgC");c.textContent="0:"+String(Math.ceil(L/1000)).padStart(2,"0");c.classList.toggle("low",L<=10000);$("#cgTl").style.width=(r*100)+"%";$("#cgTl").style.background=r>.3?"linear-gradient(90deg,#f2a93b,#ffd27a)":"linear-gradient(90deg,#ff5d7a,#ff9a6b)";$("#cgTl").style.boxShadow=r>.3?"0 0 10px rgba(255,200,110,.55)":"0 0 10px rgba(255,93,122,.6)";
     const rv=revealed(),fz=frozen()||!canPlay();if(rv!==tick.rv||fz!==tick.fz){tick.rv=rv;tick.fz=fz;render();return}
     if(rv&&!G.solo&&!frozen()&&now-revealAt()>AUTO&&mySeat()!==null)next()}
   const wb=$("#waitBox"),pb=$("#pauseBox"),cd=$("#count");
