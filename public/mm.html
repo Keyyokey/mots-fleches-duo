@@ -171,35 +171,45 @@ function melesDef(id,level){const k=Number(String(id).replace(/^n/,""))||1;const
   return{k,theme:k<=200?TK1[(k-1+off)%TK1.length]:k<=267?TK2[(k-201+off)%TK2.length]:TK3[(k-268+off)%TK3.length],seed:(k*7919+({facile:1,moyen:2,difficile:3}[level]||0)*104729)>>>0}}
 const FREQ="EEEEEEEAAAAASSSSIIIIINNNNTTTTRRRRUUUULLLOOOODDDCCCMMMPPGBVHFQYXJKWZ";
 function rng(seed){let s=seed>>>0||1;return()=>{s=(s+0x6D2B79F5)>>>0;let t=s;t=Math.imul(t^(t>>>15),t|1);t^=t+Math.imul(t^(t>>>7),t|61);return((t^(t>>>14))>>>0)/4294967296}}
-// Répartition des sens (8/11/2026) : chaque grille partage ses mots à parts égales entre les familles de sens
-// (horizontal, vertical, diagonales), au plus 1 mot d'écart entre deux familles ; dans une famille, endroit/envers à 50 %.
-// Placement : parmi toutes les positions possibles, on préfère celle où peu de lettres sont déjà posées autour (mots dispersés dans toute la grille),
+// Répartition des sens (19/11/2026, demande de Juvenal) : à TOUS les niveaux, chaque grille utilise les 4 axes du plateau
+// (horizontal, vertical, diagonale ↘, diagonale ↗) et les deux sens de lecture (endroit et envers).
+// Les pourcentages changent d'une grille à l'autre : poids tirés au hasard pour chaque axe, au moins 1 mot par axe,
+// jamais plus de 40 % des mots sur un même axe ; part de mots à l'envers tirée au hasard selon le niveau
+// (Facile 15-30 %, Normal 30-45 %, Difficile 40-60 %, toujours au moins 1).
+// Placement : parmi toutes les positions possibles, on préfère celle où peu de lettres sont déjà posées autour (mots dispersés),
 // ou qui croise un autre mot sur une lettre commune ; les mots sont tirés au hasard dans le thème.
 const MFAM={H:[[0,1],[0,-1]],V:[[1,0],[-1,0]],D:[[1,1],[-1,-1]],A:[[-1,1],[1,-1]]};
-function makeMeles(theme,level,seed){const cfg={facile:{n:10,k:8,fam:["H","V","D"],rev:false},moyen:{n:12,k:11,fam:["H","V","D","A"],rev:false},difficile:{n:14,k:15,fam:["H","V","D","A"],rev:true}}[level];
+const MFAMS=["H","V","D","A"];
+function famOf(w){return MFAMS.find(f=>MFAM[f].some(([a,b])=>a===w.dr&&b===w.dc))}
+function makeMeles(theme,level,seed){const cfg={facile:{n:10,k:8,rv:[.15,.30]},moyen:{n:12,k:11,rv:[.30,.45]},difficile:{n:14,k:15,rv:[.40,.60]}}[level]||{n:10,k:8,rv:[.15,.30]};
   const R=rng(seed||(Date.now()^Math.floor(Math.random()*1e9)));const pool=THEMES[theme].map(norm).filter(w=>w.length>=3&&w.length<=cfg.n);const N=cfg.n;
   const shuf=a=>{for(let i=a.length-1;i>0;i--){const j=Math.floor(R()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a};
+  const K=Math.min(cfg.k,pool.length),CAP=Math.max(1,Math.floor(K*.4));
+  // quotas aléatoires : 1 mot minimum par axe, le reste selon des poids tirés au hasard, plafond 40 %
+  const quotaOf=()=>{const q={H:1,V:1,D:1,A:1},wt={};MFAMS.forEach(f=>wt[f]=.4+R()*1.6);let left=K-4;
+    while(left>0){const ok=MFAMS.filter(f=>q[f]<CAP);const tot=ok.reduce((a,f)=>a+wt[f],0);let x=R()*tot,f=ok[ok.length-1];for(const y of ok){x-=wt[y];if(x<=0){f=y;break}}q[f]++;left--}return q};
+  const revTarget=Math.max(1,Math.round(K*(cfg.rv[0]+R()*(cfg.rv[1]-cfg.rv[0]))));
   let keep=null;
-  for(let attempt=0;attempt<120;attempt++){const g=Array.from({length:N},()=>Array(N).fill(""));const ws=[];const sh=shuf([...pool]);const cand=sh.slice(0,cfg.k).sort((a,b)=>b.length-a.length).concat(sh.slice(cfg.k));   /* mots tirés au hasard (pas seulement les plus longs), posés du plus long au plus court */
-    const k=Math.min(cfg.k,cand.length),F=cfg.fam.length;const quota={};shuf([...cfg.fam]).forEach((f,i)=>quota[f]=Math.floor(k/F)+(i<k%F?1:0));
-    let revLeft=cfg.rev?Math.floor(k/2):0;
-    for(const w of cand){if(ws.length>=k)break;
-      const order=shuf(cfg.fam.filter(f=>quota[f]>0)).sort((a,b)=>quota[b]-quota[a]||((b==="D"||b==="A")-(a==="D"||a==="A")));let done=false;   /* à égalité, les diagonales (plus dures à caser) d'abord */
-      for(const f of order.concat(shuf(cfg.fam.filter(x=>!order.includes(x))))){
-        const back=cfg.rev&&revLeft>0&&R()<revLeft/Math.max(1,k-ws.length);const [dr,dc]=MFAM[f][back?1:0];const L=w.length;
+  for(let attempt=0;attempt<200;attempt++){const g=Array.from({length:N},()=>Array(N).fill(""));const ws=[];const sh=shuf([...pool]);
+    const cand=sh.slice(0,K).sort((a,b)=>b.length-a.length).concat(sh.slice(K));   /* mots tirés au hasard, posés du plus long au plus court */
+    const goal=quotaOf(),quota=Object.assign({},goal);let revLeft=revTarget;
+    for(const w of cand){if(ws.length>=K)break;
+      const order=shuf(MFAMS.filter(f=>quota[f]>0)).sort((a,b)=>quota[b]-quota[a]||((b==="D"||b==="A")-(a==="D"||a==="A")));   /* à égalité, les diagonales (plus dures à caser) d'abord */
+      for(const f of order.concat(shuf(MFAMS.filter(x=>!order.includes(x))))){
+        const back=revLeft>0&&R()<revLeft/Math.max(1,K-ws.length);const [dr,dc]=MFAM[f][back?1:0];const L=w.length;
         let best=null,bs=-1;
         for(let r0=0;r0<N;r0++)for(let c0=0;c0<N;c0++){const r1=r0+dr*(L-1),c1=c0+dc*(L-1);if(r1<0||r1>=N||c1<0||c1>=N)continue;
           let ok=true,cross=0;for(let i=0;i<L;i++){const ch=g[r0+dr*i][c0+dc*i];if(ch&&ch!==w[i]){ok=false;break}if(ch)cross++}if(!ok)continue;
-          // dispersion : on compte les lettres déjà posées autour des cases du mot ; moins il y en a, mieux c'est
           let dens=0;for(let i=0;i<L;i++){const y=r0+dr*i,x=c0+dc*i;for(let a=-1;a<=1;a++)for(let b=-1;b<=1;b++){const yy=y+a,xx=x+b;if(yy>=0&&yy<N&&xx>=0&&xx<N&&g[yy][xx])dens++}}
-          const sc=-dens/L+0.9*cross+R()*0.6;if(sc>bs){bs=sc;best=[r0,c0]}}   /* un croisement (lettre partagée) laisse de la place aux mots suivants */
+          const sc=-dens/L+0.9*cross+R()*0.6;if(sc>bs){bs=sc;best=[r0,c0]}}
         if(!best)continue;
         for(let i=0;i<L;i++)g[best[0]+dr*i][best[1]+dc*i]=w[i];ws.push({w,r:best[0],c:best[1],dr,dc});
-        if(quota[f]>0)quota[f]--;if(back)revLeft--;done=true;break}
+        if(quota[f]>0)quota[f]--;if(back)revLeft--;break}
     }
-    // écart entre la famille la plus remplie et la moins remplie : 0 ou 1 = réparti à parts égales
-    const cnt=cfg.fam.map(f=>ws.filter(x=>MFAM[f].some(([a,b])=>a===x.dr&&b===x.dc)).length);const gap=Math.max(...cnt)-Math.min(...cnt)+10*(Math.min(cfg.k,pool.length)-ws.length);   /* un mot manquant compte bien plus qu'un déséquilibre */
-    if(!keep||gap<keep.gap)keep={gap,g:g.map(x=>[...x]),ws:[...ws]};if(gap<=1)break}
+    // écart au plan : axes manquants, dépassement des 40 %, mots à l'envers manquants ; un mot manquant pèse plus que tout
+    const cnt={H:0,V:0,D:0,A:0};ws.forEach(x=>cnt[famOf(x)]++);const nrev=ws.filter(x=>famOf(x)&&MFAM[famOf(x)][1][0]===x.dr&&MFAM[famOf(x)][1][1]===x.dc).length;
+    const gap=MFAMS.reduce((a,f)=>a+Math.abs(cnt[f]-goal[f])+(cnt[f]===0?6:0)+(cnt[f]>CAP?6:0),0)+Math.abs(nrev-revTarget)+(nrev===0?6:0)+(ws.length===nrev?6:0)+20*(K-ws.length);
+    if(!keep||gap<keep.gap)keep={gap,g:g.map(x=>[...x]),ws:[...ws]};if(gap===0)break}
   if(!keep||!keep.ws.length)throw new Error("grille impossible");const g=keep.g;
   for(let r=0;r<N;r++)for(let c=0;c<N;c++)if(!g[r][c])g[r][c]=FREQ[Math.floor(R()*FREQ.length)];
   return{theme,size:N,grid:g.map(x=>x.join("")),words:keep.ws.sort((a,b)=>a.w.localeCompare(b.w))}}
@@ -404,7 +414,8 @@ function guestNote(){if(ME||!G||!G.solo||!G.done||guestCount()<GUEST_MAX||docume
 function soloPut(){if(!G||!G.solo||!ME||!ME.token)return;clearTimeout(soloPut.t);const doc=G.done?null:JSON.parse(JSON.stringify(G));soloPut.t=setTimeout(()=>{fetch("/api/p/solo",{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({name:ME.name,token:ME.token,game:GAME,op:"put",doc})}).catch(()=>{})},G.done?0:1500)}
 function soloGet(){if(!ME||!ME.token)return Promise.resolve(null);return Promise.race([fetch("/api/p/solo",{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({name:ME.name,token:ME.token,game:GAME})}).then(r=>r.ok?r.json():null).catch(()=>null),new Promise(r=>setTimeout(()=>r(null),1500))])}
 function soloBoot(go,lvl,n){let loc=null;try{loc=JSON.parse(LS.get(SOLOKEY)||"null")}catch(e){}
-  const old=g=>g&&g.solo&&!g.done&&(go==="resume"||(!n&&g.level===lvl));
+  const varied=g=>{const ws=(g&&g.words)||[];if(!ws.length)return true;const c={};ws.forEach(w=>{const f=famOf(w);c[f]=(c[f]||0)+1});return Math.max(...Object.values(c))/ws.length<=.5};   // 19/11 : une ancienne grille presque toute dans un seul sens n'est plus reprise
+  const old=g=>g&&g.solo&&!g.done&&varied(g)&&(go==="resume"||(!n&&g.level===lvl));
   // le chrono du solo ne compte pas le temps passé hors de la partie (pause, page fermée)
   const thaw=g=>{const t=g.pauseAt||g.saved;if(g.started&&t&&Date.now()>t)g.started+=Date.now()-t;delete g.pauseAt;return g};
   // « Reprendre » : la partie gardée sur cet appareil s'ouvre tout de suite ; celle du compte la remplace seulement si elle est plus récente
