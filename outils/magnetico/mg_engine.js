@@ -257,15 +257,15 @@ $("#mgOk").onclick=validate;$("#mgPass").onclick=passWord;
 $("#mgClear").onclick=()=>{if(phase!=="play")return;let n=0;placed=placed.map((b,k)=>{if(b&&!locked[k]){queue.push(b);n++;return null}return b});if(n)SFX.back();slots()};
 $(".homebtn").onclick=()=>{if(!G||G.done||mySeat()===null){location.href=HOME;return}$("#leaveRule").textContent=G.solo?"La partie solo n'est pas gardée.":"Si tu quittes (ou après 1 minute sans connexion), la partie continue sans toi et tu repars avec 0 point.";$("#leave").classList.add("on")};
 $("#lvQuit").onclick=()=>{quitGame();setTimeout(()=>location.href=G&&G.solo?"/":HOME,350)};$("#lvStay").onclick=()=>$("#leave").classList.remove("on");
-$("#endHome").onclick=()=>{location.href=HOME};$("#endAgain").onclick=()=>{$("#endWin").classList.remove("on");again()};
+$("#endHome").onclick=()=>{location.href=HOME};$("#endAgain").onclick=e=>{if(e.target.closest("[data-lv]"))return;$("#endWin").classList.remove("on");again()};document.querySelectorAll("#endAgain [data-lv]").forEach(b=>b.onclick=e=>{e.stopPropagation();$("#endWin").classList.remove("on");again(b.dataset.lv)});new MutationObserver(()=>{if($("#endWin").classList.contains("on")&&G)document.querySelectorAll("#endAgain [data-lv]").forEach(b=>b.classList.toggle("on",b.dataset.lv===G.level))}).observe($("#endWin"),{attributes:true,attributeFilter:["class"]});
 
 /* ---------- lancement ---------- */
 function newGame(names,isSolo,level){const seed=Math.floor(Math.random()*2147483646)+1;level=LVLN[level]?level:"facile";
   return{gid:Math.random().toString(36).slice(2,10),game:GAME,solo:isSolo,level,seed,words:pickWords(level,seed),i:0,started:Date.now(),players:names.map(x=>({name:x,score:0})),found:0,done:false,wait:!isSolo,f:{},p:{},cut:{},out:{}}}
 function open(g){G=g;cur=-1;phase="idle";balls.forEach(b=>b.el.remove());balls=[];$("#mgRes").style.display="none";$("#endWin").classList.remove("on");
   if(!G.solo){joinWait()}else soloTicket();render();announce();history.replaceState(null,"",location.pathname)}
-function again(){const o=G;if(o.solo){open(newGame(o.players.map(p=>p.name),true,o.level));save();return}
-  const ng=newGame(o.players.filter((p,i)=>!isOut(i)).map(p=>p.name),false,o.level);ng.prev=o.gid;open(ng);save()}
+function again(lv){const o=G,LVL=lv||G.level;if(o.solo){open(newGame(o.players.map(p=>p.name),true,LVL));save();return}
+  const ng=newGame(o.players.filter((p,i)=>!isOut(i)).map(p=>p.name),false,LVL);ng.prev=o.gid;open(ng);save()}
 // une partie du salon encore active n'est jamais écrasée par « Jouer » : on la rejoint ou on la regarde
 function live(d){return !!(d&&!d.done&&!d.solo&&d.players&&Date.now()-Math.max(d.go||0,d.started||0)<15*60e3)}
 function boot(){const go=Q.get("go"),lvl=Q.get("lvl")||"facile";

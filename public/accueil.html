@@ -1426,13 +1426,13 @@ function openCfg(t,m,opp,quick){const k=t.dataset.key,G=GAMES[k];
 // bouton + des joueurs connectés : on choisit d'abord le jeu (5 jeux), puis ses réglages
 const PICK=[["magnetico","Magnético","Syllabes qui s'entrechoquent"],["fleches","Mots fléchés","Grille à deux"],["rond","Le Tourniquet","Six mots en rond"],["meles","Mots mêlés","Le plus rapide gagne"],["poker","Wordflush","Mots et jetons"],["culture","Culture générale","10 questions en duel"]];
 function pickGame(opp,mode){mode=mode||"multi";$("#pickT").textContent=mode==="solo"?"À quoi veux-tu jouer ?":"Proposer une partie à "+opp;const L=$("#pickL");
-  {const n=document.querySelector("#pickG .note");if(n)n.textContent=mode==="solo"?"Choisis ton jeu : la partie démarre tout de suite. Tu pourras inviter quelqu'un ensuite.":"Choisis d'abord le jeu, puis ses réglages."}
+  {const n=document.querySelector("#pickG .note");if(n)n.textContent=mode==="solo"?"Choisis ton jeu, puis son niveau.":"Choisis d'abord le jeu, puis ses réglages."}
   L.innerHTML=PICK.map(([k,n,d])=>'<button type="button" data-k="'+k+'"><b>'+n+'</b><small>'+d+'</small></button>').join("");
-  L.querySelectorAll("button").forEach(b=>b.onclick=()=>{$("#pickG").classList.remove("on");const t=$$(".tile").find(x=>x.dataset.key===b.dataset.k);if(t)openCfg(t,mode,mode==="multi"?opp:undefined,mode==="solo")});
+  L.querySelectorAll("button").forEach(b=>b.onclick=()=>{$("#pickG").classList.remove("on");const t=$$(".tile").find(x=>x.dataset.key===b.dataset.k);if(t)openCfg(t,mode,mode==="multi"?opp:undefined,mode==="solo"&&b.dataset.k==="culture")});
   $("#pickX").onclick=()=>$("#pickG").classList.remove("on");$("#pickG").classList.add("on");setTimeout(()=>{const f=L.querySelector("button");if(f)f.focus()},50)}
 function fillNums(){const G=GAMES[CFG.k];{const gl=$("#gnum").closest("label");if(gl)gl.style.display=CFG.k==="magnetico"?"none":""}if(CFG.k==="magnetico")return;const i=[...$$("#lvl button")].findIndex(b=>b.classList.contains("on"));const n=(G.lv[i]||G.lv[0])[2];
   const g=$("#gnum");g.innerHTML='<option value="">Grille suivante (au hasard parmi les non jouées)</option>'+Array.from({length:n},(_,j)=>'<option value="'+(j+1)+'">Grille '+(j+1)+'</option>').join("")}
-function bindMode(b){b.onclick=e=>{e.stopPropagation();const t=b.closest(".tile");if(b.dataset.cfg)return openCfg(t,"solo");openCfg(t,b.dataset.mode,undefined,true)}}
+function bindMode(b){b.onclick=e=>{e.stopPropagation();const t=b.closest(".tile");if(b.dataset.cfg)return openCfg(t,"solo");const m=b.dataset.mode;openCfg(t,m,undefined,m==="resume"||t.dataset.key==="culture")}}   // le réglage (niveau) est reproposé à chaque partie ; seul « Reprendre » et Culture (rien à régler) partent tout de suite
 $$(".modes .abtn").forEach(bindMode);
 $("#cfgX").onclick=()=>$("#cfg").classList.remove("on");
 // ---------- tutoriel : quelques étapes la 1re fois qu'on lance un jeu ----------

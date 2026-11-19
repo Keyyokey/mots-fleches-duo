@@ -189,7 +189,7 @@ body.booting #boot{display:flex;position:fixed;inset:0;z-index:50;align-items:ce
 <div class="blob b1"></div><div class="blob b2"></div><div class="blob b3"></div>
 <div class="wrap">
 <div id="boot"><span class="spin"></span><b>Préparation de la partie…</b></div><script>setTimeout(function(){document.body.classList.remove("booting")},10000)</script>
-<main class="view on" id="v-mg">
+<style id="endlv">.endlv{display:flex;flex-direction:column;align-items:center;gap:6px;margin:4px 0 8px}.endlv small{font:700 .78rem Nunito,Inter,sans-serif;opacity:.8}.endlv .lvrow{display:flex;gap:6px;width:100%}.endlv .lvrow button{all:unset;box-sizing:border-box;flex:1;cursor:pointer;text-align:center;min-height:44px;padding:10px 6px;border-radius:14px;font:800 .9rem Nunito,Inter,sans-serif;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.25);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px)}.endlv .lvrow button.on{background:linear-gradient(135deg,#00ADB5,#7c5cf0);border-color:transparent;color:#fff}.endlv .lvrow button:focus-visible{outline:2px solid #00ADB5;outline-offset:2px}[data-theme=light] .endlv .lvrow button:not(.on){background:rgba(15,25,40,.06);border-color:rgba(15,25,40,.18)}</style><main class="view on" id="v-mg">
   <div class="gtop"><button class="homebtn" title="Retour à l'accueil" aria-label="Retour à l'accueil"><svg viewBox="0 0 24 24"><path d="M3 11.2 12 4l9 7.2" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/><path d="M5.5 10v9.2h4.8v-5.6h3.4v5.6h4.8V10" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linejoin="round"/></svg></button><div class="gname">Magnético</div></div>
   <div class="mg2">
     <div class="glass mgtop">
@@ -210,7 +210,7 @@ body.booting #boot{display:flex;position:fixed;inset:0;z-index:50;align-items:ce
 <div class="overlay" id="leave"><div class="glass sheet qbox"><div class="ico-big">⏸️</div><h3>La partie n'est pas terminée</h3><div class="note" id="leaveTxt">Que veux-tu faire ?</div>
 <button class="btn primary" id="lvQuit">Quitter la partie</button><button class="btn" id="lvStay" style="background:transparent">Continuer à jouer</button>
 <div class="note" id="leaveRule"></div></div></div>
-<div class="overlay" id="endWin"><div class="glass sheet qbox"><h3 id="endT"></h3><div class="note" id="endB"></div><button class="btn primary" id="endAgain">🎲 Nouvelle partie</button><button class="btn" id="endHome">🏠 Accueil</button></div></div>
+<div class="overlay" id="endWin"><div class="glass sheet qbox"><h3 id="endT"></h3><div class="note" id="endB"></div><div id="endAgain" class="endlv"><small>Nouvelle partie : choisis le niveau</small><div class="lvrow"><button type="button" data-lv="facile">Facile</button><button type="button" data-lv="normal">Normal</button><button type="button" data-lv="difficile">Difficile</button></div></div><button class="btn" id="endHome">🏠 Accueil</button></div></div>
 <script>window.SK_HDR=1;</script><script src="/d/sk-0997f471dc.js"></script>
 <script src="/d/magnetico-60eec00b2a.js" defer></script>
 <script>// ===== Magnético — jeu de Motipop : reformer le mot avec les syllabes qui s'entrechoquent =====
@@ -472,15 +472,15 @@ $("#mgOk").onclick=validate;$("#mgPass").onclick=passWord;
 $("#mgClear").onclick=()=>{if(phase!=="play")return;let n=0;placed=placed.map((b,k)=>{if(b&&!locked[k]){queue.push(b);n++;return null}return b});if(n)SFX.back();slots()};
 $(".homebtn").onclick=()=>{if(!G||G.done||mySeat()===null){location.href=HOME;return}$("#leaveRule").textContent=G.solo?"La partie solo n'est pas gardée.":"Si tu quittes (ou après 1 minute sans connexion), la partie continue sans toi et tu repars avec 0 point.";$("#leave").classList.add("on")};
 $("#lvQuit").onclick=()=>{quitGame();setTimeout(()=>location.href=G&&G.solo?"/":HOME,350)};$("#lvStay").onclick=()=>$("#leave").classList.remove("on");
-$("#endHome").onclick=()=>{location.href=HOME};$("#endAgain").onclick=()=>{$("#endWin").classList.remove("on");again()};
+$("#endHome").onclick=()=>{location.href=HOME};$("#endAgain").onclick=e=>{if(e.target.closest("[data-lv]"))return;$("#endWin").classList.remove("on");again()};document.querySelectorAll("#endAgain [data-lv]").forEach(b=>b.onclick=e=>{e.stopPropagation();$("#endWin").classList.remove("on");again(b.dataset.lv)});new MutationObserver(()=>{if($("#endWin").classList.contains("on")&&G)document.querySelectorAll("#endAgain [data-lv]").forEach(b=>b.classList.toggle("on",b.dataset.lv===G.level))}).observe($("#endWin"),{attributes:true,attributeFilter:["class"]});
 
 /* ---------- lancement ---------- */
 function newGame(names,isSolo,level){const seed=Math.floor(Math.random()*2147483646)+1;level=LVLN[level]?level:"facile";
   return{gid:Math.random().toString(36).slice(2,10),game:GAME,solo:isSolo,level,seed,words:pickWords(level,seed),i:0,started:Date.now(),players:names.map(x=>({name:x,score:0})),found:0,done:false,wait:!isSolo,f:{},p:{},cut:{},out:{}}}
 function open(g){G=g;cur=-1;phase="idle";balls.forEach(b=>b.el.remove());balls=[];$("#mgRes").style.display="none";$("#endWin").classList.remove("on");
   if(!G.solo){joinWait()}else soloTicket();render();announce();history.replaceState(null,"",location.pathname)}
-function again(){const o=G;if(o.solo){open(newGame(o.players.map(p=>p.name),true,o.level));save();return}
-  const ng=newGame(o.players.filter((p,i)=>!isOut(i)).map(p=>p.name),false,o.level);ng.prev=o.gid;open(ng);save()}
+function again(lv){const o=G,LVL=lv||G.level;if(o.solo){open(newGame(o.players.map(p=>p.name),true,LVL));save();return}
+  const ng=newGame(o.players.filter((p,i)=>!isOut(i)).map(p=>p.name),false,LVL);ng.prev=o.gid;open(ng);save()}
 // une partie du salon encore active n'est jamais écrasée par « Jouer » : on la rejoint ou on la regarde
 function live(d){return !!(d&&!d.done&&!d.solo&&d.players&&Date.now()-Math.max(d.go||0,d.started||0)<15*60e3)}
 function boot(){const go=Q.get("go"),lvl=Q.get("lvl")||"facile";

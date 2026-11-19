@@ -1,8 +1,8 @@
-const {chromium}=require('/tmp/claude-0/-home-claude/8d6d2643-6576-5f68-8c95-f3700fc6f9e7/scratchpad/node_modules/playwright');
-const U='http://localhost:3100';const res=[];const ok=(c,l)=>{res.push((c?'✅ ':'❌ ')+l);return c};
+const {chromium}=require('/tmp/pw/node_modules/playwright');
+const U='http://localhost:3999';const res=[];const ok=(c,l)=>{res.push((c?'✅ ':'❌ ')+l);return c};
 (async()=>{const br=await chromium.launch({executablePath:'/opt/pw-browsers/chromium'});const errs=[];
  const ctx=await br.newContext({viewport:{width:1280,height:900}});const p=await ctx.newPage();p.on('pageerror',e=>errs.push(e.message));const NV=[];p.on('framenavigated',f=>{if(f===p.mainFrame())NV.push(f.url())});
- const mode=async(k,sel)=>{await p.hover('.tile[data-key='+k+']');await p.waitForTimeout(700);await p.click('.tile[data-key='+k+'] '+sel);await p.waitForTimeout(600)};
+ const mode=async(k,sel)=>{await p.hover('.tile[data-key='+k+']');await p.waitForTimeout(700);await p.click('.tile[data-key='+k+'] '+sel);await p.waitForTimeout(400);if(await p.evaluate(()=>document.querySelector('#cfg').classList.contains('on')))await p.click('#cfgGo');await p.waitForTimeout(600)};
  await p.goto(U+'/');await p.waitForTimeout(900);await p.evaluate(()=>Object.keys(localStorage).filter(k=>k.startsWith('fl-tuto')).forEach(k=>localStorage.removeItem(k)));await p.goto(U+'/');await p.waitForTimeout(900);NV.length=0;
  await mode('rond','[data-mode=solo]');
  ok(await p.evaluate(()=>document.querySelector('#tuto').classList.contains('on'))&&!NV.some(u=>/go=/.test(u)),'1re fois au Tourniquet : le tutoriel s\'ouvre avant la partie');
@@ -15,7 +15,7 @@ const U='http://localhost:3100';const res=[];const ok=(c,l)=>{res.push((c?'✅ '
  await p.goto(U+'/');await p.waitForTimeout(900);NV.length=0;await mode('culture','[data-mode=solo]');await p.click('#tuto .xbtn');await p.waitForTimeout(1200);ok(NV.some(u=>/\/culture\?go=solo/.test(u)),'« Passer » lance aussi la partie');
  await p.goto(U+'/');await p.waitForTimeout(900);NV.length=0;await mode('poker','[data-mode=solo]');await p.keyboard.press('Escape');await p.waitForTimeout(1200);ok(NV.some(u=>/\/poker\?go=solo/.test(u)),'Échap ferme le tutoriel et lance la partie');
  const m=await (await br.newContext({viewport:{width:320,height:640},hasTouch:true})).newPage();m.on('pageerror',e=>errs.push(e.message));await m.goto(U+'/');await m.waitForTimeout(900);
- await m.tap('.tile[data-key=meles]');await m.waitForTimeout(700);await m.tap('.tile[data-key=meles] [data-mode=solo]');await m.waitForTimeout(500);
+ await m.tap('.tile[data-key=meles]');await m.waitForTimeout(700);await m.tap('.tile[data-key=meles] [data-mode=solo]');await m.waitForTimeout(500);if(await m.evaluate(()=>document.querySelector('#cfg').classList.contains('on'))){await m.tap('#cfgGo');await m.waitForTimeout(500)}
  ok(await m.evaluate(()=>{const r=document.querySelector('#tuto .sheet').getBoundingClientRect();return document.querySelector('#tuto').classList.contains('on')&&r.left>=0&&r.right<=320&&document.documentElement.scrollWidth<=320}),'téléphone 320 px : la fenêtre tient dans l\'écran');
  await m.click('#tutoSkip');await m.waitForTimeout(1200);ok(/meles\?go=solo|\/meles/.test(m.url()),'« Passer le tutoriel » lance la partie');await m.screenshot({path:'/home/claude/t/tuto320.png'});
  ok(!errs.length,'aucune erreur JavaScript '+JSON.stringify(errs));console.log(res.join('\n'));await br.close()})();
