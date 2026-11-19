@@ -54,7 +54,7 @@
   SERIES.forEach(function (s) {
     s[2].forEach(function (k) {
       k[2].forEach(function (h) {
-        var o = { id: k[0] + "/" + h[0], serie: s[0], serieNom: s[1], skin: k[0], skinNom: k[1], hab: h[0], habNom: h[1], rar: h[2], file: s[0] + "-" + k[0] + "-" + h[0] + (s[0] === "chasseurs" ? ".webp" : ".jpg"), full: s[0] === "chasseurs" ? s[0] + "-" + k[0] + "-" + h[0] + "-full.webp" : "" };   // chasseurs : images détourées (fond transparent)
+        var o = { id: k[0] + "/" + h[0], serie: s[0], serieNom: s[1], skin: k[0], skinNom: k[1], hab: h[0], habNom: h[1], rar: h[2], file: s[0] + "-" + k[0] + "-" + h[0] + (s[0] === "chasseurs" ? ".webp" : ".jpg"), full: s[0] + "-" + k[0] + "-" + h[0] + (s[0] === "chasseurs" ? "-full.webp" : "-full.jpg") };   // image entière pour le casier (19/11 : toutes les séries)   // chasseurs : images détourées (fond transparent)
         LIST.push(o); BY[o.id] = o;
       });
     });
