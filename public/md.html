@@ -58,6 +58,7 @@
 .mdempty{color:var(--muted);font-size:.88rem;padding:6px 8px}
 .mdguest{margin-top:8px;font-size:.85rem;color:var(--muted)}
 .mdguest a{color:#ff7aa8;font-weight:700}
+.mdpop{display:block;width:120px;height:auto;margin:-4px auto 2px;filter:drop-shadow(0 8px 14px rgba(0,0,0,.3));animation:mdjump .9s cubic-bezier(.3,1.6,.5,1) both}@keyframes mdjump{from{transform:translateY(24px) scale(.6);opacity:0}}@media (prefers-reduced-motion:reduce){.mdpop{animation:none}}
 .mdlay{display:flex;flex-direction:column;gap:12px;max-width:560px;margin:0 auto}
 .mdside .card{padding:14px 16px}
 .mdside h3{margin:0 0 10px;font:800 1rem Nunito,Inter,sans-serif;display:flex;align-items:center;gap:8px}
@@ -125,7 +126,7 @@ function draw(){if(!S)return;
   $("#mdKeys").innerHTML=S.tries.length?"AZERTYUIOPQSDFGHJKLMWXCVBN".split("").map(L=>'<span class="'+(L in st?"k"+st[L]:"")+'">'+L+"</span>").join(""):"";
   $("#mdBar").style.display=S.done?"none":"";inp.disabled=!!S.done;if(S.done){if(document.activeElement===inp)inp.blur();inp.hidden=true}
   const e=$("#mdEnd");e.classList.toggle("on",!!S.done);
-  if(S.done){const n=S.tries.length;e.innerHTML=(S.ok?'<h3>Trouvé en '+n+" essai"+(n>1?"s":"")+(S.ms?" · "+fmt(S.ms):"")+" !</h3>":"<h3>Pas cette fois…</h3>")+'<div class="w">'+esc(S.word)+'</div><div class="def">'+esc(S.def||"")+'</div><div class="row"><button class="btn primary" id="mdShare">Partager mon résultat</button></div><small class="note">Nouveau mot demain à minuit.</small>';
+  if(S.done){const n=S.tries.length;e.innerHTML=(S.ok?'<img class="mdpop" src="/d/pop-victoire-d9b3c764d3.webp" width="120" height="120" alt="Pop saute de joie">':'')+(S.ok?'<h3>Trouvé en '+n+" essai"+(n>1?"s":"")+(S.ms?" · "+fmt(S.ms):"")+" !</h3>":"<h3>Pas cette fois…</h3>")+'<div class="w">'+esc(S.word)+'</div><div class="def">'+esc(S.def||"")+'</div><div class="row"><button class="btn primary" id="mdShare">Partager mon résultat</button></div><small class="note">Nouveau mot demain à minuit.</small>';
     $("#mdShare").onclick=share}
   list()}
 function fmt(ms){const s=Math.round(ms/1000);return s<60?s+" s":Math.floor(s/60)+" min "+String(s%60).padStart(2,"0")}

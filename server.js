@@ -1019,6 +1019,14 @@ self.addEventListener("install", e => { e.waitUntil(caches.open(V).then(c => c.a
 self.addEventListener("activate", e => { e.waitUntil(caches.keys().then(ks => Promise.all(ks.filter(k => k !== V).map(k => caches.delete(k)))).then(() => self.clients.claim())); });
 self.addEventListener("fetch", e => { if (e.request.mode !== "navigate") return; e.respondWith(fetch(e.request).catch(() => caches.match(OFF))); });
 `;
+// page introuvable : Pop perdu avec sa carte
+const NOTFOUND_HTML = `<!DOCTYPE html><html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#12152e"><meta name="robots" content="noindex"><title>Page introuvable — Motipop</title><link rel="icon" href="/favicon.svg">
+<style>html,body{margin:0;min-height:100%}body{min-height:100vh;display:grid;place-items:center;color:#eef2f7;font-family:system-ui,sans-serif;text-align:center;background:radial-gradient(900px 600px at 10% -10%,#0f3b3f,transparent 60%),radial-gradient(700px 500px at 100% 10%,#1b1440,transparent 55%),linear-gradient(160deg,#0b1d2a,#1b1440)}
+.b{display:flex;flex-direction:column;align-items:center;gap:12px;padding:24px 24px 28px;margin:16px;max-width:360px;border-radius:24px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.18);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);box-shadow:0 10px 40px rgba(0,0,0,.35)}
+img{width:180px;height:auto;filter:drop-shadow(0 10px 20px rgba(0,0,0,.35));animation:f 3.2s ease-in-out infinite}@keyframes f{50%{transform:translateY(-6px) rotate(-2deg)}}
+h1{margin:0;font-size:1.35rem}p{margin:0;color:#a9b3c7;line-height:1.45}
+a{margin-top:6px;text-decoration:none;border-radius:14px;padding:12px 22px;font-weight:700;color:#fff;background:linear-gradient(135deg,#00ADB5,#A26BFF);box-shadow:0 6px 20px rgba(0,173,181,.35)}
+@media (prefers-reduced-motion:reduce){img{animation:none}}</style></head><body><main class="b"><img src="/d/pop-perdu-b4dd8a59b8.webp" width="180" height="180" alt="Pop regarde sa carte, un peu perdu"><h1>Page introuvable</h1><p>Pop a beau chercher sur sa carte : ce lien ne mène nulle part, ou ce salon n'existe plus.</p><a href="/">Retour à l'accueil</a></main></body></html>`;
 const OFFLINE_HTML = `<!DOCTYPE html><html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#12152e"><title>Motipop — pas de connexion</title>
 <style>html,body{margin:0;height:100%}body{display:grid;place-items:center;color:#eef2f7;font-family:system-ui,sans-serif;text-align:center;background:radial-gradient(900px 600px at 10% -10%,#0f3b3f,transparent 60%),radial-gradient(700px 500px at 100% 10%,#1b1440,transparent 55%),linear-gradient(160deg,#0b1d2a,#1b1440)}
 .b{display:flex;flex-direction:column;align-items:center;gap:14px;padding:28px 24px;margin:16px;max-width:340px;border-radius:24px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.18);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);box-shadow:0 10px 40px rgba(0,0,0,.35)}
@@ -1139,8 +1147,8 @@ const server = http.createServer((req, res) => {
     if (/[?&]join=/.test(url.search) && !/[?&]join=1\b/.test(url.search) && url.pathname !== "/") { res.writeHead(302, { location: url.pathname.replace(/\/$/, "") + "/fleches" + url.search }); return res.end(); }
     return sendPage(req, res, HOME);
   }
-  res.writeHead(404, { "content-type": "text/html; charset=utf-8" });
-  res.end('<!doctype html><html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Salon introuvable</title><style>body{margin:0;min-height:100vh;display:grid;place-items:center;background:#121214;color:#ECEDF2;font-family:system-ui,sans-serif;padding:16px}main{max-width:380px;text-align:center;display:flex;flex-direction:column;gap:12px}h1{margin:0;font-size:1.4rem}p{color:#8B8C99;margin:0}form{display:flex;gap:8px}input{flex:1;min-width:0;font-size:1.3rem;font-weight:800;letter-spacing:.2em;text-transform:uppercase;text-align:center;padding:10px;border-radius:12px;border:1px solid #2f2f39;background:#1E1E24;color:#ECEDF2}button,a{font:inherit;font-weight:700;padding:12px 16px;border-radius:12px;border:none;background:#00ADB5;color:#041b1d;text-decoration:none;cursor:pointer}</style></head><body><main><h1>Ce salon n\'existe pas</h1><p>Un code de salon fait 5 caractères (lettres et chiffres). Vérifie celui qu\'on t\'a envoyé.</p><form onsubmit="event.preventDefault();var v=this.c.value.toUpperCase().replace(/[^A-Z0-9]/g,\'\');if(v.length===5)location.href=\'/\'+v"><input name="c" maxlength="5" placeholder="CODE" aria-label="Code du salon"><button>Rejoindre</button></form><a href="/">Créer un nouveau salon</a></main></body></html>');
+  res.writeHead(404, { "content-type": "text/html; charset=utf-8", "cache-control": "no-cache" });
+  res.end(NOTFOUND_HTML);
 });
 const wss = new WebSocketServer({ server, path: "/ws", maxPayload: MAX_DOC + 4096 });
 // garde-fous (test de charge du 2/11/2026) : connexions par adresse, total, et débit de messages par connexion

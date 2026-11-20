@@ -749,7 +749,7 @@ body.nodeco .blob{opacity:.35}
 .ctas{display:flex;gap:10px;flex-wrap:wrap}.ctas .cta{min-height:44px;padding:10px 18px;font-weight:800;text-decoration:none;display:inline-flex;align-items:center;gap:6px}
 a.logo{text-decoration:none;color:inherit}a.logo:focus-visible{outline:2px solid var(--accent-cyan);outline-offset:3px}
 .abtn.abtn-s{width:auto;padding:6px 14px;font-size:.82em;background:rgba(255,255,255,.1)}#cfgMode{margin-bottom:10px}
-.tuto{max-width:420px;text-align:center}.tutohd{display:flex;justify-content:space-between;align-items:center}.tutox{margin-top:10px;background:none;border:0;color:var(--muted,#a9b3c7);text-decoration:underline;font-size:.85rem;cursor:pointer}.tutoico{font-size:2.6rem;margin:6px 0 2px}#tutoP{font-size:1rem;line-height:1.5;min-height:4.5em;color:var(--ink)}.tutodots{display:flex;gap:6px;justify-content:center;margin:8px 0 12px}.tutodots i{width:8px;height:8px;border-radius:50%;background:rgba(255,255,255,.25)}.tutodots i.on{background:var(--accent-cyan,#17B9C5)}.tutobt{display:flex;gap:8px;justify-content:center}.tutobt [hidden]{display:none}
+.tuto{max-width:420px;text-align:center}.tutohero{display:flex;align-items:center;justify-content:center;gap:6px}.tutopop{width:96px;height:auto;filter:drop-shadow(0 8px 14px rgba(0,0,0,.3));animation:popHi 4s ease-in-out infinite}.tutohero .tutoico{margin:0}@media (prefers-reduced-motion:reduce){.tutopop{animation:none}}.tutohd{display:flex;justify-content:space-between;align-items:center}.tutox{margin-top:10px;background:none;border:0;color:var(--muted,#a9b3c7);text-decoration:underline;font-size:.85rem;cursor:pointer}.tutoico{font-size:2.6rem;margin:6px 0 2px}#tutoP{font-size:1rem;line-height:1.5;min-height:4.5em;color:var(--ink)}.tutodots{display:flex;gap:6px;justify-content:center;margin:8px 0 12px}.tutodots i{width:8px;height:8px;border-radius:50%;background:rgba(255,255,255,.25)}.tutodots i.on{background:var(--accent-cyan,#17B9C5)}.tutobt{display:flex;gap:8px;justify-content:center}.tutobt [hidden]{display:none}
 .skav{position:relative;display:inline-grid;place-items:center;width:34px;height:34px;border-radius:50%;overflow:hidden;flex:none;color:#fff;font-weight:800;background:linear-gradient(135deg,#1f7a86,#2b9aa6)}.skav i{font-style:normal}.skav img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}.skav.sm{width:24px;height:24px;font-size:.7rem;margin-right:6px}.skav.big{width:56px;height:56px;font-size:1.5rem;border-radius:14px}
 .av-me.hasskin{position:relative;overflow:hidden}.av-me.hasskin i{font-style:normal}.av-me.hasskin img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
 .skbtn{display:flex;align-items:center;gap:10px;width:100%;text-align:left;margin:6px 0 10px}.skbtn span{display:flex;flex-direction:column}.skbtn small{font-weight:500;opacity:.75;font-size:.78rem}
@@ -832,6 +832,7 @@ a.logo{text-decoration:none;color:inherit}a.logo:focus-visible{outline:2px solid
 .ambtn{border:0;border-radius:12px;padding:10px 14px;min-height:42px;font:700 .9rem Inter,sans-serif;color:#fff;cursor:pointer;white-space:nowrap;background:linear-gradient(135deg,#00ADB5,#A26BFF);box-shadow:0 4px 14px rgba(0,173,181,.3)}
 .ambtn.done{background:rgba(255,255,255,.1);color:var(--ink);box-shadow:none;border:1px solid rgba(255,255,255,.2)}
 .ambtn:focus-visible{outline:3px solid #2ee6d6;outline-offset:2px}
+.amsteps li.amlast{position:relative;padding-right:12px}.amsteps li.amlast::after{content:"";position:absolute;right:-6px;top:-30px;width:64px;height:62px;background:url(/d/pop-inviter-7369ea61b6.webp) center/contain no-repeat;filter:drop-shadow(0 6px 10px rgba(0,0,0,.3));pointer-events:none}.amsteps li.amlast .ambtn{margin-right:46px}
 @media (max-width:760px){.amis{grid-template-columns:1fr;padding:18px 16px;text-align:left}.amis .popm{position:absolute;right:-8px;top:4px;width:118px}.amis h2{font-size:1.45rem;padding-right:100px}.amsub{padding-right:100px}}
 @media (max-width:420px){.amsteps li{grid-template-columns:30px 1fr;row-gap:8px}.amsteps .n{width:30px;height:30px}.ambtn{grid-column:2;justify-self:start}}
 @media (prefers-reduced-motion:reduce){.amis .popm{animation:none}}
@@ -1015,7 +1016,7 @@ body.statsOn .dashbar{display:flex;align-items:center;justify-content:space-betw
       <ol class="amsteps">
         <li><span class="n">1</span><div><b>Choisis un pseudo</b><small>Juste un nom et un code à 4 chiffres pour le retrouver.</small></div><button class="ambtn" id="amMe" type="button">Créer mon pseudo</button></li>
         <li><span class="n">2</span><div><b>Ouvre ton salon</b><small>Ton coin privé : tes amis, vos classements, vos parties.</small></div><button class="ambtn" id="amSal" type="button">Ouvrir mon salon</button></li>
-        <li><span class="n">3</span><div><b>Envoie le lien</b><small>Ils le touchent et arrivent dans ton salon. Puis choisis un jeu → « Multijoueurs ».</small></div><button class="ambtn" id="amInv" type="button">Inviter des amis</button></li>
+        <li class="amlast"><span class="n">3</span><div><b>Envoie le lien</b><small>Ils le touchent et arrivent dans ton salon. Puis choisis un jeu → « Multijoueurs ».</small></div><button class="ambtn" id="amInv" type="button">Inviter des amis</button></li>
       </ol>
     </div>
   </section>
@@ -1039,7 +1040,7 @@ body.statsOn .dashbar{display:flex;align-items:center;justify-content:space-betw
 </div></div>
 <div class="overlay" id="tuto" role="dialog" aria-modal="true" aria-labelledby="tutoT"><div class="glass sheet tuto">
   <div class="tutohd"><span class="tag2" id="tutoN">1/3</span></div>
-  <div class="tutoico" id="tutoI">🎯</div><h3 id="tutoT">Comment jouer</h3><p class="note" id="tutoP"></p>
+  <div class="tutohero"><img class="tutopop" src="/d/pop-explique-171569b04b.webp" width="96" height="96" alt="" aria-hidden="true" decoding="async"><div class="tutoico" id="tutoI">🎯</div></div><h3 id="tutoT">Comment jouer</h3><p class="note" id="tutoP"></p>
   <div class="tutodots" id="tutoD"></div>
   <div class="tutobt"><button class="btn" id="tutoPrev" type="button">Retour</button><button class="btn primary" id="tutoNext" type="button">Suivant</button></div>
   <button class="tutox" id="tutoSkip" type="button">Passer le tutoriel</button>
