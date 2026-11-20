@@ -942,7 +942,7 @@ const server = http.createServer((req, res) => {
   const url = new URL(req.url, "http://x");
   // nouveau domaine : une fois SITE_URL réglé sur le domaine (ex. https://tuilo.fr), les visites de l'ancienne adresse
   // onrender sont redirigées (301) vers la même page du domaine. Les appels API (POST) et le WebSocket ne sont pas touchés.
-  if (OLDHOST_REDIRECT && (req.method === "GET" || req.method === "HEAD") && /\.onrender\.com$/i.test(String(req.headers.host || "").split(":")[0]) && !url.pathname.startsWith("/api/")) {
+  if (OLDHOST_REDIRECT && (req.method === "GET" || req.method === "HEAD") && /\.onrender\.com$/i.test(String(req.headers.host || "").split(":")[0]) && !url.pathname.startsWith("/api/") && url.pathname !== "/healthz") {   // /healthz jamais redirigé : le contrôle de santé de Render doit répondre ici
     // 20/11 : un joueur qui ouvre une page de l'ancienne adresse dans son navigateur garde sa session et ses réglages :
     // une petite page lit son stockage local (pseudo connecté, thème, son, tutoriels vus…) et l'emporte vers le domaine
     // dans le fragment de l'adresse (#motipop-transfert=…, jamais envoyé au serveur). Robots et fichiers : 301 classique.
