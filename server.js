@@ -884,7 +884,7 @@ function page(file, inject) {
   if (file.endsWith(".woff2")) { const raw = fs.readFileSync(file); return (pages[file] = { raw, gz: raw, br: raw, bin: true, etag: '"' + crypto.createHash("sha1").update(raw).digest("base64url").slice(0, 16) + '"', mtime: st.mtimeMs }); }   // police : binaire, déjà compressée
   let txt = fs.readFileSync(file, "utf8");
   if (txt.includes("{{CONTACT}}") || txt.includes("{{EDITEUR}}")) txt = txt.split("{{CONTACT}}").join(CONTACT_HTML).split("{{EDITEUR}}").join(EDITEUR_HTML);
-  if (inject) txt = txt.replace("<head>", "<head>\n<script>window.SUPPORT=" + SUPPORT + ";</script>" + (txt.includes('rel="canonical"') ? "" : seoTags(file, txt)));
+  if (inject) txt = txt.replace("<head>", "<head>\n<script>window.SUPPORT=" + SUPPORT + ";</script>" + (txt.includes('rel="manifest"') ? "" : '<link rel="manifest" href="/manifest.webmanifest">') + (txt.includes('rel="canonical"') ? "" : seoTags(file, txt)));
   return (pages[file] = { ...pack(Buffer.from(txt)), mtime: st.mtimeMs });
 }
 function sendBody(req, res, p, type, cache) {
@@ -982,6 +982,9 @@ const server = http.createServer((req, res) => {
   // icône du site (onglet du navigateur)
   // icônes Motipop : onglet (SVG) et écran d'accueil du téléphone (PNG)
   if (url.pathname === "/favicon.ico" || url.pathname === "/favicon.svg") { res.writeHead(200, { "content-type": "image/svg+xml", "cache-control": "public, max-age=86400" }); return res.end(FAVICON); }
+  // 20/11 : manifeste d'application (Motipop s'installe sur l'écran d'accueil du téléphone, plein écran, sans barre du navigateur)
+  if (url.pathname === "/manifest.webmanifest") { res.writeHead(200, { "content-type": "application/manifest+json; charset=utf-8", "cache-control": "public, max-age=86400" }); return res.end(JSON.stringify({ name: "Motipop — jeux de mots entre amis", short_name: "Motipop", lang: "fr", start_url: "/", scope: "/", display: "standalone", background_color: "#121214", theme_color: "#121214", icons: [{ src: "/motipop-192.png", sizes: "192x192", type: "image/png" }, { src: "/motipop-512.png", sizes: "512x512", type: "image/png" }] })); }
+  if (url.pathname === "/motipop-192.png") { res.writeHead(200, { "content-type": "image/png", "cache-control": "public, max-age=86400" }); return res.end(fs.readFileSync(path.join(__dirname, "public", "d", "motipop-192.png"))); }
   if (url.pathname === "/apple-touch-icon.png" || url.pathname === "/motipop-512.png") { const f = url.pathname === "/motipop-512.png" ? "motipop-512.png" : "motipop-180.png"; res.writeHead(200, { "content-type": "image/png", "cache-control": "public, max-age=86400" }); return res.end(fs.readFileSync(path.join(__dirname, "public", "d", f))); }
   if (/^\/(?:[A-Za-z0-9]{5}\/)?culture\/?$/.test(url.pathname)) return sendPage(req, res, path.join(__dirname, "public", "cg.html"));
   if (/^\/(?:[A-Za-z0-9]{5}\/)?fleches\/?$/.test(url.pathname)) return sendPage(req, res, path.join(__dirname, "public", "fl.html"));
