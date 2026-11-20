@@ -20,3 +20,7 @@ services:
         sync: false
       - key: UPSTASH_REDIS_REST_TOKEN
         sync: false
+      - key: SITE_URL         # adresse officielle (https://motipop.fr) — à régler sur Render une fois le certificat délivré
+        sync: false
+      - key: CONTACT_EMAIL    # adresse de contact affichée dans les mentions légales
+        sync: false
