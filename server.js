@@ -973,7 +973,7 @@ function page(file, inject) {
   if (file.endsWith(".woff2")) { const raw = fs.readFileSync(file); return (pages[file] = { raw, gz: raw, br: raw, bin: true, etag: '"' + crypto.createHash("sha1").update(raw).digest("base64url").slice(0, 16) + '"', mtime: st.mtimeMs }); }   // police : binaire, déjà compressée
   let txt = fs.readFileSync(file, "utf8");
   if (txt.includes("{{CONTACT}}") || txt.includes("{{EDITEUR}}")) txt = txt.split("{{CONTACT}}").join(CONTACT_HTML).split("{{EDITEUR}}").join(EDITEUR_HTML);
-  if (inject) txt = txt.replace("<head>", "<head>\n<script>window.SUPPORT=" + SUPPORT + ";</script>" + (txt.includes('rel="manifest"') ? "" : '<link rel="manifest" href="/manifest.webmanifest">') + TRANSFER_JS + (txt.includes('rel="canonical"') ? "" : seoTags(file, txt)));
+  if (inject) txt = txt.replace("<head>", "<head>\n<script>window.SUPPORT=" + SUPPORT + ";</script>" + (txt.includes('rel="manifest"') ? "" : '<link rel="manifest" href="/manifest.webmanifest">') + TRANSFER_JS + SW_REG + (txt.includes('rel="canonical"') ? "" : seoTags(file, txt)));
   return (pages[file] = { ...pack(Buffer.from(txt)), mtime: st.mtimeMs });
 }
 function sendBody(req, res, p, type, cache) {
@@ -1012,6 +1012,21 @@ function sendPage(req, res, file) {
 const STATIC = { js: "text/javascript; charset=utf-8", json: "application/json", svg: "image/svg+xml", css: "text/css; charset=utf-8", woff2: "font/woff2" };
 const skinCache = new Map();
 let cgIdx = null;
+const SW_REG = '<script>if("serviceWorker"in navigator&&(location.protocol==="https:"||location.hostname==="localhost"))addEventListener("load",function(){navigator.serviceWorker.register("/sw.js").catch(function(){})})</script>';
+const SW_JS = `// Motipop · service worker : n'enregistre que la page « hors connexion » (le jeu se charge toujours en ligne)
+const V = "motipop-hl-1", OFF = "/hors-ligne";
+self.addEventListener("install", e => { e.waitUntil(caches.open(V).then(c => c.add(new Request(OFF, { cache: "reload" }))).then(() => self.skipWaiting())); });
+self.addEventListener("activate", e => { e.waitUntil(caches.keys().then(ks => Promise.all(ks.filter(k => k !== V).map(k => caches.delete(k)))).then(() => self.clients.claim())); });
+self.addEventListener("fetch", e => { if (e.request.mode !== "navigate") return; e.respondWith(fetch(e.request).catch(() => caches.match(OFF))); });
+`;
+const OFFLINE_HTML = `<!DOCTYPE html><html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#12152e"><title>Motipop — pas de connexion</title>
+<style>html,body{margin:0;height:100%}body{display:grid;place-items:center;color:#eef2f7;font-family:system-ui,sans-serif;text-align:center;background:radial-gradient(900px 600px at 10% -10%,#0f3b3f,transparent 60%),radial-gradient(700px 500px at 100% 10%,#1b1440,transparent 55%),linear-gradient(160deg,#0b1d2a,#1b1440)}
+.b{display:flex;flex-direction:column;align-items:center;gap:14px;padding:28px 24px;margin:16px;max-width:340px;border-radius:24px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.18);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);box-shadow:0 10px 40px rgba(0,0,0,.35)}
+svg{width:120px;height:120px;animation:f 3s ease-in-out infinite}@keyframes f{50%{transform:translateY(-8px) rotate(3deg)}}
+h1{margin:0;font-size:1.3rem}p{margin:0;color:#a9b3c7;line-height:1.45}
+button{margin-top:6px;border:0;border-radius:14px;padding:12px 22px;font:700 1rem system-ui,sans-serif;color:#fff;background:linear-gradient(135deg,#00ADB5,#A26BFF);box-shadow:0 6px 20px rgba(0,173,181,.35)}
+@media (prefers-reduced-motion:reduce){svg{animation:none}}</style></head><body><div class="b">${fs.readFileSync(path.join(__dirname, "public", "d", "favicon.svg"), "utf8")}<h1>Pas de connexion</h1><p>Motipop a besoin d'internet pour jouer avec tout le monde. Dès que ton téléphone retrouve le réseau, on repart.</p><button onclick="location.reload()">Réessayer</button></div>
+<script>addEventListener("online",()=>location.reload())</script></body></html>`;
 const FAVICON = fs.readFileSync(path.join(__dirname, "public", "d", "favicon.svg"));
 function sendSkin(req, res, name, ext) {
   let buf = skinCache.get(name);
@@ -1107,7 +1122,13 @@ const server = http.createServer((req, res) => {
   // icônes Motipop : onglet (SVG) et écran d'accueil du téléphone (PNG)
   if (url.pathname === "/favicon.ico" || url.pathname === "/favicon.svg") { res.writeHead(200, { "content-type": "image/svg+xml", "cache-control": "public, max-age=86400" }); return res.end(FAVICON); }
   // 20/11 : manifeste d'application (Motipop s'installe sur l'écran d'accueil du téléphone, plein écran, sans barre du navigateur)
-  if (url.pathname === "/manifest.webmanifest") { res.writeHead(200, { "content-type": "application/manifest+json; charset=utf-8", "cache-control": "public, max-age=86400" }); return res.end(JSON.stringify({ name: "Motipop — jeux de mots entre amis", short_name: "Motipop", lang: "fr", start_url: "/", scope: "/", display: "standalone", background_color: "#121214", theme_color: "#121214", icons: [{ src: "/motipop-192.png", sizes: "192x192", type: "image/png" }, { src: "/motipop-512.png", sizes: "512x512", type: "image/png" }] })); }
+  if (url.pathname === "/manifest.webmanifest") { res.writeHead(200, { "content-type": "application/manifest+json; charset=utf-8", "cache-control": "public, max-age=3600" }); return res.end(JSON.stringify({ id: "/", name: "Motipop — jeux de mots entre amis", short_name: "Motipop", description: "Mot du jour, mots fléchés, Magnético, Wordflush, culture générale : jeux de mots en solo ou entre amis.", lang: "fr", dir: "ltr", start_url: "/?app=1", scope: "/", display: "standalone", orientation: "portrait", background_color: "#12152e", theme_color: "#12152e", categories: ["games", "education"], icons: [{ src: "/motipop-app-192.png", sizes: "192x192", type: "image/png", purpose: "any" }, { src: "/motipop-app-512.png", sizes: "512x512", type: "image/png", purpose: "any" }, { src: "/motipop-maskable-512.png", sizes: "512x512", type: "image/png", purpose: "maskable" }], shortcuts: [{ name: "Mot du jour", url: "/motdujour", icons: [{ src: "/motipop-app-192.png", sizes: "192x192" }] }] })); }
+  if (/^\/motipop-(app-192|app-512|maskable-512)\.png$/.test(url.pathname)) { res.writeHead(200, { "content-type": "image/png", "cache-control": "public, max-age=86400" }); return res.end(fs.readFileSync(path.join(__dirname, "public", "d", url.pathname.slice(1)))); }
+  // application installée (et future appli Android) : service worker minimal = écran « hors connexion » aux couleurs de Motipop
+  if (url.pathname === "/sw.js") { res.writeHead(200, { "content-type": "text/javascript; charset=utf-8", "cache-control": "no-cache", "service-worker-allowed": "/" }); return res.end(SW_JS); }
+  if (url.pathname === "/hors-ligne") { res.writeHead(200, { "content-type": "text/html; charset=utf-8", "cache-control": "no-cache" }); return res.end(OFFLINE_HTML); }
+  // lien entre l'appli Android (TWA) et le site : contenu fourni par PWABuilder/Bubblewrap, collé dans la variable ASSETLINKS_JSON sur Render
+  if (url.pathname === "/.well-known/assetlinks.json") { const a = (process.env.ASSETLINKS_JSON || "").trim(); if (!a) { res.writeHead(404, { "content-type": "application/json" }); return res.end("[]"); } res.writeHead(200, { "content-type": "application/json", "cache-control": "public, max-age=3600" }); return res.end(a); }
   if (url.pathname === "/motipop-192.png") { res.writeHead(200, { "content-type": "image/png", "cache-control": "public, max-age=86400" }); return res.end(fs.readFileSync(path.join(__dirname, "public", "d", "motipop-192.png"))); }
   if (url.pathname === "/apple-touch-icon.png" || url.pathname === "/motipop-512.png") { const f = url.pathname === "/motipop-512.png" ? "motipop-512.png" : "motipop-180.png"; res.writeHead(200, { "content-type": "image/png", "cache-control": "public, max-age=86400" }); return res.end(fs.readFileSync(path.join(__dirname, "public", "d", f))); }
   if (/^\/(?:[A-Za-z0-9]{5}\/)?culture\/?$/.test(url.pathname)) return sendPage(req, res, path.join(__dirname, "public", "cg.html"));

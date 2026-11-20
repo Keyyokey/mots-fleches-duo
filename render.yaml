@@ -24,3 +24,5 @@ services:
         sync: false
       - key: CONTACT_EMAIL    # adresse de contact affichée dans les mentions légales
         sync: false
+      - key: ASSETLINKS_JSON   # contenu de assetlinks.json donné par PWABuilder (appli Android)
+        sync: false
