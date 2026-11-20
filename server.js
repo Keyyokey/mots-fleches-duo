@@ -802,6 +802,7 @@ async function api(req, res, route) {
     if (!/^(fleches|rond|meles|poker|mot|culture|magnetico)$/.test(game) || !/^[A-Za-z0-9_-]{3,40}$/.test(gid)) return out(400, { error: "partie" });
     p.gids = Array.isArray(p.gids) ? p.gids : [];
     if (p.gids.includes(game + gid)) return out(200, { ok: true, dup: true, pts: p.pts });
+    statAdd(game + ":finie");
     let pts = Math.max(0, Math.min(800, Math.round(Number(b.pts) || 0)));
     if (game === "poker" || game === "mot") return out(200, { ok: true, add: 0, refus: "points non attribués par cette voie", pts: p.pts });   // aucun de ces jeux n'envoie de points ici
     if (b.solo) {
@@ -902,8 +903,27 @@ function sendBody(req, res, p, type, cache) {
   if (/\bgzip\b/.test(ae)) { res.writeHead(200, { ...h, "content-encoding": "gzip" }); return res.end(p.gz); }
   res.writeHead(200, h); res.end(p.raw);
 }
+// ---------- 20/11 : compteurs anonymes et journal d'erreurs (sans cookie, sans adresse IP enregistrée) ----------
+// Par jour (heure de Paris) : visites de l'accueil, parties ouvertes et finies par jeu, erreurs des pages. Gardé en mémoire,
+// recopié dans Redis toutes les 10 min (clé stat:AAAAMMJJ, 60 jours) : ~150 commandes par jour. Lecture : /admin/stats?key=…
+const STAT = { day: null, c: {}, errs: [], dirty: false };
+function statDay() { const d = parisDay(); if (STAT.day !== d) { if (STAT.day && STAT.dirty) statFlush(); STAT.day = d; STAT.c = {}; STAT.errs = []; STAT.dirty = false; } return d; }
+function statAdd(k, n = 1) { statDay(); STAT.c[k] = (STAT.c[k] || 0) + n; STAT.dirty = true; }
+function statFlush() { if (!REDIS || !STAT.day || !STAT.dirty) return; STAT.dirty = false; redis(["SET", "stat:" + STAT.day, JSON.stringify({ c: STAT.c, errs: STAT.errs }), "EX", String(60 * 86400)]).catch(e => { STAT.dirty = true; console.error("Compteurs non sauvegardés :", e.message); }); }
+setInterval(statFlush, 10 * 60e3).unref();
+process.on("SIGTERM", () => { try { statFlush(); } catch {} });
+if (REDIS) { const d = parisDay(); redis(["GET", "stat:" + d]).then(v => { try { const o = JSON.parse(v || "null"); if (!o) return; statDay(); for (const k in o.c || {}) STAT.c[k] = (STAT.c[k] || 0) + o.c[k]; STAT.errs = (o.errs || []).concat(STAT.errs).slice(-60); } catch {} }).catch(() => {}); }
+const errRate = new Map();   // limite : 20 erreurs par adresse et par heure (l'adresse reste en mémoire, seulement pour cette limite)
+function statErr(b, ip) {
+  const now = Date.now(), r = errRate.get(ip) || { n: 0, t: now }; if (now - r.t > 3600e3) { r.n = 0; r.t = now; } r.n++; errRate.set(ip, r); if (r.n > 20) return;
+  if (errRate.size > 5000) errRate.clear();
+  const cut = (v, n) => String(v == null ? "" : v).replace(/[\u0000-\u001f]/g, " ").slice(0, n);
+  const e = { t: new Date().toISOString().slice(11, 19), m: cut(b.m, 300), p: cut(b.p, 80), w: cut(b.w, 120), ua: /iPhone|iPad/.test(b.ua || "") ? "iOS" : /Android/.test(b.ua || "") ? "Android" : /Mobile/.test(b.ua || "") ? "mobile" : "ordinateur" };
+  statDay(); STAT.errs.push(e); if (STAT.errs.length > 60) STAT.errs.shift(); statAdd("erreurs"); console.error("Erreur joueur :", e.p, e.m, e.w, e.ua);
+}
 function sendPage(req, res, file) {
   let p; try { p = page(file, true); } catch { res.writeHead(500); return res.end("Page manquante"); }
+  try { if (req.method === "GET" && !/bot|spider|crawl|preview|uptime/i.test(req.headers["user-agent"] || "")) { const f = path.basename(file), g = { "fl.html": "fleches", "rd.html": "rond", "mm.html": "meles", "mg.html": "magnetico", "cg.html": "culture", "poker.html": "poker" }[f]; const q = String(req.url || ""); if (f === "accueil.html") statAdd("accueil"); else if (g) statAdd(g + ":" + (/[?&]go=multi/.test(q) ? "ouverte-multi" : /[?&]go=/.test(q) ? "ouverte-solo" : "ouverte")); } } catch {}
   sendBody(req, res, p, "text/html; charset=utf-8", "no-cache");
 }
 // données lourdes (grilles…) : nom de fichier versionné → mises en cache un an par le navigateur
@@ -927,6 +947,7 @@ async function adminRoute(req, res, url) {
     const key = url.searchParams.get("key") || req.headers["x-admin-key"];
     if (!adminOk(key)) { res.writeHead(404, { "content-type": "text/plain; charset=utf-8" }); return res.end("Introuvable"); }
     const J = (c, o) => { res.writeHead(c, { "content-type": "application/json; charset=utf-8", "cache-control": "no-store" }); res.end(JSON.stringify(o, null, 1)); };
+    if (url.pathname === "/admin/stats") { statFlush(); const days = []; for (let i = 0; i < 14; i++) { const d = parisDay(new Date(Date.now() - i * 86400e3)); let o = null; if (d === STAT.day) o = { c: STAT.c, errs: STAT.errs }; else if (REDIS) { try { o = JSON.parse(await redis(["GET", "stat:" + d]) || "null"); } catch {} } if (o) days.push({ jour: d, compteurs: o.c, erreurs: i === 0 ? o.errs : (o.errs || []).length }); } return J(200, { aide: "accueil = visites de l'accueil ; <jeu>:ouverte-solo / -multi = parties lancées ; <jeu>:finie = parties terminées avec points ; erreurs = pages qui ont planté chez un joueur (détail du jour)", jours: days }); }
     if (!REDIS) return J(503, { error: "Pas de stockage Redis sur ce serveur" });
     try {
       if (url.pathname === "/admin/sauvegardes" && req.method === "GET") return J(200, { sauvegardes: await listBackups(), aide: "Télécharger : /admin/telecharger?key=…&date=AAAAMMJJ · Sauvegarde immédiate : POST /admin/sauvegarder · Restaurer : POST /admin/restaurer?date=AAAAMMJJ&confirmer=RESTAURER" });
@@ -967,6 +988,11 @@ const server = http.createServer((req, res) => {
   if (am) return void api(req, res, am[1]).catch(e => { console.error(e); try { res.writeHead(500); res.end("{}"); } catch {} });
   // culture générale : index léger des questions (identifiant → type), puis seulement les questions de la partie
   if (url.pathname === "/d/cg-index.js") { cgIdx = cgIdx || pack(Buffer.from("window.__CGI=" + JSON.stringify(CAT.cgIndex()) + ";")); return sendBody(req, res, cgIdx, STATIC.js, "public, max-age=600"); }
+  if (url.pathname === "/api/err" && req.method === "POST") {
+    let body = ""; req.on("data", d => { body += d; if (body.length > 4000) req.destroy(); });
+    req.on("end", () => { try { statErr(JSON.parse(body || "{}"), clientIp(req)); } catch {} res.writeHead(204); res.end(); });
+    return;
+  }
   if (url.pathname === "/api/cg/q") {
     const ids = String(url.searchParams.get("ids") || "").split(",").filter(Boolean).slice(0, 30);
     const qs = ids.map(id => CAT.CGBY[id]).filter(Boolean);

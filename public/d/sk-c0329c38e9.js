@@ -1,3 +1,5 @@
+/* 20/11 : les erreurs de page des joueurs remontent au serveur (message court, page, type d'appareil ; rien d'autre) */
+(function(){if(window.__errOn)return;window.__errOn=1;let n=0;const send=(m,w)=>{if(n++>5||!m)return;try{const b=JSON.stringify({m:String(m).slice(0,300),w:String(w||"").slice(0,120),p:location.pathname,ua:navigator.userAgent});if(navigator.sendBeacon)navigator.sendBeacon("/api/err",new Blob([b],{type:"application/json"}));else fetch("/api/err",{method:"POST",body:b,keepalive:true})}catch(e){}};addEventListener("error",e=>{if(e&&e.message)send(e.message,String(e.filename||"").split("/").pop()+":"+e.lineno)});addEventListener("unhandledrejection",e=>{const r=e&&e.reason;send("promesse : "+(r&&r.message||r))})})();
 // ---------- habillage du site (maquette validée) : en-tête, bouton maison, attente, pause, mise en page ----------
 (function(){
 "use strict";
