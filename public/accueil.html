@@ -965,7 +965,7 @@ a.logo{text-decoration:none;color:inherit}a.logo:focus-visible{outline:2px solid
   <div class="tutohd"><span class="tag2" id="tutoN">1/3</span></div>
   <div class="tutoico" id="tutoI">🎯</div><h3 id="tutoT">Comment jouer</h3><p class="note" id="tutoP"></p>
   <div class="tutodots" id="tutoD"></div>
-  <div class="tutobt"><button class="btn" id="tutoPrev" type="button">← Retour</button><button class="btn primary" id="tutoNext" type="button">Suivant →</button></div>
+  <div class="tutobt"><button class="btn" id="tutoPrev" type="button">Retour</button><button class="btn primary" id="tutoNext" type="button">Suivant</button></div>
   <button class="tutox" id="tutoSkip" type="button">Passer le tutoriel</button>
 </div></div>
 <div class="overlay" id="cfg"><div class="glass sheet">
@@ -1451,10 +1451,13 @@ const TUTO={
  magnetico:[["🫧","Les syllabes arrivent","Elles entrent dans le cadre, flottent et s'entrechoquent. Attention : en Normal et Difficile, des syllabes pièges se glissent parmi elles."],["👆","Touche-les dans l'ordre","Chaque syllabe touchée file dans l'encadré du mot. Touche une case pour la renvoyer, puis « Valider »."],["⭐","Les points","Mot trouvé : 10 par syllabe × difficulté + bonus de vitesse. +1 par syllabe bien placée, −5 par essai faux. À plusieurs, le premier à trouver gagne +5."]],
  meles:[["🔎","Trouve les mots","Les mots de la liste sont cachés dans la grille, dans tous les sens, même à l'envers."],["👉","Glisse ou touche","Glisse du début à la fin du mot, ou touche sa 1re puis sa dernière lettre."],["⚡","Le plus rapide gagne","Chaque mot trouvé rapporte des points. À deux, un mot déjà pris ne compte plus."]],
  culture:[["❓","10 questions mélangées","Images, culture, calculs, casse-tête et une question « Tout le monde a son mot à dire »."],["⏱️","20 secondes","Choisis parmi 4 réponses (touches 1 à 4). Bonne réponse : 10 points, et jusqu'à 5 de plus si tu es rapide."],["🗣️","À toi de le dire","Pour « Tout le monde a son mot à dire », tape ta réponse en 30 s : toutes les bonnes réponses comptent, une réponse originale rapporte +3."]],
- poker:[["🃏","Tes lettres","Tu reçois 2 lettres cachées ; 5 lettres communes arrivent au milieu (3, puis 1, puis 1)."],["🪙","Mise ou couche-toi","À chaque étape : parole, suivre, relancer, tapis ou se coucher. Si tout le monde se couche, tu gagnes le pot."],["🏆","Le meilleur mot","À la fin, forme un mot avec tes lettres et celles du milieu (au moins une des tiennes). Le meilleur score emporte le pot."]]};
+ poker:[["🃏","Tes lettres","Tu reçois 2 lettres cachées. L'Académicien retourne 3 lettres au milieu, puis les 2 dernières."],["🪙","Mise ou arrête-toi","À chaque tour, deux choix : S'arrêter ou Miser. Si quelqu'un mise plus, égale sa mise ou arrête-toi. Si tous les autres s'arrêtent, tu gagnes le pot."],["🏆","Le meilleur mot","À la fin, forme un mot avec tes lettres et celles du milieu (au moins une des tiennes). Le meilleur score emporte le pot."]]};
+// 20/11 : dernière étape commune, les réglages du jeu
+const TUTO_REG={fleches:"Change le niveau et la grille",rond:"Change le niveau et la grille",meles:"Change le niveau et la grille",magnetico:"Change le niveau",culture:"Choisis de jouer seul ou à plusieurs",poker:"Change la mise, le nombre de coups, le temps et le niveau du robot"};
+Object.keys(TUTO).forEach(k=>TUTO[k].push(["⚙️","À ta façon",(TUTO_REG[k]||"Ajuste la partie")+" quand tu veux, avec le bouton «\u00a0Réglages\u00a0» de la carte du jeu."]));
 function tuto(k,done){const S=TUTO[k];if(!S||LS.get("fl-tuto-"+k))return done();let i=0;const o=$("#tuto");
   const show=()=>{const [ic,t,p]=S[i];$("#tutoI").textContent=ic;$("#tutoT").textContent=t;$("#tutoP").textContent=p;$("#tutoN").textContent=(i+1)+"/"+S.length;
-    $("#tutoD").innerHTML=S.map((_,j)=>'<i class="'+(j===i?"on":"")+'"></i>').join("");$("#tutoPrev").hidden=!i;$("#tutoNext").textContent=i===S.length-1?"▶ Jouer":"Suivant →";$("#tutoNext").focus()};
+    $("#tutoD").innerHTML=S.map((_,j)=>'<i class="'+(j===i?"on":"")+'"></i>').join("");$("#tutoPrev").hidden=!i;$("#tutoNext").textContent=i===S.length-1?"Jouer":"Suivant";$("#tutoNext").focus()};
   const end=()=>{LS.set("fl-tuto-"+k,"1");o.classList.remove("on");document.removeEventListener("keydown",kd);done()};
   const kd=e=>{if(e.key==="Escape")end()};document.addEventListener("keydown",kd);
   $("#tutoNext").onclick=()=>{if(i<S.length-1){i++;show()}else end()};$("#tutoPrev").onclick=()=>{if(i){i--;show()}};$("#tutoSkip").onclick=end;{const x=o.querySelector(".xbtn");if(x)x.onclick=e=>{e.stopPropagation();end()}}

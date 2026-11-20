@@ -6,10 +6,10 @@ const U='http://localhost:3999';const res=[];const ok=(c,l)=>{res.push((c?'✅ '
  await p.goto(U+'/');await p.waitForTimeout(900);await p.evaluate(()=>Object.keys(localStorage).filter(k=>k.startsWith('fl-tuto')).forEach(k=>localStorage.removeItem(k)));await p.goto(U+'/');await p.waitForTimeout(900);NV.length=0;
  await mode('rond','[data-mode=solo]');
  ok(await p.evaluate(()=>document.querySelector('#tuto').classList.contains('on'))&&!NV.some(u=>/go=/.test(u)),'1re fois au Tourniquet : le tutoriel s\'ouvre avant la partie');
- const t1=await p.textContent('#tutoT'),n1=await p.textContent('#tutoN');ok(n1==='1/3','étape 1/3 : '+t1);
- await p.keyboard.press('Enter');await p.waitForTimeout(150);ok(await p.textContent('#tutoN')==='2/3','« Suivant » (clavier) → étape 2');
- await p.click('#tutoPrev');ok(await p.textContent('#tutoN')==='1/3','« Retour » → étape 1');
- await p.click('#tutoNext');await p.click('#tutoNext');ok(/Jouer/.test(await p.textContent('#tutoNext')),'dernière étape : bouton « Jouer »');
+ const t1=await p.textContent('#tutoT'),n1=await p.textContent('#tutoN');ok(n1==='1/4','étape 1/4 : '+t1);
+ await p.keyboard.press('Enter');await p.waitForTimeout(150);ok(await p.textContent('#tutoN')==='2/4','« Suivant » (clavier) → étape 2');
+ await p.click('#tutoPrev');ok(await p.textContent('#tutoN')==='1/4','« Retour » → étape 1');
+ await p.click('#tutoNext');await p.click('#tutoNext');await p.click('#tutoNext');ok(/Réglages/.test(await p.textContent('#tutoP')),'dernière étape : les réglages du jeu');ok(!/[←→▶]/.test(await p.textContent('#tutoNext')+await p.textContent('#tutoPrev')),'boutons sans flèche');ok(/Jouer/.test(await p.textContent('#tutoNext')),'dernière étape : bouton « Jouer »');
  await p.click('#tutoNext');await p.waitForTimeout(1200);ok(NV.some(u=>/\/rond\?go=solo/.test(u)),'« Jouer » lance la partie');
  await p.goto(U+'/');await p.waitForTimeout(900);NV.length=0;await mode('rond','[data-mode=solo]');await p.waitForTimeout(800);ok(NV.some(u=>/\/rond\?go=solo/.test(u)),'2e fois : plus de tutoriel, lancement direct');
  await p.goto(U+'/');await p.waitForTimeout(900);NV.length=0;await mode('culture','[data-mode=solo]');await p.click('#tuto .xbtn');await p.waitForTimeout(1200);ok(NV.some(u=>/\/culture\?go=solo/.test(u)),'« Passer » lance aussi la partie');
