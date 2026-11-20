@@ -860,6 +860,9 @@ function pack(raw) {
 }
 // ---------- référencement : adresse canonique, aperçu de partage, robots.txt, sitemap.xml ----------
 const SITE = (process.env.SITE_URL || "https://mots-fleches-duo.onrender.com").replace(/\/$/, "");
+// arrivée depuis l'ancienne adresse : on range la session et les réglages emportés (sans écraser ce qui existe déjà ici),
+// seulement si l'on vient bien de l'ancienne adresse (le referrer), puis on efface le fragment de l'adresse
+const TRANSFER_JS = '<script>(function(){var h=location.hash,m="#motipop-transfert=";if(h.indexOf(m)!==0)return;try{if(/^https:\\/\\/[a-z0-9-]+\\.onrender\\.com\\//.test(document.referrer)){var d=JSON.parse(decodeURIComponent(h.slice(m.length)));for(var k in d)if(/^fl-/.test(k)&&typeof d[k]==="string"&&localStorage.getItem(k)===null)localStorage.setItem(k,d[k])}}catch(e){}history.replaceState(null,"",location.pathname+location.search)})()</script>';
 const OLDHOST_REDIRECT = !/\.onrender\.com/i.test(SITE);   // actif seulement quand SITE_URL est un vrai domaine
 const CANON = { "regles.html": "/regles", "legal.html": "/mentions-legales", "accueil.html": "/", "fl.html": "/fleches", "rd.html": "/rond", "mm.html": "/meles", "mg.html": "/magnetico", "cg.html": "/culture", "poker.html": "/poker" };
 function seoTags(file, txt) {
@@ -884,7 +887,7 @@ function page(file, inject) {
   if (file.endsWith(".woff2")) { const raw = fs.readFileSync(file); return (pages[file] = { raw, gz: raw, br: raw, bin: true, etag: '"' + crypto.createHash("sha1").update(raw).digest("base64url").slice(0, 16) + '"', mtime: st.mtimeMs }); }   // police : binaire, déjà compressée
   let txt = fs.readFileSync(file, "utf8");
   if (txt.includes("{{CONTACT}}") || txt.includes("{{EDITEUR}}")) txt = txt.split("{{CONTACT}}").join(CONTACT_HTML).split("{{EDITEUR}}").join(EDITEUR_HTML);
-  if (inject) txt = txt.replace("<head>", "<head>\n<script>window.SUPPORT=" + SUPPORT + ";</script>" + (txt.includes('rel="manifest"') ? "" : '<link rel="manifest" href="/manifest.webmanifest">') + (txt.includes('rel="canonical"') ? "" : seoTags(file, txt)));
+  if (inject) txt = txt.replace("<head>", "<head>\n<script>window.SUPPORT=" + SUPPORT + ";</script>" + (txt.includes('rel="manifest"') ? "" : '<link rel="manifest" href="/manifest.webmanifest">') + TRANSFER_JS + (txt.includes('rel="canonical"') ? "" : seoTags(file, txt)));
   return (pages[file] = { ...pack(Buffer.from(txt)), mtime: st.mtimeMs });
 }
 function sendBody(req, res, p, type, cache) {
@@ -937,6 +940,15 @@ const server = http.createServer((req, res) => {
   // nouveau domaine : une fois SITE_URL réglé sur le domaine (ex. https://tuilo.fr), les visites de l'ancienne adresse
   // onrender sont redirigées (301) vers la même page du domaine. Les appels API (POST) et le WebSocket ne sont pas touchés.
   if (OLDHOST_REDIRECT && (req.method === "GET" || req.method === "HEAD") && /\.onrender\.com$/i.test(String(req.headers.host || "").split(":")[0]) && !url.pathname.startsWith("/api/")) {
+    // 20/11 : un joueur qui ouvre une page de l'ancienne adresse dans son navigateur garde sa session et ses réglages :
+    // une petite page lit son stockage local (pseudo connecté, thème, son, tutoriels vus…) et l'emporte vers le domaine
+    // dans le fragment de l'adresse (#motipop-transfert=…, jamais envoyé au serveur). Robots et fichiers : 301 classique.
+    const nav = req.method === "GET" && req.headers["sec-fetch-mode"] === "navigate" && /text\/html/.test(req.headers.accept || "") && !/\.[a-z0-9]{2,5}$/i.test(url.pathname);
+    if (nav) {
+      const to = JSON.stringify(SITE + url.pathname + url.search).replace(/</g, "\\u003c");
+      res.writeHead(200, { "content-type": "text/html; charset=utf-8", "cache-control": "no-store", "x-robots-tag": "noindex" });
+      return res.end('<!doctype html><html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex"><title>Motipop déménage…</title></head><body style="margin:0;min-height:100vh;display:grid;place-items:center;background:#121214;color:#ECEDF2;font-family:system-ui,sans-serif">Motipop déménage sur ' + escH(SITE.replace(/^https?:\/\//, "")) + '…<script>(function(){var to=' + to + ',d={};try{for(var i=0;i<localStorage.length;i++){var k=localStorage.key(i);if(/^fl-(me|theme|sound|deco|icons|guest-asked|salon-names|tuto-|cfg-lvl-)/.test(k)){var v=localStorage.getItem(k);if(v&&v.length<4000)d[k]=v}}}catch(e){}var j=JSON.stringify(d);if(j!=="{}")to+="#motipop-transfert="+encodeURIComponent(j);location.replace(to)})()</script></body></html>');
+    }
     res.writeHead(301, { location: SITE + url.pathname + url.search, "cache-control": "public, max-age=3600" }); return res.end();
   }
   if (url.pathname.startsWith("/admin/")) return void adminRoute(req, res, url);
