@@ -241,7 +241,9 @@ function tone(f,d,type,vol,f2,delay){if(!AC||sndOff())return;try{const t=AC.curr
 function noise(d,f1,f2,vol,delay){if(!AC||sndOff())return;try{if(!NB){NB=AC.createBuffer(1,AC.sampleRate,AC.sampleRate);const a=NB.getChannelData(0);for(let i=0;i<a.length;i++)a[i]=Math.random()*2-1}const t=AC.currentTime+(delay||0),s=AC.createBufferSource(),bp=AC.createBiquadFilter(),g=AC.createGain();s.buffer=NB;bp.type="bandpass";bp.Q.value=1.4;bp.frequency.setValueAtTime(f1,t);bp.frequency.exponentialRampToValueAtTime(f2,t+d);g.gain.setValueAtTime(.0001,t);g.gain.exponentialRampToValueAtTime(vol,t+d*.4);g.gain.exponentialRampToValueAtTime(.0001,t+d);s.connect(bp);bp.connect(g);g.connect(AC.destination);s.start(t);s.stop(t+d+.03)}catch(e){}}
 const SFX={enter:()=>{noise(.55,1800,700,.06);tone(330,.35,"sine",.05,520)},
   pop:k=>{tone(480,.1,"sine",.26,1300);noise(.06,2600,5000,.06);tone(NOTES[k%6],.3,"triangle",.14,0,.08)},
-  back:()=>tone(700,.12,"sine",.1,350),bump:v=>tone(160+v*30,.1,"sine",.08,90),
+  back:()=>tone(700,.12,"sine",.1,350),bump:v=>{tone(380+v*90,.11,"triangle",.13+v*.03,220);noise(.035,2200,4200,.05)},   // choc entre syllabes : « toc » de verre, audible sur téléphone
+   pass:(r,v)=>{const f=Math.max(900,1700-r*28)+v*120;tone(f,.08,"sine",.07+Math.min(.07,v*.035),f*.6);noise(.025,3500,6500,.03)},   // choc d'une petite bulle de passage : « plic » plus aigu
+
   lock:()=>{tone(880,.14,"triangle",.11);tone(1320,.18,"triangle",.07,0,.08)},
   ok:()=>{[523,659,784,1047].forEach((f,j)=>tone(f,.24,"triangle",.17,0,j*.09));tone(2093,.5,"sine",.05,0,.36)},
   bad:()=>{tone(440,.17,"square",.07);tone(330,.24,"square",.07,0,.18);tone(220,.32,"sawtooth",.04,170,.18)},
@@ -496,7 +498,8 @@ function boot(){const go=Q.get("go"),lvl=Q.get("lvl")||"facile";
     if(d&&d.players&&!d.solo){open(d);return}location.replace(HOME)}},100)}
 function start(){if(window.MG_MOTS)return boot();const t=setInterval(()=>{if(window.MG_MOTS){clearInterval(t);boot()}},50)}
 // accès réservé aux tests automatiques sur la copie locale (jamais sur le site en ligne)
-window.__mgOn=()=>({R,balls:balls.filter(b=>b.on&&!b.entering)});   // pour les bulles de passage (chocs)
+window.__mgOn=()=>({R,balls:balls.filter(b=>b.on&&!b.entering)});
+let lastPass=0;window.__mgFx=(r,v,x,y)=>{const now=performance.now();if(now-lastPass<70)return;lastPass=now;SFX.pass(r,v);const bb=bursts.reduce((m,z)=>z.t<m.t?z:m);bb.t=now;bb.x=x;bb.y=y};   // son + petite étincelle au choc d'une bulle de passage   // pour les bulles de passage (chocs)
 if(location.hostname==="localhost")window.__t=c=>eval(c);
 requestAnimationFrame(loop);start();
 })();
@@ -521,10 +524,10 @@ requestAnimationFrame(loop);start();
     const S=window.__mgOn?window.__mgOn():{R:36,balls:[]};
     act.forEach(p=>{p.x+=p.vx*dt;p.y+=p.vy*dt;
       // chocs avec les syllabes : la petite bulle rebondit, la syllabe reçoit une petite poussée (masse plus forte)
-      S.balls.forEach(b=>{if(hit(p,b,p.r,S.R,p.r*p.r,S.R*S.R)){window.__mgPassHits=(window.__mgPassHits||0)+1;if(b.core){b.core.classList.remove("hit");void b.core.offsetWidth;b.core.classList.add("hit")}}});
+      S.balls.forEach(b=>{const vr=Math.hypot(p.vx-b.vx,p.vy-b.vy);if(hit(p,b,p.r,S.R,p.r*p.r,S.R*S.R)){window.__mgPassHits=(window.__mgPassHits||0)+1;if(window.__mgFx){const d=Math.hypot(b.x-p.x,b.y-p.y)||1;window.__mgFx(p.r,Math.min(2,vr),p.x+(b.x-p.x)/d*p.r,p.y+(b.y-p.y)/d*p.r)}if(b.core){b.core.classList.remove("hit");void b.core.offsetWidth;b.core.classList.add("hit")}}});
       // la vitesse reste vive après un choc
       const sp=Math.hypot(p.vx,p.vy);if(sp<.7){p.vx*=.7/(sp||1);p.vy*=.7/(sp||1)}else if(sp>2.6){p.vx*=2.6/sp;p.vy*=2.6/sp}});
-    for(let i=0;i<act.length;i++)for(let k=i+1;k<act.length;k++)hit(act[i],act[k],act[i].r,act[k].r,act[i].r*act[i].r,act[k].r*act[k].r);
+    for(let i=0;i<act.length;i++)for(let k=i+1;k<act.length;k++){const A=act[i],B=act[k],vr=Math.hypot(A.vx-B.vx,A.vy-B.vy);if(hit(A,B,A.r,B.r,A.r*A.r,B.r*B.r)&&window.__mgFx)window.__mgFx(Math.min(A.r,B.r),Math.min(2,vr),(A.x+B.x)/2,(A.y+B.y)/2)}
     act.forEach(p=>{const out=p.x<-p.r-2||p.x>w+p.r+2||p.y<-p.r-2||p.y>h+p.r+2;   // aux bords : elle sort, sans rebond, et ne revient pas
       if(out&&(p.inside||now-p.born>4000)){p.on=false;p.e.style.opacity=0;return}if(!out&&p.x>p.r&&p.x<w-p.r&&p.y>p.r&&p.y<h-p.r)p.inside=true;
       p.e.style.transform="translate("+(p.x-p.r).toFixed(1)+"px,"+(p.y-p.r).toFixed(1)+"px)"})}
