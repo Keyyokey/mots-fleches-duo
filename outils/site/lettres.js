@@ -1,6 +1,6 @@
 /* Motipop · pluie de lettres (accueil 20/11/2026, toutes les pages depuis le 20/11 midi)
    Des tuiles de verre portant une lettre descendent lentement dans les marges vides, sur ordinateur seulement
-   (dès qu'une marge dépasse 110 px). Rien sur téléphone. Suit le bouton « Décor de saison » (body.nodeco = coupé)
+   (dès qu'une marge dépasse 110 px) ; sur téléphone, en filigrane derrière le contenu. Suit le bouton « Décor de saison » (body.nodeco = coupé)
    et le réglage « réduire les animations » du système. En pause quand l'onglet est caché. */
 (function () {
   if (window.__lettres) return; window.__lettres = 1;
@@ -12,7 +12,7 @@
   cv.style.cssText = "position:fixed;inset:0;width:100vw;height:100vh;pointer-events:none;z-index:0";
   document.body.prepend(cv);
   const ctx = cv.getContext("2d");
-  let W = 0, H = 0, dpr = 1, zones = [], drops = [], last = 0, raf = 0;
+  let W = 0, H = 0, dpr = 1, zones = [], drops = [], last = 0, raf = 0, full = false, over = false;
   // la zone occupée : <main> sur l'accueil ; sur les autres pages, l'ensemble des cartes de verre visibles (le jeu, pas l'en-tête)
   function content() {
     const m = document.querySelector("main"); if (m) return m.getBoundingClientRect();
@@ -28,18 +28,22 @@
     if (resize !== false) { dpr = Math.min(2, window.devicePixelRatio || 1); W = innerWidth; H = innerHeight; cv.width = W * dpr; cv.height = H * dpr; ctx.setTransform(dpr, 0, 0, dpr, 0, 0); }
     const r = content(); zones = [];
     if (r) { if (r.left > 110) zones.push([12, r.left - 24]); if (W - r.right > 110) zones.push([r.right + 24, W - 12]); }
+    // téléphone et écran étroit : pas de marge libre → les lettres passent en filigrane derrière tout le contenu (plus rares et plus pâles)
+    const was = full; full = !zones.length && W <= 900; if (full) zones.push([6, W - 6]); if (was !== full) drops.length = 0;
+    // accueil sur téléphone : vrai filigrane, par-dessus les cartes (très pâle, ne capte pas le toucher) ; jeux : toujours derrière
+    over = full && !!document.querySelector("main"); cv.style.zIndex = over ? "30" : "0";
     drops = drops.filter(d => zones.some(z => d.x >= z[0] && d.x <= z[1]));
   }
   const active = () => zones.length && !RM.matches && !document.body.classList.contains("nodeco") && !document.hidden;
   function spawn(top) {
-    const z = zones[Math.floor(Math.random() * zones.length)], s = 26 + Math.random() * 18;
+    const z = zones[Math.floor(Math.random() * zones.length)], s = full ? 22 + Math.random() * 16 : 26 + Math.random() * 18;
     drops.push({ x: z[0] + s / 2 + Math.random() * Math.max(1, z[1] - z[0] - s), y: top ? Math.random() * H : -40, s,
       v: 14 + Math.random() * 16, a: (Math.random() - .5) * .5, va: (Math.random() - .5) * .25, sw: Math.random() * 6.28,
-      l: POOL[Math.floor(Math.random() * POOL.length)], o: .45 + Math.random() * .4 });
+      l: POOL[Math.floor(Math.random() * POOL.length)], o: full ? .3 + Math.random() * .25 : .45 + Math.random() * .4 });
   }
   function tile(d, light) {
     const s = d.s, h = s / 2, fade = Math.min(1, (H - d.y) / 160, (d.y + 40) / 120);
-    ctx.save(); ctx.translate(d.x + Math.sin(d.sw) * 6, d.y); ctx.rotate(d.a); ctx.globalAlpha = Math.max(0, d.o * fade);
+    ctx.save(); ctx.translate(d.x + Math.sin(d.sw) * 6, d.y); ctx.rotate(d.a); ctx.globalAlpha = Math.max(0, d.o * fade * (over ? .75 : 1));
     ctx.beginPath(); ctx.roundRect ? ctx.roundRect(-h, -h, s, s, s * .24) : ctx.rect(-h, -h, s, s);
     ctx.fillStyle = light ? "rgba(15,25,40,.05)" : "rgba(255,255,255,.07)"; ctx.fill();
     ctx.lineWidth = 1; ctx.strokeStyle = light ? "rgba(15,25,40,.16)" : "rgba(255,255,255,.22)"; ctx.stroke();
@@ -53,7 +57,7 @@
     const dt = Math.min(.1, (t - last) / 1000); last = t;
     ctx.clearRect(0, 0, W, H);
     if (!active()) { drops.length = 0; return; }
-    const want = zones.reduce((n, z) => n + Math.round((z[1] - z[0]) * H / 15000), 0);
+    const want = full ? Math.max(8, Math.round(W * H / 24000)) : zones.reduce((n, z) => n + Math.round((z[1] - z[0]) * H / 15000), 0);
     while (drops.length < want) spawn(drops.length < want / 2 && t < 4000);
     const light = document.documentElement.dataset.theme === "light";
     drops.forEach(d => { d.y += d.v * dt; d.a += d.va * dt; d.sw += dt * .6; tile(d, light); });

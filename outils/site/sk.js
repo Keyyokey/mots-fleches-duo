@@ -260,7 +260,7 @@ function wireHeader(){
   q(".me-pill").onclick=e=>{e.stopPropagation();if(q("#popMe").classList.contains("on"))return closePops();openMe(e.currentTarget)};
   q(".salon-pill").onclick=e=>{e.stopPropagation();if(q("#popSalon").classList.contains("on"))return closePops();openSalon(e.currentTarget)};
   qa("[data-open=share]").forEach(b=>b.onclick=share);
-  q("#skTheme").onclick=()=>click("themeBtn");{const mu=()=>{const M=window.MotipopMusique;if(M){M.bind(q("#skMusic"));M.bind(q("#mMusic"),true)}};if(window.MotipopMusique)mu();else{const sc=D.createElement("script");sc.src="/d/musique-03168f1501.js";sc.onload=mu;D.head.appendChild(sc)}}if(!window.__lettres){const sl=D.createElement("script");sl.src="/d/lettres-f0413a04ed.js";sl.defer=true;D.head.appendChild(sl)}q("#skSound").onclick=()=>click("soundBtn");
+  q("#skTheme").onclick=()=>click("themeBtn");{const mu=()=>{const M=window.MotipopMusique;if(M){M.bind(q("#skMusic"));M.bind(q("#mMusic"),true)}};if(window.MotipopMusique)mu();else{const sc=D.createElement("script");sc.src="/d/musique-03168f1501.js";sc.onload=mu;D.head.appendChild(sc)}}if(!window.__lettres){const sl=D.createElement("script");sl.src="/d/lettres-6b068b8922.js";sl.defer=true;D.head.appendChild(sl)}q("#skSound").onclick=()=>click("soundBtn");
   q("#skDeco").onclick=()=>{click("decoBtn");setTimeout(syncTheme,60)};
   q(".logo").style.cursor="pointer";q(".logo").onclick=()=>leaveOrHome();
   qa(".pop").forEach(p=>p.addEventListener("click",e=>e.stopPropagation()));
