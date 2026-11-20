@@ -853,7 +853,17 @@ const DOC="cg",SOLOKEY="fl2-solo-culture",GAME="culture",NQ=10,TQ=20000,AUTO=150
 const IDX=window.__CGI||{},KIND={},BYID={};Object.keys(IDX).forEach(k=>IDX[k].forEach(id=>KIND[id]=k));const ALLIDS=Object.keys(KIND);
 const QUOTA={img:3,txt:2,calc:2,puz:2,sond:1};
 function loadQs(ids){const miss=(ids||[]).filter(id=>!BYID[id]);if(!miss.length)return Promise.resolve(true);
-  return fetch("/api/cg/q?ids="+miss.map(encodeURIComponent).join(",")).then(r=>r.ok?r.json():[]).then(L=>{L.forEach(q=>BYID[q.id]=q);ids.forEach(id=>{const q=BYID[id];if(q&&q.img){const im=new Image();im.decoding="async";im.src=q.img}});return ids.every(id=>BYID[id])}).catch(()=>false)}
+  return fetch("/api/cg/q?ids="+miss.map(encodeURIComponent).join(",")).then(r=>r.ok?r.json():[]).then(L=>{L.forEach(q=>BYID[q.id]=q);ids.forEach(id=>{const q=BYID[id];if(q&&q.img&&!IMGOK[id]){IMGOK[id]="…";const im=new Image();im.decoding="async";im.onload=()=>{IMGOK[id]="ok"};im.onerror=()=>{IMGOK[id]="ko";imgSwap()};im.src=q.img}});return ids.every(id=>BYID[id])}).catch(()=>false)}
+// 20/11 : plan B des photos. Une photo qui ne se charge pas (fichier renommé chez Wikimedia, réseau lent…) rendrait la question
+// injouable. En solo, toute question à venir dont la photo a échoué est remplacée par une autre question avec photo (ou, à défaut,
+// par une question sans photo) ; la question en cours repart avec son chrono complet. À plusieurs, on garde la question
+// (même série pour tous) et on affiche « photo indisponible » : personne ne perd de points en ne répondant pas.
+const IMGOK={};
+function imgSwap(){if(!G||!G.solo||G.done||imgSwap.busy)return;const bad=G.qs.map((id,i)=>[id,i]).filter(([id,i])=>IMGOK[id]==="ko"&&i>=G.i&&!G.ans[i+"-0"]);if(!bad.length)return;
+  const used=new Set(G.qs),pool=k=>(IDX[k]||[]).filter(id=>!used.has(id)&&IMGOK[id]!=="ko");
+  imgSwap.n=(imgSwap.n||0)+bad.length;const noImg=imgSwap.n>6;   // Wikimedia en panne : après 6 photos ratées, on passe aux questions sans photo
+  const repl=bad.map(([id,i])=>{const L=!noImg&&pool("img").length?pool("img"):pool("txt").length?pool("txt"):ALLIDS.filter(x=>!used.has(x)&&KIND[x]!=="img");const n=L[Math.floor(Math.random()*L.length)];if(n)used.add(n);return[i,n]}).filter(x=>x[1]);
+  if(!repl.length)return;imgSwap.busy=1;loadQs(repl.map(x=>x[1])).then(()=>{imgSwap.busy=0;if(!G||G.done)return;repl.forEach(([i,n])=>{G.qs[i]=n;if(i===G.i)G.qStart=Date.now()});drawn="";save();render()})}
 const tqOf=q=>q&&q.k==="sond"?30000:TQ;
 // « tout le monde a son mot à dire » : réponse tapée, comparée sans accents, majuscules, articles ni pluriel (1 faute de frappe tolérée)
 function nrm(x){return String(x||"").toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/[’']/g," ").replace(/[^a-z0-9 ]/g," ").replace(/\b(le|la|les|l|un|une|des|du|de|d)\b/g," ").replace(/\s+/g," ").trim().split(" ").map(w=>w.length>3?w.replace(/(s|x)$/,""):w).join(" ")}
@@ -948,7 +958,7 @@ function render(){document.body.classList.remove("booting");if(!G)return;documen
   if(G.done)endShow();tick()}
 const KLAB={calc:"🧮 ",puz:"🧩 ",sond:"🗣️ "};
 function draw(q){$("#cgTheme").textContent=(KLAB[q.k]||"")+q.t;$("#cgA").hidden=q.k==="sond";$("#cgS").hidden=q.k!=="sond";if(q.k==="sond"){$("#cgSrc").textContent="";$("#cgQ").textContent=q.q;sondDraw(q);return}$("#cgS").innerHTML="";$("#cgSrc").textContent="";$("#cgQ").textContent=q.q;
-  const f=$("#cgFig");if(q.img){f.hidden=false;const im=f.querySelector("img");im.alt="Illustration de la question";im.src=q.img;f.querySelector("figcaption").innerHTML=""}else{f.hidden=true;f.querySelector("img").removeAttribute("src")}
+  const f=$("#cgFig");if(q.img){f.hidden=false;const im=f.querySelector("img"),fc=f.querySelector("figcaption");im.alt="Illustration de la question";fc.innerHTML="";im.onerror=()=>{IMGOK[q.id]="ko";if(G&&G.solo)imgSwap();else fc.textContent="Photo indisponible : personne ne perd de points sur cette question."};im.onload=()=>{IMGOK[q.id]="ok"};im.src=q.img}else{f.hidden=true;f.querySelector("img").removeAttribute("src")}
   const A=$("#cgA");A.innerHTML="";order(q).forEach((k,i)=>{const b=document.createElement("button");b.dataset.l="ABCD"[i];b.dataset.k=k;b.textContent=q.a[k];b.onclick=()=>answer(k);A.appendChild(b)})}
 function sondDraw(q){const f=$("#cgFig");f.hidden=true;f.querySelector("img").removeAttribute("src");$("#cgA").innerHTML="";
   $("#cgS").innerHTML='<form class="cgsf" autocomplete="off"><input id="cgIn" maxlength="40" placeholder="Ta réponse…" aria-label="Ta réponse" enterkeyhint="send"><button class="btn primary" type="submit">Valider</button></form><div class="note cgshint">Toutes les bonnes réponses comptent. Une réponse originale rapporte <b>+3</b>. 30 secondes.</div><div id="cgSL"></div>';
