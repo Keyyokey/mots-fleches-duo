@@ -756,13 +756,20 @@ const MJ = (() => {
     return v;
   }
   async function board(day) {
-    const m = await load(day); let found = 0, played = 0; const today = [];
-    for (const [id, st] of m) { played++; if (st.ok) { found++; if (!id.startsWith("g:")) today.push({ name: id, n: st.t.length, ms: st.ms }); } }
-    today.sort((a, b) => a.n - b.n || a.ms - b.ms);
+    // classement du jour (joueurs avec pseudo) : d'abord ceux qui ont trouvé (moins d'essais, puis plus rapide),
+    // puis les autres selon le nombre de lettres bien placées découvertes (cases vertes différentes), puis moins d'essais
+    const m = await load(day), w = wordOf(day); let found = 0, played = 0; const today = [];
+    for (const [id, st] of m) {
+      const t = st.t || []; if (!t.length) continue; played++; if (st.ok) found++;
+      if (id.startsWith("g:")) continue;
+      const pos = new Set(); t.forEach(g => colors(g, w).forEach((c, i) => { if (c === 2) pos.add(i); }));
+      today.push({ name: id, ok: st.ok ? 1 : 0, n: t.length, ms: st.ok ? st.ms : undefined, g: pos.size, done: st.ok || t.length >= 6 ? 1 : 0 });
+    }
+    today.sort((a, b) => b.ok - a.ok || (a.ok ? a.n - b.n || a.ms - b.ms : b.g - a.g || a.n - b.n));
     let total = [];
     if (REDIS) { try { const r = await redis(["ZREVRANGE", "mj:total", "0", "9", "WITHSCORES"]); for (let i = 0; i < (r || []).length; i += 2) total.push({ name: r[i], n: Number(r[i + 1]) }); } catch {} }
     else total = [...MJ_TOTAL.entries()].sort((a, b) => b[1] - a[1]).slice(0, 10).map(([name, n]) => ({ name, n }));
-    return { found, played, today: today.slice(0, 10), total };
+    return { found, played, len: w.length, today: today.slice(0, 15), total };
   }
   return { strip, wordOf, colors, load, persist, view, board, dict, size: () => words.length };
 })();
@@ -786,7 +793,7 @@ async function mjApi(b, out) {
     s.t.push(g); if (g === w) { s.ok = 1; s.ms = Date.now() - s.at; }
     m.set(id, s); MJ.persist(day, id, s); statAdd(s.ok ? "motdujour:trouve" : s.t.length >= 6 ? "motdujour:rate" : "motdujour:essai");
     if (s.ok && !id.startsWith("g:")) { if (REDIS) redis(["ZINCRBY", "mj:total", "1", id]).catch(() => {}); else MJ_TOTAL.set(id, (MJ_TOTAL.get(id) || 0) + 1); }
-    return out(200, { ...MJ.view(day, s, w), board: s.ok || s.t.length >= 6 ? await MJ.board(day) : undefined });
+    return out(200, { ...MJ.view(day, s, w), board: await MJ.board(day) });
   }
   // op « etat » : ma grille du jour + les chiffres du jour + les classements
   return out(200, { ...MJ.view(day, st, w), board: await MJ.board(day), ranked: !!(id && !id.startsWith("g:")) });

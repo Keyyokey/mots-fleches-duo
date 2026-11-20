@@ -1,4 +1,4 @@
-/* Motipop · pluie de lettres de l'accueil (20/11/2026)
+/* Motipop · pluie de lettres (accueil 20/11/2026, toutes les pages depuis le 20/11 midi)
    Des tuiles de verre portant une lettre descendent lentement dans les marges vides, sur ordinateur seulement
    (dès qu'une marge dépasse 110 px). Rien sur téléphone. Suit le bouton « Décor de saison » (body.nodeco = coupé)
    et le réglage « réduire les animations » du système. En pause quand l'onglet est caché. */
@@ -13,12 +13,21 @@
   document.body.prepend(cv);
   const ctx = cv.getContext("2d");
   let W = 0, H = 0, dpr = 1, zones = [], drops = [], last = 0, raf = 0;
-  const content = () => document.querySelector("main") || document.querySelector(".wrap");
-  function measure() {
-    dpr = Math.min(2, window.devicePixelRatio || 1); W = innerWidth; H = innerHeight;
-    cv.width = W * dpr; cv.height = H * dpr; ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-    const m = content(); zones = [];
-    if (m) { const r = m.getBoundingClientRect(); if (r.left > 110) zones.push([12, r.left - 24]); if (W - r.right > 110) zones.push([r.right + 24, W - 12]); }
+  // la zone occupée : <main> sur l'accueil ; sur les autres pages, l'ensemble des cartes de verre visibles (le jeu, pas l'en-tête)
+  function content() {
+    const m = document.querySelector("main"); if (m) return m.getBoundingClientRect();
+    let L = Infinity, R = -Infinity;
+    document.querySelectorAll(".wrap .glass, .wrap .gtop, .wrap canvas").forEach(e => {
+      if (e.closest("[hidden]") || getComputedStyle(e).position === "fixed") return;
+      const r = e.getBoundingClientRect(); if (r.width < 2 || r.height < 2) return; L = Math.min(L, r.left); R = Math.max(R, r.right);
+    });
+    if (L === Infinity) { const w = document.querySelector(".wrap"); return w ? w.getBoundingClientRect() : null; }
+    return { left: L, right: R };
+  }
+  function measure(resize) {
+    if (resize !== false) { dpr = Math.min(2, window.devicePixelRatio || 1); W = innerWidth; H = innerHeight; cv.width = W * dpr; cv.height = H * dpr; ctx.setTransform(dpr, 0, 0, dpr, 0, 0); }
+    const r = content(); zones = [];
+    if (r) { if (r.left > 110) zones.push([12, r.left - 24]); if (W - r.right > 110) zones.push([r.right + 24, W - 12]); }
     drops = drops.filter(d => zones.some(z => d.x >= z[0] && d.x <= z[1]));
   }
   const active = () => zones.length && !RM.matches && !document.body.classList.contains("nodeco") && !document.hidden;
@@ -50,6 +59,7 @@
     drops.forEach(d => { d.y += d.v * dt; d.a += d.va * dt; d.sw += dt * .6; tile(d, light); });
     drops = drops.filter(d => d.y < H + 40);
   }
-  measure(); addEventListener("resize", () => { clearTimeout(measure.t); measure.t = setTimeout(measure, 150); });
+  measure(); setInterval(() => { if (!document.hidden) measure(false); }, 2000);   // le jeu change de taille en cours de partie
+  addEventListener("resize", () => { clearTimeout(measure.t); measure.t = setTimeout(measure, 150); });
   raf = requestAnimationFrame(frame);
 })();
