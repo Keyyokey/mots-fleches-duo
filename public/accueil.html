@@ -7,8 +7,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Motipop — jeux de mots en ligne entre amis</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&family=Nunito:wght@600;800&family=Playfair+Display:wght@600;700;800&display=swap" rel="stylesheet">
+<link rel="preload" href="/d/f-inter-f11d729bb0.woff2" as="font" type="font/woff2" crossorigin><link rel="preload" href="/d/f-nunito-76388dbfe3.woff2" as="font" type="font/woff2" crossorigin><link rel="stylesheet" href="/d/polices-117650e856.css">
 <style>
 :root{
   --bg1:#0b1d2a;--bg2:#1b1440;--bg3:#0f3b3f;
@@ -487,7 +486,7 @@ header{display:flex;align-items:center;gap:14px;padding:6px 4px;flex-wrap:nowrap
 .hline{height:2px;border-radius:2px;margin:10px 0 16px;background:linear-gradient(90deg,transparent,var(--accent) 12%,var(--violet) 88%,transparent);opacity:.7}
 .glass-pill{display:inline-flex;align-items:center;gap:8px;border-radius:16px;border:1px solid var(--stroke);background:var(--glass);backdrop-filter:blur(16px) saturate(140%);-webkit-backdrop-filter:blur(16px) saturate(140%);box-shadow:0 6px 20px rgba(0,0,0,.18);padding:6px 14px;min-height:44px;color:var(--ink)}
 .logo.glass-pill{padding:6px 14px 6px 8px}
-.me-pill{border-radius:999px;padding:5px 16px 5px 5px}
+.me-pill{border-radius:999px;padding:5px 16px 5px 5px}.me-pill,.salon-pill{white-space:nowrap}@media (min-width:621px) and (max-width:980px){.me-pill .sub{display:none}}
 .av-me{width:34px;height:34px;border-radius:50%;display:grid;place-items:center;font-weight:800;color:#fff;background:linear-gradient(135deg,#1f7a86,#2b9aa6)}
 .me-pill b{font-weight:800;letter-spacing:.04em}
 .me-pill .sub{color:var(--muted);font-weight:500}
@@ -1358,7 +1357,7 @@ async function renderRank(){const r=await call("rank",{name:ME?ME.name:""});cons
 let PTS=null,COINS=null,SRVSOLO=new Set();const CHG=["fleches","rond","meles","poker"];
 function chart(i){const box=$("#chart"),sub=$("#chartSub"),tabs=$("#chartTabs");
   const hide=on=>{box.style.display=on?"none":"";tabs.style.display=on?"none":""};
-  if(!ME||ME.stale){hide(true);box.innerHTML="";sub.textContent="Veuillez vous connecter pour accéder à vos stats.";return}
+  if(!ME||ME.stale){hide(true);box.innerHTML="";sub.textContent="Connecte-toi pour voir tes stats.";return}
   if(!PTS){hide(true);box.innerHTML="";sub.textContent="Chargement…";return}
   // statistiques établies seulement après une première accumulation de points ; ensuite elles restent, même à zéro
   if(!PTS.ever){hide(true);box.innerHTML="";sub.textContent="Tes statistiques apparaîtront dès tes premiers points.";return}

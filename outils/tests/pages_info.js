@@ -3,7 +3,7 @@ const SP="/tmp/claude-0/-home-claude/8d6d2643-6576-5f68-8c95-f3700fc6f9e7/scratc
 (async()=>{const b=await chromium.launch({executablePath:"/opt/pw-browsers/chromium"});const errs=[];
 for(const [w,h,n] of [[375,812,"mobile"],[1280,900,"pc"]]){const p=await b.newPage({viewport:{width:w,height:h},deviceScaleFactor:n==="mobile"?2:1});p.on("pageerror",e=>errs.push(e.message));await p.route(/fonts\./,r=>r.abort());
  for(const path of ["/regles","/mentions-legales","/confidentialite","/conditions"]){const r=await p.goto(U+path);t(r.status()===200,n+" "+path+" 200");await p.waitForTimeout(400);
-  const info=await p.evaluate(()=>({sx:document.documentElement.scrollWidth>innerWidth+1,ph:document.body.innerText.includes("{{"),y:scrollY,title:document.title,logo:!!document.querySelector(".tlogo svg")}));
+  const info=await p.evaluate(()=>({sx:document.documentElement.scrollWidth>innerWidth+1,ph:document.body.innerText.includes("{{"),y:scrollY,title:document.title,logo:!!(document.querySelector("#skTop")&&document.querySelector("#skTop").shadowRoot&&document.querySelector("#skTop").shadowRoot.querySelector("img,svg"))}));
   t(!info.sx&&!info.ph&&info.logo,n+" "+path+" : pas de débordement, pas de champ vide, logo ("+info.title+")");
   if(path==="/confidentialite"||path==="/conditions")t(info.y>200,n+" "+path+" ouvre la bonne section (défilé à "+info.y+" px)");
   if(n==="mobile"&&(path==="/regles"||path==="/mentions-legales"))await p.screenshot({path:SP+"pg_"+path.slice(1)+".png",fullPage:false});}

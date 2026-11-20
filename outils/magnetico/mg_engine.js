@@ -220,7 +220,7 @@ function rankBar(){const box=$("#mgRank");if(G.solo||np()<2)return;const w=(box.
   box._rk=prev;$("#mgStar").style.left=(w/2-9)+"px";if(jumped&&!G.wait)SFX.over()}
 let rivals={};
 function render(){document.body.classList.remove("booting");if(!G)return;const s=mySeat();
-  $(".gname").innerHTML='Magnético '+(G.solo?"Solo":np()>2?np()+" joueurs":"Duo")+' <span class="hpill">'+LVLN[G.level]+"</span>";
+  $(".gname").innerHTML='<span style="background:linear-gradient(90deg,#a78bfa,#22d3ee);-webkit-background-clip:text;background-clip:text;color:transparent">Magnético</span> '+(G.solo?"Solo":np()>2?np()+" joueurs":"Duo")+' <span class="hpill">'+LVLN[G.level]+"</span>";
   $(".mg2").classList.toggle("multi",!G.solo&&np()>=2);$(".mg2").classList.toggle("waiting",!!G.wait&&!G.solo);$("#mgScore").textContent=G.players[s===null?0:s]?G.players[s===null?0:s].score||0:0;rankBar();
   if(!G.solo&&cur>=0&&G.f){Object.keys(G.f).forEach(k=>{if(!rivals[G.gid+k]){rivals[G.gid+k]=1;const [w,i]=k.split("_").map(Number);if(w===cur&&i!==s)SFX.rival()}})}
   let sp=$("#mgSpec");const spec=!G.solo&&!G.done&&s===null&&(!G.wait||G.players.length>=MAXP);if(spec&&!sp){sp=document.createElement("div");sp.id="mgSpec";sp.className="glass mgspec";$(".mg2").prepend(sp)}if(sp){sp.style.display=spec?"":"none";if(spec)sp.innerHTML="<b>"+(G.wait?"Partie complète":"Partie déjà lancée")+" · tu regardes.</b> Reste sur la page : tu joueras la prochaine partie s'il reste une place."}

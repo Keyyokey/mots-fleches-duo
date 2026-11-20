@@ -7,9 +7,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Magnético — Motipop</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link media="print" onload="this.media='all'" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&family=Nunito:wght@600;800&family=Playfair+Display:wght@600;700;800&display=swap" rel="stylesheet">
+<link rel="preload" href="/d/f-inter-f11d729bb0.woff2" as="font" type="font/woff2" crossorigin><link rel="preload" href="/d/f-nunito-76388dbfe3.woff2" as="font" type="font/woff2" crossorigin><link rel="stylesheet" href="/d/polices-117650e856.css">
 <link rel="stylesheet" href="/d/jeu-88a196dffd.css">
 <style>/* mots fléchés : compléments de l'écran de l'artefact pour le vrai jeu */
 :root{--p1:#34d399;--p2:#fb7185}
@@ -94,7 +92,7 @@ body.booting #boot{display:flex;position:fixed;inset:0;z-index:50;align-items:ce
 #skTop.skph{display:block;height:94px}
 @media (min-width:621px) and (max-width:760px){#skTop.skph{height:154px}}
 </style>
-<link rel="stylesheet" href="/d/sk-19c7afd1cc.css">
+<link rel="stylesheet" href="/d/sk-b4a77edec2.css">
 <script src="/d/icons-e402bd9605.js" defer></script><style id="mg-css">/* ---------- Magnético (jeu de Motipop) ---------- */
 .mg2{max-width:560px;margin:0 auto;display:flex;flex-direction:column;gap:10px}
 .mgtop{padding:10px 12px;display:flex;flex-direction:column;gap:8px}
@@ -191,6 +189,7 @@ body.booting #boot{display:flex;position:fixed;inset:0;z-index:50;align-items:ce
 </head>
 <body class="sk-new booting g-mg">
 <div id="skTop" class="skph"></div>
+<script>/* 20/11 : partie lancée directement sur téléphone → en-tête masqué dès le départ (évite 3 sauts de mise en page) */try{if(matchMedia("(pointer:coarse)").matches&&innerWidth<=620&&/[?&]go=(solo|resume)\b/.test(location.search))document.body.classList.add("tj")}catch(e){}</script>
 <div class="blob b1"></div><div class="blob b2"></div><div class="blob b3"></div>
 <div class="wrap">
 <div id="boot"><span class="spin"></span><b>Préparation de la partie…</b></div><script>setTimeout(function(){document.body.classList.remove("booting")},10000)</script>
@@ -216,7 +215,7 @@ body.booting #boot{display:flex;position:fixed;inset:0;z-index:50;align-items:ce
 <button class="btn primary" id="lvQuit">Quitter la partie</button><button class="btn" id="lvStay" style="background:transparent">Continuer à jouer</button>
 <div class="note" id="leaveRule"></div></div></div>
 <div class="overlay" id="endWin"><div class="glass sheet qbox"><h3 id="endT"></h3><div class="note" id="endB"></div><div id="endAgain" class="endlv"><small>Nouvelle partie : choisis le niveau</small><div class="lvrow"><button type="button" data-lv="facile">Facile</button><button type="button" data-lv="normal">Normal</button><button type="button" data-lv="difficile">Difficile</button></div></div><button class="btn" id="endHome">🏠 Accueil</button></div></div>
-<script>window.SK_HDR=1;</script><script src="/d/sk-e368b494a6.js"></script>
+<script>window.SK_HDR=1;</script><script src="/d/sk-fbf0167965.js"></script>
 <script src="/d/magnetico-60eec00b2a.js" defer></script>
 <script>// ===== Magnético — jeu de Motipop : reformer le mot avec les syllabes qui s'entrechoquent =====
 (function(){
@@ -440,7 +439,7 @@ function rankBar(){const box=$("#mgRank");if(G.solo||np()<2)return;const w=(box.
   box._rk=prev;$("#mgStar").style.left=(w/2-9)+"px";if(jumped&&!G.wait)SFX.over()}
 let rivals={};
 function render(){document.body.classList.remove("booting");if(!G)return;const s=mySeat();
-  $(".gname").innerHTML='Magnético '+(G.solo?"Solo":np()>2?np()+" joueurs":"Duo")+' <span class="hpill">'+LVLN[G.level]+"</span>";
+  $(".gname").innerHTML='<span style="background:linear-gradient(90deg,#a78bfa,#22d3ee);-webkit-background-clip:text;background-clip:text;color:transparent">Magnético</span> '+(G.solo?"Solo":np()>2?np()+" joueurs":"Duo")+' <span class="hpill">'+LVLN[G.level]+"</span>";
   $(".mg2").classList.toggle("multi",!G.solo&&np()>=2);$(".mg2").classList.toggle("waiting",!!G.wait&&!G.solo);$("#mgScore").textContent=G.players[s===null?0:s]?G.players[s===null?0:s].score||0:0;rankBar();
   if(!G.solo&&cur>=0&&G.f){Object.keys(G.f).forEach(k=>{if(!rivals[G.gid+k]){rivals[G.gid+k]=1;const [w,i]=k.split("_").map(Number);if(w===cur&&i!==s)SFX.rival()}})}
   let sp=$("#mgSpec");const spec=!G.solo&&!G.done&&s===null&&(!G.wait||G.players.length>=MAXP);if(spec&&!sp){sp=document.createElement("div");sp.id="mgSpec";sp.className="glass mgspec";$(".mg2").prepend(sp)}if(sp){sp.style.display=spec?"":"none";if(spec)sp.innerHTML="<b>"+(G.wait?"Partie complète":"Partie déjà lancée")+" · tu regardes.</b> Reste sur la page : tu joueras la prochaine partie s'il reste une place."}

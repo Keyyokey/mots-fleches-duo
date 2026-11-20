@@ -218,3 +218,6 @@ body.g-culture .hline{background:linear-gradient(90deg,transparent,#a8461a 12%,#
 body.g-mg .hline{background:linear-gradient(90deg,transparent,#3b2a8c 12%,#7cf3ff 88%,transparent)!important;opacity:.9}
 .homebtn:focus-visible,#skTop button:focus-visible{outline:2px solid var(--accent-cyan,#00ADB5);outline-offset:2px}
 
+
+/* 20/11 : le titre de fin ne passe plus sous la croix de fermeture (ex. « Tous les mots sont trouvés ! » sur téléphone) */
+#endWin #endT{padding:0 40px;box-sizing:border-box;text-wrap:balance}

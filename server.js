@@ -881,6 +881,7 @@ function page(file, inject) {
   const st = fs.statSync(file);
   const c = pages[file];
   if (c && c.mtime === st.mtimeMs) return c;
+  if (file.endsWith(".woff2")) { const raw = fs.readFileSync(file); return (pages[file] = { raw, gz: raw, br: raw, bin: true, etag: '"' + crypto.createHash("sha1").update(raw).digest("base64url").slice(0, 16) + '"', mtime: st.mtimeMs }); }   // police : binaire, déjà compressée
   let txt = fs.readFileSync(file, "utf8");
   if (txt.includes("{{CONTACT}}") || txt.includes("{{EDITEUR}}")) txt = txt.split("{{CONTACT}}").join(CONTACT_HTML).split("{{EDITEUR}}").join(EDITEUR_HTML);
   if (inject) txt = txt.replace("<head>", "<head>\n<script>window.SUPPORT=" + SUPPORT + ";</script>" + (txt.includes('rel="canonical"') ? "" : seoTags(file, txt)));
@@ -890,6 +891,7 @@ function sendBody(req, res, p, type, cache) {
   const ae = req.headers["accept-encoding"] || "";
   const h = { "content-type": type, "cache-control": cache, vary: "Accept-Encoding", etag: p.etag };
   if (req.headers["if-none-match"] === p.etag) { res.writeHead(304, h); return res.end(); }
+  if (p.bin) { res.writeHead(200, { ...h, "content-length": p.raw.length }); return res.end(req.method === "HEAD" ? undefined : p.raw); }
   if (/\bbr\b/.test(ae)) { res.writeHead(200, { ...h, "content-encoding": "br" }); return res.end(p.br); }
   if (/\bgzip\b/.test(ae)) { res.writeHead(200, { ...h, "content-encoding": "gzip" }); return res.end(p.gz); }
   res.writeHead(200, h); res.end(p.raw);
@@ -899,7 +901,7 @@ function sendPage(req, res, file) {
   sendBody(req, res, p, "text/html; charset=utf-8", "no-cache");
 }
 // données lourdes (grilles…) : nom de fichier versionné → mises en cache un an par le navigateur
-const STATIC = { js: "text/javascript; charset=utf-8", json: "application/json", svg: "image/svg+xml", css: "text/css; charset=utf-8" };
+const STATIC = { js: "text/javascript; charset=utf-8", json: "application/json", svg: "image/svg+xml", css: "text/css; charset=utf-8", woff2: "font/woff2" };
 const skinCache = new Map();
 let cgIdx = null;
 const FAVICON = fs.readFileSync(path.join(__dirname, "public", "d", "favicon.svg"));
@@ -910,7 +912,7 @@ function sendSkin(req, res, name, ext) {
   res.end(req.method === "HEAD" ? undefined : buf);
 }
 function sendStatic(req, res, name) {
-  const m = name.match(/^([a-z0-9-]{3,60})\.(js|json|svg|css)$/); if (!m) { res.writeHead(404); return res.end(); }
+  const m = name.match(/^([a-z0-9-]{3,60})\.(js|json|svg|css|woff2)$/); if (!m) { res.writeHead(404); return res.end(); }
   let p; try { p = page(path.join(__dirname, "public", "d", name), false); } catch { res.writeHead(404); return res.end(); }
   sendBody(req, res, p, STATIC[m[2]], /-[0-9a-f]{10}\./.test(name) ? "public, max-age=31536000, immutable" : "public, max-age=3600");
 }

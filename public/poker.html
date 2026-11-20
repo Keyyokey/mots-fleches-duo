@@ -6,8 +6,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Wordflush — Motipop</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&family=Nunito:wght@600;800&family=Playfair+Display:wght@600;700;800&display=swap" rel="stylesheet">
+<link rel="preload" href="/d/f-inter-f11d729bb0.woff2" as="font" type="font/woff2" crossorigin><link rel="preload" href="/d/f-nunito-76388dbfe3.woff2" as="font" type="font/woff2" crossorigin><link rel="stylesheet" href="/d/polices-117650e856.css">
 <style>
 :root{
   --bg1:#0b1d2a;--bg2:#1b1440;--bg3:#0f3b3f;
@@ -1038,7 +1037,7 @@ function render(){const st=ST;document.body.dataset.ph=st&&st.started?st.phase:"
   wfRender(st,me,myTurn);
   // phase « mot »
   const wp=st.phase==="mot"&&me&&!me.folded;$("#pkWordCard").classList.toggle("wordphase",wp);$("#pkWordCard").classList.toggle("later",st.phase==="mise"||!st.started&&st.phase!=="abattage");if(st.phase!=="mise")$("#pkWordCard").classList.remove("prep");document.body.classList.toggle("ph-mot",!!wp);lettersShow(st,me);$("#pkWClk").style.display=wp?"":"none";$("#pkIn").disabled=!!LOCKED||!(me&&!me.folded&&(st.phase==="mot"||st.phase==="mise"));
-  if(PREV&&PREV.phase!=="mot"&&st.phase==="mot"&&me&&!me.folded){toast("✍️","À vous ! <b>45 s</b> pour taper votre mot");bell();setTimeout(wfFocus,100)}
+  if(PREV&&PREV.phase!=="mot"&&st.phase==="mot"&&me&&!me.folded){toast("✍️","À toi ! <b>45 s</b> pour taper ton mot");bell();setTimeout(wfFocus,100)}
   if(PREV&&PREV.phase!=="abattage"&&st.phase==="abattage"&&st.jackpotWon)setTimeout(()=>{announce&&announce("🎰 CAGNOTTE !",st.jackpotWon.names.join(", ")+" +"+st.jackpotWon.each*st.jackpotWon.names.length);bell()},2500);
   if(PREV&&PREV.phase!=="abattage"&&st.phase==="abattage"&&st.msg){toast(st.results&&st.results.some(x=>x.win)?"🏆":"🔁",esc(st.msg));bell();const mine=me&&st.results&&st.results.find(x=>x.name===me.name&&x.win&&x.gain);if(mine){const d=st.results.length>1||mine.word?1600+st.seats.filter((x,i)=>i!==st.me&&x.hand).length*1300+1200:600;setTimeout(()=>winFx(mine.gain),d)}}
   if(PREV&&PREV.turn!==st.turn&&myTurn)tone(660,.25,.08);
@@ -1246,7 +1245,7 @@ function dealer(P,st){if(!P||!st)return;const d=$("#pkDealer");if(d)d.classList.
     order.forEach(o=>{if(o.board&&o.key==="b0"){t+=500;setTimeout(()=>{talk("Les 3 premières lettres");announce("1er tour de mise","3 lettres communes",true)},t-200);t+=1500;burn(t);t+=1300}fly(o.key,t,o);t+=o.board?780:520});
     // fin de la donne : les 3 lettres communes se retournent une à une, puis tu découvres tes 2 lettres
     t+=700;order.filter(o=>o.board).forEach(o=>{turnUp(o.key,t);t+=560});if(st.me>=0){t+=200;turnUp("s"+st.me+"-0",t);turnUp("s"+st.me+"-1",t+320);t+=800}
-    setTimeout(()=>{if(st.me>=0&&ST&&ST.turn===st.me&&ST.phase==="mise")talk("À vous de parler")},t+300);return}
+    setTimeout(()=>{if(st.me>=0&&ST&&ST.turn===st.me&&ST.phase==="mise")talk("À toi de parler")},t+300);return}
   // nouvelle lettre commune (4e, 5e)
   if(st.started&&P.hand===st.hand&&(st.shown||0)>(P.shown||0)){const keys=[];for(let b=P.shown||0;b<st.shown;b++)keys.push("b"+b);keys.forEach(k=>{DEAL.hide.add(k);DEAL.down.add(k)});applyHide();
     talk("Les 2 dernières lettres");announce("2e tour de mise","2 dernières lettres");let t=2200;burn(t);t+=1300;keys.forEach(k=>{DEAL.down.add(k);fly(k,t,{board:true});turnUp(k,t+1600);t+=850});return}
@@ -1357,6 +1356,6 @@ if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",
 
 })();
 </script>
-<script>window.SK_HDR=1;</script><script src="/d/sk-e368b494a6.js"></script>
+<script>window.SK_HDR=1;</script><script src="/d/sk-fbf0167965.js"></script>
 </body>
 </html>

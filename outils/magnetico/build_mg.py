@@ -20,7 +20,7 @@ body = open(os.path.join(D, "mg_body.html"), encoding="utf8").read()
 css = open(os.path.join(D, "mg_style.css"), encoding="utf8").read()
 eng = open(os.path.join(D, "mg_engine.js"), encoding="utf8").read()
 out = (head + css_main + "\n" + css_fl + "\n" + css_sk + '\n<script src="/d/icons.js" defer></script><style id="mg-css">' + css + "</style>\n</head>\n"
-  + '<body class="sk-new booting g-mg">\n<div id="skTop" class="skph"></div>\n<div class="blob b1"></div><div class="blob b2"></div><div class="blob b3"></div>\n<div class="wrap">\n'
+  + '<body class="sk-new booting g-mg">\n<div id="skTop" class="skph"></div>\n<script>/* 20/11 : partie lancée directement sur téléphone → en-tête masqué dès le départ (évite 3 sauts de mise en page) */try{if(matchMedia("(pointer:coarse)").matches&&innerWidth<=620&&/[?&]go=(solo|resume)\\b/.test(location.search))document.body.classList.add("tj")}catch(e){}</script>\n<div class="blob b1"></div><div class="blob b2"></div><div class="blob b3"></div>\n<div class="wrap">\n'
   + '<div id="boot"><span class="spin"></span><b>Préparation de la partie…</b></div><script>setTimeout(function(){document.body.classList.remove("booting")},10000)</script>\n'
   + body + sk_js + "</script>\n"
   + '<script src="/d/' + os.path.basename(data) + '" defer></script>\n<script>' + eng + "</script>\n" + inv + "\n" + icons + "\n</body></html>\n")
