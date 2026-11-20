@@ -544,8 +544,17 @@ svg.chart{width:100%;height:118px;color:var(--ink);overflow:visible}
 .games{display:grid;gap:14px;margin:4px auto 0;max-width:880px}
 .g-top{display:grid;grid-template-columns:1fr 1fr;gap:14px}
 .g-new{display:grid;grid-template-columns:1fr;gap:14px}
-@media (min-width:760px){.g-new{grid-template-columns:1.55fr 1fr}}
-.mdt{min-height:170px}a.abtn{text-decoration:none}
+@media (min-width:760px){.g-new{grid-template-columns:1.15fr 1fr}}
+.mdt{cursor:pointer;box-shadow:0 0 0 2px rgba(255,122,168,.55),0 14px 40px rgba(255,122,168,.25)!important;animation:mdglow 3.2s ease-in-out infinite}
+@keyframes mdglow{50%{box-shadow:0 0 0 2px rgba(255,122,168,.9),0 14px 50px rgba(255,122,168,.45)}}
+@media (prefers-reduced-motion:reduce){.mdt{animation:none}}
+.mdt .txt{position:relative;z-index:2;display:flex;flex-direction:column;align-items:flex-start;gap:6px}
+.mdtpill{display:inline-flex;padding:4px 10px;border-radius:999px;background:rgba(255,255,255,.18);border:1px solid rgba(255,255,255,.35);font:700 .8rem Nunito,Inter,sans-serif;color:#fff}
+.mdgo{display:inline-flex;align-items:center;gap:8px;margin-top:4px;padding:10px 18px;border-radius:14px;background:#fff;color:#8c2a5c;font:800 .95rem Nunito,Inter,sans-serif;text-decoration:none;box-shadow:0 8px 20px rgba(0,0,0,.18)}
+.mdgo:hover{transform:translateY(-1px)}
+.mdvis{position:absolute;right:22px;top:50%;transform:translateY(-50%) rotate(-6deg);z-index:1}
+@media (max-width:620px){.mdt .mdvis{position:absolute!important;left:auto!important;bottom:auto!important;right:18px!important;top:22px!important;transform:rotate(-6deg) scale(.8)!important;transform-origin:top right}}
+.mdt{min-height:200px}a.abtn{text-decoration:none}
 .mdv{display:flex;gap:6px}.mdv i{font-style:normal;width:40px;height:44px;display:grid;place-items:center;border-radius:11px;font:800 1.3rem Nunito,Inter,sans-serif;color:#fff;background:rgba(255,255,255,.14);border:1px solid rgba(255,255,255,.35)}
 .mdv .v2{background:linear-gradient(135deg,#14b8a6,#0e9f8f);border-color:transparent}.mdv .v1{border:2px solid #ffc857}.mdv .v0{opacity:.55}
 #mdtCount{font-weight:700}
@@ -914,15 +923,14 @@ a.logo{text-decoration:none;color:inherit}a.logo:focus-visible{outline:2px solid
 
   <div class="games">
     <div class="g-new">
+      <div class="tile mdt" style="--tg:linear-gradient(135deg,#3a1030 0%,#8c2a5c 50%,#ff7aa8 100%);--ga:#ffd1e1" data-game="Mot du jour" data-key="motdujour" onclick="if(!event.target.closest('a'))location.href='/motdujour'">
+        <div class="txt"><span class="tag">Défi du jour · Nouveau</span><h2>Mot du jour</h2><p>Un mot en 6 essais, le même pour tout le monde. Nouveau mot à minuit.</p><span class="mdtpill" id="mdtCount">…</span><a class="mdgo" href="/motdujour">🎯 Jouer au mot du jour</a></div>
+        <div class="mdvis"><div class="mdv" aria-hidden="true"><i class="v2">M</i><i class="v1">O</i><i class="v0">T</i><i class="v2">S</i></div></div>
+      </div>
       <div class="tile mgt" style="--tg:linear-gradient(135deg,#1b1440 0%,#3b2a8c 48%,#00ADB5 100%);--ga:#7cf3ff" data-game="Magnético" data-key="magnetico" data-multi="1">
         <div class="txt"><span class="tag">Nouveau · Réflexe</span><h2>Magnético</h2><p>Les syllabes s'entrechoquent : touche-les dans le bon ordre pour reformer le mot. Seul ou jusqu'à 4.</p></div>
         <div class="vis"><div class="mgv" aria-hidden="true"><i class="bb mb1">MA</i><i class="bb mb2">GNÉ</i><i class="bb mb3">TI</i><i class="bb mb4">CO</i></div></div>
         <div class="modes acts"><button class="abtn" data-mode="solo"><span>👤</span> Solo</button><button class="abtn" data-mode="multi"><span>👥</span> Multijoueurs</button><button class="abtn abtn-s" data-cfg="1" aria-label="Réglages de la partie"><span>⚙️</span> Réglages</button></div>
-      </div>
-      <div class="tile mdt" style="--tg:linear-gradient(135deg,#3a1030 0%,#8c2a5c 50%,#ff7aa8 100%);--ga:#ffd1e1" data-game="Mot du jour" data-key="motdujour">
-        <div class="txt"><span class="tag">Défi du jour</span><h2>Mot du jour</h2><p>Un mot en 6 essais, le même pour tout le monde. <b id="mdtCount"></b></p></div>
-        <div class="vis"><div class="mdv" aria-hidden="true"><i class="v2">M</i><i class="v1">O</i><i class="v0">T</i><i class="v2">S</i></div></div>
-        <div class="modes acts"><a class="abtn" href="/motdujour"><span>🎯</span> Jouer</a></div>
       </div>
     </div>
     <div class="g-top">
@@ -1504,7 +1512,7 @@ function renderResume(){$$(".tile").forEach(t=>{const k=t.dataset.key;let on=fal
   const docs=Object.assign({},(()=>{try{return JSON.parse(LS.get("fl-salon-"+CODE)||"{}").docs||{}}catch(e){return{}}})(),CODE?DOCS:{});
   for(const id in docs){const d=docs[id];if(!d||!d.players||d.done||d.solo)continue;const g=id==="cg"?"culture":id==="mg"?"magnetico":(id==="rond"||id==="meles"||id==="poker")?id:"fleches";if(g===k&&Date.now()-(d.started||0)<7*864e5)on=true}
   if(LS.get("fl-paused-"+k)||SRVSOLO.has(k))on=true;
-  const m=t.querySelector(".modes");let r=m.querySelector('[data-mode="resume"]');
+  const m=t.querySelector(".modes");if(!m)return;let r=m.querySelector('[data-mode="resume"]');
   if(on&&!r){r=document.createElement("button");r.className="abtn";r.dataset.mode="resume";r.innerHTML="<span>▶</span> Reprendre";m.prepend(r);bindMode(r)}if(!on&&r)r.remove()});renderCta()}
 
 // ---------- flou du reste de la page quand une fenêtre ou un jeu est ouvert ----------
@@ -1688,7 +1696,7 @@ if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",
 (function(){if(!("IntersectionObserver" in window))return;var io=new IntersectionObserver(function(es){es.forEach(function(e){e.target.classList.toggle("zz",!e.isIntersecting)})},{rootMargin:"60px"});
 document.querySelectorAll(".tile").forEach(function(t){t.classList.add("zz");io.observe(t)})})();</script>
 <script>// 20/11 : mot du jour, nombre de joueurs qui l'ont trouvé aujourd'hui
-fetch("/api/p/mj",{method:"POST",headers:{"content-type":"application/json"},body:"{}"}).then(r=>r.json()).then(r=>{const e=document.getElementById("mdtCount");if(e&&r&&r.board)e.textContent=r.board.found?(r.board.found+(r.board.found>1?" joueurs l'ont trouvé aujourd'hui.":" joueur l'a trouvé aujourd'hui.")):"Sois le premier à le trouver aujourd'hui !"}).catch(()=>{});</script>
+fetch("/api/p/mj",{method:"POST",headers:{"content-type":"application/json"},body:"{}"}).then(r=>r.json()).then(r=>{const e=document.getElementById("mdtCount");if(e&&r&&r.board)e.textContent=r.board.found?(r.board.found+(r.board.found>1?" joueurs l'ont trouvé aujourd'hui":" joueur l'a trouvé aujourd'hui")):"Sois le premier à le trouver aujourd'hui !"}).catch(()=>{});</script>
 <script src="/d/musique-03168f1501.js" defer></script><script src="/d/lettres-3894b6642a.js" defer></script>
 <script>addEventListener("DOMContentLoaded",()=>{const M=window.MotipopMusique;if(!M)return;M.bind(document.getElementById("musicBtn"));M.bind(document.getElementById("mMusic"),true)})</script>
 </body>
