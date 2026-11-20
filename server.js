@@ -30,8 +30,11 @@ const SUPPORT = JSON.stringify({ url: SUPPORT_URL, label: process.env.SUPPORT_LA
 // aux mises en veille et aux redéploiements. Sans ces variables, on garde le fichier local + la sauvegarde navigateur.
 // valeurs collées depuis Upstash : on retire guillemets et espaces éventuels autour
 const envClean = v => String(v || "").trim().replace(/^["']+|["']+$/g, "").trim();
-const RURL = envClean(process.env.UPSTASH_REDIS_REST_URL).replace(/\/$/, "");
-const RTOK = envClean(process.env.UPSTASH_REDIS_REST_TOKEN);
+// 20/11 : si tout le bloc copié depuis Upstash est collé dans une variable (UPSTASH_…_URL="…" UPSTASH_…_TOKEN="…"),
+// on retrouve quand même la bonne valeur au lieu d'envoyer un en-tête invalide
+const envPick = (v, k) => { const s = String(v || ""), m = s.match(new RegExp(k + '\\s*=\\s*["\']?([^"\'\\s]+)')); return m ? m[1] : envClean(s); };
+const RURL = envPick(process.env.UPSTASH_REDIS_REST_URL, "UPSTASH_REDIS_REST_URL").replace(/\/$/, "");
+const RTOK = envPick(process.env.UPSTASH_REDIS_REST_TOKEN, "UPSTASH_REDIS_REST_TOKEN");
 const REDIS = !!(RURL && RTOK);
 // diagnostic : dernière erreur du stockage (statut et message d'Upstash, jamais la commande ni ses valeurs)
 const redisDiag = { ok: 0, err: 0, last: null };
