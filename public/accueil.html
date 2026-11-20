@@ -813,6 +813,21 @@ a.logo{text-decoration:none;color:inherit}a.logo:focus-visible{outline:2px solid
 .tile .abtn{min-height:44px}
 .sitefoot a{padding:10px 4px}
 }
+/* téléphone : en-tête [logo] … [stats] [salon] [menu], le même que sur les pages de jeu */
+.dashbar{display:none}
+@media (max-width:620px){
+#hdr{gap:6px!important}
+#hdr .mq2 .sofa{width:28px;height:17px}
+#logoHome .tlogo svg{height:32px!important;width:auto!important}
+#v-accueil>.hero2.dash{display:none}
+body.statsOn #v-accueil>.hero2.dash{display:flex;flex-direction:column;position:fixed;inset:0;z-index:70;margin:0;padding:12px 12px 24px;overflow-y:auto;overscroll-behavior:contain;background:rgba(8,12,28,.55);backdrop-filter:blur(18px) saturate(140%);-webkit-backdrop-filter:blur(18px) saturate(140%);animation:popin .22s cubic-bezier(.3,1.4,.5,1)}
+[data-theme=light] body.statsOn #v-accueil>.hero2.dash{background:rgba(230,238,248,.7)}
+body.statsOn{overflow:hidden}
+body.statsOn .dashbar{display:flex;align-items:center;justify-content:space-between;padding:2px 2px 4px}
+.dashbar b{font:800 1.15rem Nunito,Inter,sans-serif}
+#dashX{width:44px;height:44px;display:grid;place-items:center;font-size:1.1rem}
+#mStats[aria-expanded=true]{background:linear-gradient(135deg,var(--accent),var(--violet));color:#fff}
+}
 .slm{display:flex!important;align-items:stretch;gap:0;padding:0!important;overflow:hidden}.slm .slo{all:unset;box-sizing:border-box;display:flex;align-items:center;gap:8px;flex:1;min-width:0;padding:10px 12px;cursor:pointer}.slm .slx{all:unset;box-sizing:border-box;cursor:pointer;padding:0 12px;min-height:44px;display:flex;align-items:center;font-weight:700;font-size:.76rem;opacity:.8;border-left:1px solid rgba(255,255,255,.16)}.slm .slx:hover,.slm .slx:focus-visible{opacity:1;color:#ff8fa3}.slm .slo:focus-visible,.slm .slx:focus-visible{outline:2px solid #00ADB5;outline-offset:-2px}</style>
 </head>
 <body>
@@ -881,7 +896,7 @@ a.logo{text-decoration:none;color:inherit}a.logo:focus-visible{outline:2px solid
    <path d="M763.15 108.60Q758.25 108.60 754.65 106.60Q754.15 106.30 753.65 106L753.65 122.10Q753.85 124.30 753.40 126.35Q752.95 128.40 751.05 129.70Q749.15 131 744.65 131Q740.25 131 738.35 129.70Q736.45 128.40 736.10 126.40Q735.75 124.40 735.75 122.20L735.75 67.90Q735.75 65.70 736.10 63.70Q736.45 61.70 738.30 60.35Q740.15 59 744.55 59Q748.05 59 750.35 59.90Q752.25 60.70 753.25 62.20Q754.05 61.60 754.85 61.10Q758.35 59.10 763.15 59.10Q767.55 59.10 771.70 61.20Q775.85 63.30 779.15 66.85Q782.45 70.40 784.35 74.90Q786.25 79.40 786.25 84.20Q786.25 89.20 784.35 93.65Q782.45 98.10 779.20 101.45Q775.95 104.80 771.80 106.70Q767.65 108.60 763.15 108.60M760.75 91.60Q762.75 91.60 764.40 90.60Q766.05 89.60 767.05 87.95Q768.05 86.30 768.05 84.40Q768.05 82.40 767.10 80.75Q766.15 79.10 764.50 78.15Q762.85 77.20 760.85 77.20Q758.85 77.20 757.20 78.20Q755.55 79.20 754.60 80.80Q753.65 82.40 753.65 84.40Q753.65 86.30 754.65 87.95Q755.65 89.60 757.25 90.60Q758.85 91.60 760.75 91.60" fill="#6b4a20" opacity=".5" transform="translate(0 -2)"/>
    <path d="M763.15 108.60Q758.25 108.60 754.65 106.60Q754.15 106.30 753.65 106L753.65 122.10Q753.85 124.30 753.40 126.35Q752.95 128.40 751.05 129.70Q749.15 131 744.65 131Q740.25 131 738.35 129.70Q736.45 128.40 736.10 126.40Q735.75 124.40 735.75 122.20L735.75 67.90Q735.75 65.70 736.10 63.70Q736.45 61.70 738.30 60.35Q740.15 59 744.55 59Q748.05 59 750.35 59.90Q752.25 60.70 753.25 62.20Q754.05 61.60 754.85 61.10Q758.35 59.10 763.15 59.10Q767.55 59.10 771.70 61.20Q775.85 63.30 779.15 66.85Q782.45 70.40 784.35 74.90Q786.25 79.40 786.25 84.20Q786.25 89.20 784.35 93.65Q782.45 98.10 779.20 101.45Q775.95 104.80 771.80 106.70Q767.65 108.60 763.15 108.60M760.75 91.60Q762.75 91.60 764.40 90.60Q766.05 89.60 767.05 87.95Q768.05 86.30 768.05 84.40Q768.05 82.40 767.10 80.75Q766.15 79.10 764.50 78.15Q762.85 77.20 760.85 77.20Q758.85 77.20 757.20 78.20Q755.55 79.20 754.60 80.80Q753.65 82.40 753.65 84.40Q753.65 86.30 754.65 87.95Q755.65 89.60 757.25 90.60Q758.85 91.60 760.75 91.60" fill="#fff" opacity=".55" transform="translate(0 2)"/>
    <path d="M763.15 108.60Q758.25 108.60 754.65 106.60Q754.15 106.30 753.65 106L753.65 122.10Q753.85 124.30 753.40 126.35Q752.95 128.40 751.05 129.70Q749.15 131 744.65 131Q740.25 131 738.35 129.70Q736.45 128.40 736.10 126.40Q735.75 124.40 735.75 122.20L735.75 67.90Q735.75 65.70 736.10 63.70Q736.45 61.70 738.30 60.35Q740.15 59 744.55 59Q748.05 59 750.35 59.90Q752.25 60.70 753.25 62.20Q754.05 61.60 754.85 61.10Q758.35 59.10 763.15 59.10Q767.55 59.10 771.70 61.20Q775.85 63.30 779.15 66.85Q782.45 70.40 784.35 74.90Q786.25 79.40 786.25 84.20Q786.25 89.20 784.35 93.65Q782.45 98.10 779.20 101.45Q775.95 104.80 771.80 106.70Q767.65 108.60 763.15 108.60M760.75 91.60Q762.75 91.60 764.40 90.60Q766.05 89.60 767.05 87.95Q768.05 86.30 768.05 84.40Q768.05 82.40 767.10 80.75Q766.15 79.10 764.50 78.15Q762.85 77.20 760.85 77.20Q758.85 77.20 757.20 78.20Q755.55 79.20 754.60 80.80Q753.65 82.40 753.65 84.40Q753.65 86.30 754.65 87.95Q755.65 89.60 757.25 90.60Q758.85 91.60 760.75 91.60" fill="url(#tl-ink)"/>
-  </g></g></svg></span><small style="display:block;margin:3px 0 0 4px;font:800 .62rem Nunito,Inter,sans-serif;letter-spacing:.16em;text-transform:uppercase;opacity:.75;color:#e6ecf5;-webkit-text-fill-color:#e6ecf5;background:none">jeux de mots entre amis</small></a>
+  </g></g></svg></span></a>
   <div class="hsp"></div>
   <button class="glass-pill me-pill" data-open="pseudo" title="Ma page"><span class="av-me">?</span><b>Pseudo</b><span class="sub">· Se connecter</span></button>
   <button class="glass-pill salon-pill" data-open="salon" title="Salon"><svg viewBox="0 0 48 28" class="sofa" aria-hidden="true"><path d="M8 6q0-4 4-4h24q4 0 4 4v8H8z" fill="currentColor" opacity=".85"/><path d="M2 12q0-3 3-3t3 3v4h32v-4q0-3 3-3t3 3v10q0 3-3 3H5q-3 0-3-3z" fill="currentColor"/><rect x="5" y="25" width="4" height="3" rx="1" fill="currentColor"/><rect x="39" y="25" width="4" height="3" rx="1" fill="currentColor"/></svg><span>Nom du salon</span></button>
@@ -892,6 +907,8 @@ a.logo{text-decoration:none;color:inherit}a.logo:focus-visible{outline:2px solid
     <button class="glass-pill sq" id="soundBtn" title="Son">🔊</button>
     <button class="glass-pill sq" id="musicBtn" title="Musique d'ambiance" aria-label="Musique d'ambiance"></button>
   </div>
+  <button class="glass-pill sq mbtn mq2" id="mStats" aria-label="Mes stats : classement et progression" title="Mes stats"><svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><path d="M5 20V12M12 20V5M19 20v-6" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"/></svg></button>
+  <button class="glass-pill sq mbtn mq2" id="mSal" aria-label="Salon" title="Salon"><svg viewBox="0 0 48 28" class="sofa" aria-hidden="true"><path d="M8 6q0-4 4-4h24q4 0 4 4v8H8z" fill="currentColor" opacity=".85"/><path d="M2 12q0-3 3-3t3 3v4h32v-4q0-3 3-3t3 3v10q0 3-3 3H5q-3 0-3-3z" fill="currentColor"/></svg></button>
   <button class="glass-pill sq mbtn" id="mBtn" aria-label="Menu" aria-expanded="false"><svg viewBox="0 0 24 24" width="22" height="22"><path d="M4 7h16M4 12h16M4 17h16" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg></button>
 </header>
 <div class="mmenu" id="mMenu" role="menu">
@@ -904,7 +921,8 @@ a.logo{text-decoration:none;color:inherit}a.logo:focus-visible{outline:2px solid
 
 <!-- ============ ACCUEIL ============ -->
 <main class="view on" id="v-accueil">
-  <section class="hero2 dash" aria-label="Mon espace">
+  <section class="hero2 dash" id="dashSec" aria-label="Mon espace">
+    <div class="dashbar"><b>Mes stats</b><button class="glass-pill sq" id="dashX" aria-label="Fermer">✕</button></div>
     <div class="dleft">
       <div class="glass card rankcard">
         <div class="rtabs" role="tablist" aria-label="Classements"><button type="button" role="tab" class="on" aria-selected="true" data-r="cRank">Classement général</button><button type="button" role="tab" aria-selected="false" data-r="cSalon">Classement de ton salon</button></div>
@@ -1327,7 +1345,7 @@ function connect(){if(!CODE||!ME||ME.stale)return;ws=new WebSocket((location.pro
       if(m.code==="auth"){ME.stale=true;store();updPills();openMe(pillMe())}
       else{history.replaceState(null,"","/");toast("🔒",esc(m.msg));setTimeout(()=>openSalon(pillSalon()),300)}}};
   ws.onclose=()=>{if(!refused)setTimeout(connect,3000)}}
-const pillMe=()=>window.innerWidth<=620?$("#mBtn"):$(".me-pill"),pillSalon=()=>window.innerWidth<=620?$("#mBtn"):$(".salon-pill");
+const pillMe=()=>window.innerWidth<=620?$("#mBtn"):$(".me-pill"),pillSalon=()=>window.innerWidth<=620?$("#mSal"):$(".salon-pill");
 const PCOL=["#5ad8ff","#ffa45c","#7cf0a9","#c49bff","#ff8fb1","#ffd166"];
 const colOf=n=>PCOL[[...String(n)].reduce((a,c)=>a+c.charCodeAt(0),0)%PCOL.length];
 const GAMEL={accueil:"à l'accueil",fleches:"aux mots fléchés",rond:"au Tourniquet",meles:"aux mots mêlés",poker:"à Wordflush",magnetico:"à Magnético"};
@@ -1532,6 +1550,18 @@ $("#dim").addEventListener("click",()=>{closePops();$("#mMenu").classList.remove
     else if(a==="theme"){$("#themeBtn").click()}
     else if(a==="deco"){$("#decoBtn").click()}else if(a==="sound"){$("#soundBtn").click()}});
   document.addEventListener("click",e=>{if(!e.target.closest("#mMenu")&&!e.target.closest("#mBtn"))close()})})();
+
+// ---------- téléphone : boutons Stats et Salon de l'en-tête ----------
+(function(){const st=$("#mStats"),sa=$("#mSal");
+  const set=on=>{document.body.classList.toggle("statsOn",on);st.setAttribute("aria-expanded",String(on));if(on){closePops();$("#dashSec").scrollTop=0;try{renderRank();const t=document.querySelector("#chartTabs .on");chart(t?+t.dataset.c:0)}catch(e){}}};
+  st.onclick=e=>{e.stopPropagation();set(!document.body.classList.contains("statsOn"))};
+  $("#dashX").onclick=()=>set(false);
+  addEventListener("keydown",e=>{if(e.key==="Escape"&&document.body.classList.contains("statsOn"))set(false)});
+  sa.onclick=e=>{e.stopPropagation();set(false);if($("#popSalon").classList.contains("on"))return closePops();openSalon(sa)};
+  let fs=0;try{fs=+sessionStorage.getItem("fl-open-stats")||0;sessionStorage.removeItem("fl-open-stats")}catch(e){}
+  const qs=new URLSearchParams(location.search).get("stats")==="1";if(qs)history.replaceState(null,"",location.pathname);
+  if((qs||Date.now()-fs<60000)&&innerWidth<=620)setTimeout(()=>set(true),50);
+  window.__setStats=set})();
 
 // ---------- démarrage ----------
 updPills();renderPeers();renderSalon();renderRank();chart(0);renderResume();connect();loadMe();
