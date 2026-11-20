@@ -873,6 +873,7 @@ a.logo{text-decoration:none;color:inherit}a.logo:focus-visible{outline:2px solid
     <button class="glass-pill sq" id="themeBtn" title="Mode clair / sombre">🌙</button>
     <button class="glass-pill sq" id="decoBtn" title="Décor de saison">🎃</button>
     <button class="glass-pill sq" id="soundBtn" title="Son">🔊</button>
+    <button class="glass-pill sq" id="musicBtn" title="Musique d'ambiance" aria-label="Musique d'ambiance"></button>
   </div>
   <button class="glass-pill sq mbtn" id="mBtn" aria-label="Menu" aria-expanded="false"><svg viewBox="0 0 24 24" width="22" height="22"><path d="M4 7h16M4 12h16M4 17h16" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg></button>
 </header>
@@ -880,7 +881,7 @@ a.logo{text-decoration:none;color:inherit}a.logo:focus-visible{outline:2px solid
   <button class="mi" data-act="pseudo"><span class="mic"><span class="av-me" id="mAv">?</span></span><span class="mt"><b id="mMe">Pseudo</b><small id="mMeSub">Se connecter · Ma page</small></span></button>
   <button class="mi" data-act="salon"><span class="mic"><svg viewBox="0 0 48 28" class="sofa"><path d="M8 6q0-4 4-4h24q4 0 4 4v8H8z" fill="currentColor" opacity=".85"/><path d="M2 12q0-3 3-3t3 3v4h32v-4q0-3 3-3t3 3v10q0 3-3 3H5q-3 0-3-3z" fill="currentColor"/></svg></span><span class="mt"><b id="mSalon">Nom du salon</b><small>Mes salons · rejoindre · créer</small></span></button>
   <button class="mi" data-act="share"><span class="mic share-mini">✳︎</span><span class="mt"><b>Partager</b><small>Inviter des amis</small></span></button>
-  <div class="mrow"><button class="mq" data-act="theme" id="mTheme">🌙 Sombre</button><button class="mq" data-act="deco" id="mDeco">🎃 Décor</button><button class="mq" data-act="sound" id="mSound">🔊 Son</button></div>
+  <div class="mrow"><button class="mq" data-act="theme" id="mTheme">🌙 Sombre</button><button class="mq" data-act="deco" id="mDeco">🎃 Décor</button><button class="mq" data-act="sound" id="mSound">🔊 Son</button><button class="mq" data-act="music" id="mMusic" style="grid-column:1/-1;flex:1 1 100%">Musique</button></div>
 </div>
 <div class="hline"></div>
 
@@ -1673,5 +1674,7 @@ if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",
 <script>// animations des tuiles : en pause quand la tuile n'est pas à l'écran (moins de calcul sur téléphone)
 (function(){if(!("IntersectionObserver" in window))return;var io=new IntersectionObserver(function(es){es.forEach(function(e){e.target.classList.toggle("zz",!e.isIntersecting)})},{rootMargin:"60px"});
 document.querySelectorAll(".tile").forEach(function(t){t.classList.add("zz");io.observe(t)})})();</script>
+<script src="/d/musique-03168f1501.js" defer></script><script src="/d/lettres-3894b6642a.js" defer></script>
+<script>addEventListener("DOMContentLoaded",()=>{const M=window.MotipopMusique;if(!M)return;M.bind(document.getElementById("musicBtn"));M.bind(document.getElementById("mMusic"),true)})</script>
 </body>
 </html>
