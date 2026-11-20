@@ -970,7 +970,7 @@ function page(file, inject) {
   const st = fs.statSync(file);
   const c = pages[file];
   if (c && c.mtime === st.mtimeMs) return c;
-  if (file.endsWith(".woff2")) { const raw = fs.readFileSync(file); return (pages[file] = { raw, gz: raw, br: raw, bin: true, etag: '"' + crypto.createHash("sha1").update(raw).digest("base64url").slice(0, 16) + '"', mtime: st.mtimeMs }); }   // police : binaire, déjà compressée
+  if (/\.(woff2|webp|png)$/.test(file)) { const raw = fs.readFileSync(file); return (pages[file] = { raw, gz: raw, br: raw, bin: true, etag: '"' + crypto.createHash("sha1").update(raw).digest("base64url").slice(0, 16) + '"', mtime: st.mtimeMs }); }   // police : binaire, déjà compressée
   let txt = fs.readFileSync(file, "utf8");
   if (txt.includes("{{CONTACT}}") || txt.includes("{{EDITEUR}}")) txt = txt.split("{{CONTACT}}").join(CONTACT_HTML).split("{{EDITEUR}}").join(EDITEUR_HTML);
   if (inject) txt = txt.replace("<head>", "<head>\n<script>window.SUPPORT=" + SUPPORT + ";</script>" + (txt.includes('rel="manifest"') ? "" : '<link rel="manifest" href="/manifest.webmanifest">') + TRANSFER_JS + SW_REG + (txt.includes('rel="canonical"') ? "" : seoTags(file, txt)));
@@ -1009,7 +1009,7 @@ function sendPage(req, res, file) {
   sendBody(req, res, p, "text/html; charset=utf-8", "no-cache");
 }
 // données lourdes (grilles…) : nom de fichier versionné → mises en cache un an par le navigateur
-const STATIC = { js: "text/javascript; charset=utf-8", json: "application/json", svg: "image/svg+xml", css: "text/css; charset=utf-8", woff2: "font/woff2" };
+const STATIC = { js: "text/javascript; charset=utf-8", json: "application/json", svg: "image/svg+xml", css: "text/css; charset=utf-8", woff2: "font/woff2", webp: "image/webp", png: "image/png" };
 const skinCache = new Map();
 let cgIdx = null;
 const SW_REG = '<script>if("serviceWorker"in navigator&&(location.protocol==="https:"||location.hostname==="localhost"))addEventListener("load",function(){navigator.serviceWorker.register("/sw.js").catch(function(){})})</script>';
@@ -1035,7 +1035,7 @@ function sendSkin(req, res, name, ext) {
   res.end(req.method === "HEAD" ? undefined : buf);
 }
 function sendStatic(req, res, name) {
-  const m = name.match(/^([a-z0-9-]{3,60})\.(js|json|svg|css|woff2)$/); if (!m) { res.writeHead(404); return res.end(); }
+  const m = name.match(/^([a-z0-9-]{3,60})\.(js|json|svg|css|woff2|webp|png)$/); if (!m) { res.writeHead(404); return res.end(); }
   let p; try { p = page(path.join(__dirname, "public", "d", name), false); } catch { res.writeHead(404); return res.end(); }
   sendBody(req, res, p, STATIC[m[2]], /-[0-9a-f]{10}\./.test(name) ? "public, max-age=31536000, immutable" : "public, max-age=3600");
 }

@@ -809,10 +809,33 @@ a.logo{text-decoration:none;color:inherit}a.logo:focus-visible{outline:2px solid
 /* téléphone : les jeux d'abord, puis mon espace ; boutons assez grands pour le doigt */
 @media (max-width:760px){
 #v-accueil.on{display:flex;flex-direction:column}
-#v-accueil>.sec2{order:0;margin-top:6px}#v-accueil>.games{order:1}#v-accueil>.hero2{order:2;margin-top:22px}#v-accueil>.sitefoot{order:3}
+#v-accueil>.sec2{order:0;margin-top:6px}#v-accueil>.games{order:1}#v-accueil>.amis{order:1}#v-accueil>.hero2{order:2;margin-top:22px}#v-accueil>.sitefoot{order:3}
 .tile .abtn{min-height:44px}
 .sitefoot a{padding:10px 4px}
 }
+
+/* bloc « Joue avec tes amis » avec Pop */
+.amis{position:relative;display:grid;grid-template-columns:200px 1fr;gap:6px 22px;align-items:center;max-width:var(--content-max);margin:22px auto 0;padding:22px 24px;border-radius:24px;overflow:hidden}
+.amis::before{content:"";position:absolute;inset:0;border-radius:inherit;padding:1.5px;background:linear-gradient(135deg,#2ee6d6,#a26bff);-webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask-composite:exclude;opacity:.7;pointer-events:none}
+.amis .popm{width:200px;height:auto;filter:drop-shadow(0 12px 22px rgba(0,0,0,.35));transform-origin:50% 90%;animation:popHi 4s ease-in-out infinite}
+@keyframes popHi{0%,100%{transform:translateY(0) rotate(-2deg)}50%{transform:translateY(-6px) rotate(2deg)}}
+.amis .tag{display:inline-block;font:800 .68rem Inter,sans-serif;letter-spacing:.12em;text-transform:uppercase;padding:5px 10px;border-radius:999px;background:rgba(46,230,214,.14);border:1px solid rgba(46,230,214,.45);color:#9ff5ec}
+[data-theme=light] .amis .tag{color:#0f766e}
+.amis h2{margin:8px 0 2px;font:800 1.7rem "Playfair Display",Georgia,serif}
+.amsub{margin:0 0 12px;color:var(--muted)}
+.amsteps{list-style:none;margin:0;padding:0;display:grid;gap:8px}
+.amsteps li{display:grid;grid-template-columns:34px 1fr auto;align-items:center;gap:12px;padding:10px 12px;border-radius:16px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12)}
+[data-theme=light] .amsteps li{background:rgba(255,255,255,.55);border-color:rgba(15,23,42,.08)}
+.amsteps .n{width:34px;height:34px;border-radius:11px;display:grid;place-items:center;font:800 1rem Nunito,sans-serif;color:#1d1640;background:linear-gradient(160deg,#fff4dc,#f0c98a);box-shadow:0 0 0 2px rgba(162,107,255,.6),0 4px 10px rgba(0,0,0,.25)}
+.amsteps b{display:block;font:800 1rem Nunito,Inter,sans-serif}
+.amsteps small{display:block;color:var(--muted);font-size:.84rem;line-height:1.35;margin-top:2px}
+.ambtn{border:0;border-radius:12px;padding:10px 14px;min-height:42px;font:700 .9rem Inter,sans-serif;color:#fff;cursor:pointer;white-space:nowrap;background:linear-gradient(135deg,#00ADB5,#A26BFF);box-shadow:0 4px 14px rgba(0,173,181,.3)}
+.ambtn.done{background:rgba(255,255,255,.1);color:var(--ink);box-shadow:none;border:1px solid rgba(255,255,255,.2)}
+.ambtn:focus-visible{outline:3px solid #2ee6d6;outline-offset:2px}
+@media (max-width:760px){.amis{grid-template-columns:1fr;padding:18px 16px;text-align:left}.amis .popm{position:absolute;right:-8px;top:4px;width:118px}.amis h2{font-size:1.45rem;padding-right:100px}.amsub{padding-right:100px}}
+@media (max-width:420px){.amsteps li{grid-template-columns:30px 1fr;row-gap:8px}.amsteps .n{width:30px;height:30px}.ambtn{grid-column:2;justify-self:start}}
+@media (prefers-reduced-motion:reduce){.amis .popm{animation:none}}
+body.nodeco .amis .popm{animation:none}
 /* téléphone : en-tête [logo] … [stats] [salon] [menu], le même que sur les pages de jeu */
 .dashbar{display:none}
 @media (max-width:620px){
@@ -983,6 +1006,19 @@ body.statsOn .dashbar{display:flex;align-items:center;justify-content:space-betw
       </div>
     </div>
   </div>
+  <section class="glass amis" id="amis" aria-labelledby="amisT">
+    <img class="popm" src="/d/pop-bonjour-c9931f8ee8.webp" width="220" height="220" alt="Pop, la mascotte de Motipop, fait coucou" loading="lazy" decoding="async">
+    <div class="amtx">
+      <span class="tag">Entre amis · jusqu'à 4</span>
+      <h2 id="amisT">Joue avec tes amis</h2>
+      <p class="amsub">Gratuit, sans e-mail ni mot de passe. Prêt en 1 minute.</p>
+      <ol class="amsteps">
+        <li><span class="n">1</span><div><b>Choisis un pseudo</b><small>Juste un nom et un code à 4 chiffres pour le retrouver.</small></div><button class="ambtn" id="amMe" type="button">Créer mon pseudo</button></li>
+        <li><span class="n">2</span><div><b>Ouvre ton salon</b><small>Ton coin privé : tes amis, vos classements, vos parties.</small></div><button class="ambtn" id="amSal" type="button">Ouvrir mon salon</button></li>
+        <li><span class="n">3</span><div><b>Envoie le lien</b><small>Ils le touchent et arrivent dans ton salon. Puis choisis un jeu → « Multijoueurs ».</small></div><button class="ambtn" id="amInv" type="button">Inviter des amis</button></li>
+      </ol>
+    </div>
+  </section>
 <footer class="sitefoot" style="margin:22px 4px 34px;display:flex;flex-wrap:wrap;justify-content:center;gap:6px 16px;font-size:.85rem"><a href="/regles" style="color:inherit;opacity:.8">Règles et jetons</a><a href="/mentions-legales" style="color:inherit;opacity:.8">Mentions légales</a><a href="/confidentialite" style="color:inherit;opacity:.8">Confidentialité</a><a href="/conditions" style="color:inherit;opacity:.8">Conditions d'utilisation</a></footer>
 </main>
 
@@ -1550,6 +1586,15 @@ $("#dim").addEventListener("click",()=>{closePops();$("#mMenu").classList.remove
     else if(a==="theme"){$("#themeBtn").click()}
     else if(a==="deco"){$("#decoBtn").click()}else if(a==="sound"){$("#soundBtn").click()}});
   document.addEventListener("click",e=>{if(!e.target.closest("#mMenu")&&!e.target.closest("#mBtn"))close()})})();
+
+// ---------- bloc « Joue avec tes amis » ----------
+(function(){const me=$("#amMe"),sa=$("#amSal"),iv=$("#amInv");
+  function upd(){const M=ME&&!ME.stale;me.textContent=M?"✓ "+ME.name:"Créer mon pseudo";me.classList.toggle("done",!!M);
+    sa.textContent=ROOM?"Mon salon":"Ouvrir mon salon";sa.classList.toggle("done",!!ROOM)}
+  me.onclick=e=>{e.stopPropagation();if(ME&&!ME.stale)return openMe(pillMe());openMe(pillMe());setTimeout(()=>{const n=$("#meNew");if(n)n.click()},30)};
+  sa.onclick=e=>{e.stopPropagation();if(!ME||ME.stale){openMe(pillMe());setTimeout(()=>{const n=$("#meNew");if(n)n.click()},30);return}openSalon(pillSalon())};
+  iv.onclick=e=>{e.stopPropagation();share()};
+  upd();setInterval(upd,1500)})();
 
 // ---------- téléphone : boutons Stats et Salon de l'en-tête ----------
 (function(){const st=$("#mStats"),sa=$("#mSal");
