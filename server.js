@@ -717,6 +717,80 @@ const poker = makePoker({
   }
 });
 
+// ---------- 20/11 : MOT DU JOUR (défi du jour, solo) ----------
+// Un mot de 6 ou 7 lettres par jour (heure de Paris), le même pour tous. 6 essais, 1re lettre donnée. Le mot ne quitte jamais
+// le serveur avant la fin : chaque essai est vérifié ici (mot du dictionnaire) et reçoit ses couleurs. Joueurs avec pseudo :
+// classés (du jour : essais puis temps ; depuis le début : mots trouvés). Invités : jouent aussi, comptés dans « trouvé par ».
+const MJ = (() => {
+  const strip = w => String(w || "").normalize("NFD").replace(/[̀-ͯ]/g, "").toUpperCase().replace(/[^A-Z]/g, "");
+  let words = [], defs = {}, dict = new Set();
+  // un « beau » mot du jour : pas de pluriel, ni de verbe conjugué (finales typiques), ni de définition qui commence par un article
+  const mjNice = (w, d) => !/(S|X|Z|AIT|AI|ERA|IONS|IEZ|ONS|EZ|ERAI|[^I]A)$/.test(w) && !(/ENT$/.test(w) && !/(MENT|CENT|GENT|DENT|PENT)$/.test(w)) && !/^(A |Au |Aux |De |Du |Des |Il |Elle |Ils |On |Tu |Je |Nous |Vous )/.test(d || "");
+  try {
+    const f = fs.readdirSync(path.join(__dirname, "public", "d")).find(n => /^magnetico-[0-9a-f]{10}\.js$/.test(n));
+    const sb = { window: {} }; require("vm").runInNewContext(fs.readFileSync(path.join(__dirname, "public", "d", f), "utf8"), sb);
+    for (const lv in sb.window.MG_MOTS) for (const e of sb.window.MG_MOTS[lv]) { const [s, d, r] = e.split("|"); const w = strip(s); dict.add(w); if (lv === "facile" && r === "1" && w.length >= 6 && w.length <= 7 && mjNice(w, d)) { words.push(w); defs[w] = d; } }
+  } catch (e) { console.error("Mot du jour : liste de mots illisible :", e.message); }
+  try { fs.readFileSync(path.join(__dirname, "poker_mots.txt"), "utf8").split(/\s+/).forEach(w => { if (w) dict.add(strip(w)); }); } catch {}
+  // ordre fixe mélangé une fois (graine), un mot par jour à partir du 20/11/2026 ; un mot ne revient pas avant d'avoir épuisé la liste
+  words = [...new Set(words)].sort(); let seed = 20261120; const rnd = () => (seed = (seed * 1103515245 + 12345) % 2147483648) / 2147483648;
+  for (let i = words.length - 1; i > 0; i--) { const j = Math.floor(rnd() * (i + 1)); [words[i], words[j]] = [words[j], words[i]]; }
+  const D0 = Date.UTC(2026, 10, 20);
+  const dayNo = day => Math.round((Date.UTC(+day.slice(0, 4), +day.slice(4, 6) - 1, +day.slice(6, 8)) - D0) / 864e5);
+  const wordOf = day => words.length ? words[((dayNo(day) % words.length) + words.length) % words.length] : "MOTIPOP";
+  function colors(g, w) {            // 2 = bien placée, 1 = présente ailleurs, 0 = absente (lettres en double comptées comme il faut)
+    const r = Array(w.length).fill(0), left = {};
+    for (let i = 0; i < w.length; i++) if (g[i] === w[i]) r[i] = 2; else left[w[i]] = (left[w[i]] || 0) + 1;
+    for (let i = 0; i < w.length; i++) if (r[i] !== 2 && left[g[i]]) { r[i] = 1; left[g[i]]--; }
+    return r;
+  }
+  const mem = new Map();             // jour -> Map(id -> état) ; recopié dans Redis (hash mj:AAAAMMJJ, 40 jours)
+  async function load(day) {
+    if (!mem.has(day)) { const m = new Map(); mem.set(day, m); if (REDIS) { try { const a = await redis(["HGETALL", "mj:" + day]); if (Array.isArray(a)) for (let i = 0; i < a.length; i += 2) { try { m.set(a[i], JSON.parse(a[i + 1])); } catch {} } } catch (e) { console.error("Mot du jour (lecture) :", e.message); } } for (const k of mem.keys()) if (k < parisDay(new Date(Date.now() - 3 * 864e5))) mem.delete(k); }
+    return mem.get(day);
+  }
+  function persist(day, id, st) { if (REDIS) redis(["HSET", "mj:" + day, id, JSON.stringify(st)]).then(() => redis(["EXPIRE", "mj:" + day, String(40 * 86400)])).catch(e => console.error("Mot du jour (écriture) :", e.message)); }
+  function view(day, st, w) {
+    const v = { day, len: w.length, first: w[0], tries: (st && st.t || []).map(g => ({ g, c: colors(g, w) })), done: !!(st && (st.ok || (st.t || []).length >= 6)), ok: !!(st && st.ok) };
+    if (v.done) { v.word = w; v.def = defs[w] || ""; if (st.ok) v.ms = st.ms; }
+    return v;
+  }
+  async function board(day) {
+    const m = await load(day); let found = 0, played = 0; const today = [];
+    for (const [id, st] of m) { played++; if (st.ok) { found++; if (!id.startsWith("g:")) today.push({ name: id, n: st.t.length, ms: st.ms }); } }
+    today.sort((a, b) => a.n - b.n || a.ms - b.ms);
+    let total = [];
+    if (REDIS) { try { const r = await redis(["ZREVRANGE", "mj:total", "0", "9", "WITHSCORES"]); for (let i = 0; i < (r || []).length; i += 2) total.push({ name: r[i], n: Number(r[i + 1]) }); } catch {} }
+    else total = [...MJ_TOTAL.entries()].sort((a, b) => b[1] - a[1]).slice(0, 10).map(([name, n]) => ({ name, n }));
+    return { found, played, today: today.slice(0, 10), total };
+  }
+  return { strip, wordOf, colors, load, persist, view, board, dict, size: () => words.length };
+})();
+const MJ_TOTAL = new Map();   // sans Redis (tests locaux) : total des mots trouvés par pseudo
+async function mjApi(b, out) {
+  const day = parisDay(), w = MJ.wordOf(day);
+  // qui joue : un pseudo connecté (classé) ou un invité (identifiant tiré au hasard par son navigateur)
+  let id = null, name = normPseudo(b.name);
+  if (PSEUDO_RE.test(name) && b.token) { try { const p = await getPlayer(name); if (tokOk(p, b.token)) id = name; } catch {} }
+  if (!id) { const g = String(b.guest || ""); if (/^[a-z0-9]{12,24}$/.test(g)) id = "g:" + g; }
+  const m = await MJ.load(day); const st = id ? m.get(id) : null;
+  if (b.op === "essai") {
+    if (!id) return out(400, { error: "joueur" });
+    const g = MJ.strip(b.g);
+    const s = st || { t: [], at: Date.now() };
+    if (s.ok || s.t.length >= 6) return out(200, MJ.view(day, s, w));
+    if (g.length !== w.length) return out(200, { refus: "Le mot fait " + w.length + " lettres." });
+    if (g[0] !== w[0]) return out(200, { refus: "Le mot commence par " + w[0] + "." });
+    if (!MJ.dict.has(g)) return out(200, { refus: "« " + g + " » n'est pas dans le dictionnaire." });
+    if (s.t.includes(g)) return out(200, { refus: "Mot déjà essayé." });
+    s.t.push(g); if (g === w) { s.ok = 1; s.ms = Date.now() - s.at; }
+    m.set(id, s); MJ.persist(day, id, s); statAdd(s.ok ? "motdujour:trouve" : s.t.length >= 6 ? "motdujour:rate" : "motdujour:essai");
+    if (s.ok && !id.startsWith("g:")) { if (REDIS) redis(["ZINCRBY", "mj:total", "1", id]).catch(() => {}); else MJ_TOTAL.set(id, (MJ_TOTAL.get(id) || 0) + 1); }
+    return out(200, { ...MJ.view(day, s, w), board: s.ok || s.t.length >= 6 ? await MJ.board(day) : undefined });
+  }
+  // op « etat » : ma grille du jour + les chiffres du jour + les classements
+  return out(200, { ...MJ.view(day, st, w), board: await MJ.board(day), ranked: !!(id && !id.startsWith("g:")) });
+}
 async function api(req, res, route) {
   const out = (code, o) => { res.writeHead(code, { "content-type": "application/json", "cache-control": "no-store" }); res.end(JSON.stringify(o)); };
   if (req.method !== "POST") return out(405, { error: "méthode" });
@@ -726,6 +800,7 @@ async function api(req, res, route) {
   const ip = clientIp(req);
   const name = normPseudo(b.name);
   if (route === "rank") return out(200, await topRank(PSEUDO_RE.test(name) ? name : null));
+  if (route === "mj") return mjApi(b, out);
   const bad = (field, detail) => out(400, { error: "saisie", field, msg: "Vérifie les informations saisies.", detail });
   if (!PSEUDO_RE.test(name)) return bad("name", "Pseudo : 2 à 7 caractères, lettres A-Z, chiffres et @ # _ (sans espace).");
   // lecture stricte : si le stockage ne répond pas, on le dit (on ne répond pas « identifiants incorrects »)
@@ -868,7 +943,7 @@ const SITE = (process.env.SITE_URL || "https://mots-fleches-duo.onrender.com").r
 // seulement si l'on vient bien de l'ancienne adresse (le referrer), puis on efface le fragment de l'adresse
 const TRANSFER_JS = '<script>(function(){var h=location.hash,m="#motipop-transfert=";if(h.indexOf(m)!==0)return;try{if(/^https:\\/\\/[a-z0-9-]+\\.onrender\\.com\\//.test(document.referrer)){var d=JSON.parse(decodeURIComponent(h.slice(m.length)));for(var k in d)if(/^fl-/.test(k)&&typeof d[k]==="string"&&localStorage.getItem(k)===null)localStorage.setItem(k,d[k])}}catch(e){}history.replaceState(null,"",location.pathname+location.search)})()</script>';
 const OLDHOST_REDIRECT = !/\.onrender\.com/i.test(SITE);   // actif seulement quand SITE_URL est un vrai domaine
-const CANON = { "regles.html": "/regles", "legal.html": "/mentions-legales", "accueil.html": "/", "fl.html": "/fleches", "rd.html": "/rond", "mm.html": "/meles", "mg.html": "/magnetico", "cg.html": "/culture", "poker.html": "/poker" };
+const CANON = { "regles.html": "/regles", "legal.html": "/mentions-legales", "accueil.html": "/", "fl.html": "/fleches", "rd.html": "/rond", "mm.html": "/meles", "mg.html": "/magnetico", "md.html": "/motdujour", "cg.html": "/culture", "poker.html": "/poker" };
 function seoTags(file, txt) {
   const c = CANON[path.basename(file)]; if (c === undefined) return "";
   const t = (txt.match(/<title>([^<]*)<\/title>/) || [])[1] || "Motipop";
@@ -883,7 +958,7 @@ const CONTACT_HTML = /^[^\s@<>"]+@[^\s@<>"]+\.[a-z]{2,}$/i.test(CEMAIL) ? '<a hr
 const EDITEUR_HTML = envClean(process.env.EDITEUR_NOM)
   ? "<b>" + escH(envClean(process.env.EDITEUR_NOM)) + "</b>" + (envClean(process.env.EDITEUR_ADRESSE) ? " — " + escH(envClean(process.env.EDITEUR_ADRESSE)) : "")
   : "Motipop est édité à titre non professionnel par un particulier. Conformément à l'article 1-1 de la loi n° 2004-575 du 21 juin 2004 pour la confiance dans l'économie numérique, ses coordonnées ont été communiquées à l'hébergeur.";
-const SITEMAP_PATHS = ["/", "/fleches", "/rond", "/meles", "/magnetico", "/culture", "/poker", "/regles", "/mentions-legales"];
+const SITEMAP_PATHS = ["/", "/motdujour", "/fleches", "/rond", "/meles", "/magnetico", "/culture", "/poker", "/regles", "/mentions-legales"];
 function page(file, inject) {
   const st = fs.statSync(file);
   const c = pages[file];
@@ -923,7 +998,7 @@ function statErr(b, ip) {
 }
 function sendPage(req, res, file) {
   let p; try { p = page(file, true); } catch { res.writeHead(500); return res.end("Page manquante"); }
-  try { if (req.method === "GET" && !/bot|spider|crawl|preview|uptime/i.test(req.headers["user-agent"] || "")) { const f = path.basename(file), g = { "fl.html": "fleches", "rd.html": "rond", "mm.html": "meles", "mg.html": "magnetico", "cg.html": "culture", "poker.html": "poker" }[f]; const q = String(req.url || ""); if (f === "accueil.html") statAdd("accueil"); else if (g) statAdd(g + ":" + (/[?&]go=multi/.test(q) ? "ouverte-multi" : /[?&]go=/.test(q) ? "ouverte-solo" : "ouverte")); } } catch {}
+  try { if (req.method === "GET" && !/bot|spider|crawl|preview|uptime/i.test(req.headers["user-agent"] || "")) { const f = path.basename(file), g = { "fl.html": "fleches", "rd.html": "rond", "mm.html": "meles", "mg.html": "magnetico", "md.html": "motdujour", "cg.html": "culture", "poker.html": "poker" }[f]; const q = String(req.url || ""); if (f === "accueil.html") statAdd("accueil"); else if (g) statAdd(g + ":" + (/[?&]go=multi/.test(q) ? "ouverte-multi" : /[?&]go=/.test(q) ? "ouverte-solo" : "ouverte")); } } catch {}
   sendBody(req, res, p, "text/html; charset=utf-8", "no-cache");
 }
 // données lourdes (grilles…) : nom de fichier versionné → mises en cache un an par le navigateur
@@ -984,7 +1059,7 @@ const server = http.createServer((req, res) => {
   // /healthz répond 503 si le stockage refuse l'accès : UptimeRobot (qui surveille /healthz) envoie alors une alerte par e-mail
   if (url.pathname === "/healthz" && url.searchParams.get("ip") === "1") { res.writeHead(200, { "content-type": "application/json", "cache-control": "no-store" }); return res.end(JSON.stringify(ipSource(req))); }   // quels en-têtes d'adresse arrivent (sans les valeurs)
   if (url.pathname === "/healthz") { const bad = REDIS && storage.ok === false; res.writeHead(bad ? 503 : 200, { "content-type": "text/plain; charset=utf-8" }); return res.end(bad ? "STOCKAGE KO depuis " + storage.since + " : " + storage.msg : "ok " + salons.size + (REDIS ? " redis" : "")); }
-  const am = url.pathname.match(/^\/api\/p\/(create|login|me|pin|logout|rank|score|wallet|conv|salons|sjoin|screate|skick|scode|sleave|sdelete|hist|solo|skin)$/);
+  const am = url.pathname.match(/^\/api\/p\/(create|login|me|pin|logout|rank|mj|score|wallet|conv|salons|sjoin|screate|skick|scode|sleave|sdelete|hist|solo|skin)$/);
   if (am) return void api(req, res, am[1]).catch(e => { console.error(e); try { res.writeHead(500); res.end("{}"); } catch {} });
   // culture générale : index léger des questions (identifiant → type), puis seulement les questions de la partie
   if (url.pathname === "/d/cg-index.js") { cgIdx = cgIdx || pack(Buffer.from("window.__CGI=" + JSON.stringify(CAT.cgIndex()) + ";")); return sendBody(req, res, cgIdx, STATIC.js, "public, max-age=600"); }
@@ -1020,6 +1095,7 @@ const server = http.createServer((req, res) => {
   if (/^\/(?:[A-Za-z0-9]{5}\/)?rond\/?$/.test(url.pathname)) return sendPage(req, res, path.join(__dirname, "public", "rd.html"));
   if (/^\/(?:[A-Za-z0-9]{5}\/)?meles\/?$/.test(url.pathname)) return sendPage(req, res, path.join(__dirname, "public", "mm.html"));
   if (/^\/(?:[A-Za-z0-9]{5}\/)?magnetico\/?$/.test(url.pathname)) return sendPage(req, res, path.join(__dirname, "public", "mg.html"));
+  if (/^\/(?:motdujour|mot-du-jour|defi)\/?$/.test(url.pathname)) return sendPage(req, res, path.join(__dirname, "public", "md.html"));
   // icône du site (onglet du navigateur)
   // icônes Motipop : onglet (SVG) et écran d'accueil du téléphone (PNG)
   if (url.pathname === "/favicon.ico" || url.pathname === "/favicon.svg") { res.writeHead(200, { "content-type": "image/svg+xml", "cache-control": "public, max-age=86400" }); return res.end(FAVICON); }

@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<script>try{document.documentElement.dataset.theme=localStorage.getItem("fl-theme")||"dark";if(localStorage.getItem("fl-deco")==="off")document.documentElement.classList.add("nodeco")}catch(e){}</script>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Mot du jour — Motipop</title>
+<meta name="description" content="Le mot du jour de Motipop : le même mot pour tout le monde, 6 essais pour le trouver, un classement et un résultat à partager.">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml"><link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="preload" href="/d/f-inter-f11d729bb0.woff2" as="font" type="font/woff2" crossorigin><link rel="preload" href="/d/f-nunito-76388dbfe3.woff2" as="font" type="font/woff2" crossorigin><link rel="stylesheet" href="/d/polices-117650e856.css">
+<link rel="stylesheet" href="/d/jeu-88a196dffd.css">
+<link rel="stylesheet" href="/d/sk-b4a77edec2.css">
+<style>
+/* Mot du jour : couleur signature corail */
+.md{max-width:560px;margin:0 auto;display:flex;flex-direction:column;gap:12px}
+.md .card{padding:14px 16px}
+.mdhead{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}
+.mdhead b{font:800 1rem Nunito,Inter,sans-serif}
+.mdhead small{color:var(--muted);font-size:.82rem}
+.mdcount{display:inline-flex;align-items:center;gap:6px;padding:4px 10px;border-radius:999px;background:rgba(255,122,168,.14);border:1px solid rgba(255,122,168,.35);font:700 .8rem Nunito,Inter,sans-serif}
+.mdgrid{display:flex;flex-direction:column;gap:6px;align-items:center;position:relative;padding:14px 10px}
+.mdrow{display:flex;gap:6px}
+.mdc{width:min(46px,11.2vw);height:min(50px,12.2vw);display:grid;place-items:center;border-radius:12px;border:1px solid var(--stroke);background:var(--cell);font:800 clamp(1.05rem,5vw,1.45rem) Nunito,Inter,sans-serif;text-transform:uppercase;transition:transform .25s,background .25s}
+.mdc.first{color:#ff7aa8}
+.mdc.cur{border-color:rgba(255,122,168,.75);box-shadow:0 0 0 2px rgba(255,122,168,.25)}
+.mdc.c2{background:linear-gradient(135deg,#14b8a6,#0e9f8f);border-color:transparent;color:#fff}
+.mdc.c1{background:rgba(255,200,87,.16);border:2px solid var(--gold);color:var(--ink)}
+.mdc.c0{background:rgba(127,140,160,.18);color:var(--muted)}
+.mdc.pop{animation:mdpop .35s ease}
+@keyframes mdpop{50%{transform:scale(1.12)}}
+.mdrow.shake{animation:mdshake .4s}
+@keyframes mdshake{20%,60%{transform:translateX(-6px)}40%,80%{transform:translateX(6px)}}
+#mdIn{position:absolute;inset:0;opacity:0;font-size:16px;border:0;background:transparent;color:transparent;caret-color:transparent}
+.mdbar{display:flex;gap:8px;align-items:center}
+.mdbar .note{flex:1;min-width:0;color:var(--muted);font-size:.85rem}
+.mdkeys{display:flex;flex-wrap:wrap;gap:4px;justify-content:center}
+.mdkeys span{min-width:24px;padding:3px 0;text-align:center;border-radius:7px;font:800 .78rem Nunito,Inter,sans-serif;background:var(--cell);border:1px solid var(--stroke)}
+.mdkeys .k2{background:#14b8a6;color:#fff;border-color:transparent}.mdkeys .k1{border:2px solid var(--gold)}.mdkeys .k0{opacity:.3}
+.mdmsg{min-height:1.2em;text-align:center;font-weight:600;font-size:.9rem}
+.mdend{text-align:center;display:none;flex-direction:column;gap:8px;align-items:center}
+.mdend.on{display:flex}
+.mdend h3{margin:0;font:800 1.15rem Nunito,Inter,sans-serif}
+.mdend .w{font:800 1.6rem Nunito,Inter,sans-serif;letter-spacing:.12em;background:linear-gradient(90deg,#ff7aa8,#a78bfa);-webkit-background-clip:text;background-clip:text;color:transparent}
+.mdend .def{color:var(--muted);font-size:.92rem}
+.mdend .row{display:flex;gap:8px;flex-wrap:wrap;justify-content:center}
+.mdtabs{display:flex;gap:6px;margin-bottom:8px}
+.mdtabs button{flex:1;min-height:38px;border-radius:12px;border:1px solid var(--stroke);background:var(--glass);color:var(--ink);font:700 .85rem Inter,sans-serif;cursor:pointer}
+.mdtabs button.on{background:var(--glass2);border-color:rgba(255,122,168,.6)}
+.mdlist{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:2px}
+.mdlist li{display:flex;align-items:center;gap:10px;padding:7px 8px;border-radius:10px}
+.mdlist li.me{background:rgba(255,122,168,.12)}
+.mdlist .rk{width:22px;text-align:center;font-weight:800;color:var(--muted)}
+.mdlist b{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis}
+.mdlist small{color:var(--muted)}
+.mdempty{color:var(--muted);font-size:.88rem;padding:6px 8px}
+.mdguest{margin-top:8px;font-size:.85rem;color:var(--muted)}
+.mdguest a{color:#ff7aa8;font-weight:700}
+@media (max-width:620px){.wrap{padding:10px}.md .card{padding:12px}}
+</style>
+</head>
+<body class="sk-new g-md">
+<div id="skTop" class="skph"></div>
+<div class="blob b1"></div><div class="blob b2"></div><div class="blob b3"></div>
+<div class="wrap">
+  <div class="gtop"><button class="homebtn" title="Retour à l'accueil" aria-label="Retour à l'accueil" onclick="location.href='/'"><svg viewBox="0 0 24 24"><path d="M3 11.2 12 4l9 7.2" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/><path d="M5.5 9.5V20h13V9.5" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linejoin="round"/></svg></button><div class="gname">Mot <span style="color:#ff7aa8">du jour</span> <span class="hpill" id="mdDay">…</span></div></div>
+  <div class="md">
+    <div class="glass card">
+      <div class="mdhead"><div><b id="mdInfo">Chargement…</b><br><small>Le même mot pour tout le monde · 6 essais · nouveau mot à minuit</small></div><span class="mdcount" id="mdCount">…</span></div>
+    </div>
+    <div class="glass mdgrid" id="mdGrid" aria-label="Grille du mot du jour"><input id="mdIn" autocomplete="off" autocorrect="off" autocapitalize="characters" spellcheck="false" enterkeyhint="go" aria-label="Écris ton mot"></div>
+    <div class="mdmsg" id="mdMsg" role="status" aria-live="polite"></div>
+    <div class="mdbar" id="mdBar"><span class="note">Touche la grille, écris ton mot, puis Valider.</span><button class="btn primary" id="mdOk">Valider</button></div>
+    <div class="mdkeys" id="mdKeys" aria-hidden="true"></div>
+    <div class="glass card mdend" id="mdEnd" aria-live="polite"></div>
+    <div class="glass card">
+      <div class="mdtabs" role="tablist"><button class="on" data-t="today" role="tab">Aujourd'hui</button><button data-t="total" role="tab">Depuis le début</button></div>
+      <ul class="mdlist" id="mdList"></ul>
+      <div class="mdguest" id="mdGuest" hidden>Tu joues en invité : <a href="/?need=pseudo">crée ton pseudo</a> pour entrer au classement.</div>
+    </div>
+  </div>
+</div>
+<script>
+(function(){
+const $=s=>document.querySelector(s),LS={get:k=>{try{return localStorage.getItem(k)}catch(e){return null}},set:(k,v)=>{try{localStorage.setItem(k,v)}catch(e){}}};
+const esc=s=>String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+let ME=null;try{ME=JSON.parse(LS.get("fl-me")||"null")}catch(e){}if(ME&&!/^[A-Z0-9@#_]{2,7}$/.test(ME.name||""))ME=null;
+let GUEST=LS.get("fl-mj-guest");if(!GUEST||!/^[a-z0-9]{12,24}$/.test(GUEST)){GUEST=(Math.random().toString(36).slice(2)+Math.random().toString(36).slice(2)).replace(/[^a-z0-9]/g,"").slice(0,16);LS.set("fl-mj-guest",GUEST)}
+let S=null,TAB="today",busy=false;
+const call=b=>fetch("/api/p/mj",{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify(Object.assign({guest:GUEST},ME&&ME.token?{name:ME.name,token:ME.token}:{},b))}).then(r=>r.json());
+const inp=$("#mdIn");
+function dayTxt(d){const m=["janv.","févr.","mars","avr.","mai","juin","juil.","août","sept.","oct.","nov.","déc."];return Number(d.slice(6,8))+" "+m[Number(d.slice(4,6))-1]}
+function cur(){return (S.first+inp.value).slice(0,S.len)}
+function draw(){if(!S)return;
+  $("#mdDay").textContent=dayTxt(S.day);$("#mdInfo").textContent=S.len+" lettres · commence par "+S.first;
+  const b=S.board||{found:0,played:0};$("#mdCount").textContent=b.found?b.found+(b.found>1?" joueurs l'ont trouvé":" joueur l'a trouvé")+" aujourd'hui":"Personne ne l'a encore trouvé aujourd'hui";
+  const g=$("#mdGrid");g.querySelectorAll(".mdrow").forEach(r=>r.remove());
+  const now=S.done?-1:S.tries.length;
+  for(let r=0;r<6;r++){const row=document.createElement("div");row.className="mdrow";const t=S.tries[r];
+    for(let i=0;i<S.len;i++){const c=document.createElement("div");c.className="mdc";
+      if(t){c.textContent=t.g[i];c.classList.add("c"+t.c[i])}
+      else if(r===now){const w=cur();c.textContent=w[i]||"";if(i===0)c.classList.add("first");if(i===w.length&&document.activeElement===inp)c.classList.add("cur")}
+      row.appendChild(c)}g.insertBefore(row,inp)}
+  // lettres déjà essayées (indicateur, pas un clavier)
+  const st={};S.tries.forEach(t=>[...t.g].forEach((L,i)=>{st[L]=Math.max(st[L]??-1,t.c[i])}));
+  $("#mdKeys").innerHTML=S.tries.length?"AZERTYUIOPQSDFGHJKLMWXCVBN".split("").map(L=>'<span class="'+(L in st?"k"+st[L]:"")+'">'+L+"</span>").join(""):"";
+  $("#mdBar").style.display=S.done?"none":"";inp.disabled=!!S.done;
+  const e=$("#mdEnd");e.classList.toggle("on",!!S.done);
+  if(S.done){const n=S.tries.length;e.innerHTML=(S.ok?'<h3>Trouvé en '+n+" essai"+(n>1?"s":"")+(S.ms?" · "+fmt(S.ms):"")+" !</h3>":"<h3>Pas cette fois…</h3>")+'<div class="w">'+esc(S.word)+'</div><div class="def">'+esc(S.def||"")+'</div><div class="row"><button class="btn primary" id="mdShare">Partager mon résultat</button></div><small class="note">Nouveau mot demain à minuit.</small>';
+    $("#mdShare").onclick=share}
+  list()}
+function fmt(ms){const s=Math.round(ms/1000);return s<60?s+" s":Math.floor(s/60)+" min "+String(s%60).padStart(2,"0")}
+function list(){const b=S&&S.board;const L=$("#mdList");if(!b){L.innerHTML="";return}
+  const me=ME&&ME.name;let rows=TAB==="today"?b.today.map(x=>[x.name,x.n+" essai"+(x.n>1?"s":"")+" · "+fmt(x.ms)]):b.total.map(x=>[x.name,x.n+" mot"+(x.n>1?"s":"")+" trouvé"+(x.n>1?"s":"")]);
+  L.innerHTML=rows.length?rows.map((r,i)=>'<li class="'+(r[0]===me?"me":"")+'"><span class="rk">'+(i+1)+"</span><b>"+esc(r[0])+"</b><small>"+r[1]+"</small></li>").join(""):'<li class="mdempty">'+(TAB==="today"?(b.found?"Aucun joueur avec pseudo n'a encore trouvé : les invités ne sont pas classés.":"Personne n'a encore trouvé le mot du jour. Sois le premier !"):"Le classement se remplit à chaque mot trouvé par un joueur avec pseudo.")+"</li>";
+  $("#mdGuest").hidden=!!(S.ranked)}
+document.querySelectorAll(".mdtabs button").forEach(x=>x.onclick=()=>{TAB=x.dataset.t;document.querySelectorAll(".mdtabs button").forEach(y=>y.classList.toggle("on",y===x));list()});
+function say(t){$("#mdMsg").textContent=t||""}
+inp.addEventListener("input",()=>{inp.value=inp.value.normalize("NFD").replace(/[̀-ͯ]/g,"").toUpperCase().replace(/[^A-Z]/g,"");if(inp.value[0]===S.first&&inp.value.length>=S.len)inp.value=inp.value.slice(1);inp.value=inp.value.slice(0,S.len-1);say("");draw()});
+inp.addEventListener("keydown",e=>{if(e.key==="Enter"){e.preventDefault();send()}});
+inp.addEventListener("focus",draw);inp.addEventListener("blur",()=>setTimeout(draw,50));
+$("#mdOk").onclick=()=>send();
+function send(){if(!S||S.done||busy)return;const g=cur();if(g.length<S.len){say("Il manque des lettres : le mot en fait "+S.len+".");shake();inp.focus();return}
+  busy=true;call({op:"essai",g}).then(r=>{busy=false;if(r.refus){say(r.refus);shake();return}if(r.error){say("Essai impossible pour le moment.");return}
+    const b=S.board;S=Object.assign({},r,{board:r.board||b,ranked:S.ranked});inp.value="";draw();
+    const last=$("#mdGrid").querySelectorAll(".mdrow")[S.tries.length-1];if(last)last.querySelectorAll(".mdc").forEach((c,i)=>{c.style.animationDelay=i*60+"ms";c.classList.add("pop")});
+    if(S.done){say(S.ok?"Bravo !":"");}else{say("");inp.focus()}}).catch(()=>{busy=false;say("Pas de connexion : réessaie.")})}
+function shake(){const rows=$("#mdGrid").querySelectorAll(".mdrow"),r=rows[S.tries.length];if(r){r.classList.remove("shake");void r.offsetWidth;r.classList.add("shake")}}
+function share(){const sq=S.tries.map(t=>t.c.map(c=>c===2?"🟩":c===1?"🟧":"⬛").join("")).join("\n");
+  const txt="Motipop · Mot du jour du "+dayTxt(S.day)+"\n"+(S.ok?S.tries.length+"/6":"X/6")+"\n"+sq+"\n"+location.origin+"/motdujour";
+  if(navigator.share)navigator.share({text:txt}).catch(()=>{});else if(navigator.clipboard)navigator.clipboard.writeText(txt).then(()=>say("Résultat copié : colle-le où tu veux !"),()=>say(txt));else say(txt)}
+call({}).then(r=>{S=r;draw();if(!S.done&&matchMedia("(pointer:fine)").matches)inp.focus()}).catch(()=>{$("#mdInfo").textContent="Le mot du jour n'a pas pu être chargé. Vérifie ta connexion."});
+if(location.hostname==="localhost")window.__t=c=>eval(c);
+})();
+</script>
+<script>window.SK_HDR=1;</script><script src="/d/sk-c0329c38e9.js"></script>
+<script src="/d/icons-e402bd9605.js" defer></script>
+</body></html>

@@ -544,6 +544,11 @@ svg.chart{width:100%;height:118px;color:var(--ink);overflow:visible}
 .games{display:grid;gap:14px;margin:4px auto 0;max-width:880px}
 .g-top{display:grid;grid-template-columns:1fr 1fr;gap:14px}
 .g-new{display:grid;grid-template-columns:1fr;gap:14px}
+@media (min-width:760px){.g-new{grid-template-columns:1.55fr 1fr}}
+.mdt{min-height:170px}a.abtn{text-decoration:none}
+.mdv{display:flex;gap:6px}.mdv i{font-style:normal;width:40px;height:44px;display:grid;place-items:center;border-radius:11px;font:800 1.3rem Nunito,Inter,sans-serif;color:#fff;background:rgba(255,255,255,.14);border:1px solid rgba(255,255,255,.35)}
+.mdv .v2{background:linear-gradient(135deg,#14b8a6,#0e9f8f);border-color:transparent}.mdv .v1{border:2px solid #ffc857}.mdv .v0{opacity:.55}
+#mdtCount{font-weight:700}
 .tile.zz,.tile.zz *{animation-play-state:paused!important}
 
 .tile.mgt{min-height:170px}
@@ -913,6 +918,11 @@ a.logo{text-decoration:none;color:inherit}a.logo:focus-visible{outline:2px solid
         <div class="txt"><span class="tag">Nouveau · Réflexe</span><h2>Magnético</h2><p>Les syllabes s'entrechoquent : touche-les dans le bon ordre pour reformer le mot. Seul ou jusqu'à 4.</p></div>
         <div class="vis"><div class="mgv" aria-hidden="true"><i class="bb mb1">MA</i><i class="bb mb2">GNÉ</i><i class="bb mb3">TI</i><i class="bb mb4">CO</i></div></div>
         <div class="modes acts"><button class="abtn" data-mode="solo"><span>👤</span> Solo</button><button class="abtn" data-mode="multi"><span>👥</span> Multijoueurs</button><button class="abtn abtn-s" data-cfg="1" aria-label="Réglages de la partie"><span>⚙️</span> Réglages</button></div>
+      </div>
+      <div class="tile mdt" style="--tg:linear-gradient(135deg,#3a1030 0%,#8c2a5c 50%,#ff7aa8 100%);--ga:#ffd1e1" data-game="Mot du jour" data-key="motdujour">
+        <div class="txt"><span class="tag">Défi du jour</span><h2>Mot du jour</h2><p>Un mot en 6 essais, le même pour tout le monde. <b id="mdtCount"></b></p></div>
+        <div class="vis"><div class="mdv" aria-hidden="true"><i class="v2">M</i><i class="v1">O</i><i class="v0">T</i><i class="v2">S</i></div></div>
+        <div class="modes acts"><a class="abtn" href="/motdujour"><span>🎯</span> Jouer</a></div>
       </div>
     </div>
     <div class="g-top">
@@ -1677,6 +1687,8 @@ if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",
 <script>// animations des tuiles : en pause quand la tuile n'est pas à l'écran (moins de calcul sur téléphone)
 (function(){if(!("IntersectionObserver" in window))return;var io=new IntersectionObserver(function(es){es.forEach(function(e){e.target.classList.toggle("zz",!e.isIntersecting)})},{rootMargin:"60px"});
 document.querySelectorAll(".tile").forEach(function(t){t.classList.add("zz");io.observe(t)})})();</script>
+<script>// 20/11 : mot du jour, nombre de joueurs qui l'ont trouvé aujourd'hui
+fetch("/api/p/mj",{method:"POST",headers:{"content-type":"application/json"},body:"{}"}).then(r=>r.json()).then(r=>{const e=document.getElementById("mdtCount");if(e&&r&&r.board)e.textContent=r.board.found?(r.board.found+(r.board.found>1?" joueurs l'ont trouvé aujourd'hui.":" joueur l'a trouvé aujourd'hui.")):"Sois le premier à le trouver aujourd'hui !"}).catch(()=>{});</script>
 <script src="/d/musique-03168f1501.js" defer></script><script src="/d/lettres-3894b6642a.js" defer></script>
 <script>addEventListener("DOMContentLoaded",()=>{const M=window.MotipopMusique;if(!M)return;M.bind(document.getElementById("musicBtn"));M.bind(document.getElementById("mMusic"),true)})</script>
 </body>

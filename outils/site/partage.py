@@ -4,7 +4,7 @@
 import os, re, glob, hashlib
 D = os.path.dirname(os.path.abspath(__file__)); ROOT = os.path.abspath(os.path.join(D, "..", ".."))
 PUB = os.path.join(ROOT, "public")
-PAGES = ["fl.html", "mm.html", "rd.html", "cg.html", "mg.html", "poker.html", "regles.html", "legal.html"]
+PAGES = ["fl.html", "mm.html", "rd.html", "cg.html", "mg.html", "md.html", "poker.html", "regles.html", "legal.html"]
 def src(n): return open(os.path.join(D, n), encoding="utf8").read()
 def emit(prefix, ext, body):
     h = hashlib.sha1(body.encode()).hexdigest()[:10]
