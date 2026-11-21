@@ -28,6 +28,7 @@
 :root[data-theme="light"] .fc.jp{background:color-mix(in srgb,var(--fc) 24%,#fff);color:#0f131a}
 .fc.paper,.fc.rv{color:#9aa3b5}
 .fc.pend .L{color:#ffffff}
+/* 21/11 : lettres tapées mais pas encore validées — contour pointillé sarcelle, et le bouton Valider s'illumine doucement */.fc.pend:not(.cur){outline:2px dashed rgba(0,173,181,.85);outline-offset:-4px}body.hasPend #fOk{animation:okGlow 1.6s ease-in-out infinite}@keyframes okGlow{50%{box-shadow:0 0 0 4px rgba(0,173,181,.35),0 0 22px rgba(162,107,255,.55)}}@media (prefers-reduced-motion:reduce){body.hasPend #fOk{animation:none;box-shadow:0 0 0 3px rgba(0,173,181,.5)}}
 :root[data-theme="light"] .fc.pend .L{color:#0f131a}
 .fc.live .L{color:var(--fc);opacity:.7}
 .fc.wrong{background:#e5484d!important;color:#fff;animation:clkp .4s}
@@ -391,6 +392,7 @@ function render(){turnSounds();document.body.classList.remove("booting");if(!G||
     else if(pend[k]){L.textContent=pend[k];e.classList.add("pend")}
     else{const pp=peerPend[k];if(pp){L.textContent=pp.l;e.classList.add("live");e.style.setProperty("--fc",PC[pp.seat]||PC[1])}else L.textContent=""}}
   if(G.last&&G.last.cells&&!G.done&&(Date.now()-(G.lastSeenAt||0))<1e9)G.last.cells.forEach(k=>{if(els[k]){els[k].classList.add("last");els[k].style.setProperty("--lc",PC[G.last.by]||PC[0])}});
+  document.body.classList.toggle("hasPend",!G.done&&Object.keys(pend).some(k=>G.filled[k]===undefined));
   const w=curWord();if(w&&!G.done)w.cells.forEach(k=>els[k].classList.add("cur"));if(sel&&els[sel]&&!G.done)els[sel].classList.add("caret");placeKb(sel&&!G.done?els[sel]:null);
   $$(".fc.q .h").forEach(h=>h.classList.remove("qsel"));if(w){const q=els[w.q];const h=q&&q.querySelector('.h[data-i="'+w.qi+'"]');if(h)h.classList.add("qsel")}
   // définition en cours
