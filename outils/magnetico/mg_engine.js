@@ -29,6 +29,8 @@ const SFX={enter:()=>{noise(.55,1800,700,.06);tone(330,.35,"sine",.05,520)},
   bad:()=>{tone(440,.17,"square",.07);tone(330,.24,"square",.07,0,.18);tone(220,.32,"sawtooth",.04,170,.18)},
   tick:()=>tone(1100,.05,"square",.04),over:()=>{tone(500,.16,"triangle",.11,1100);tone(1100,.12,"sine",.05,0,.14)},
   time:()=>{tone(392,.25,"triangle",.13);tone(311,.4,"triangle",.13,0,.22)},rival:()=>{tone(660,.12,"sine",.06);tone(990,.14,"sine",.04,0,.09)}};
+// vrais sons (banque de sons, 21/11) : utilisés dès qu'ils sont chargés, sinon le petit son fabriqué ci-dessus
+(m=>Object.keys(m).forEach(k=>{const f=SFX[k];if(typeof f==="function")SFX[k]=function(){return(window.MotipopSons&&window.MotipopSons.play(m[k]))||f.apply(this,arguments)}}))({pop:"pop",ok:"mot",bad:"faux",tick:"tic"});
 document.addEventListener("pointerdown",audio,{capture:true});
 function toast(ic,html){let t=$("#toast");if(!t){t=document.createElement("div");t.id="toast";document.body.appendChild(t)}t.innerHTML="<span class='ti'>"+ic+"</span><span>"+html+"</span>";t.classList.remove("on");void t.offsetWidth;t.classList.add("on");clearTimeout(toast.t);toast.t=setTimeout(()=>t.classList.remove("on"),3200)}
 

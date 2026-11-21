@@ -192,6 +192,8 @@ const SFX=(function(){let A=null,M=null,last=0;
     lose(at){if(!on())return;[659.25,587.33,523.25,392].forEach((f,i)=>note(f,at+i*.16,.9,"triangle",.11,.25))},
     oops(){if(!on())return;note(233,0,.16,"triangle",.1,0);note(220,.09,.2,"triangle",.1,0)},
     unlock(){if(on())ac()}}})();
+// vrais sons (banque de sons, 21/11) : utilisés dès qu'ils sont chargés, sinon le petit son fabriqué ci-dessus
+(m=>Object.keys(m).forEach(k=>{const f=SFX[k];if(typeof f==="function")SFX[k]=function(){return(window.MotipopSons&&window.MotipopSons.play(m[k]))||f.apply(this,arguments)}}))({key:"tuile",del:"efface",oops:"faux",win:"victoire",lose:"perdu"});
 addEventListener("pointerdown",()=>SFX.unlock(),{once:true});
 // classements accessibles pendant la partie (téléphone)
 const rk=on=>{document.body.classList.toggle("rkOn",on);$("#mdRk").setAttribute("aria-expanded",String(on));if(on&&S&&S.board)list()};
@@ -258,6 +260,6 @@ setInterval(()=>{if(document.hidden||!S||busy)return;call({}).then(r=>{if(r&&r.b
 if(location.hostname==="localhost")window.__t=c=>eval(c);
 })();
 </script>
-<script>window.SK_HDR=1;</script><script src="/d/sk-a5a40fa181.js"></script>
+<script>window.SK_HDR=1;</script><script src="/d/sk-7d61401a7d.js"></script>
 <script src="/d/icons-bbcd7285b6.js" defer></script>
 </body></html>

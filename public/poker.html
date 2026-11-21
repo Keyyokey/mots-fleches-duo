@@ -1040,7 +1040,7 @@ function render(){const st=ST;document.body.dataset.ph=st&&st.started?st.phase:"
   if(PREV&&PREV.phase!=="mot"&&st.phase==="mot"&&me&&!me.folded){toast("✍️","À toi ! <b>45 s</b> pour taper ton mot");bell();setTimeout(wfFocus,100)}
   if(PREV&&PREV.phase!=="abattage"&&st.phase==="abattage"&&st.jackpotWon)setTimeout(()=>{announce&&announce("🎰 CAGNOTTE !",st.jackpotWon.names.join(", ")+" +"+st.jackpotWon.each*st.jackpotWon.names.length);bell()},2500);
   if(PREV&&PREV.phase!=="abattage"&&st.phase==="abattage"&&st.msg){toast(st.results&&st.results.some(x=>x.win)?"🏆":"🔁",esc(st.msg));bell();const mine=me&&st.results&&st.results.find(x=>x.name===me.name&&x.win&&x.gain);if(mine){const d=st.results.length>1||mine.word?1600+st.seats.filter((x,i)=>i!==st.me&&x.hand).length*1300+1200:600;setTimeout(()=>winFx(mine.gain),d)}}
-  if(PREV&&PREV.turn!==st.turn&&myTurn)tone(660,.25,.08);
+  if(PREV&&PREV.turn!==st.turn&&myTurn&&!(SOUND&&window.MotipopSons&&MotipopSons.play("ding")))tone(660,.25,.08);
   if((st.phase==="fin"&&PREV&&PREV.phase!=="fin")||(me&&(!PREV||PREV.me<0)))loadWallet();
   dealer(PREV,st);applyHide();
   renderDeck(st.deckLeft);tick()}
@@ -1075,7 +1075,7 @@ function wfRack(){const st=ST,me=st&&st.seats&&st.me>=0?st.seats[st.me]:null;if(
 function wfAssign(v,rack){const used=rack.map(()=>false);const idx=[...v].map(ch=>{let k=rack.findIndex((t,i)=>!used[i]&&t.c===ch&&t.mine);if(k<0)k=rack.findIndex((t,i)=>!used[i]&&t.c===ch);if(k>=0)used[k]=true;return k});return{idx,used}}
 function wfSlots(){const el=$("#wfSlots");if(!el)return;const v=LOCKED||$("#pkIn").value,rack=wfRack(),a=wfAssign(v,rack),key=v+"|"+rack.map(t=>t.c).join("")+"|"+(LOCKED?1:0);
   if(el.dataset.h!==key){el.dataset.h=key;let h="";for(let i=0;i<7;i++){const ch=v[i];if(ch){const k=a.idx[i];h+='<button type="button" class="ws f'+(k<0?" x":rack[k].mine?" m":"")+(i===v.length-1&&v.length>WF.len?" new":"")+'" data-i="'+i+'" aria-label="Retirer la lettre '+ch+'">'+ch+'<i>'+(LV[ch]||"")+'</i></button>'}else h+='<span class="ws'+(i===v.length&&!LOCKED?" cur":"")+'"></span>'}
-    el.innerHTML=h;if(v.length>WF.len&&SOUND&&!LOCKED)tone(520+v.length*60,.06,.04);WF.len=v.length}
+    el.innerHTML=h;if(v.length>WF.len&&SOUND&&!LOCKED&&!(window.MotipopSons&&MotipopSons.play("tuile")))tone(520+v.length*60,.06,.04);WF.len=v.length}
   el.classList.toggle("lock",!!LOCKED);$$("#pkWL button").forEach(b=>b.classList.toggle("used",!!a.used[+b.dataset.k]));
   const off=!!LOCKED||$("#pkIn").disabled;$$("#wfTools .wtb").forEach(b=>b.disabled=off||(b.id!=="wfMix"&&!v))}
 function wfPts(e){const s=$("#wfSlots"),p=$("#wfPts"),g=$("#wfBadges");if(!s||!p)return;s.dataset.v=e?(e.valid?"ok":"ko"):"";const ok=!!(e&&e.valid);p.hidden=!ok;if(ok)p.textContent=e.total_score+" pts";
@@ -1113,7 +1113,7 @@ if(window.visualViewport)visualViewport.addEventListener("resize",()=>{if(docume
 // victoire : bandeau doré + confettis
 function winFx(gain){const o=document.createElement("div");o.className="pkwin";o.setAttribute("aria-live","polite");o.innerHTML='<div class="wbox"><b>Tu remportes le pot !</b><span>+'+gain+' 🪙</span></div>';
   const C=["#ffd27a","#2DE2C8","#A26BFF","#ff7a90","#fff"];for(let i=0;i<26;i++){const c=document.createElement("i");const a=Math.random()*Math.PI*2,r=120+Math.random()*180;c.style.cssText="background:"+C[i%5]+";--x:"+Math.round(Math.cos(a)*r)+"px;--y:"+Math.round(Math.sin(a)*r)+"px;--r:"+Math.round(Math.random()*720)+"deg";o.appendChild(c)}
-  document.body.appendChild(o);if(SOUND){tone(523,.3,.06);tone(659,.3,.06,.12);tone(784,.3,.06,.24);tone(1046,.6,.07,.36)}setTimeout(()=>o.remove(),2700)}
+  document.body.appendChild(o);if(SOUND&&!(window.MotipopSons&&MotipopSons.play("victoire"))){tone(523,.3,.06);tone(659,.3,.06,.12);tone(784,.3,.06,.24);tone(1046,.6,.07,.36)}setTimeout(()=>o.remove(),2700)}
 function tick(){if(!ST)return;forceShow(ST,ST.seats?ST.seats[ST.me]:null);const left=ST.deadline-(Date.now()+skew);wfTick(left);
   $$("[data-clk]").forEach(c=>{const i=+c.dataset.clk;const on=ST.phase==="mise"&&ST.turn===i;c.textContent=on?fmt(Math.min(left,ST.dec*1000)):"–";c.classList.toggle("low",on&&left<=10500)});
   const w=$("#pkWClk");if(ST.phase==="mot"){w.textContent=fmt(left);w.classList.toggle("low",left<=10500);
@@ -1356,6 +1356,6 @@ if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",
 
 })();
 </script>
-<script>window.SK_HDR=1;</script><script src="/d/sk-a5a40fa181.js"></script>
+<script>window.SK_HDR=1;</script><script src="/d/sk-7d61401a7d.js"></script>
 </body>
 </html>

@@ -60,5 +60,37 @@
   ["pointerdown", "keydown", "touchstart"].forEach(ev => window.addEventListener(ev, kick, { passive: true }));
   // onglet caché : silence ; de retour : la musique reprend si elle est allumée
   document.addEventListener("visibilitychange", () => { if (document.hidden) stop(); else if (isOn() && el) start(); });
+  /* ---------- bruitages des jeux (banque de sons de Juvenal, 21/11) ----------
+     MotipopSons.play(nom) joue un vrai son et répond true ; s'il n'est pas encore prêt (ou son coupé), répond false
+     et le jeu garde son petit son fabriqué. Chargés une seule fois (≈100 Ko, en cache), au premier toucher. */
+  const SONS_JS = "/d/sons-9776e712dd.js";
+  const sndOn = () => LS.get("fl-sound") !== "off";
+  let SAC = null, SG = null, BUF = {}, sLoad = false;
+  function sonsCtx() {
+    if (!SAC) { const C = window.AudioContext || window.webkitAudioContext; if (!C) return null; try { SAC = new C(); SG = SAC.createGain(); SG.gain.value = .6; SG.connect(SAC.destination) } catch (e) { SAC = null; return null } }
+    if (SAC.state === "suspended") SAC.resume(); return SAC;
+  }
+  function sonsLoad() {
+    if (sLoad || !sndOn()) return; sLoad = true;
+    const go = () => { const D = window.__SONS || {}, a = sonsCtx(); if (!a) return;
+      Object.keys(D).forEach(k => { try { const b = atob(D[k]), u = new Uint8Array(b.length); for (let i = 0; i < b.length; i++) u[i] = b.charCodeAt(i);
+        const r = a.decodeAudioData(u.buffer, x => { BUF[k] = x }, () => {}); if (r && r.then) r.catch(() => {}) } catch (e) {} }) };
+    if (window.__SONS) return go();
+    const sc = document.createElement("script"); sc.src = SONS_JS; sc.onload = go; sc.onerror = () => { sLoad = false }; document.head.appendChild(sc);
+  }
+  function one(k, t, rate, v) { const b = BUF[k]; if (!b) return false; const a = sonsCtx(); if (!a) return false;
+    const src = a.createBufferSource(); src.buffer = b; if (rate) src.playbackRate.value = rate;
+    const g = a.createGain(); g.gain.value = v == null ? 1 : v; src.connect(g); g.connect(SG); src.start(a.currentTime + (t || 0)); return true }
+  let lastTuile = 0;
+  function play(k, v) {
+    if (!sndOn()) return false;
+    if (!SAC || !Object.keys(BUF).length) { sonsLoad(); return false }
+    if (k === "tictac") return one("tic", 0, 1, v) && one("tac", .3, 1, v) && one("tic", .6, 1, v) && one("tac", .9, 1, v);
+    if (k === "tuile") { const n = performance.now(); if (n - lastTuile < 30) return true; lastTuile = n; return one(Math.random() < .5 ? "tuile" : "tuile2", 0, .95 + Math.random() * .1, v == null ? .8 : v) }
+    if (k === "efface") return one("tuile2", 0, .82, v == null ? .7 : v);
+    return one(k, 0, 1, v);
+  }
+  ["pointerdown", "keydown", "touchstart"].forEach(ev => window.addEventListener(ev, () => { if (sndOn()) { sonsCtx(); sonsLoad() } }, { passive: true }));
+  window.MotipopSons = { play, pret: () => Object.keys(BUF).length > 0 };
   window.MotipopMusique = { isOn, set, toggle: () => set(!isOn()), bind, icon, etat: () => ({ joue: playing && !!el && !el.paused, morceau: idx, t: el ? Math.round(el.currentTime) : 0 }) };
 })();

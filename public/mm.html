@@ -134,7 +134,7 @@ body.booting #boot{display:flex;position:fixed;inset:0;z-index:50;align-items:ce
 <div class="note" id="leaveRule">En pause, la partie est gardée : « Reprendre » apparaît sur la case du jeu.</div></div></div>
 <div class="overlay" id="mystWin"><div class="glass sheet"><h3>Mot mystère</h3><div class="note">Trouve le mot formé par les cases numérotées : <b>+20 points</b>. Faux : tu passes ton tour.</div><input class="in" id="mystIn" maxlength="14" autocomplete="off" placeholder="TA PROPOSITION" style="text-transform:uppercase;letter-spacing:.12em;text-align:center;font-weight:800"><div style="display:flex;gap:8px"><button class="btn" id="mystX" style="flex:1">Fermer</button><button class="btn primary" id="mystGo" style="flex:2">Proposer (+20)</button></div></div></div>
 <div class="overlay" id="endWin"><div class="glass sheet qbox"><h3 id="endT"></h3><div class="note" id="endB"></div><div id="endAgain" class="endlv"><small>Nouvelle grille : choisis le niveau</small><div class="lvrow"><button type="button" data-lv="facile">Facile</button><button type="button" data-lv="moyen">Normal</button><button type="button" data-lv="difficile">Difficile</button></div></div><button class="btn" id="endSame">🔁 Rejouer cette grille</button><button class="btn" id="endHome">🏠 Accueil</button></div></div>
-<script>window.SK_HDR=1;</script><script src="/d/sk-a5a40fa181.js"></script>
+<script>window.SK_HDR=1;</script><script src="/d/sk-7d61401a7d.js"></script>
 <script>// données des mots mêlés (thèmes et générateur)
 const THEMES={
  "Animaux":["LION","TIGRE","GIRAFE","ZEBRE","PANDA","KOALA","LOUTRE","CASTOR","RENARD","HIBOU","AIGLE","FAUCON","DAUPHIN","BALEINE","REQUIN","TORTUE","LEZARD","SERPENT","CHAMEAU","GORILLE","HERISSON","ECUREUIL","LAPIN","MOUTON","CHEVAL","LAMA","JAGUAR","PINGOUIN","FLAMANT","CERF"],
@@ -229,6 +229,8 @@ window.norm=s=>String(s||"").toUpperCase().normalize("NFD").replace(/[̀-ͯ]/g,"
 let G=null,ws=null,docs={},peers=[],reqN=0,acks={};
 let AC=null;function tone(f,d,t,type,v){if(LS.get("fl-sound")==="off")return;try{AC=AC||new (window.AudioContext||window.webkitAudioContext)();const n=AC.currentTime+(d||0),o=AC.createOscillator(),g=AC.createGain();o.type=type||"sine";o.frequency.value=f;g.gain.setValueAtTime(0,n);g.gain.linearRampToValueAtTime(v||.12,n+.01);g.gain.exponentialRampToValueAtTime(.0001,n+(t||.25));o.connect(g).connect(AC.destination);o.start(n);o.stop(n+(t||.25)+.05)}catch(e){}}
 const sfx={ok:()=>{tone(660,0,.15);tone(880,.1,.2)},bad:()=>tone(200,0,.2,"square",.05),win:()=>[523,659,784,1046].forEach((f,i)=>tone(f,i*.12,.3)),slide:n=>tone(400+n*40,0,.05,"triangle",.04)};
+// vrais sons (banque de sons, 21/11) : utilisés dès qu'ils sont chargés, sinon le petit son fabriqué ci-dessus
+(m=>Object.keys(m).forEach(k=>{const f=sfx[k];if(typeof f==="function")sfx[k]=function(){return(window.MotipopSons&&window.MotipopSons.play(m[k]))||f.apply(this,arguments)}}))({ok:"mot",bad:"faux",win:"victoire"});
 function toast(ic,html){let t=$("#toast");if(!t){t=document.createElement("div");t.id="toast";document.body.appendChild(t)}t.innerHTML="<span class='ti'>"+ic+"</span><span>"+html+"</span>";t.classList.remove("on");void t.offsetWidth;t.classList.add("on");clearTimeout(t._h);t._h=setTimeout(()=>t.classList.remove("on"),4200)}
 const fmt=s=>{s=Math.max(0,Math.floor(s));return Math.floor(s/60)+":"+String(s%60).padStart(2,"0")};
 const cellsOf=w=>Array.from({length:w.w.length},(_,i)=>[w.r+w.dr*i,w.c+w.dc*i]);
