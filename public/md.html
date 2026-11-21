@@ -20,7 +20,7 @@
 .mdcount{display:inline-flex;align-items:center;gap:6px;padding:4px 10px;border-radius:999px;background:rgba(255,122,168,.14);border:1px solid rgba(255,122,168,.35);font:700 .8rem Nunito,Inter,sans-serif}
 .mdgrid{display:flex;flex-direction:column;gap:6px;align-items:center;position:relative;padding:14px 10px}
 .mdrow{display:flex;gap:6px}
-.mdc{width:min(46px,11.2vw);height:min(50px,12.2vw);display:grid;place-items:center;border-radius:12px;border:1px solid var(--stroke);background:var(--cell);font:800 clamp(1.05rem,5vw,1.45rem) Nunito,Inter,sans-serif;text-transform:uppercase;transition:transform .25s,background .25s}
+.mdc{width:var(--mdc,min(46px,11.2vw));height:var(--mdc,min(50px,12.2vw));display:grid;place-items:center;border-radius:12px;border:1px solid var(--stroke);background:var(--cell);font:800 var(--mdf,clamp(1.05rem,5vw,1.45rem)) Nunito,Inter,sans-serif;text-transform:uppercase;transition:transform .25s,background .25s}
 .mdc.first{color:#ff7aa8}
 .mdc.cur{border-color:rgba(255,122,168,.75);box-shadow:0 0 0 2px rgba(255,122,168,.25)}
 .mdc.c2{background:linear-gradient(135deg,#14b8a6,#0e9f8f);border-color:transparent;color:#fff}
@@ -30,7 +30,8 @@
 @keyframes mdpop{50%{transform:scale(1.12)}}
 .mdrow.shake{animation:mdshake .4s}
 @keyframes mdshake{20%,60%{transform:translateX(-6px)}40%,80%{transform:translateX(6px)}}
-#mdIn{position:absolute;inset:0;opacity:0;font-size:16px;border:0;background:transparent;color:transparent;caret-color:transparent;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none;-webkit-tap-highlight-color:transparent}
+#mdIn{position:absolute;left:12px;top:12px;width:1px;height:1px;margin:0;padding:0;opacity:0;font-size:16px;border:0;background:transparent;color:transparent;caret-color:transparent;pointer-events:none;z-index:-1}
+.mdgrid{cursor:text}
 #mdIn::selection{background:transparent;color:transparent}
 #mdIn[hidden]{display:none}
 .mdgrid{-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
@@ -59,6 +60,14 @@
 .mdguest{margin-top:8px;font-size:.85rem;color:var(--muted)}
 .mdguest a{color:#ff7aa8;font-weight:700}
 .mdpop{display:block;width:120px;height:auto;margin:-4px auto 2px;filter:drop-shadow(0 8px 14px rgba(0,0,0,.3));animation:mdjump .9s cubic-bezier(.3,1.6,.5,1) both}@keyframes mdjump{from{transform:translateY(24px) scale(.6);opacity:0}}@media (prefers-reduced-motion:reduce){.mdpop{animation:none}}
+@media (max-width:620px){
+body.tj #skTop{display:none!important}body.tj .wrap{padding-top:6px}body.tj .gtop{margin-bottom:6px}
+body.tj .md{gap:6px}body.tj .md>.card{padding:8px 12px}body.tj .mdhead small{display:none}body.tj .mdhead br{display:none}
+body.tj .mdcount{display:none}body.tj .mdgrid{padding:8px 6px;gap:5px}body.tj .mdrow{gap:5px}
+body.tj .mdbar .note{display:none}body.tj .mdbar{justify-content:flex-end}body.tj .mdbar .btn{min-height:40px;padding:8px 22px}
+body.tj .mdmsg{min-height:0}body.tj .mdmsg:empty{display:none}
+body.tj .mdkeys span{min-width:22px;padding:2px 0;font-size:.74rem}
+}
 .mdlay{display:flex;flex-direction:column;gap:12px;max-width:560px;margin:0 auto}
 .mdside .card{padding:14px 16px}
 .mdside h3{margin:0 0 10px;font:800 1rem Nunito,Inter,sans-serif;display:flex;align-items:center;gap:8px}
@@ -83,10 +92,10 @@
     <div class="glass card">
       <div class="mdhead"><div><b id="mdInfo">Chargement…</b><br><small>Le même mot pour tout le monde · 6 essais · nouveau mot à minuit</small></div><span class="mdcount" id="mdCount">…</span></div>
     </div>
-    <div class="glass mdgrid" id="mdGrid" aria-label="Grille du mot du jour"><input id="mdIn" autocomplete="off" autocorrect="off" autocapitalize="characters" spellcheck="false" enterkeyhint="go" aria-label="Écris ton mot"></div>
+    <div class="mdkeys" id="mdKeys" aria-hidden="true"></div>
+    <div class="glass mdgrid" id="mdGrid" aria-label="Grille du mot du jour"><input id="mdIn" type="text" inputmode="text" autocomplete="off" autocorrect="off" autocapitalize="characters" spellcheck="false" enterkeyhint="go" aria-label="Saisie des lettres" data-lpignore="true" data-form-type="other"></div>
     <div class="mdmsg" id="mdMsg" role="status" aria-live="polite"></div>
     <div class="mdbar" id="mdBar"><span class="note">Touche la grille, écris ton mot, puis Valider.</span><button class="btn primary" id="mdOk">Valider</button></div>
-    <div class="mdkeys" id="mdKeys" aria-hidden="true"></div>
     <div class="glass card mdend" id="mdEnd" aria-live="polite"></div>
   </div>
   <aside class="mdside" aria-label="Classement du mot du jour">
@@ -110,6 +119,15 @@ let S=null,TAB="today",busy=false;
 const call=b=>fetch("/api/p/mj",{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify(Object.assign({guest:GUEST},ME&&ME.token?{name:ME.name,token:ME.token}:{},b))}).then(r=>r.json());
 const inp=$("#mdIn");
 function dayTxt(d){const m=["janv.","févr.","mars","avr.","mai","juin","juil.","août","sept.","oct.","nov.","déc."];return Number(d.slice(6,8))+" "+m[Number(d.slice(4,6))-1]}
+// téléphone : pendant la partie, l'alphabet, la grille et Valider tiennent dans l'écran au-dessus du clavier, sans défiler
+const PHONE=()=>matchMedia("(max-width:620px) and (pointer:coarse)").matches;
+function fit(){const g=$("#mdGrid");if(!S||!PHONE()||S.done){document.body.classList.remove("tj");g.style.removeProperty("--mdc");g.style.removeProperty("--mdf");return}
+  document.body.classList.add("tj");
+  const vv=window.visualViewport,vh=vv?vv.height:innerHeight,top=$(".gtop").getBoundingClientRect().top+(window.scrollY||0);
+  const used=$(".gtop").offsetHeight+$(".md>.card").offsetHeight+$("#mdKeys").offsetHeight+$("#mdBar").offsetHeight+($("#mdMsg").offsetHeight||0)+6*5+16+5*5+Math.max(6,top);
+  const byH=Math.floor((vh-used)/6),byW=Math.floor((Math.min(innerWidth,560)-12-20-(S.len-1)*5)/S.len);
+  const c=Math.max(28,Math.min(56,byH,byW));g.style.setProperty("--mdc",c+"px");g.style.setProperty("--mdf",Math.round(c*.5)+"px")}
+addEventListener("resize",()=>setTimeout(fit,60));if(window.visualViewport)visualViewport.addEventListener("resize",()=>{fit();if(document.activeElement===inp&&PHONE())scrollTo(0,0)});
 function cur(){const v=inp.value;return (v[0]===S.first?v:S.first+v).slice(0,S.len)}
 function draw(){if(!S)return;
   $("#mdDay").textContent=dayTxt(S.day);$("#mdInfo").textContent=S.len+" lettres · commence par "+S.first;
@@ -121,9 +139,10 @@ function draw(){if(!S)return;
       if(t){c.textContent=t.g[i];c.classList.add("c"+t.c[i])}
       else if(r===now){const w=cur();c.textContent=w[i]||"";if(i===0)c.classList.add("first");if(i===w.length&&document.activeElement===inp)c.classList.add("cur")}
       row.appendChild(c)}g.insertBefore(row,inp)}
+  setTimeout(fit,0);
   // lettres déjà essayées (indicateur, pas un clavier)
   const st={};S.tries.forEach(t=>[...t.g].forEach((L,i)=>{st[L]=Math.max(st[L]??-1,t.c[i])}));
-  $("#mdKeys").innerHTML=S.tries.length?"AZERTYUIOPQSDFGHJKLMWXCVBN".split("").map(L=>'<span class="'+(L in st?"k"+st[L]:"")+'">'+L+"</span>").join(""):"";
+  $("#mdKeys").innerHTML=!S.done||S.tries.length?"AZERTYUIOPQSDFGHJKLMWXCVBN".split("").map(L=>'<span class="'+(L in st?"k"+st[L]:"")+'">'+L+"</span>").join(""):"";
   $("#mdBar").style.display=S.done?"none":"";inp.disabled=!!S.done;if(S.done){if(document.activeElement===inp)inp.blur();inp.hidden=true}
   const e=$("#mdEnd");e.classList.toggle("on",!!S.done);
   if(S.done){const n=S.tries.length;e.innerHTML=(S.ok?'<img class="mdpop" src="/d/pop-victoire-d9b3c764d3.webp" width="120" height="120" alt="Pop saute de joie">':'')+(S.ok?'<h3>Trouvé en '+n+" essai"+(n>1?"s":"")+(S.ms?" · "+fmt(S.ms):"")+" !</h3>":"<h3>Pas cette fois…</h3>")+'<div class="w">'+esc(S.word)+'</div><div class="def">'+esc(S.def||"")+'</div><div class="row"><button class="btn primary" id="mdShare">Partager mon résultat</button></div><small class="note">Nouveau mot demain à minuit.</small>';
@@ -143,6 +162,8 @@ inp.addEventListener("keydown",e=>{if(e.key==="Enter"){e.preventDefault();send()
 const toEnd=()=>{try{const n=inp.value.length;if(inp.selectionStart!==n||inp.selectionEnd!==n)inp.setSelectionRange(n,n)}catch(e){}};
 ["select","selectionchange","pointerup","touchend"].forEach(t=>inp.addEventListener(t,()=>setTimeout(toEnd,0)));
 inp.addEventListener("contextmenu",e=>e.preventDefault());$("#mdGrid").addEventListener("contextmenu",e=>e.preventDefault());
+$("#mdOk").addEventListener("pointerdown",e=>{if(document.activeElement===inp)e.preventDefault()});   // Valider ne ferme pas le clavier
+$("#mdGrid").addEventListener("click",()=>{if(S&&!S.done){inp.focus({preventScroll:true});draw()}});
 inp.addEventListener("focus",draw);inp.addEventListener("blur",()=>setTimeout(draw,50));
 $("#mdOk").onclick=()=>send();
 function send(){if(!S||S.done||busy)return;const g=cur();if(g.length<S.len){say("Il manque des lettres : le mot en fait "+S.len+".");shake();inp.focus();return}
