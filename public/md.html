@@ -75,11 +75,12 @@ body.tj.rkOn .mdrkx{display:grid;place-items:center;margin-left:8px;width:36px;h
 }
 @media (max-width:620px){
 body.tj #skTop{display:none!important}body.tj .wrap{padding-top:6px}body.tj .gtop{margin-bottom:6px}
-body.tj .md{gap:6px}body.tj .md>.card{padding:8px 12px}body.tj .mdhead small{display:none}body.tj .mdhead br{display:none}
+body.tj .md{gap:8px}body.tj .md>.card{padding:8px 12px}body.tj .mdhead small{display:none}body.tj .mdhead br{display:none}
 body.tj .mdcount{display:none}body.tj .mdgrid{padding:8px 6px;gap:5px}body.tj .mdrow{gap:5px}
 body.tj .mdbar .note{display:none}body.tj .mdbar{justify-content:flex-end}body.tj .mdbar .btn{min-height:40px;padding:8px 22px}
 body.tj .mdmsg{min-height:0}body.tj .mdmsg:empty{display:none}
-body.tj .mdkeys span{min-width:22px;padding:2px 0;font-size:.74rem}
+body.tj .mdkeys{gap:5px}body.tj .mdkeys span{flex:0 0 calc((100% - 60px) / 13);min-width:0;padding:5px 0;font-size:1rem;border-radius:8px}
+body.tj .mdrow{gap:6px}
 }
 .mdlay{display:flex;flex-direction:column;gap:12px;max-width:560px;margin:0 auto}
 .mdside .card{padding:14px 16px}
@@ -134,12 +135,15 @@ const inp=$("#mdIn");
 function dayTxt(d){const m=["janv.","févr.","mars","avr.","mai","juin","juil.","août","sept.","oct.","nov.","déc."];return Number(d.slice(6,8))+" "+m[Number(d.slice(4,6))-1]}
 // téléphone : pendant la partie, l'alphabet, la grille et Valider tiennent dans l'écran au-dessus du clavier, sans défiler
 const PHONE=()=>matchMedia("(max-width:620px) and (pointer:coarse)").matches;
-function fit(){const g=$("#mdGrid");if(!S||!PHONE()||S.done){document.body.classList.remove("tj");g.style.removeProperty("--mdc");g.style.removeProperty("--mdf");return}
-  document.body.classList.add("tj");
-  const vv=window.visualViewport,vh=vv?vv.height:innerHeight,top=$(".gtop").getBoundingClientRect().top+(window.scrollY||0);
-  const used=$(".gtop").offsetHeight+$("#mdKeys").offsetHeight+$("#mdBar").offsetHeight+($("#mdMsg").offsetHeight||0)+4*6+16+5*5+Math.max(6,top);
-  const byH=Math.floor((vh-used)/6),byW=Math.floor((Math.min(innerWidth,560)-12-20-(S.len-1)*5)/S.len);
-  const c=Math.max(28,Math.min(56,byH,byW));g.style.setProperty("--mdc",c+"px");g.style.setProperty("--mdf",Math.round(c*.5)+"px")}
+function fit(){const g=$("#mdGrid"),K=$("#mdKeys");if(!S||!PHONE()||S.done){document.body.classList.remove("tj");g.style.removeProperty("--mdc");g.style.removeProperty("--mdf");K.style.marginTop="";return}
+  document.body.classList.add("tj");K.style.marginTop="0px";
+  const vv=window.visualViewport,vh=vv?vv.height:innerHeight,kbOpen=vv&&vv.height<innerHeight-120;
+  const byW=Math.floor((Math.min(innerWidth,560)-12-16-(S.len-1)*6)/S.len);
+  const set=c=>{c=Math.max(30,Math.min(64,byW,c));g.style.setProperty("--mdc",c+"px");g.style.setProperty("--mdf",Math.round(c*.6)+"px");return c};
+  // 1) taille de départ, 2) on agrandit les cases avec la place qui reste, 3) on descend le bloc vers le clavier
+  let c=set(40);const bottom=()=>$("#mdBar").getBoundingClientRect().bottom+(vv?-vv.offsetTop:0);
+  c=set(c+Math.floor((vh-10-bottom())/6));
+  const left=Math.max(0,Math.floor(vh-10-bottom()));K.style.marginTop=(kbOpen?left:Math.floor(left/2))+"px"}
 addEventListener("resize",()=>setTimeout(fit,60));if(window.visualViewport)visualViewport.addEventListener("resize",()=>{fit();if(document.activeElement===inp&&PHONE())scrollTo(0,0)});
 // classements accessibles pendant la partie (téléphone)
 const rk=on=>{document.body.classList.toggle("rkOn",on);$("#mdRk").setAttribute("aria-expanded",String(on));if(on&&S&&S.board)list()};
