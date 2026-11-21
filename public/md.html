@@ -82,13 +82,26 @@ body.tj .mdmsg{min-height:0}body.tj .mdmsg:empty{display:none}
 body.tj .mdkeys{gap:5px}body.tj .mdkeys span{flex:0 0 calc((100% - 60px) / 13);min-width:0;padding:5px 0;font-size:1rem;border-radius:8px}
 body.tj .mdrow{gap:6px}
 }
+.mdprize{display:flex;align-items:center;gap:10px;margin:0 0 10px;padding:8px 12px;border-radius:14px;background:linear-gradient(135deg,rgba(255,200,87,.16),rgba(255,122,168,.1));border:1px solid rgba(255,200,87,.4)}
+.mdprize .coin{font-size:1.4rem}.mdprize b{display:block;font:800 .88rem Nunito,Inter,sans-serif}.mdprize small{display:block;color:var(--muted);font-size:.8rem}
+.mdlist li{gap:8px}.mdlist .row2 .det{flex-direction:row;flex-wrap:wrap;align-items:center;justify-content:flex-start;gap:2px 6px;text-align:left}.mdlist .row2 .det small{line-height:1.25}
+.mdlist .pts{font:800 1.05rem Nunito,Inter,sans-serif;color:#ff7aa8;white-space:nowrap}.mdlist .pts small{font-size:.7rem;color:var(--muted);margin-left:2px}
+.mdlist li.top .rk{font-size:1.05rem}.mdlist .nm{display:flex;align-items:center;gap:6px;min-width:0}.mdlist .nm b{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.mdlist .gift{font:700 .68rem Inter,sans-serif;padding:2px 6px;border-radius:999px;background:rgba(255,200,87,.2);border:1px solid rgba(255,200,87,.5);white-space:nowrap}
+.mdlist li .row2{display:flex;flex-direction:column;flex:1;min-width:0;gap:2px}
+.mdme{margin-top:10px;padding-top:10px;border-top:1px solid var(--stroke)}
+.mdme h4{margin:0 0 8px;font:800 .92rem Nunito,Inter,sans-serif}
+.mdstats{display:grid;grid-template-columns:repeat(2,1fr);gap:6px}
+.mdstats div{padding:8px 10px;border-radius:12px;background:var(--cell);border:1px solid var(--stroke)}
+.mdstats b{display:block;font:800 1.15rem Nunito,Inter,sans-serif}.mdstats small{color:var(--muted);font-size:.74rem;line-height:1.2;display:block}
+.mdend .gain{font:800 1.05rem Nunito,Inter,sans-serif;color:#ffc857}
 .mdlay{display:flex;flex-direction:column;gap:12px;max-width:560px;margin:0 auto}
 .mdside .card{padding:14px 16px}
 .mdside h3{margin:0 0 10px;font:800 1rem Nunito,Inter,sans-serif;display:flex;align-items:center;gap:8px}
 .mdside h3 small{margin-left:auto;font:600 .75rem Inter,sans-serif;color:var(--muted)}
 .mdsq{display:inline-flex;gap:2px;margin-right:6px;vertical-align:middle}
 .mdsq i{width:8px;height:8px;border-radius:2px;background:rgba(127,140,160,.3)}
-.mdsq i.on{background:#14b8a6}
+.mdsq i.on{background:#14b8a6}.mdsq i.half{background:#ffc857}
 .mdlist li.ok b::after{content:" ✓";color:#14b8a6}
 .mdlist .det{display:flex;flex-direction:column;align-items:flex-end;gap:2px;text-align:right}
 .mdhow{margin:8px 0 0;font-size:.78rem;color:var(--muted)}
@@ -116,8 +129,10 @@ body.tj .mdrow{gap:6px}
     <div class="glass card">
       <h3>🏆 Classement <small id="mdLive"></small><button class="mdrkx" id="mdRkX" type="button" aria-label="Fermer">✕</button></h3>
       <div class="mdtabs" role="tablist"><button class="on" data-t="today" role="tab">Aujourd'hui</button><button data-t="total" role="tab">Depuis le début</button></div>
+      <div class="mdprize" id="mdPrize"><span class="coin">🪙</span><div><b>À minuit, le 1er du jour gagne 5 jetons</b><small id="mdPrizeY"></small></div></div>
       <ul class="mdlist" id="mdList"></ul>
-      <p class="mdhow" id="mdHow">Devant : ceux qui ont trouvé (moins d'essais, puis plus rapides). Ensuite : le plus de lettres bien placées découvertes.</p>
+      <div class="mdme" id="mdMe" hidden></div>
+      <p class="mdhow" id="mdHow"><b>Points :</b> +2 par lettre trouvée à sa place, +1 par lettre trouvée mais mal placée, +12 pour le mot. La 1re lettre est offerte. À égalité : moins d'essais, puis le plus rapide. Tes points comptent aussi au classement général de Motipop.</p>
       <div class="mdguest" id="mdGuest" hidden>Tu joues en invité : <a href="/?need=pseudo">crée ton pseudo</a> pour entrer au classement.</div>
     </div>
   </aside>
@@ -191,20 +206,27 @@ function draw(){if(!S)return;
   $("#mdKeys").innerHTML=!S.done||S.tries.length?"AZERTYUIOPQSDFGHJKLMWXCVBN".split("").map(L=>'<span class="'+(L in st?"k"+st[L]:"")+'">'+L+"</span>").join(""):"";
   $("#mdBar").style.display=S.done?"none":"";inp.disabled=!!S.done;if(S.done){if(document.activeElement===inp)inp.blur();inp.hidden=true}
   const e=$("#mdEnd");e.classList.toggle("on",!!S.done);
-  if(S.done){const n=S.tries.length;e.innerHTML=(S.ok?'<img class="mdpop" src="/d/pop-victoire-d9b3c764d3.webp" width="120" height="120" alt="Pop saute de joie">':'')+(S.ok?'<h3>Trouvé en '+n+" essai"+(n>1?"s":"")+(S.ms?" · "+fmt(S.ms):"")+" !</h3>":"<h3>Pas cette fois…</h3>")+'<div class="w">'+esc(S.word)+'</div><div class="def">'+esc(S.def||"")+'</div><div class="row"><button class="btn primary" id="mdShare">Partager mon résultat</button></div><small class="note">Nouveau mot demain à minuit.</small>';
+  if(S.done){const n=S.tries.length;e.innerHTML=(S.ok?'<img class="mdpop" src="/d/pop-victoire-d9b3c764d3.webp" width="120" height="120" alt="Pop saute de joie">':'')+(S.ok?'<h3>Trouvé en '+n+" essai"+(n>1?"s":"")+(S.ms?" · "+fmt(S.ms):"")+" !</h3>":"<h3>Pas cette fois…</h3>")+'<div class="gain">+'+(S.pts||0)+' points aujourd\'hui</div><div class="w">'+esc(S.word)+'</div><div class="def">'+esc(S.def||"")+'</div><div class="row"><button class="btn primary" id="mdShare">Partager mon résultat</button></div><small class="note">Nouveau mot demain à minuit.</small>';
     $("#mdShare").onclick=share}
   list()}
 function fmt(ms){const s=Math.round(ms/1000);return s<60?s+" s":Math.floor(s/60)+" min "+String(s%60).padStart(2,"0")}
 function list(){const b=S&&S.board;const L=$("#mdList");if(!b){L.innerHTML="";return}
-  const me=ME&&ME.name,len=b.len||S.len,sq=g=>'<span class="mdsq">'+Array.from({length:len},(_,i)=>'<i class="'+(i<g?"on":"")+'"></i>').join("")+"</span>";
-  let rows=TAB==="today"?b.today.map(x=>[x.name,x.ok?sq(len)+"<small>"+x.n+" essai"+(x.n>1?"s":"")+(x.ms?" · "+fmt(x.ms):"")+"</small>":sq(x.g)+"<small>"+x.g+"/"+len+" lettre"+(x.g>1?"s":"")+" · "+(x.done?"raté":"en cours")+"</small>",x.ok]):b.total.map(x=>[x.name,"<small>"+x.n+" mot"+(x.n>1?"s":"")+" trouvé"+(x.n>1?"s":"")+"</small>"]);
-  L.innerHTML=rows.length?rows.map((r,i)=>'<li class="'+(r[0]===me?"me ":"")+(r[2]?"ok":"")+'"><span class="rk">'+(i+1)+"</span><b>"+esc(r[0])+'</b><span class="det">'+r[1]+"</span></li>").join(""):'<li class="mdempty">'+(TAB==="today"?(b.played?"Aucun joueur avec pseudo n'a encore joué aujourd'hui : les invités ne sont pas classés.":"Personne n'a encore joué aujourd'hui. Sois le premier !"):"Le classement se remplit à chaque mot trouvé par un joueur avec pseudo.")+"</li>";
+  const me=ME&&ME.name,len=b.len||S.len,sq=(g,y)=>'<span class="mdsq">'+Array.from({length:len-1},(_,i)=>'<i class="'+(i<g?"on":i<g+y?"half":"")+'"></i>').join("")+"</span>";
+  const medal=i=>i===0?"🥇":i===1?"🥈":i===2?"🥉":String(i+1);
+  let rows;
+  if(TAB==="today")rows=b.today.map((x,i)=>({name:x.name,top:i<3,rk:medal(i),gift:i===0&&x.pts>0,pts:x.pts,
+    det:x.ok?sq(len-1,0)+"<small>trouvé en "+x.n+" essai"+(x.n>1?"s":"")+(x.ms?" · "+fmt(x.ms):"")+"</small>":sq(x.g,x.y)+"<small>"+x.g+" à sa place · "+x.y+" mal placée"+(x.y>1?"s":"")+" · "+(x.done?"raté":"en cours")+"</small>"}));
+  else rows=b.total.map((x,i)=>({name:x.name,top:i<3,rk:medal(i),pts:x.pts,det:"<small>"+x.found+" mot"+(x.found>1?"s":"")+" trouvé"+(x.found>1?"s":"")+(x.days?" sur "+x.days+" jour"+(x.days>1?"s":""):"")+(x.avgN?" · "+String(x.avgN).replace(".",",")+" essais en moy.":"")+(x.avgMs?" · "+fmt(x.avgMs):"")+"</small>"}));
+  L.innerHTML=rows.length?rows.map(r=>'<li class="'+(r.name===me?"me ":"")+(r.top?"top":"")+'"><span class="rk">'+r.rk+'</span><div class="row2"><span class="nm"><b>'+esc(r.name)+"</b>"+(r.gift?'<span class="gift">🪙 +5 à minuit</span>':"")+'</span><span class="det">'+r.det+'</span></div><span class="pts">'+r.pts+"<small>pts</small></span></li>").join(""):'<li class="mdempty">'+(TAB==="today"?(b.played?"Aucun joueur avec pseudo n'a encore joué aujourd'hui : les invités ne sont pas classés.":"Personne n'a encore joué aujourd'hui. Sois le premier !"):"Le classement se remplit avec les points des joueurs avec pseudo.")+"</li>";
   $("#mdHow").hidden=TAB!=="today";$("#mdLive").textContent=b.played?b.played+" joueur"+(b.played>1?"s":"")+" aujourd'hui":"";
+  $("#mdPrizeY").textContent=b.prize?"Hier : "+b.prize.name+" ("+b.prize.pts+" pts) a gagné 5 jetons":"Plus de points = plus de chances.";
+  const M=S.mine,E=$("#mdMe");E.hidden=!M;
+  if(M)E.innerHTML="<h4>Mes stats</h4><div class=\"mdstats\"><div><b>"+M.pts+"</b><small>points au total</small></div><div><b>"+M.found+" / "+M.days+"</b><small>mots trouvés / jours joués</small></div><div><b>"+(M.avgMs!=null?fmt(M.avgMs):"—")+"</b><small>temps moyen pour trouver le mot</small></div><div><b>"+(M.avgG!=null?fmt(M.avgG):"—")+"</b><small>temps moyen pour la 1re lettre à sa place</small></div><div><b>"+(M.avgN!=null?String(M.avgN).replace(".",","):"—")+"</b><small>essais en moyenne (mots trouvés)</small></div><div><b>"+(M.wins||0)+"</b><small>fois 1er du jour (🪙 +5)</small></div></div>";
   $("#mdGuest").hidden=!!(S.ranked)}
 document.querySelectorAll(".mdtabs button").forEach(x=>x.onclick=()=>{TAB=x.dataset.t;document.querySelectorAll(".mdtabs button").forEach(y=>y.classList.toggle("on",y===x));list()});
 function say(t){$("#mdMsg").textContent=t||""}
-let prevLen=0;
-inp.addEventListener("input",()=>{setTimeout(()=>{const n=cur().length;if(n>prevLen)SFX.key();else if(n<prevLen)SFX.del();prevLen=n},0);inp.value=inp.value.normalize("NFD").replace(/[̀-ͯ]/g,"").toUpperCase().replace(/[^A-Z]/g,"");inp.value=inp.value.slice(0,inp.value[0]===S.first?S.len:S.len-1);say("");draw()});
+let prevLen=0,started=false;
+inp.addEventListener("input",()=>{if(!started&&S&&!S.done&&!S.tries.length&&inp.value){started=true;call({op:"start"}).catch(()=>{})}setTimeout(()=>{const n=cur().length;if(n>prevLen)SFX.key();else if(n<prevLen)SFX.del();prevLen=n},0);inp.value=inp.value.normalize("NFD").replace(/[̀-ͯ]/g,"").toUpperCase().replace(/[^A-Z]/g,"");inp.value=inp.value.slice(0,inp.value[0]===S.first?S.len:S.len-1);say("");draw()});
 inp.addEventListener("keydown",e=>{if(e.key==="Enter"){e.preventDefault();send()}});
 const toEnd=()=>{try{const n=inp.value.length;if(inp.selectionStart!==n||inp.selectionEnd!==n)inp.setSelectionRange(n,n)}catch(e){}};
 ["select","selectionchange","pointerup","touchend"].forEach(t=>inp.addEventListener(t,()=>setTimeout(toEnd,0)));
@@ -215,7 +237,7 @@ inp.addEventListener("focus",draw);inp.addEventListener("blur",()=>setTimeout(dr
 $("#mdOk").onclick=()=>send();
 function send(){if(!S||S.done||busy)return;const g=cur();if(g.length<S.len){say("Il manque des lettres : le mot en fait "+S.len+".");shake();SFX.oops();inp.focus();return}
   busy=true;call({op:"essai",g}).then(r=>{busy=false;if(r.refus){say(r.refus);shake();SFX.oops();return}if(r.error){say("Essai impossible pour le moment.");return}
-    const b=S.board;S=Object.assign({},r,{board:r.board||b,ranked:S.ranked});inp.value="";prevLen=0;draw();
+    const b=S.board;S=Object.assign({},r,{board:r.board||b,ranked:S.ranked,mine:r.mine||S.mine});inp.value="";prevLen=0;draw();
     const last=$("#mdGrid").querySelectorAll(".mdrow")[S.tries.length-1];if(last)last.querySelectorAll(".mdc").forEach((c,i)=>{c.style.animationDelay=i*110+"ms";c.classList.add("mdflip")});
     {const t=S.tries[S.tries.length-1];if(t)t.c.forEach((c,i)=>SFX.tile(i,c));const end=S.len*.11+.25;if(S.done)(S.ok?SFX.win:SFX.lose)(end)}
     if(S.done){say(S.ok?"Bravo !":"");}else{say("");inp.focus()}}).catch(()=>{busy=false;say("Pas de connexion : réessaie.")})}
@@ -224,7 +246,7 @@ function share(){const sq=S.tries.map(t=>t.c.map(c=>c===2?"🟩":c===1?"🟧":"�
   const txt="Motipop · Mot du jour du "+dayTxt(S.day)+"\n"+(S.ok?S.tries.length+"/6":"X/6")+"\n"+sq+"\n"+location.origin+"/motdujour";
   if(navigator.share)navigator.share({text:txt}).catch(()=>{});else if(navigator.clipboard)navigator.clipboard.writeText(txt).then(()=>say("Résultat copié : colle-le où tu veux !"),()=>say(txt));else say(txt)}
 call({}).then(r=>{S=r;draw();if(!S.done&&matchMedia("(pointer:fine)").matches)inp.focus()}).catch(()=>{$("#mdInfo").textContent="Le mot du jour n'a pas pu être chargé. Vérifie ta connexion."});
-setInterval(()=>{if(document.hidden||!S||busy)return;call({}).then(r=>{if(r&&r.board&&S){S.board=r.board;const b=r.board;$("#mdCount").textContent=b.found?b.found+(b.found>1?" joueurs l'ont trouvé":" joueur l'a trouvé")+" aujourd'hui":"Personne ne l'a encore trouvé aujourd'hui";list()}}).catch(()=>{})},30000);
+setInterval(()=>{if(document.hidden||!S||busy)return;call({}).then(r=>{if(r&&r.board&&S){S.board=r.board;if(r.mine)S.mine=r.mine;const b=r.board;$("#mdCount").textContent=b.found?b.found+(b.found>1?" joueurs l'ont trouvé":" joueur l'a trouvé")+" aujourd'hui":"Personne ne l'a encore trouvé aujourd'hui";list()}}).catch(()=>{})},30000);
 if(location.hostname==="localhost")window.__t=c=>eval(c);
 })();
 </script>

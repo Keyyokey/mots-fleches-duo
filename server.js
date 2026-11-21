@@ -755,49 +755,121 @@ const MJ = (() => {
     if (v.done) { v.word = w; v.def = defs[w] || ""; if (st.ok) v.ms = st.ms; }
     return v;
   }
-  async function board(day) {
-    // classement du jour (joueurs avec pseudo) : d'abord ceux qui ont trouvé (moins d'essais, puis plus rapide),
-    // puis les autres selon le nombre de lettres bien placées découvertes (cases vertes différentes), puis moins d'essais
-    const m = await load(day), w = wordOf(day); let found = 0, played = 0; const today = [];
+  // points du jour : +2 par lettre trouvée à sa place, +1 par lettre trouvée mais mal placée (jamais vue à sa place), +12 pour le mot.
+  // La 1re lettre est donnée : elle ne rapporte rien. Calculé sur l'ensemble des essais (une lettre ne compte qu'une fois).
+  function score(st, w) {
+    const t = (st && st.t) || [], g = new Set(), y = new Set();
+    t.forEach(x => colors(x, w).forEach((c, i) => { if (i && c === 2) g.add(i); }));
+    t.forEach(x => colors(x, w).forEach((c, i) => { if (c !== 1) return; for (let k = 1; k < w.length; k++) if (!g.has(k) && !y.has(k) && w[k] === x[i]) { y.add(k); break; } }));
+    let firstG = null; for (let k = 0; k < t.length; k++) if (colors(t[k], w).some((c, i) => i && c === 2)) { firstG = st.ts ? st.ts[k] : null; break; }
+    return { pts: g.size * 2 + y.size + (st && st.ok ? 12 : 0), g: g.size, y: y.size, firstG };
+  }
+  const MAXPTS = w => (w.length - 1) * 2 + 12;
+  const sortDay = (a, b) => b.pts - a.pts || b.ok - a.ok || a.n - b.n || (a.ms ?? 9e9) - (b.ms ?? 9e9);
+  async function dayList(day) {
+    const m = await load(day), w = wordOf(day); let found = 0, played = 0; const list = [];
     for (const [id, st] of m) {
       const t = st.t || []; if (!t.length) continue; played++; if (st.ok) found++;
       if (id.startsWith("g:")) continue;
-      const pos = new Set(); t.forEach(g => colors(g, w).forEach((c, i) => { if (c === 2) pos.add(i); }));
-      today.push({ name: id, ok: st.ok ? 1 : 0, n: t.length, ms: st.ok ? st.ms : undefined, g: pos.size, done: st.ok || t.length >= 6 ? 1 : 0 });
+      const sc = score(st, w), last = st.ts && st.ts.length ? st.ts[st.ts.length - 1] : undefined;
+      list.push({ name: id, pts: sc.pts, ok: st.ok ? 1 : 0, n: t.length, ms: st.ok ? st.ms : last, g: sc.g, y: sc.y, done: st.ok || t.length >= 6 ? 1 : 0 });
     }
-    today.sort((a, b) => b.ok - a.ok || (a.ok ? a.n - b.n || a.ms - b.ms : b.g - a.g || a.n - b.n));
-    let total = [];
-    if (REDIS) { try { const r = await redis(["ZREVRANGE", "mj:total", "0", "9", "WITHSCORES"]); for (let i = 0; i < (r || []).length; i += 2) total.push({ name: r[i], n: Number(r[i + 1]) }); } catch {} }
-    else total = [...MJ_TOTAL.entries()].sort((a, b) => b[1] - a[1]).slice(0, 10).map(([name, n]) => ({ name, n }));
-    return { found, played, len: w.length, today: today.slice(0, 15), total };
+    list.sort(sortDay);
+    return { found, played, list, w };
   }
-  return { strip, wordOf, colors, load, persist, view, board, dict, size: () => words.length };
+  let totCache = null;
+  async function totalList() {
+    if (totCache && Date.now() - totCache.at < 20e3) return totCache.v;
+    let top = [];
+    if (REDIS) { try { const r = await redis(["ZREVRANGE", "mj:pts", "0", "14", "WITHSCORES"]); for (let i = 0; i < (r || []).length; i += 2) top.push({ name: r[i], pts: Number(r[i + 1]) }); } catch {} }
+    else top = [...MJ_TOTAL.entries()].sort((a, b) => b[1] - a[1]).slice(0, 15).map(([name, pts]) => ({ name, pts }));
+    const v = await Promise.all(top.map(async x => { let q = null; try { q = await getPlayer(x.name); } catch {} const a = (q && q.mj) || {}; return { name: x.name, pts: x.pts, found: a.found || 0, days: a.days || 0, avgN: a.found ? +(a.nF / a.found).toFixed(1) : null, avgMs: a.found ? Math.round(a.msF / a.found) : null }; }));
+    totCache = { at: Date.now(), v }; return v;
+  }
+  async function board(day) {
+    const d = await dayList(day); const total = await totalList();
+    let prize = null; const yd = parisDay(new Date(Date.now() - 864e5));
+    try { const r = REDIS ? await redis(["GET", "mj:prize:" + yd]) : MJ_PRIZE.get(yd); if (r) prize = Object.assign({ day: yd }, typeof r === "string" ? JSON.parse(r) : r); } catch {}
+    return { found: d.found, played: d.played, len: d.w.length, max: MAXPTS(d.w), today: d.list.slice(0, 15), total, prize };
+  }
+  return { strip, wordOf, colors, load, persist, view, board, score, dayList, MAXPTS, dict, size: () => words.length, resetTot: () => { totCache = null; } };
 })();
-const MJ_TOTAL = new Map();   // sans Redis (tests locaux) : total des mots trouvés par pseudo
+const MJ_TOTAL = new Map(), MJ_PRIZE = new Map();   // sans Redis (tests locaux) : points cumulés par pseudo, gagnants du jour
+// fin de journée d'un joueur : ses moyennes (mots trouvés, essais, temps pour trouver, temps pour la 1re lettre bien placée)
+function mjClose(p, st, sc) {
+  const a = p.mj = p.mj || { days: 0, found: 0, pts: 0, nF: 0, msF: 0, gN: 0, gMs: 0 };
+  if (st.ok) { a.found++; a.nF += st.t.length; a.msF += st.ms || 0; }
+  if (sc.firstG != null) { a.gN++; a.gMs += sc.firstG; }
+}
 async function mjApi(b, out) {
   const day = parisDay(), w = MJ.wordOf(day);
   // qui joue : un pseudo connecté (classé) ou un invité (identifiant tiré au hasard par son navigateur)
-  let id = null, name = normPseudo(b.name);
-  if (PSEUDO_RE.test(name) && b.token) { try { const p = await getPlayer(name); if (tokOk(p, b.token)) id = name; } catch {} }
+  let id = null, name = normPseudo(b.name), pl = null;
+  if (PSEUDO_RE.test(name) && b.token) { try { const p = await getPlayer(name); if (tokOk(p, b.token)) { id = name; pl = p; } } catch {} }
   if (!id) { const g = String(b.guest || ""); if (/^[a-z0-9]{12,24}$/.test(g)) id = "g:" + g; }
   const m = await MJ.load(day); const st = id ? m.get(id) : null;
+  // le chrono démarre à la 1re lettre tapée (pas à l'ouverture de la page)
+  if (b.op === "start") { if (!id) return out(400, { error: "joueur" }); if (!st) { const s = { t: [], ts: [], at: Date.now() }; m.set(id, s); MJ.persist(day, id, s); } return out(200, { ok: 1 }); }
   if (b.op === "essai") {
     if (!id) return out(400, { error: "joueur" });
     const g = MJ.strip(b.g);
-    const s = st || { t: [], at: Date.now() };
+    const s = st || { t: [], ts: [], at: Date.now() };
     if (s.ok || s.t.length >= 6) return out(200, MJ.view(day, s, w));
     if (g.length !== w.length) return out(200, { refus: "Le mot fait " + w.length + " lettres." });
     if (g[0] !== w[0]) return out(200, { refus: "Le mot commence par " + w[0] + "." });
     if (!MJ.dict.has(g)) return out(200, { refus: "« " + g + " » n'est pas dans le dictionnaire." });
     if (s.t.includes(g)) return out(200, { refus: "Mot déjà essayé." });
-    s.t.push(g); if (g === w) { s.ok = 1; s.ms = Date.now() - s.at; }
+    const before = s.t.length ? MJ.score(s, w).pts : 0;
+    s.t.push(g); s.ts = s.ts || []; s.ts.push(Date.now() - (s.at || Date.now())); if (g === w) { s.ok = 1; s.ms = s.ts[s.ts.length - 1]; }
+    const sc = MJ.score(s, w); s.p = sc.pts;
     m.set(id, s); MJ.persist(day, id, s); statAdd(s.ok ? "motdujour:trouve" : s.t.length >= 6 ? "motdujour:rate" : "motdujour:essai");
-    if (s.ok && !id.startsWith("g:")) { if (REDIS) redis(["ZINCRBY", "mj:total", "1", id]).catch(() => {}); else MJ_TOTAL.set(id, (MJ_TOTAL.get(id) || 0) + 1); }
-    return out(200, { ...MJ.view(day, s, w), board: await MJ.board(day) });
+    if (pl) {
+      const delta = sc.pts - before;
+      if (s.t.length === 1) { pl.mj = pl.mj || { days: 0, found: 0, pts: 0, nF: 0, msF: 0, gN: 0, gMs: 0 }; pl.mj.days++; }
+      if (delta > 0) { addPoints(id, pl, "motdujour", delta); pl.mj.pts = (pl.mj.pts || 0) + delta; if (REDIS) redis(["ZINCRBY", "mj:pts", String(delta), id]).catch(() => {}); else MJ_TOTAL.set(id, (MJ_TOTAL.get(id) || 0) + delta); MJ.resetTot(); }
+      if (s.ok || s.t.length >= 6) mjClose(pl, s, sc);
+      savePlayer(id);
+    }
+    return out(200, { ...MJ.view(day, s, w), pts: sc.pts, gained: sc.pts - before, board: await MJ.board(day), mine: pl ? mjMine(pl) : undefined });
   }
   // op « etat » : ma grille du jour + les chiffres du jour + les classements
-  return out(200, { ...MJ.view(day, st, w), board: await MJ.board(day), ranked: !!(id && !id.startsWith("g:")) });
+  return out(200, { ...MJ.view(day, st, w), pts: st && st.t && st.t.length ? MJ.score(st, w).pts : 0, board: await MJ.board(day), ranked: !!pl, mine: pl ? mjMine(pl) : undefined });
 }
+const mjMine = p => { const a = p.mj || {}; return { days: a.days || 0, found: a.found || 0, pts: a.pts || 0, avgN: a.found ? +(a.nF / a.found).toFixed(1) : null, avgMs: a.found ? Math.round(a.msF / a.found) : null, avgG: a.gN ? Math.round(a.gMs / a.gN) : null, wins: p.mjWins || 0 }; };
+// minuit (Paris) : le 1er du classement du jour qui se termine gagne 5 jetons (une seule fois, même si le serveur redémarre)
+async function mjPrize() {
+  const yd = parisDay(new Date(Date.now() - 864e5));
+  try {
+    if (REDIS ? await redis(["EXISTS", "mj:prize:" + yd]) : MJ_PRIZE.has(yd)) return;
+    const d = await MJ.dayList(yd); const top = d.list[0]; if (!top || top.pts <= 0) return;
+    const rec = JSON.stringify({ name: top.name, pts: top.pts, coins: 5 });
+    if (REDIS) { const ok = await redis(["SET", "mj:prize:" + yd, rec, "NX", "EX", String(90 * 86400)]); if (!ok) return; } else MJ_PRIZE.set(yd, rec);
+    const p = await getPlayer(top.name); if (!p) return;
+    ensureWallet(p); p.coins = Math.round(p.coins + 5); p.mjWins = (p.mjWins || 0) + 1; savePlayer(top.name);
+    console.log("Mot du jour " + yd + " : 5 jetons pour " + top.name + " (" + top.pts + " points)");
+  } catch (e) { console.error("Mot du jour (prix de minuit) :", e.message); }
+}
+setTimeout(mjPrize, 20e3); setInterval(mjPrize, 5 * 60e3);
+// reprise des parties jouées avant le barème à points (20-21/11) : points cumulés et moyennes, une seule fois
+async function mjBackfill() {
+  if (!REDIS) return;
+  try {
+    if (!(await redis(["SET", "mj:v2", "1", "NX"]))) return;
+    for (const day of ["20261120", "20261121"]) {
+      const m = await MJ.load(day), w = MJ.wordOf(day);
+      for (const [id, st] of m) {
+        if (id.startsWith("g:") || !(st.t || []).length) continue;
+        const p = await getPlayer(id); if (!p) continue; const sc = MJ.score(st, w);
+        p.mj = p.mj || { days: 0, found: 0, pts: 0, nF: 0, msF: 0, gN: 0, gMs: 0 }; p.mj.days++; p.mj.pts += sc.pts; st.p = sc.pts; MJ.persist(day, id, st);
+        if (st.ok || st.t.length >= 6) mjClose(p, st, sc);
+        if (sc.pts > 0) { addPoints(id, p, "motdujour", sc.pts); await redis(["ZINCRBY", "mj:pts", String(sc.pts), id]); }
+        savePlayer(id);
+      }
+    }
+    MJ.resetTot(); console.log("Mot du jour : points des 20 et 21/11 repris");
+  } catch (e) { console.error("Mot du jour (reprise) :", e.message); }
+}
+setTimeout(mjBackfill, 15e3);
 async function api(req, res, route) {
   const out = (code, o) => { res.writeHead(code, { "content-type": "application/json", "cache-control": "no-store" }); res.end(JSON.stringify(o)); };
   if (req.method !== "POST") return out(405, { error: "méthode" });
