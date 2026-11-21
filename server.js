@@ -1116,9 +1116,27 @@ function sendSkin(req, res, name, ext) {
   res.end(req.method === "HEAD" ? undefined : buf);
 }
 function sendStatic(req, res, name) {
+  // musique d'ambiance (mp3) : servie par morceaux (en-tête Range), indispensable pour Safari sur iPhone
+  { const mm = name.match(/^(musique-[a-z]{3,20}-[0-9a-f]{10})\.mp3$/); if (mm) return sendAudio(req, res, name); }
   const m = name.match(/^([a-z0-9-]{3,60})\.(js|json|svg|css|woff2|webp|png)$/); if (!m) { res.writeHead(404); return res.end(); }
   let p; try { p = page(path.join(__dirname, "public", "d", name), false); } catch { res.writeHead(404); return res.end(); }
   sendBody(req, res, p, STATIC[m[2]], /-[0-9a-f]{10}\./.test(name) ? "public, max-age=31536000, immutable" : "public, max-age=3600");
+}
+const audioCache = new Map();
+function sendAudio(req, res, name) {
+  let buf = audioCache.get(name);
+  if (!buf) { try { buf = fs.readFileSync(path.join(__dirname, "public", "d", name)); } catch { res.writeHead(404); return res.end(); } audioCache.set(name, buf); }
+  const H = { "content-type": "audio/mpeg", "accept-ranges": "bytes", "cache-control": "public, max-age=31536000, immutable" };
+  const r = /^bytes=(\d*)-(\d*)$/.exec(req.headers.range || "");
+  if (r && (r[1] || r[2])) {
+    let a = r[1] ? +r[1] : buf.length - +r[2], b = r[1] && r[2] ? Math.min(+r[2], buf.length - 1) : buf.length - 1;
+    if (a < 0) a = 0;
+    if (a > b || a >= buf.length) { res.writeHead(416, { "content-range": "bytes */" + buf.length }); return res.end(); }
+    res.writeHead(206, { ...H, "content-range": "bytes " + a + "-" + b + "/" + buf.length, "content-length": b - a + 1 });
+    return res.end(req.method === "HEAD" ? undefined : buf.subarray(a, b + 1));
+  }
+  res.writeHead(200, { ...H, "content-length": buf.length });
+  res.end(req.method === "HEAD" ? undefined : buf);
 }
 // espace d'administration des sauvegardes (seulement si ADMIN_KEY est réglée chez Render ; la clé n'est jamais écrite dans les journaux)
 async function adminRoute(req, res, url) {

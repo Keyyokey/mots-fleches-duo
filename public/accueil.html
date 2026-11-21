@@ -1766,7 +1766,7 @@ if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",
 document.querySelectorAll(".tile").forEach(function(t){t.classList.add("zz");io.observe(t)})})();</script>
 <script>// 20/11 : mot du jour, nombre de joueurs qui l'ont trouvé aujourd'hui
 fetch("/api/p/mj",{method:"POST",headers:{"content-type":"application/json"},body:"{}"}).then(r=>r.json()).then(r=>{const e=document.getElementById("mdtCount");if(e&&r&&r.board)e.textContent=r.board.found?(r.board.found+(r.board.found>1?" joueurs l'ont trouvé aujourd'hui":" joueur l'a trouvé aujourd'hui")):"Sois le premier à le trouver aujourd'hui !"}).catch(()=>{});</script>
-<script src="/d/musique-03168f1501.js" defer></script><script src="/d/lettres-28c2b6ea4b.js" defer></script>
+<script src="/d/musique-1a25032984.js" defer></script><script src="/d/lettres-28c2b6ea4b.js" defer></script>
 <script>addEventListener("DOMContentLoaded",()=>{const M=window.MotipopMusique;if(!M)return;M.bind(document.getElementById("musicBtn"));M.bind(document.getElementById("mMusic"),true)})</script>
 </body>
 </html>
