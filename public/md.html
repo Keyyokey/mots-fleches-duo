@@ -65,7 +65,7 @@
 @media (max-width:620px){
 body.tj .gtop .gname{flex:1;min-width:0;white-space:nowrap}
 body.tj .mdlenp{display:inline-flex;margin-left:4px}body.tj #mdDay{display:none}
-body.tj .md>.card{display:none}
+body.tj .md>.card{display:none}body.tj .md>.mdend.on{display:flex;padding:14px 12px}
 body.tj .mdrkbtn{display:inline-flex;align-items:center;gap:6px;margin-left:auto;min-height:40px;padding:6px 12px;border-radius:14px;border:1px solid rgba(255,122,168,.45);background:rgba(255,122,168,.14);color:var(--ink);font:800 .85rem Nunito,Inter,sans-serif;cursor:pointer}
 body.tj .mdside{display:none}
 body.tj.rkOn .mdside{display:block;position:fixed;left:8px;right:8px;top:8px;z-index:80;max-height:calc(100% - 16px);overflow:auto;animation:popin .2s ease}
@@ -153,8 +153,10 @@ const inp=$("#mdIn");
 function dayTxt(d){const m=["janv.","févr.","mars","avr.","mai","juin","juil.","août","sept.","oct.","nov.","déc."];return Number(d.slice(6,8))+" "+m[Number(d.slice(4,6))-1]}
 // téléphone : pendant la partie, l'alphabet, la grille et Valider tiennent dans l'écran au-dessus du clavier, sans défiler
 const PHONE=()=>matchMedia("(max-width:620px) and (pointer:coarse)").matches;
-function fit(){const g=$("#mdGrid"),K=$("#mdKeys");if(!S||!PHONE()||S.done){document.body.classList.remove("tj");g.style.removeProperty("--mdc");g.style.removeProperty("--mdf");K.style.marginTop="";return}
+function fit(){const g=$("#mdGrid"),K=$("#mdKeys");if(!S||!PHONE()){document.body.classList.remove("tj");g.style.removeProperty("--mdc");g.style.removeProperty("--mdf");K.style.marginTop="";return}
   document.body.classList.add("tj");K.style.marginTop="0px";
+  // partie finie (21/11) : on garde l'affichage de la partie (titre, pastille, bouton Classement, alphabet, grille) et on ajoute seulement le bloc de fin avec Pop
+  if(S.done){const c=fit.lock||Math.max(30,Math.min(48,Math.floor((Math.min(innerWidth,560)-12-16-(S.len-1)*6)/S.len)));g.style.setProperty("--mdc",c+"px");g.style.setProperty("--mdf",Math.round(c*.6)+"px");return}
   const vv=window.visualViewport,kbOpen=!!(vv&&vv.height<innerHeight-120);
   // taille FIXE pendant la partie : on calcule toujours comme si le clavier était ouvert (≈ 42 % de l'écran sur iPhone et Android),
   // et on ne fait jamais grandir la grille après coup → plus de saut quand le clavier s'ouvre ou se ferme
@@ -211,7 +213,7 @@ function draw(){if(!S)return;
   const st={};S.tries.forEach(t=>[...t.g].forEach((L,i)=>{st[L]=Math.max(st[L]??-1,t.c[i])}));
   $("#mdKeys").innerHTML=!S.done||S.tries.length?"AZERTYUIOPQSDFGHJKLMWXCVBN".split("").map(L=>'<span class="'+(L in st?"k"+st[L]:"")+'">'+L+"</span>").join(""):"";
   $("#mdBar").style.display=S.done?"none":"";inp.disabled=!!S.done;if(S.done){if(document.activeElement===inp)inp.blur();inp.hidden=true}
-  const e=$("#mdEnd");e.classList.toggle("on",!!S.done);
+  const e=$("#mdEnd");e.classList.toggle("on",!!S.done);if(S.done)fit();
   if(S.done){const n=S.tries.length;e.innerHTML=(S.ok?'<img class="mdpop" src="/d/pop-victoire-d9b3c764d3.webp" width="120" height="120" alt="Pop saute de joie">':'')+(S.ok?'<h3>Trouvé en '+n+" essai"+(n>1?"s":"")+(S.ms?" · "+fmt(S.ms):"")+" !</h3>":"<h3>Pas cette fois…</h3>")+'<div class="gain">+'+(S.pts||0)+' points aujourd\'hui</div><div class="w">'+esc(S.word)+'</div><div class="def">'+esc(S.def||"")+'</div><div class="row"><button class="btn primary" id="mdShare">Partager mon résultat</button></div><small class="note">Nouveau mot demain à minuit.</small>';
     $("#mdShare").onclick=share}
   list()}
