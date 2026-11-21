@@ -60,6 +60,19 @@
 .mdguest{margin-top:8px;font-size:.85rem;color:var(--muted)}
 .mdguest a{color:#ff7aa8;font-weight:700}
 .mdpop{display:block;width:120px;height:auto;margin:-4px auto 2px;filter:drop-shadow(0 8px 14px rgba(0,0,0,.3));animation:mdjump .9s cubic-bezier(.3,1.6,.5,1) both}@keyframes mdjump{from{transform:translateY(24px) scale(.6);opacity:0}}@media (prefers-reduced-motion:reduce){.mdpop{animation:none}}
+.mdlenp,.mdrkbtn,.mdrkx{display:none}
+.gtop{display:flex;align-items:center;gap:8px}
+@media (max-width:620px){
+body.tj .gtop .gname{flex:1;min-width:0;white-space:nowrap}
+body.tj .mdlenp{display:inline-flex;margin-left:4px}body.tj #mdDay{display:none}
+body.tj .md>.card{display:none}
+body.tj .mdrkbtn{display:inline-flex;align-items:center;gap:6px;margin-left:auto;min-height:40px;padding:6px 12px;border-radius:14px;border:1px solid rgba(255,122,168,.45);background:rgba(255,122,168,.14);color:var(--ink);font:800 .85rem Nunito,Inter,sans-serif;cursor:pointer}
+body.tj .mdside{display:none}
+body.tj.rkOn .mdside{display:block;position:fixed;left:8px;right:8px;top:8px;z-index:80;max-height:calc(100% - 16px);overflow:auto;animation:popin .2s ease}
+body.tj.rkOn .mdside .card{background:var(--glass2);backdrop-filter:blur(24px) saturate(150%);-webkit-backdrop-filter:blur(24px) saturate(150%);box-shadow:0 18px 50px rgba(0,0,0,.45)}
+body.tj.rkOn .mdrkx{display:grid;place-items:center;margin-left:8px;width:36px;height:36px;border-radius:50%;border:1px solid var(--stroke);background:var(--glass);color:var(--ink);cursor:pointer}
+@keyframes popin{from{transform:translateY(-8px);opacity:0}}
+}
 @media (max-width:620px){
 body.tj #skTop{display:none!important}body.tj .wrap{padding-top:6px}body.tj .gtop{margin-bottom:6px}
 body.tj .md{gap:6px}body.tj .md>.card{padding:8px 12px}body.tj .mdhead small{display:none}body.tj .mdhead br{display:none}
@@ -86,7 +99,7 @@ body.tj .mdkeys span{min-width:22px;padding:2px 0;font-size:.74rem}
 <div id="skTop" class="skph"></div>
 <div class="blob b1"></div><div class="blob b2"></div><div class="blob b3"></div>
 <div class="wrap">
-  <div class="gtop"><button class="homebtn" title="Retour à l'accueil" aria-label="Retour à l'accueil" onclick="location.href='/'"><svg viewBox="0 0 24 24"><path d="M3 11.2 12 4l9 7.2" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/><path d="M5.5 9.5V20h13V9.5" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linejoin="round"/></svg></button><div class="gname">Mot <span style="color:#ff7aa8">du jour</span> <span class="hpill" id="mdDay">…</span></div></div>
+  <div class="gtop"><button class="homebtn" title="Retour à l'accueil" aria-label="Retour à l'accueil" onclick="location.href='/'"><svg viewBox="0 0 24 24"><path d="M3 11.2 12 4l9 7.2" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/><path d="M5.5 9.5V20h13V9.5" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linejoin="round"/></svg></button><div class="gname">Mot <span style="color:#ff7aa8">du jour</span> <span class="hpill" id="mdDay">…</span><span class="hpill mdlenp" id="mdLenP"></span></div><button class="mdrkbtn" id="mdRk" type="button" aria-label="Classements du jour et depuis le début" aria-expanded="false">🏆<span>Classement</span></button></div>
   <div class="mdlay">
   <div class="md">
     <div class="glass card">
@@ -100,7 +113,7 @@ body.tj .mdkeys span{min-width:22px;padding:2px 0;font-size:.74rem}
   </div>
   <aside class="mdside" aria-label="Classement du mot du jour">
     <div class="glass card">
-      <h3>🏆 Classement <small id="mdLive"></small></h3>
+      <h3>🏆 Classement <small id="mdLive"></small><button class="mdrkx" id="mdRkX" type="button" aria-label="Fermer">✕</button></h3>
       <div class="mdtabs" role="tablist"><button class="on" data-t="today" role="tab">Aujourd'hui</button><button data-t="total" role="tab">Depuis le début</button></div>
       <ul class="mdlist" id="mdList"></ul>
       <p class="mdhow" id="mdHow">Devant : ceux qui ont trouvé (moins d'essais, puis plus rapides). Ensuite : le plus de lettres bien placées découvertes.</p>
@@ -124,13 +137,17 @@ const PHONE=()=>matchMedia("(max-width:620px) and (pointer:coarse)").matches;
 function fit(){const g=$("#mdGrid");if(!S||!PHONE()||S.done){document.body.classList.remove("tj");g.style.removeProperty("--mdc");g.style.removeProperty("--mdf");return}
   document.body.classList.add("tj");
   const vv=window.visualViewport,vh=vv?vv.height:innerHeight,top=$(".gtop").getBoundingClientRect().top+(window.scrollY||0);
-  const used=$(".gtop").offsetHeight+$(".md>.card").offsetHeight+$("#mdKeys").offsetHeight+$("#mdBar").offsetHeight+($("#mdMsg").offsetHeight||0)+6*5+16+5*5+Math.max(6,top);
+  const used=$(".gtop").offsetHeight+$("#mdKeys").offsetHeight+$("#mdBar").offsetHeight+($("#mdMsg").offsetHeight||0)+4*6+16+5*5+Math.max(6,top);
   const byH=Math.floor((vh-used)/6),byW=Math.floor((Math.min(innerWidth,560)-12-20-(S.len-1)*5)/S.len);
   const c=Math.max(28,Math.min(56,byH,byW));g.style.setProperty("--mdc",c+"px");g.style.setProperty("--mdf",Math.round(c*.5)+"px")}
 addEventListener("resize",()=>setTimeout(fit,60));if(window.visualViewport)visualViewport.addEventListener("resize",()=>{fit();if(document.activeElement===inp&&PHONE())scrollTo(0,0)});
+// classements accessibles pendant la partie (téléphone)
+const rk=on=>{document.body.classList.toggle("rkOn",on);$("#mdRk").setAttribute("aria-expanded",String(on));if(on&&S&&S.board)list()};
+$("#mdRk").onclick=e=>{e.preventDefault();rk(!document.body.classList.contains("rkOn"))};$("#mdRk").addEventListener("pointerdown",e=>{if(document.activeElement===inp)e.preventDefault()});
+$("#mdRkX").onclick=()=>rk(false);addEventListener("keydown",e=>{if(e.key==="Escape")rk(false)});
 function cur(){const v=inp.value;return (v[0]===S.first?v:S.first+v).slice(0,S.len)}
 function draw(){if(!S)return;
-  $("#mdDay").textContent=dayTxt(S.day);$("#mdInfo").textContent=S.len+" lettres · commence par "+S.first;
+  $("#mdDay").textContent=dayTxt(S.day);$("#mdLenP").textContent=S.len+" lettres · "+S.first;$("#mdInfo").textContent=S.len+" lettres · commence par "+S.first;
   const b=S.board||{found:0,played:0};$("#mdCount").textContent=b.found?b.found+(b.found>1?" joueurs l'ont trouvé":" joueur l'a trouvé")+" aujourd'hui":"Personne ne l'a encore trouvé aujourd'hui";
   const g=$("#mdGrid");g.querySelectorAll(".mdrow").forEach(r=>r.remove());
   const now=S.done?-1:S.tries.length;
