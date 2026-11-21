@@ -1056,7 +1056,7 @@ function wfRack(){const st=ST,me=st&&st.seats&&st.me>=0?st.seats[st.me]:null;if(
 function wfAssign(v,rack){const used=rack.map(()=>false);const idx=[...v].map(ch=>{let k=rack.findIndex((t,i)=>!used[i]&&t.c===ch&&t.mine);if(k<0)k=rack.findIndex((t,i)=>!used[i]&&t.c===ch);if(k>=0)used[k]=true;return k});return{idx,used}}
 function wfSlots(){const el=$("#wfSlots");if(!el)return;const v=LOCKED||$("#pkIn").value,rack=wfRack(),a=wfAssign(v,rack),key=v+"|"+rack.map(t=>t.c).join("")+"|"+(LOCKED?1:0);
   if(el.dataset.h!==key){el.dataset.h=key;let h="";for(let i=0;i<7;i++){const ch=v[i];if(ch){const k=a.idx[i];h+='<button type="button" class="ws f'+(k<0?" x":rack[k].mine?" m":"")+(i===v.length-1&&v.length>WF.len?" new":"")+'" data-i="'+i+'" aria-label="Retirer la lettre '+ch+'">'+ch+'<i>'+(LV[ch]||"")+'</i></button>'}else h+='<span class="ws'+(i===v.length&&!LOCKED?" cur":"")+'"></span>'}
-    el.innerHTML=h;if(v.length>WF.len&&SOUND&&!LOCKED&&!(window.MotipopSons&&MotipopSons.play("tuile")))tone(520+v.length*60,.06,.04);WF.len=v.length}
+    el.innerHTML=h;if(v.length>WF.len&&SOUND&&!LOCKED)tone(520+v.length*60,.06,.04);WF.len=v.length}
   el.classList.toggle("lock",!!LOCKED);$$("#pkWL button").forEach(b=>b.classList.toggle("used",!!a.used[+b.dataset.k]));
   const off=!!LOCKED||$("#pkIn").disabled;$$("#wfTools .wtb").forEach(b=>b.disabled=off||(b.id!=="wfMix"&&!v))}
 function wfPts(e){const s=$("#wfSlots"),p=$("#wfPts"),g=$("#wfBadges");if(!s||!p)return;s.dataset.v=e?(e.valid?"ok":"ko"):"";const ok=!!(e&&e.valid);p.hidden=!ok;if(ok)p.textContent=e.total_score+" pts";

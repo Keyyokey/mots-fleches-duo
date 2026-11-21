@@ -191,7 +191,7 @@ const sfx={type:()=>tone(880,0,.05,"triangle",.07,660),del:()=>tone(330,0,.06,"t
   win:()=>{[523,659,784,1046].forEach((f,i)=>tone(f,i*.12,.3,"triangle",.16));[784,988,1175,1568].forEach((f,i)=>tone(f,.55+i*.07,.35,"sine",.12))},
   bell:()=>{[[880,0],[1320,0],[880,.32]].forEach(([f,d])=>tone(f,d,1.3,"sine",.14))}};
 // vrais sons (banque de sons, 21/11) : utilisés dès qu'ils sont chargés, sinon le petit son fabriqué ci-dessus
-(m=>Object.keys(m).forEach(k=>{const f=sfx[k];if(typeof f==="function")sfx[k]=function(){return(window.MotipopSons&&window.MotipopSons.play(m[k]))||f.apply(this,arguments)}}))({type:"tuile",del:"efface",pop:"pop",ok:"ok",word:"mot",bad:"faux",turn:"ding",warn:"tictac",myst:"mot",win:"victoire"});
+(m=>Object.keys(m).forEach(k=>{const f=sfx[k];if(typeof f==="function")sfx[k]=function(){return(window.MotipopSons&&window.MotipopSons.play(m[k]))||f.apply(this,arguments)}}))({pop:"pop",ok:"ok",word:"mot",bad:"faux",turn:"ding",warn:"tictac",myst:"mot",win:"victoire"});
 
 // ---------- petites aides d'interface ----------
 function toast(ic,html){let t=$("#toast");if(!t){t=document.createElement("div");t.id="toast";document.body.appendChild(t)}
