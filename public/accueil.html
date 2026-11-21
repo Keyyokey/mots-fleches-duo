@@ -704,6 +704,7 @@ table.bar td,table.bar th{padding:5px 6px;border-bottom:1px solid rgba(255,255,2
 </style>
 <style>
 .cfgfl .seg button{flex:1}
+.seg.cgth{flex-wrap:wrap}.seg.cgth button{flex:1 1 45%;min-height:42px}.seg.cgth button:first-child{flex-basis:100%}
 .gpick{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:12px 0}.gpick button{all:unset;box-sizing:border-box;cursor:pointer;display:flex;flex-direction:column;gap:3px;padding:14px 12px;border-radius:16px;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.2);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);transition:transform .15s,background .2s}.gpick button:hover,.gpick button:focus-visible{transform:translateY(-2px);background:rgba(255,255,255,.18);outline:none}.gpick b{font:800 1rem Nunito,Inter,sans-serif}.gpick small{opacity:.75;font-size:.78rem}.gpick button:last-child:nth-child(odd){grid-column:1/-1}[data-theme=light] .gpick button{background:rgba(255,255,255,.7);border-color:rgba(15,25,40,.12)}.chartTabs{flex-wrap:wrap}
 .lnk{all:unset;cursor:pointer;color:var(--accent,#00ADB5);font-size:.85rem;text-align:center;font-weight:600}
 .err{color:#fb7185;font-size:.82rem;min-height:1em}
@@ -1037,6 +1038,9 @@ body.statsOn .dashbar{display:flex;align-items:center;justify-content:space-betw
   <div class="seg" id="cfgMode"><button type="button" data-m="solo">👤 Solo</button><button type="button" data-m="multi">👥 À plusieurs</button></div>
   <div class="cfgfl"><div class="seg" id="lvl"></div>
   <label class="f">Numéro de grille<select id="gnum"></select></label></div>
+  <div class="cfgcg" style="display:none"><div class="note">Thème de la partie</div>
+    <div class="seg cgth" id="cgTheme"><button type="button" data-v="">🎲 Tout mélangé</button><button type="button" data-v="nourriture">🍽️ Nourriture</button><button type="button" data-v="pates">🍝 Pâtes</button><button type="button" data-v="animaux">🐾 Animaux</button><button type="button" data-v="pays">🌍 Pays & drapeaux</button></div>
+    <div class="note" id="cgThNote"></div></div>
   <div class="cfgpk" style="display:none">
     <div class="note">Format de la partie</div>
     <div class="seg" id="pkFmt"><button class="on" data-v="10">10 coups</button><button data-v="last">Jusqu'au dernier</button></div>
@@ -1484,11 +1488,14 @@ const GAMES={fleches:{nm:"Mots fléchés",lv:[["facile","Facile",414],["normal",
 $$(".tile").forEach(t=>t.addEventListener("click",e=>{if(e.target.closest(".modes"))return;const was=t.classList.contains("lift");$$(".tile").forEach(x=>x.classList.remove("lift"));if(!was)t.classList.add("lift")}));
 document.addEventListener("click",e=>{if(!e.target.closest(".tile"))$$(".tile").forEach(x=>x.classList.remove("lift"))});
 let CFG=null;
+// Culture générale : thème de la partie (le dernier choix est gardé)
+const CGTH_NOTE={"":"Images, culture, calculs, casse-tête et une question « Tout le monde a son mot à dire ».",nourriture:"10 photos de plats, fruits, légumes et pâtes du monde entier.",pates:"10 photos de pâtes : sauras-tu reconnaître les orecchiette des conchiglie ?",animaux:"10 photos d'animaux : races de chiens, oiseaux, animaux sauvages…",pays:"10 photos de drapeaux, paysages et lieux du monde."};
+function cgThemeInit(){const cur=LS.get("fl-cfg-theme")||"";$$("#cgTheme button").forEach(b=>{b.classList.toggle("on",b.dataset.v===cur);b.onclick=()=>{$$("#cgTheme button").forEach(x=>x.classList.toggle("on",x===b));LS.set("fl-cfg-theme",b.dataset.v);$("#cgThNote").textContent=CGTH_NOTE[b.dataset.v]||""}});if(!$("#cgTheme .on"))$("#cgTheme button").classList.add("on");$("#cgThNote").textContent=CGTH_NOTE[cur]||CGTH_NOTE[""]}
 function openCfg(t,m,opp,quick){const k=t.dataset.key,G=GAMES[k];
   if(m==="solo"&&!ME&&guestN()>=GUEST_MAX){needAccount();return}
   if(m==="multi"&&(!ME||ME.stale)){needMulti();$("#needT").textContent=G.nm+" à plusieurs";$("#need").dataset.k=k;$("#need").classList.add("on");return}
   CFG={k,m,opp,t};{const cm=$("#cfgMode");cm.style.display=m==="resume"||opp?"none":"";cm.querySelectorAll("button").forEach(b=>{b.classList.toggle("on",b.dataset.m===m);b.onclick=()=>{if(b.dataset.m!==CFG.m)openCfg(CFG.t,b.dataset.m)}})}$("#cfgT").textContent=G.nm+" · "+({solo:"Solo",multi:"Multijoueur",resume:"Reprendre la partie"}[m]);
-  const pk=k==="poker",cg=k==="culture";$(".cfgfl").style.display=pk||cg||m==="resume"?"none":"";$(".cfgpk").style.display=pk&&m!=="resume"?"":"none";{const lf=document.querySelector(".pklvlf");if(lf)lf.style.display=pk&&m==="solo"?"":"none"}
+  const pk=k==="poker",cg=k==="culture";$(".cfgfl").style.display=pk||cg||m==="resume"?"none":"";$(".cfgpk").style.display=pk&&m!=="resume"?"":"none";$(".cfgcg").style.display=cg&&m!=="resume"?"":"none";if(cg)cgThemeInit();{const lf=document.querySelector(".pklvlf");if(lf)lf.style.display=pk&&m==="solo"?"":"none"}
   if(!pk&&!cg){const lv=$("#lvl");lv.innerHTML=G.lv.map(([v,l],i)=>'<button data-v="'+v+'" class="'+(i===(LS.get("fl-cfg-lvl-"+k)|0)?"on":"")+'">'+l+'</button>').join("");
     lv.querySelectorAll("button").forEach((b,i)=>b.onclick=()=>{lv.querySelectorAll("button").forEach(x=>x.classList.toggle("on",x===b));LS.set("fl-cfg-lvl-"+k,i);fillNums()});
     fillNums()}
@@ -1505,7 +1512,7 @@ function pickGame(opp,mode){mode=mode||"multi";$("#pickT").textContent=mode==="s
   $("#pickX").onclick=()=>$("#pickG").classList.remove("on");$("#pickG").classList.add("on");setTimeout(()=>{const f=L.querySelector("button");if(f)f.focus()},50)}
 function fillNums(){const G=GAMES[CFG.k];{const gl=$("#gnum").closest("label");if(gl)gl.style.display=CFG.k==="magnetico"?"none":""}if(CFG.k==="magnetico")return;const i=[...$$("#lvl button")].findIndex(b=>b.classList.contains("on"));const n=(G.lv[i]||G.lv[0])[2];
   const g=$("#gnum");g.innerHTML='<option value="">Grille suivante (au hasard parmi les non jouées)</option>'+Array.from({length:n},(_,j)=>'<option value="'+(j+1)+'">Grille '+(j+1)+'</option>').join("")}
-function bindMode(b){b.onclick=e=>{e.stopPropagation();const t=b.closest(".tile");if(b.dataset.cfg)return openCfg(t,"solo");const m=b.dataset.mode;openCfg(t,m,undefined,m==="resume"||t.dataset.key==="culture")}}   // le réglage (niveau) est reproposé à chaque partie ; seul « Reprendre » et Culture (rien à régler) partent tout de suite
+function bindMode(b){b.onclick=e=>{e.stopPropagation();const t=b.closest(".tile");if(b.dataset.cfg)return openCfg(t,"solo");const m=b.dataset.mode;openCfg(t,m,undefined,m==="resume")}}   // le réglage (niveau) est reproposé à chaque partie ; seul « Reprendre » et Culture (rien à régler) partent tout de suite
 $$(".modes .abtn").forEach(bindMode);
 $("#cfgX").onclick=()=>$("#cfg").classList.remove("on");
 // ---------- tutoriel : quelques étapes la 1re fois qu'on lance un jeu ----------
@@ -1517,7 +1524,7 @@ const TUTO={
  culture:[["❓","10 questions mélangées","Images, culture, calculs, casse-tête et une question « Tout le monde a son mot à dire »."],["⏱️","20 secondes","Choisis parmi 4 réponses (touches 1 à 4). Bonne réponse : 10 points, et jusqu'à 5 de plus si tu es rapide."],["🗣️","À toi de le dire","Pour « Tout le monde a son mot à dire », tape ta réponse en 30 s : toutes les bonnes réponses comptent, une réponse originale rapporte +3."]],
  poker:[["🃏","Tes lettres","Tu reçois 2 lettres cachées. L'Académicien retourne 3 lettres au milieu, puis les 2 dernières."],["🪙","Mise ou arrête-toi","À chaque tour, deux choix : S'arrêter ou Miser. Si quelqu'un mise plus, égale sa mise ou arrête-toi. Si tous les autres s'arrêtent, tu gagnes le pot."],["🏆","Le meilleur mot","À la fin, forme un mot avec tes lettres et celles du milieu (au moins une des tiennes). Le meilleur score emporte le pot."]]};
 // 20/11 : dernière étape commune, les réglages du jeu
-const TUTO_REG={fleches:"Change le niveau et la grille",rond:"Change le niveau et la grille",meles:"Change le niveau et la grille",magnetico:"Change le niveau",culture:"Choisis de jouer seul ou à plusieurs",poker:"Change la mise, le nombre de coups, le temps et le niveau du robot"};
+const TUTO_REG={fleches:"Change le niveau et la grille",rond:"Change le niveau et la grille",meles:"Change le niveau et la grille",magnetico:"Change le niveau",culture:"Choisis un thème (nourriture, pâtes, animaux, pays et drapeaux) et de jouer seul ou à plusieurs",poker:"Change la mise, le nombre de coups, le temps et le niveau du robot"};
 Object.keys(TUTO).forEach(k=>TUTO[k].push(["⚙️","À ta façon",(TUTO_REG[k]||"Ajuste la partie")+" quand tu veux, avec le bouton «\u00a0Réglages\u00a0» de la carte du jeu."]));
 function tuto(k,done){const S=TUTO[k];if(!S||LS.get("fl-tuto-"+k))return done();let i=0;const o=$("#tuto");
   const show=()=>{const [ic,t,p]=S[i];$("#tutoI").textContent=ic;$("#tutoT").textContent=t;$("#tutoP").textContent=p;$("#tutoN").textContent=(i+1)+"/"+S.length;
@@ -1527,7 +1534,7 @@ function tuto(k,done){const S=TUTO[k];if(!S||LS.get("fl-tuto-"+k))return done();
   $("#tutoNext").onclick=()=>{if(i<S.length-1){i++;show()}else end()};$("#tutoPrev").onclick=()=>{if(i){i--;show()}};$("#tutoSkip").onclick=end;{const x=o.querySelector(".xbtn");if(x)x.onclick=e=>{e.stopPropagation();end()}}
   o.classList.add("on");show()}
 $("#cfgGo").onclick=()=>{if(CFG.m!=="resume"&&!CFG.opp&&TUTO[CFG.k]&&!LS.get("fl-tuto-"+CFG.k)){$("#cfg").classList.remove("on");return tuto(CFG.k,()=>$("#cfgGo").onclick())}const{k,m,opp}=CFG;$("#cfg").classList.remove("on");
-  const lv=k==="culture"?"":($("#lvl .on")||{}).dataset?.v||"";const q=new URLSearchParams({go:m});if(lv&&m!=="resume")q.set("lvl",lv);const n=k==="culture"?"":$("#gnum").value;if(n&&m!=="resume")q.set("n",n);
+  const lv=k==="culture"?"":($("#lvl .on")||{}).dataset?.v||"";const q=new URLSearchParams({go:m});if(k==="culture"&&m!=="resume"){const th=(($("#cgTheme .on")||{}).dataset||{}).v||"";if(th)q.set("theme",th)}if(lv&&m!=="resume")q.set("lvl",lv);const n=k==="culture"?"":$("#gnum").value;if(n&&m!=="resume")q.set("n",n);
   if((k==="fleches"||k==="rond")&&m==="multi")q.set("t","-1");if(opp)q.set("opp",opp);
   if(k==="poker"){q.set("fmt",($("#pkFmt .on")||{}).dataset?.v||"10");q.set("mise",$("#pkMise").value);q.set("dec",$("#pkDec").value);if(m==="solo")q.set("lvl",$("#pkLvl").value)}
   if(m==="multi"&&!(CODE&&ROOM)){const goTo=c=>location.href="/"+c+"/"+k+"?"+q;   // 19/11 : on reprend le salon du joueur au lieu d'en créer un nouveau à chaque partie

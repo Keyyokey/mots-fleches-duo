@@ -32,8 +32,17 @@ module.exports = function (root) {
   // une partie mélange les types de questions : 3 avec image, 2 de culture, 2 calculs, 2 casse-tête, 1 « tout le monde a son mot à dire »
   const KIND = q => q.k || (q.img ? "img" : "txt"), QUOTA = { img: 3, txt: 2, calc: 2, puz: 2, sond: 1 };
   const KINDOF = {}; CG.forEach(q => KINDOF[q.id] = KIND(q));
-  function drawSet(hists) {
+  // thèmes en photos (21/11) : une partie entière dans un thème (10 questions avec image)
+  const THEMES = { nourriture: [], pates: [], animaux: [], pays: [] };
+  CG.forEach(q => { if (!q.img) return;
+    if (q.t === "Cuisine") THEMES.nourriture.push(q.id);
+    if (q.th === "pates") THEMES.pates.push(q.id);
+    if (q.t === "Animaux" || (q.t === "Nature" && /animal|oiseau|insecte|mammif/i.test(q.q + " " + q.x))) THEMES.animaux.push(q.id);
+    if (q.t === "Drapeaux" || q.t === "Géographie") THEMES.pays.push(q.id); });
+  const theme = t => THEMES[t] ? t : "";
+  function drawSet(hists, th) {
     const adm = new Set(admissible("culture", "all", hists)), out = [];
+    if (theme(th)) { const ids = THEMES[th]; const a = shuffle(ids.filter(id => adm.has(id))), b = shuffle(ids.filter(id => !adm.has(id))); return a.concat(b).slice(0, NQ); }
     const take = (ids, n) => { const a = shuffle(ids.filter(id => adm.has(id) && !out.includes(id))), b = shuffle(ids.filter(id => !adm.has(id) && !out.includes(id))); out.push(...a.concat(b).slice(0, n)); };
     for (const k in QUOTA) take(lists.culture.all.filter(id => KINDOF[id] === k), QUOTA[k]);
     if (out.length < NQ) take(lists.culture.all, NQ - out.length);
@@ -43,7 +52,7 @@ module.exports = function (root) {
   const CGBY = {}; CG.forEach(q => CGBY[q.id] = q);
   const cgIndex = () => { const o = {}; CG.forEach(q => (o[KINDOF[q.id]] = o[KINDOF[q.id]] || []).push(q.id)); return o; };
   // revérification au lancement : une question déjà vue par un participant est remplacée si une question neuve existe
-  function setOk(qs, hists) { if (!Array.isArray(qs) || qs.length !== NQ || new Set(qs).size !== NQ || !qs.every(id => canon.culture[id])) return false; const adm = admissible("culture", "all", hists); return adm.length < NQ ? qs.filter(id => adm.includes(id)).length >= adm.length : qs.every(id => adm.includes(id)); }
+  function setOk(qs, hists, th) { if (!Array.isArray(qs) || qs.length !== NQ || new Set(qs).size !== NQ || !qs.every(id => canon.culture[id])) return false; let adm = admissible("culture", "all", hists); if (theme(th)) { const T = new Set(THEMES[th]); if (!qs.every(id => T.has(id))) return false; adm = adm.filter(id => T.has(id)); } return adm.length < NQ ? qs.filter(id => adm.includes(id)).length >= adm.length : qs.every(id => adm.includes(id)); }
   const GAMES = ["fleches", "rond", "meles", "culture"];
   // référence du contenu d'une partie (document du salon)
   const refOf = (game, d) => game === "fleches" ? d.grid : game === "rond" ? d.pid : game === "culture" ? (d.qs || []).join(",") : (d.level + ":" + d.mid);
@@ -65,5 +74,5 @@ module.exports = function (root) {
     else { const [lv, mid] = ref.split(":"); const def = mctx.melesDef(mid, lv); const m = mctx.makeMeles(def.theme, lv, def.seed); Object.assign(d, m, { mid: "n" + def.k, found: {} }); }
     d.players.forEach(p => p.score = 0);
   }
-  return { GAMES, CGBY, cgIndex, QUOTA, drawSet, setOk, NQ, refOf, level, cid, admissible, pick, byNumber, applyTo, lists, counts: { fleches: GRIDS.length, rond: ROND.length } };
+  return { GAMES, CGBY, cgIndex, THEMES, theme, QUOTA, drawSet, setOk, NQ, refOf, level, cid, admissible, pick, byNumber, applyTo, lists, counts: { fleches: GRIDS.length, rond: ROND.length } };
 };

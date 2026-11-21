@@ -850,7 +850,7 @@ const HOME=CODE?"/"+CODE:"/";
 let ME=null;try{ME=JSON.parse(LS.get("fl-me")||"null")}catch(e){}if(ME&&!/^[A-Z0-9@#_]{2,7}$/.test(ME.name||""))ME=null;
 const DOC="cg",SOLOKEY="fl2-solo-culture",GAME="culture",NQ=10,TQ=20000,AUTO=15000;
 // la page ne charge qu'un index léger (identifiant → type) ; les 10 questions de la partie sont demandées au serveur
-const IDX=window.__CGI||{},KIND={},BYID={};Object.keys(IDX).forEach(k=>IDX[k].forEach(id=>KIND[id]=k));const ALLIDS=Object.keys(KIND);
+const IDX=window.__CGI||{},KIND={},BYID={},THEMES=window.__CGT||{};Object.keys(IDX).forEach(k=>IDX[k].forEach(id=>KIND[id]=k));const ALLIDS=Object.keys(KIND);
 const QUOTA={img:3,txt:2,calc:2,puz:2,sond:1};
 function loadQs(ids){const miss=(ids||[]).filter(id=>!BYID[id]);if(!miss.length)return Promise.resolve(true);
   return fetch("/api/cg/q?ids="+miss.map(encodeURIComponent).join(",")).then(r=>r.ok?r.json():[]).then(L=>{L.forEach(q=>BYID[q.id]=q);ids.forEach(id=>{const q=BYID[id];if(q&&q.img&&!IMGOK[id]){IMGOK[id]="…";const im=new Image();im.decoding="async";im.onload=()=>{IMGOK[id]="ok"};im.onerror=()=>{IMGOK[id]="ko";imgSwap()};im.src=q.img}});return ids.every(id=>BYID[id])}).catch(()=>false)}
@@ -862,7 +862,8 @@ const IMGOK={};
 function imgSwap(){if(!G||!G.solo||G.done||imgSwap.busy)return;const bad=G.qs.map((id,i)=>[id,i]).filter(([id,i])=>IMGOK[id]==="ko"&&i>=G.i&&!G.ans[i+"-0"]);if(!bad.length)return;
   const used=new Set(G.qs),pool=k=>(IDX[k]||[]).filter(id=>!used.has(id)&&IMGOK[id]!=="ko");
   imgSwap.n=(imgSwap.n||0)+bad.length;const noImg=imgSwap.n>6;   // Wikimedia en panne : après 6 photos ratées, on passe aux questions sans photo
-  const repl=bad.map(([id,i])=>{const L=!noImg&&pool("img").length?pool("img"):pool("txt").length?pool("txt"):ALLIDS.filter(x=>!used.has(x)&&KIND[x]!=="img");const n=L[Math.floor(Math.random()*L.length)];if(n)used.add(n);return[i,n]}).filter(x=>x[1]);
+  const tp=G.theme&&THEMES[G.theme]?THEMES[G.theme].filter(id=>!used.has(id)&&IMGOK[id]!=="ko"):[];   // partie à thème : on remplace par une photo du même thème
+  const repl=bad.map(([id,i])=>{const T=tp.filter(x=>!used.has(x));const L=!noImg&&T.length?T:!noImg&&pool("img").length?pool("img"):pool("txt").length?pool("txt"):ALLIDS.filter(x=>!used.has(x)&&KIND[x]!=="img");const n=L[Math.floor(Math.random()*L.length)];if(n)used.add(n);return[i,n]}).filter(x=>x[1]);
   if(!repl.length)return;imgSwap.busy=1;loadQs(repl.map(x=>x[1])).then(()=>{imgSwap.busy=0;if(!G||G.done)return;repl.forEach(([i,n])=>{G.qs[i]=n;if(i===G.i)G.qStart=Date.now()});drawn="";save();render()})}
 const tqOf=q=>q&&q.k==="sond"?30000:TQ;
 // « tout le monde a son mot à dire » : réponse tapée, comparée sans accents, majuscules, articles ni pluriel (1 faute de frappe tolérée)
@@ -938,7 +939,7 @@ function scoreSrv(){try{if(!ME||!ME.token)return;const i=G.solo?0:mySeat();const
 let shownEnd=null,drawn="";
 function render(){document.body.classList.remove("booting");if(!G)return;document.body.classList.toggle("tj",matchMedia("(pointer:coarse)").matches&&innerWidth<=620&&!G.done&&(G.solo||!G.wait));
   if(Array.isArray(G.qs)&&G.qs.some(id=>!BYID[id])){$("#cgQ").textContent="Chargement des questions…";if(!render.busy){render.busy=1;loadQs(G.qs).then(ok=>{render.busy=0;if(ok)render();else blockedWin("Les questions n'ont pas pu être chargées. Vérifie ta connexion puis recharge la page.")})}return}setTimeout(guestNote,0);const s=mySeat(),q=curQ();
-  $(".gname").innerHTML='Culture <span style="color:#f2a93b">Générale</span> <span class="hpill" id="cgPill">'+(G.solo?"Solo":"Duo")+" • "+G.qs.length+" questions</span>";
+  $(".gname").innerHTML='Culture <span style="color:#f2a93b">Générale</span> <span class="hpill" id="cgPill">'+(G.solo?"Solo":"Duo")+" • "+G.qs.length+" questions</span>"+(G.theme?' <span class="hpill" id="cgTh">'+({nourriture:"🍽️ Nourriture",pates:"🍝 Pâtes",animaux:"🐾 Animaux",pays:"🌍 Pays & drapeaux"}[G.theme]||"")+"</span>":"");
   [["#cgP1",0],["#cgP2",1]].forEach(([id,i])=>{const e=$(id),p=G.players[i];if(!p){e.style.display="none";return}e.style.display="";e.querySelector(".pi").textContent=(p.name||"?")[0].toUpperCase();e.querySelector("b").textContent=p.name+(i===s&&!G.solo?" ·toi":"");e.querySelector(".sv").textContent=p.score});
   if(!q)return endShow();
   const key=G.gid+":"+G.i;if(drawn!==key){drawn=key;draw(q)}
@@ -1013,16 +1014,19 @@ $("#lvPause").onclick=()=>leave(pauseGame);$("#lvQuit").onclick=()=>leave(quitGa
 
 // ---------- tirage des questions ----------
 // on évite les questions déjà vues par le joueur (ou par l'un des joueurs en multijoueur) ; s'il n'en reste pas assez, on complète au hasard
+// thème choisi à l'accueil (photos de nourriture, pâtes, animaux, pays et drapeaux) ; sinon partie mélangée
+const THEME_URL=(Q.get("theme")||"").replace(/[^a-z]/g,"");const themeOk=t=>!!(t&&THEMES[t]&&THEMES[t].length>=10);
 function localSeen(){try{return JSON.parse(LS.get("fl2-played-culture")||"{}")}catch(e){return{}}}
-function pickQs(seen){const sh=L=>{L=L.slice();for(let i=L.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[L[i],L[j]]=[L[j],L[i]]}return L};const out=[];
+function pickQs(seen,th){const sh=L=>{L=L.slice();for(let i=L.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[L[i],L[j]]=[L[j],L[i]]}return L};const out=[];
   const take=(L,n)=>{L=L.filter(id=>!out.includes(id));out.push(...sh(L.filter(id=>!seen.has(id))).concat(sh(L.filter(id=>seen.has(id)))).slice(0,n))};
+  if(themeOk(th)){take(THEMES[th],NQ);return sh(out).slice(0,NQ)}
   Object.keys(QUOTA).forEach(k=>take(IDX[k]||[],QUOTA[k]));if(out.length<NQ)take(ALLIDS,NQ-out.length);return sh(out).slice(0,NQ)}
-function newGame(names,isSolo,qs){return{gid:Math.random().toString(36).slice(2,10),game:GAME,solo:isSolo,level:"all",qs,i:0,qStart:isSolo?Date.now():0,ans:{},adv:{},started:Date.now(),players:names.map(x=>({name:x,score:0})),done:false,wait:!isSolo,msg:""}}
+function newGame(names,isSolo,qs,th){return{gid:Math.random().toString(36).slice(2,10),game:GAME,solo:isSolo,level:"all",theme:themeOk(th)?th:"",qs,i:0,qStart:isSolo?Date.now():0,ans:{},adv:{},started:Date.now(),players:names.map(x=>({name:x,score:0})),done:false,wait:!isSolo,msg:""}}
 function open(g){G=g;drawn="";shownEnd=null;if(G.solo&&!G.done&&G.pauseAt){const d=Date.now()-G.pauseAt;G.started+=d;if(G.qStart)G.qStart+=d;delete G.pauseAt}
   if(!G.solo){claimGuest();const s=mySeat();if(G.away&&s!==null&&G.away[s]>0)resumeGame()}render();announce();history.replaceState(null,"",location.pathname)}
-function again(){const o=G;if(o.solo){NEWSOLO("all",0,null);return}
+function again(){const o=G;if(o.solo){NEWSOLO("all",0,null,o.theme);return}
   const opp=o.players.map(p=>p.name).find(n=>String(n).toUpperCase()!==ME.name)||"Invité";
-  drawReq("all",0,opp).then(r=>{if(!r.ok)return blockedWin(r.msg);const ng=newGame(o.players.map(p=>p.name),false,r.qs);ng.prev=o.gid;open(ng);save()})}
+  drawReq("all",0,opp,o.theme).then(r=>{if(!r.ok)return blockedWin(r.msg);const ng=newGame(o.players.map(p=>p.name),false,r.qs,o.theme);ng.prev=o.gid;open(ng);save()})}
 function start(){const go=Q.get("go");const solo=()=>{try{return JSON.parse(LS.get(SOLOKEY)||"null")}catch(e){return null}};
   if(!ALLIDS.length){blockedWin("Les questions n'ont pas pu être chargées. Recharge la page.");return}
   if(go==="solo"||(go==="resume"&&!CODE)){soloBoot(go);return}
@@ -1031,11 +1035,11 @@ function start(){const go=Q.get("go");const solo=()=>{try{return JSON.parse(LS.g
   connect();const t0=Date.now();const iv=setInterval(()=>{if(G){clearInterval(iv);return}if(window.__snapped||Object.keys(docs).length||Date.now()-t0>2500){clearInterval(iv);const d=docs[DOC];
     const mine=d&&!d.done&&d.players&&(d.players.some(p=>String(p.name).toUpperCase()===ME.name)||d.players.some(p=>p.name==="Invité"));
     if(go==="multi"&&!mine){let opp=Q.get("opp")||"Invité";if(opp.toUpperCase()===ME.name)opp="Invité";
-      drawReq("all",0,opp).then(r=>{if(!r.ok)return blockedWin(r.msg);const g=newGame([ME.name,opp],false,r.qs);open(g);save()});return}
+      drawReq("all",0,opp,THEME_URL).then(r=>{if(!r.ok)return blockedWin(r.msg);const g=newGame([ME.name,opp],false,r.qs,THEME_URL);open(g);save()});return}
     if(d&&d.players&&!d.solo){open(d);return}const g=solo();if(g&&!g.done){open(g);return}location.replace(HOME)}},100)}
 // ---------- tirage par le serveur (multijoueur) et historique du compte ----------
 let drawN=0;const drawCb={};
-function drawReq(level,n,opp){return new Promise(res=>{const req=++drawN;drawCb[req]=res;send({t:"draw",req,game:GAME,level,n:0,opp:opp&&opp!=="Invité"?opp:""});setTimeout(()=>{if(drawCb[req]){delete drawCb[req];res({ok:false,msg:"Impossible de vérifier les questions disponibles. Réessaie."})}},8000)})}
+function drawReq(level,n,opp,th){return new Promise(res=>{const req=++drawN;drawCb[req]=res;send({t:"draw",req,game:GAME,level,n:0,theme:themeOk(th)?th:"",opp:opp&&opp!=="Invité"?opp:""});setTimeout(()=>{if(drawCb[req]){delete drawCb[req];res({ok:false,msg:"Impossible de vérifier les questions disponibles. Réessaie."})}},8000)})}
 function blockedWin(msg){document.body.classList.remove("booting");$("#endT").textContent=msg;$("#endB").innerHTML="";const a=$("#endAgain");if(a)a.style.display="none";endOpen(true)}
 let lastLaunch=0;function askLaunch(){if(Date.now()-lastLaunch<1500)return;lastLaunch=Date.now();send({t:"launch",id:DOC,gid:G.gid})}
 // une question compte comme « vue » dès qu'on y répond ; elle est reliée au compte (file d'attente si hors ligne)
@@ -1046,7 +1050,7 @@ let hFlying=false;function histFlush(){if(hFlying||!ME||!ME.token)return;let q=[
   Promise.all(Object.entries(by).map(([game,items])=>fetch("/api/p/hist",{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({name:ME.name,token:ME.token,game,items:items.slice(0,50)})}).then(r=>{if(!r.ok)throw 0})))
     .then(()=>{let q2=[];try{q2=JSON.parse(LS.get("fl-hq")||"[]")}catch(e){}const sent=new Set(mine.map(x=>JSON.stringify(x)));LS.set("fl-hq",JSON.stringify(q2.filter(x=>!sent.has(JSON.stringify(x)))))}).catch(()=>{}).finally(()=>{hFlying=false})}
 setTimeout(histFlush,1500);
-const NEWSOLO=(lvl,n,pl)=>{const seen=new Set(Object.keys(localSeen()));(pl||[]).forEach(c=>seen.add(String(c).replace(/^culture:/,"")));open(newGame([ME?ME.name:"Toi"],true,pickQs(seen)));save()};
+const NEWSOLO=(lvl,n,pl,th)=>{th=th===undefined?THEME_URL:th;const seen=new Set(Object.keys(localSeen()));(pl||[]).forEach(c=>seen.add(String(c).replace(/^culture:/,"")));open(newGame([ME?ME.name:"Toi"],true,pickQs(seen,th),th));save()};
 // ---------- partie solo gardée sur le compte ; sans compte : 3 parties ----------
 const GUEST_MAX=3;
 function guestCount(){try{return JSON.parse(LS.get("fl-guest-g")||"[]").length}catch(e){return 0}}

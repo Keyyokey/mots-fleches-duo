@@ -123,7 +123,7 @@ async function handleDraw(ws, s, m) {
   const acc = accs.get(ws.room);
   const names = [ws.user]; const opp = normPseudo(m.opp); if (PSEUDO_RE.test(opp) && opp !== ws.user && acc && acc.members[opp]) names.push(opp);
   let hists; try { hists = await histsOf(names); } catch (e) { return reply({ ok: false, msg: MSG_ERR }); }
-  if (game === "culture") return reply({ ok: true, qs: CAT.drawSet(hists) });
+  if (game === "culture") return reply({ ok: true, qs: CAT.drawSet(hists, m.theme) });
   const adm = CAT.admissible(game, lvl, hists);
   const n = Number(m.n) || 0;
   if (n) { const ref = CAT.byNumber(game, lvl, n); return ref && adm.includes(ref) ? reply({ ok: true, ref, manual: true }) : reply({ ok: false, msg: MSG_NONE }); }
@@ -152,7 +152,7 @@ async function handleLaunch(ws, s, m) {
     if (!names.every(n => here.has(n))) return;
     const lvl = CAT.level(game, d.level);
     let hists; try { hists = await histsOf(names); } catch (e) { d.blocked = MSG_ERR; d.blockedAt = Date.now(); return publish(ws.room, s, id, d); }
-    if (game === "culture") { if (!CAT.setOk(d.qs, hists)) CAT.applyTo(game, d, CAT.drawSet(hists)); }
+    if (game === "culture") { if (!CAT.setOk(d.qs, hists, d.theme)) CAT.applyTo(game, d, CAT.drawSet(hists, d.theme)); }
     else { const adm = CAT.admissible(game, lvl, hists); const cur = CAT.refOf(game, d);
     if (!adm.includes(cur)) {
       if (d.manual || !adm.length) { d.blocked = MSG_NONE; d.blockedAt = Date.now(); return publish(ws.room, s, id, d); }
@@ -1164,7 +1164,7 @@ const server = http.createServer((req, res) => {
   const am = url.pathname.match(/^\/api\/p\/(create|login|me|pin|logout|rank|mj|score|wallet|conv|salons|sjoin|screate|skick|scode|sleave|sdelete|hist|solo|skin)$/);
   if (am) return void api(req, res, am[1]).catch(e => { console.error(e); try { res.writeHead(500); res.end("{}"); } catch {} });
   // culture générale : index léger des questions (identifiant → type), puis seulement les questions de la partie
-  if (url.pathname === "/d/cg-index.js") { cgIdx = cgIdx || pack(Buffer.from("window.__CGI=" + JSON.stringify(CAT.cgIndex()) + ";")); return sendBody(req, res, cgIdx, STATIC.js, "public, max-age=600"); }
+  if (url.pathname === "/d/cg-index.js") { cgIdx = cgIdx || pack(Buffer.from("window.__CGI=" + JSON.stringify(CAT.cgIndex()) + ";window.__CGT=" + JSON.stringify(CAT.THEMES) + ";")); return sendBody(req, res, cgIdx, STATIC.js, "public, max-age=600"); }
   if (url.pathname === "/api/err" && req.method === "POST") {
     let body = ""; req.on("data", d => { body += d; if (body.length > 4000) req.destroy(); });
     req.on("end", () => { try { statErr(JSON.parse(body || "{}"), clientIp(req)); } catch {} res.writeHead(204); res.end(); });
