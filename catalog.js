@@ -33,10 +33,10 @@ module.exports = function (root) {
   const KIND = q => q.k || (q.img ? "img" : "txt"), QUOTA = { img: 3, txt: 2, calc: 2, puz: 2, sond: 1 };
   const KINDOF = {}; CG.forEach(q => KINDOF[q.id] = KIND(q));
   // thèmes en photos (21/11) : une partie entière dans un thème (10 questions avec image)
-  const THEMES = { nourriture: [], pates: [], animaux: [], pays: [] };
+  const THEMES = { nourriture: [], pates: [], fromages: [], fruits: [], patisseries: [], animaux: [], chats: [], pays: [] };
   CG.forEach(q => { if (!q.img) return;
     if (q.t === "Cuisine") THEMES.nourriture.push(q.id);
-    if (q.th === "pates") THEMES.pates.push(q.id);
+    if (q.th && THEMES[q.th] && q.th !== "nourriture" && q.th !== "animaux" && q.th !== "pays") THEMES[q.th].push(q.id);
     if (q.t === "Animaux" || (q.t === "Nature" && /animal|oiseau|insecte|mammif/i.test(q.q + " " + q.x))) THEMES.animaux.push(q.id);
     if (q.t === "Drapeaux" || q.t === "Géographie") THEMES.pays.push(q.id); });
   const theme = t => THEMES[t] ? t : "";
