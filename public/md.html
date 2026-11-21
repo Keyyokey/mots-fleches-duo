@@ -26,7 +26,7 @@
 .mdc.c2{background:linear-gradient(135deg,#14b8a6,#0e9f8f);border-color:transparent;color:#fff}
 .mdc.c1{background:rgba(255,200,87,.16);border:2px solid var(--gold);color:var(--ink)}
 .mdc.c0{background:rgba(127,140,160,.18);color:var(--muted)}
-.mdc.pop{animation:mdpop .35s ease}
+.mdc.mdflip{animation:mdpop .35s ease}
 @keyframes mdpop{50%{transform:scale(1.12)}}
 .mdrow.shake{animation:mdshake .4s}
 @keyframes mdshake{20%,60%{transform:translateX(-6px)}40%,80%{transform:translateX(6px)}}
@@ -148,7 +148,7 @@ $("#mdOk").onclick=()=>send();
 function send(){if(!S||S.done||busy)return;const g=cur();if(g.length<S.len){say("Il manque des lettres : le mot en fait "+S.len+".");shake();inp.focus();return}
   busy=true;call({op:"essai",g}).then(r=>{busy=false;if(r.refus){say(r.refus);shake();return}if(r.error){say("Essai impossible pour le moment.");return}
     const b=S.board;S=Object.assign({},r,{board:r.board||b,ranked:S.ranked});inp.value="";draw();
-    const last=$("#mdGrid").querySelectorAll(".mdrow")[S.tries.length-1];if(last)last.querySelectorAll(".mdc").forEach((c,i)=>{c.style.animationDelay=i*60+"ms";c.classList.add("pop")});
+    const last=$("#mdGrid").querySelectorAll(".mdrow")[S.tries.length-1];if(last)last.querySelectorAll(".mdc").forEach((c,i)=>{c.style.animationDelay=i*60+"ms";c.classList.add("mdflip")});
     if(S.done){say(S.ok?"Bravo !":"");}else{say("");inp.focus()}}).catch(()=>{busy=false;say("Pas de connexion : réessaie.")})}
 function shake(){const rows=$("#mdGrid").querySelectorAll(".mdrow"),r=rows[S.tries.length];if(r){r.classList.remove("shake");void r.offsetWidth;r.classList.add("shake")}}
 function share(){const sq=S.tries.map(t=>t.c.map(c=>c===2?"🟩":c===1?"🟧":"⬛").join("")).join("\n");
