@@ -42,7 +42,7 @@ function word0(k){const e=window.MG_MOTS[G.level][G.words[k]].split("|");const s
     if(!c||s.includes(c)||tr.includes(c)||Math.abs(c.length-base.length)>1)continue;if(t<120&&c[0]!==base[0]&&c.slice(-1)!==base.slice(-1))continue;tr.push(c)}
   return{s,def:e[1],rar:+e[2]||1,traps:tr,word:s.join("")}}
 function pickWords(lvl,seed){const L=window.MG_MOTS[lvl]||[];let pl={};try{pl=JSON.parse(LS.get("fl2-played-mg")||"{}")}catch(e){}const r=rng(seed),out=[];
-  for(let t=0;t<4000&&out.length<NWORDS;t++){const i=Math.floor(r()*L.length);if(out.includes(i)||(t<3000&&pl[lvl+i]))continue;out.push(i)}return out}
+  for(let t=0;t<4000&&out.length<NWORDS;t++){const i=Math.floor(r()*L.length);if(out.includes(i)||/\|a$/.test(L[i])||(t<3000&&pl[lvl+i]))continue;out.push(i)}return out}
 function markPlayed(){try{const pl=JSON.parse(LS.get("fl2-played-mg")||"{}");G.words.forEach(i=>pl[G.level+i]=1);const k=Object.keys(pl);if(k.length>3000)k.slice(0,k.length-3000).forEach(x=>delete pl[x]);LS.set("fl2-played-mg",JSON.stringify(pl))}catch(e){}}
 
 /* ---------- joueurs, salon ---------- */

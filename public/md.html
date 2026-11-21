@@ -95,6 +95,9 @@ body.tj .mdrow{gap:6px}
 .mdstats div{padding:8px 10px;border-radius:12px;background:var(--cell);border:1px solid var(--stroke)}
 .mdstats b{display:block;font:800 1.15rem Nunito,Inter,sans-serif}.mdstats small{color:var(--muted);font-size:.74rem;line-height:1.2;display:block}
 .mdend .gain{font:800 1.05rem Nunito,Inter,sans-serif;color:#ffc857}
+.mdside small,.mdside .mdhow,.mdstats small,.mdprize small,.mdlist small,.mdlist .rk,.mdguest,#mdLive{color:rgba(238,242,247,.86)!important}
+[data-theme=light] .mdside small,[data-theme=light] .mdside .mdhow,[data-theme=light] .mdstats small,[data-theme=light] .mdprize small,[data-theme=light] .mdlist small,[data-theme=light] .mdlist .rk,[data-theme=light] .mdguest,[data-theme=light] #mdLive{color:#1f2937!important}
+.mdstats small{font-size:.82rem}.mdlist small{font-size:.84rem}.mdhow{font-size:.84rem!important}
 .mdlay{display:flex;flex-direction:column;gap:12px;max-width:560px;margin:0 auto}
 .mdside .card{padding:14px 16px}
 .mdside h3{margin:0 0 10px;font:800 1rem Nunito,Inter,sans-serif;display:flex;align-items:center;gap:8px}
@@ -129,10 +132,10 @@ body.tj .mdrow{gap:6px}
     <div class="glass card">
       <h3>🏆 Classement <small id="mdLive"></small><button class="mdrkx" id="mdRkX" type="button" aria-label="Fermer">✕</button></h3>
       <div class="mdtabs" role="tablist"><button class="on" data-t="today" role="tab">Aujourd'hui</button><button data-t="total" role="tab">Depuis le début</button></div>
-      <div class="mdprize" id="mdPrize"><span class="coin">🪙</span><div><b>À minuit, le 1er du jour gagne 5 jetons</b><small id="mdPrizeY"></small></div></div>
+      <div class="mdprize" id="mdPrize"><span class="coin">🪙</span><div><b>1er à minuit = 5 jetons</b><small id="mdPrizeY"></small></div></div>
       <ul class="mdlist" id="mdList"></ul>
       <div class="mdme" id="mdMe" hidden></div>
-      <p class="mdhow" id="mdHow"><b>Points :</b> +2 par lettre trouvée à sa place, +1 par lettre trouvée mais mal placée, +12 pour le mot. La 1re lettre est offerte. À égalité : moins d'essais, puis le plus rapide. Tes points comptent aussi au classement général de Motipop.</p>
+      <p class="mdhow" id="mdHow"><b>Points :</b> lettre bien placée +2 · mal placée +1 · mot trouvé +12. Ils comptent aussi au classement général.</p>
       <div class="mdguest" id="mdGuest" hidden>Tu joues en invité : <a href="/?need=pseudo">crée ton pseudo</a> pour entrer au classement.</div>
     </div>
   </aside>
@@ -152,13 +155,16 @@ function dayTxt(d){const m=["janv.","févr.","mars","avr.","mai","juin","juil.",
 const PHONE=()=>matchMedia("(max-width:620px) and (pointer:coarse)").matches;
 function fit(){const g=$("#mdGrid"),K=$("#mdKeys");if(!S||!PHONE()||S.done){document.body.classList.remove("tj");g.style.removeProperty("--mdc");g.style.removeProperty("--mdf");K.style.marginTop="";return}
   document.body.classList.add("tj");K.style.marginTop="0px";
-  const vv=window.visualViewport,vh=vv?vv.height:innerHeight,kbOpen=vv&&vv.height<innerHeight-120;
+  const vv=window.visualViewport,kbOpen=!!(vv&&vv.height<innerHeight-120);
+  // taille FIXE pendant la partie : on calcule toujours comme si le clavier était ouvert (≈ 42 % de l'écran sur iPhone et Android),
+  // et on ne fait jamais grandir la grille après coup → plus de saut quand le clavier s'ouvre ou se ferme
+  const vh=kbOpen?vv.height:Math.round(innerHeight*0.58);
   const byW=Math.floor((Math.min(innerWidth,560)-12-16-(S.len-1)*6)/S.len);
   const set=c=>{c=Math.max(30,Math.min(64,byW,c));g.style.setProperty("--mdc",c+"px");g.style.setProperty("--mdf",Math.round(c*.6)+"px");return c};
   // 1) taille de départ, 2) on agrandit les cases avec la place qui reste, 3) on descend le bloc vers le clavier
   let c=set(40);const bottom=()=>$("#mdBar").getBoundingClientRect().bottom+(vv?-vv.offsetTop:0);
-  c=set(c+Math.floor((vh-10-bottom())/6));
-  const left=Math.max(0,Math.floor(vh-10-bottom()));K.style.marginTop=(kbOpen?left:Math.floor(left/2))+"px"}
+  c=Math.min(fit.lock||99,c+Math.floor((vh-10-bottom())/6));fit.lock=Math.min(fit.lock||99,c);c=set(c);
+  const left=Math.max(0,Math.floor(vh-10-bottom()));K.style.marginTop=(kbOpen?left:0)+"px"}
 addEventListener("resize",()=>setTimeout(fit,60));if(window.visualViewport)visualViewport.addEventListener("resize",()=>{fit();if(document.activeElement===inp&&PHONE())scrollTo(0,0)});
 // ---------- sons (fabriqués dans la page, suivent le réglage Son du site) ----------
 const SFX=(function(){let A=null,M=null,last=0;
@@ -215,13 +221,13 @@ function list(){const b=S&&S.board;const L=$("#mdList");if(!b){L.innerHTML="";re
   const medal=i=>i===0?"🥇":i===1?"🥈":i===2?"🥉":String(i+1);
   let rows;
   if(TAB==="today")rows=b.today.map((x,i)=>({name:x.name,top:i<3,rk:medal(i),gift:i===0&&x.pts>0,pts:x.pts,
-    det:x.ok?sq(len-1,0)+"<small>trouvé en "+x.n+" essai"+(x.n>1?"s":"")+(x.ms?" · "+fmt(x.ms):"")+"</small>":sq(x.g,x.y)+"<small>"+x.g+" à sa place · "+x.y+" mal placée"+(x.y>1?"s":"")+" · "+(x.done?"raté":"en cours")+"</small>"}));
-  else rows=b.total.map((x,i)=>({name:x.name,top:i<3,rk:medal(i),pts:x.pts,det:"<small>"+x.found+" mot"+(x.found>1?"s":"")+" trouvé"+(x.found>1?"s":"")+(x.days?" sur "+x.days+" jour"+(x.days>1?"s":""):"")+(x.avgN?" · "+String(x.avgN).replace(".",",")+" essais en moy.":"")+(x.avgMs?" · "+fmt(x.avgMs):"")+"</small>"}));
+    det:x.ok?sq(len-1,0)+"<small>"+x.n+" essai"+(x.n>1?"s":"")+(x.ms?" · "+fmt(x.ms):"")+"</small>":sq(x.g,x.y)+"<small>"+(x.done?"raté":"en cours")+"</small>"}));
+  else rows=b.total.map((x,i)=>({name:x.name,top:i<3,rk:medal(i),pts:x.pts,det:"<small>"+x.found+"/"+(x.days||0)+" trouvé"+(x.found>1?"s":"")+(x.avgN?" · "+String(x.avgN).replace(".",",")+" essais":"")+(x.avgMs?" · "+fmt(x.avgMs):"")+"</small>"}));
   L.innerHTML=rows.length?rows.map(r=>'<li class="'+(r.name===me?"me ":"")+(r.top?"top":"")+'"><span class="rk">'+r.rk+'</span><div class="row2"><span class="nm"><b>'+esc(r.name)+"</b>"+(r.gift?'<span class="gift">🪙 +5 à minuit</span>':"")+'</span><span class="det">'+r.det+'</span></div><span class="pts">'+r.pts+"<small>pts</small></span></li>").join(""):'<li class="mdempty">'+(TAB==="today"?(b.played?"Aucun joueur avec pseudo n'a encore joué aujourd'hui : les invités ne sont pas classés.":"Personne n'a encore joué aujourd'hui. Sois le premier !"):"Le classement se remplit avec les points des joueurs avec pseudo.")+"</li>";
   $("#mdHow").hidden=TAB!=="today";$("#mdLive").textContent=b.played?b.played+" joueur"+(b.played>1?"s":"")+" aujourd'hui":"";
-  $("#mdPrizeY").textContent=b.prize?"Hier : "+b.prize.name+" ("+b.prize.pts+" pts) a gagné 5 jetons":"Plus de points = plus de chances.";
+  $("#mdPrizeY").textContent=b.prize?"Hier : "+b.prize.name+" · "+b.prize.pts+" pts":"Fais le plus de points !";
   const M=S.mine,E=$("#mdMe");E.hidden=!M;
-  if(M)E.innerHTML="<h4>Mes stats</h4><div class=\"mdstats\"><div><b>"+M.pts+"</b><small>points au total</small></div><div><b>"+M.found+" / "+M.days+"</b><small>mots trouvés / jours joués</small></div><div><b>"+(M.avgMs!=null?fmt(M.avgMs):"—")+"</b><small>temps moyen pour trouver le mot</small></div><div><b>"+(M.avgG!=null?fmt(M.avgG):"—")+"</b><small>temps moyen pour la 1re lettre à sa place</small></div><div><b>"+(M.avgN!=null?String(M.avgN).replace(".",","):"—")+"</b><small>essais en moyenne (mots trouvés)</small></div><div><b>"+(M.wins||0)+"</b><small>fois 1er du jour (🪙 +5)</small></div></div>";
+  if(M)E.innerHTML="<h4>Mes stats</h4><div class=\"mdstats\"><div><b>"+M.pts+"</b><small>points</small></div><div><b>"+M.found+" / "+M.days+"</b><small>mots trouvés / jours</small></div><div><b>"+(M.avgMs!=null?fmt(M.avgMs):"—")+"</b><small>temps moyen</small></div><div><b>"+(M.avgG!=null?fmt(M.avgG):"—")+"</b><small>1re lettre verte</small></div><div><b>"+(M.avgN!=null?String(M.avgN).replace(".",","):"—")+"</b><small>essais moyens</small></div><div><b>"+(M.wins||0)+"</b><small>fois 1er du jour</small></div></div>";
   $("#mdGuest").hidden=!!(S.ranked)}
 document.querySelectorAll(".mdtabs button").forEach(x=>x.onclick=()=>{TAB=x.dataset.t;document.querySelectorAll(".mdtabs button").forEach(y=>y.classList.toggle("on",y===x));list()});
 function say(t){$("#mdMsg").textContent=t||""}
