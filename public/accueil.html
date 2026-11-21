@@ -1007,19 +1007,6 @@ body.statsOn .dashbar{display:flex;align-items:center;justify-content:space-betw
       </div>
     </div>
   </div>
-  <section class="glass amis" id="amis" aria-labelledby="amisT">
-    <img class="popm" src="/d/pop-bonjour-c9931f8ee8.webp" width="220" height="220" alt="Pop, la mascotte de Motipop, fait coucou" loading="lazy" decoding="async">
-    <div class="amtx">
-      <span class="tag">Entre amis · jusqu'à 4</span>
-      <h2 id="amisT">Joue avec tes amis</h2>
-      <p class="amsub">Gratuit, sans e-mail ni mot de passe. Prêt en 1 minute.</p>
-      <ol class="amsteps">
-        <li><span class="n">1</span><div><b>Choisis un pseudo</b><small>Juste un nom et un code à 4 chiffres pour le retrouver.</small></div><button class="ambtn" id="amMe" type="button">Créer mon pseudo</button></li>
-        <li><span class="n">2</span><div><b>Ouvre ton salon</b><small>Ton coin privé : tes amis, vos classements, vos parties.</small></div><button class="ambtn" id="amSal" type="button">Ouvrir mon salon</button></li>
-        <li class="amlast"><span class="n">3</span><div><b>Envoie le lien</b><small>Ils le touchent et arrivent dans ton salon. Puis choisis un jeu → « Multijoueurs ».</small></div><button class="ambtn" id="amInv" type="button">Inviter des amis</button></li>
-      </ol>
-    </div>
-  </section>
 <footer class="sitefoot" style="margin:22px 4px 34px;display:flex;flex-wrap:wrap;justify-content:center;gap:6px 16px;font-size:.85rem"><a href="/regles" style="color:inherit;opacity:.8">Règles et jetons</a><a href="/mentions-legales" style="color:inherit;opacity:.8">Mentions légales</a><a href="/confidentialite" style="color:inherit;opacity:.8">Confidentialité</a><a href="/conditions" style="color:inherit;opacity:.8">Conditions d'utilisation</a></footer>
 </main>
 
@@ -1587,15 +1574,6 @@ $("#dim").addEventListener("click",()=>{closePops();$("#mMenu").classList.remove
     else if(a==="theme"){$("#themeBtn").click()}
     else if(a==="deco"){$("#decoBtn").click()}else if(a==="sound"){$("#soundBtn").click()}});
   document.addEventListener("click",e=>{if(!e.target.closest("#mMenu")&&!e.target.closest("#mBtn"))close()})})();
-
-// ---------- bloc « Joue avec tes amis » ----------
-(function(){const me=$("#amMe"),sa=$("#amSal"),iv=$("#amInv");
-  function upd(){const M=ME&&!ME.stale;me.textContent=M?"✓ "+ME.name:"Créer mon pseudo";me.classList.toggle("done",!!M);
-    sa.textContent=ROOM?"Mon salon":"Ouvrir mon salon";sa.classList.toggle("done",!!ROOM)}
-  me.onclick=e=>{e.stopPropagation();if(ME&&!ME.stale)return openMe(pillMe());openMe(pillMe());setTimeout(()=>{const n=$("#meNew");if(n)n.click()},30)};
-  sa.onclick=e=>{e.stopPropagation();if(!ME||ME.stale){openMe(pillMe());setTimeout(()=>{const n=$("#meNew");if(n)n.click()},30);return}openSalon(pillSalon())};
-  iv.onclick=e=>{e.stopPropagation();share()};
-  upd();setInterval(upd,1500)})();
 
 // ---------- téléphone : boutons Stats et Salon de l'en-tête ----------
 (function(){const st=$("#mStats"),sa=$("#mSal");
