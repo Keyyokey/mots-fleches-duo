@@ -8,7 +8,7 @@
   },
   "license": "UNLICENSED",
   "dependencies": {
-    "ws": "^8.18.0"
+    "ws": "^8.23.0"
   },
   "engines": {
     "node": ">=18"

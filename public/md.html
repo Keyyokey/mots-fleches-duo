@@ -246,7 +246,7 @@ $("#mdGrid").addEventListener("click",()=>{if(S&&!S.done){inp.focus({preventScro
 inp.addEventListener("focus",draw);inp.addEventListener("blur",()=>setTimeout(draw,50));
 $("#mdOk").onclick=()=>send();
 function send(){if(!S||S.done||busy)return;const g=cur();if(g.length<S.len){say("Il manque des lettres : le mot en fait "+S.len+".");shake();SFX.oops();inp.focus();return}
-  busy=true;call({op:"essai",g}).then(r=>{busy=false;if(r.refus){say(r.refus);shake();SFX.oops();return}if(r.error){say("Essai impossible pour le moment.");return}
+  busy=true;call({op:"essai",g}).then(r=>{busy=false;if(r.refus){say(r.refus);shake();SFX.oops();return}if(r.error){say(r.msg||"Essai impossible pour le moment.");return}
     const b=S.board;S=Object.assign({},r,{board:r.board||b,ranked:S.ranked,mine:r.mine||S.mine});inp.value="";prevLen=0;draw();
     const last=$("#mdGrid").querySelectorAll(".mdrow")[S.tries.length-1];if(last)last.querySelectorAll(".mdc").forEach((c,i)=>{c.style.animationDelay=i*110+"ms";c.classList.add("mdflip")});
     {const t=S.tries[S.tries.length-1];if(t)t.c.forEach((c,i)=>SFX.tile(i,c));const end=S.len*.11+.25;if(S.done)(S.ok?SFX.win:SFX.lose)(end)}

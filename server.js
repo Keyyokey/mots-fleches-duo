@@ -802,13 +802,17 @@ function mjClose(p, st, sc) {
   if (st.ok) { a.found++; a.nF += st.t.length; a.msF += st.ms || 0; }
   if (sc.firstG != null) { a.gN++; a.gMs += sc.firstG; }
 }
-async function mjApi(b, out) {
+// audit 21/11 : un même appareil ne peut pas créer des dizaines d'invités pour essayer tous les mots (ni remplir la mémoire)
+const mjGuestIp = new Map();   // "jour|ip" -> nombre d'invités différents
+function mjGuestOk(day, ip, id) { const k = day + "|" + ip; let e = mjGuestIp.get(k); if (!e) { if (mjGuestIp.size > 50000) mjGuestIp.clear(); e = new Set(); mjGuestIp.set(k, e); } if (e.has(id)) return true; if (e.size >= 12) return false; e.add(id); return true; }
+async function mjApi(b, out, ip) {
   const day = parisDay(), w = MJ.wordOf(day);
   // qui joue : un pseudo connecté (classé) ou un invité (identifiant tiré au hasard par son navigateur)
   let id = null, name = normPseudo(b.name), pl = null;
   if (PSEUDO_RE.test(name) && b.token) { try { const p = await getPlayer(name); if (tokOk(p, b.token)) { id = name; pl = p; } } catch {} }
   if (!id) { const g = String(b.guest || ""); if (/^[a-z0-9]{12,24}$/.test(g)) id = "g:" + g; }
   const m = await MJ.load(day); const st = id ? m.get(id) : null;
+  if (id && id.startsWith("g:") && !st && (b.op === "start" || b.op === "essai") && ip && !mjGuestOk(day, ip, id)) return out(429, { error: "trop", msg: "Trop de parties invitées depuis cet appareil aujourd'hui : crée ton pseudo pour jouer." });
   // le chrono démarre à la 1re lettre tapée (pas à l'ouverture de la page)
   if (b.op === "start") { if (!id) return out(400, { error: "joueur" }); if (!st) { const s = { t: [], ts: [], at: Date.now() }; m.set(id, s); MJ.persist(day, id, s); } return out(200, { ok: 1 }); }
   if (b.op === "essai") {
@@ -880,7 +884,7 @@ async function api(req, res, route) {
   const ip = clientIp(req);
   const name = normPseudo(b.name);
   if (route === "rank") return out(200, await topRank(PSEUDO_RE.test(name) ? name : null));
-  if (route === "mj") return mjApi(b, out);
+  if (route === "mj") return mjApi(b, out, clientIp(req));
   const bad = (field, detail) => out(400, { error: "saisie", field, msg: "Vérifie les informations saisies.", detail });
   if (!PSEUDO_RE.test(name)) return bad("name", "Pseudo : 2 à 7 caractères, lettres A-Z, chiffres et @ # _ (sans espace).");
   // lecture stricte : si le stockage ne répond pas, on le dit (on ne répond pas « identifiants incorrects »)
@@ -1157,6 +1161,15 @@ async function adminRoute(req, res, url) {
   }
 const server = http.createServer((req, res) => {
   const url = new URL(req.url, "http://x");
+  // en-têtes de sécurité sur toutes les réponses (audit du 21/11) : pas d'affichage du site dans un cadre d'un autre site,
+  // pas de devinette du type de fichier, adresse d'origine discrète, pas d'accès caméra/micro/position, HTTPS imposé en ligne
+  res.setHeader("X-Content-Type-Options", "nosniff");
+  res.setHeader("X-Frame-Options", "SAMEORIGIN");
+  res.setHeader("Referrer-Policy", "strict-origin-when-cross-origin");
+  res.setHeader("Permissions-Policy", "camera=(), microphone=(), geolocation=(), payment=(), usb=()");
+  res.setHeader("Content-Security-Policy", "frame-ancestors 'self'; base-uri 'self'; object-src 'none'; form-action 'self'");
+  res.setHeader("Cross-Origin-Opener-Policy", "same-origin");
+  if (String(req.headers["x-forwarded-proto"] || "").split(",")[0] === "https") res.setHeader("Strict-Transport-Security", "max-age=31536000");
   // nouveau domaine : une fois SITE_URL réglé sur le domaine (ex. https://tuilo.fr), les visites de l'ancienne adresse
   // onrender sont redirigées (301) vers la même page du domaine. Les appels API (POST) et le WebSocket ne sont pas touchés.
   if (OLDHOST_REDIRECT && (req.method === "GET" || req.method === "HEAD") && /\.onrender\.com$/i.test(String(req.headers.host || "").split(":")[0]) && !url.pathname.startsWith("/api/") && url.pathname !== "/healthz") {   // /healthz jamais redirigé : le contrôle de santé de Render doit répondre ici
@@ -1301,4 +1314,6 @@ async function resetOnce() {
 // une erreur imprévue dans un salon ne doit pas arrêter tout le site (les autres parties continuent) : on la note dans le journal
 process.on("uncaughtException", e => console.error("Erreur imprévue (le serveur continue) :", e && e.stack || e));
 process.on("unhandledRejection", e => console.error("Promesse rejetée (le serveur continue) :", e && e.stack || e));
+// port déjà pris ou autre erreur d'écoute : on s'arrête net (sinon le processus resterait vivant sans servir, à cause du filet uncaughtException)
+server.on("error", e => { console.error("Écoute impossible :", e.message); process.exit(1); });
 Promise.all([backupReady, resetOnce()]).then(() => server.listen(PORT, () => console.log("Motipop en ligne sur http://localhost:" + PORT + (REDIS ? " (stockage Redis actif)" : ""))));

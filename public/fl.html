@@ -416,7 +416,7 @@ function specNote(){let b=$("#specBar");const on=G&&!G.solo&&!G.done&&mySeat()==
   b.style.display="";b.innerHTML="<b>"+(G.wait?"Partie complète · "+MAXP+" / "+MAXP:"Partie déjà lancée")+" · tu regardes</b><span>Reste sur la page : tu seras ajouté à la prochaine partie s'il reste une place.</span>"}
 function showEnd(){const r=[...G.players].map((p,i)=>({p,i})).sort((a,b)=>b.p.score-a.p.score);
   $("#endT").textContent=G.forfeit?"Partie arrêtée":"🎉 Grille terminée !";
-  $("#endB").innerHTML=(G.msg?esc(G.msg)+"<br><br>":"")+r.map(({p,i},k)=>'<div class="endrow"><b class="rk">'+(k+1)+'</b><span class="pi" style="background:'+PC[i]+'">'+esc(p.name[0])+'</span><b>'+esc(p.name)+'</b><span class="sv">'+p.score+'</span></div>').join("")+(G.solo?'<div class="note" style="margin-top:8px">Temps : '+fmt(((G.ended||Date.now())-G.started)/1000)+'</div>':"");
+  $("#endB").innerHTML=(G.msg?esc(G.msg)+"<br><br>":"")+r.map(({p,i},k)=>'<div class="endrow"><b class="rk">'+(k+1)+'</b><span class="pi" style="background:'+PC[i]+'">'+esc(p.name[0])+'</span><b>'+esc(p.name)+'</b><span class="sv">'+(Number(p.score)||0)+'</span></div>').join("")+(G.solo?'<div class="note" style="margin-top:8px">Temps : '+fmt(((G.ended||Date.now())-G.started)/1000)+'</div>':"");
   endOpen()}
 // chrono
 let warned=null;

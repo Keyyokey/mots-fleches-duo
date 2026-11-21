@@ -236,24 +236,7 @@ button{font:inherit;color:inherit;cursor:pointer}
 .sc.turn{box-shadow:0 0 0 2px var(--p1),0 0 18px rgba(52,211,153,.35)}
 .flboard{padding:12px}
 .fgrid{display:grid;grid-template-columns:repeat(10,minmax(0,1fr));gap:2px;background:var(--stroke);border-radius:12px;overflow:hidden;border:2px solid var(--stroke)}
-.fc{aspect-ratio:1;position:relative;min-width:0;background:rgba(10,20,40,.55);display:grid;place-items:center;font-weight:800;font-size:clamp(.9rem,2.6vw,1.45rem);color:#f2f5fb}
-:root[data-theme="light"] .fc{background:rgba(255,255,255,.92);color:#0f131a}
-.fc.q{background:linear-gradient(160deg,#0f4c5c,#0b3a47);color:#e8fbff;font-size:clamp(.32rem,.95vw,.56rem);font-weight:700;line-height:1.05;text-align:center;padding:0;display:flex;flex-direction:column;overflow:visible}
-:root[data-theme="light"] .fc.q{background:#0b5a6b;color:#fff}
-.fc.q .h{flex:1;display:grid;place-items:center;padding:1px 2px;white-space:pre-line;width:100%}
-.fc.q .h+.h{border-top:1px solid rgba(255,255,255,.35)}
-.fc .ar{position:absolute;z-index:2;color:#ffc857;font-size:clamp(.55rem,1.3vw,.85rem);line-height:1;font-weight:900;text-shadow:0 0 3px rgba(0,0,0,.6)}
-.fc .n{position:absolute;right:2px;bottom:1px;font-size:clamp(.4rem,.9vw,.58rem);font-weight:800;width:1.3em;height:1.3em;border-radius:50%;display:grid;place-items:center;background:#ffc857;color:#1b1300}
-.fc.paper{color:#9aa3b5}
-:root[data-theme="light"] .fc.paper{color:#8a93a3}
-.fc.j1{background:color-mix(in srgb,var(--p1) 30%,rgba(10,20,40,.55));color:#fff}
-.fc.j2{background:color-mix(in srgb,var(--p2) 30%,rgba(10,20,40,.55));color:#fff}
-:root[data-theme="light"] .fc.j1{background:color-mix(in srgb,var(--p1) 22%,#fff);color:#064e3b}
-:root[data-theme="light"] .fc.j2{background:color-mix(in srgb,var(--p2) 22%,#fff);color:#881337}
-.fc.last::after{content:"";position:absolute;inset:2px;border-radius:5px;border:2px solid var(--p2);animation:lastp 1.4s ease-in-out infinite}
 @keyframes lastp{50%{opacity:.25;transform:scale(.9)}}
-.fc.cur{box-shadow:inset 0 0 0 2px var(--p1);background:color-mix(in srgb,var(--p1) 12%,rgba(10,20,40,.55))}
-.fc.cur.caret::before{content:"";position:absolute;width:2px;height:50%;background:var(--p1);animation:blink 1s steps(1) infinite}
 @keyframes blink{50%{opacity:0}}
 .flbar{justify-content:space-between}
 .slots.myst span{width:32px;height:38px;font-size:1rem}
@@ -282,8 +265,6 @@ button{font:inherit;color:inherit;cursor:pointer}
 .fobox{display:flex;flex-direction:column;align-items:center;gap:8px;text-align:center;max-width:80%;padding:18px 22px;border-radius:18px;background:var(--glass);border:1px solid var(--stroke);box-shadow:0 10px 30px rgba(0,0,0,.25);font-size:.95rem}
 .fobox b{font-size:1.15rem}
 .count{z-index:6}
-/* mode clair : cases vides teintées au lieu de blanc pur */
-:root[data-theme="light"] .fc{background:#d5deea;color:#0f131a}
 :root[data-theme="light"] .slots.myst span.got{color:#b7791f;border-color:#d69e2e}
 :root[data-theme="light"] .fgrid{background:#b9c4d2;border-color:#b9c4d2}
 @media (max-width:900px){.fl2{grid-template-columns:1fr;max-width:640px;margin:0 auto}.flside{display:contents}.flside .demo{order:3}}

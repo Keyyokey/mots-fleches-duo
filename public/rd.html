@@ -16,23 +16,6 @@
 .fl2{grid-template-columns:auto 320px!important}
 .flboard{display:flex;justify-content:center;align-items:flex-start;min-width:0}
 .fgrid{--s:44px;width:max-content}
-.fc{font-size:calc(var(--s)*.56)!important;cursor:pointer;user-select:none;-webkit-user-select:none}
-.fc.q{font-size:calc(var(--s)*.15)!important;cursor:pointer}
-.fc.q .h{white-space:pre-line;overflow:hidden}
-.fc.q .h.hl{background:linear-gradient(135deg,#00ADB5,#A26BFF);color:#fff}
-.fc .ar{font-size:calc(var(--s)*.26)!important}
-.fc .n{font-size:calc(var(--s)*.2)!important}
-.fc.pic{background:rgba(255,255,255,.04);cursor:default}
-.fc .L{line-height:1}
-.fc.jp{background:color-mix(in srgb,var(--fc) 30%,rgba(10,20,40,.55));color:#fff}
-:root[data-theme="light"] .fc.jp{background:color-mix(in srgb,var(--fc) 24%,#fff);color:#0f131a}
-.fc.paper,.fc.rv{color:#9aa3b5}
-.fc.pend .L{color:#ffffff}
-:root[data-theme="light"] .fc.pend .L{color:#0f131a}
-.fc.live .L{color:var(--fc);opacity:.7}
-.fc.wrong{background:#e5484d!important;color:#fff;animation:clkp .4s}
-.fc.last::after{border-color:var(--lc,var(--p2))!important}
-.fc.db{box-shadow:inset 0 -3px 0 #ffc857}.fc.dr{box-shadow:inset -3px 0 0 #ffc857}
 .flclue{flex-direction:column;align-items:stretch!important}
 .flclue .clueTxt b{font-size:1.05rem}
 .fbtns{display:flex;gap:6px}.fbtns .btn{flex:none;min-width:42px;padding:8px 10px}.fbtns #fOk{flex:1}
@@ -49,22 +32,7 @@
 @media (max-width:900px){.fl2{grid-template-columns:1fr!important}.flside .flclue{order:2}}
 @media (max-width:620px){.fl2 .flclue{order:2}.fbtns .btn{min-width:38px;padding:6px 8px}}
 .flclue .clueTxt{flex:none!important}
-/* lettres trouvées : bien colorées à la couleur du joueur (vert pour le joueur 1) */
-.fc.jp{background:color-mix(in srgb,var(--fc) 48%,rgba(10,20,40,.55))!important;color:#fff!important;box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--fc) 70%,transparent)}
-.fc.jp .L{color:#fff!important;text-shadow:0 0 10px var(--fc)}
-:root[data-theme="light"] .fc.jp{background:color-mix(in srgb,var(--fc) 40%,#fff)!important}
-:root[data-theme="light"] .fc.jp .L{color:#06281c!important;text-shadow:none}
-.fc.jp.cur{background:color-mix(in srgb,var(--fc) 48%,rgba(10,20,40,.55))!important}
-.fc.okflash{animation:okpop .6s ease both;animation-delay:var(--d,0s)}
 @keyframes okpop{0%{transform:scale(1)}40%{transform:scale(1.12);box-shadow:0 0 18px var(--fc)}100%{transform:scale(1)}}
-
-/* cases : hauteur fixe (--s) ; une grille de plus de 10 colonnes s'élargit au lieu de s'allonger */
-#grid .fc{aspect-ratio:auto;height:var(--s)}
-/* deux définitions dans une case : fine ligne de séparation */
-.fc.q .h~.h{border-top:1px solid rgba(255,255,255,.32)}
-
-/* définition de la case choisie (classe propre : « hl » est déjà prise par le surligneur de l'accueil) */
-.fc.q .h.qsel{background:linear-gradient(135deg,#00ADB5,#A26BFF);color:#fff}
 /* commun aux pages de jeu */
 .rb2.live{border-style:dashed;opacity:.8}
 .rdclue .fbtns{flex:none}
@@ -265,7 +233,7 @@ function render(){document.body.classList.remove("booting");if(!G||!P)return;doc
   $("#rMsg").textContent=G.msg||"";$("#rPass").style.display=G.solo?"none":"";
   draw();slots();if(G.done&&shownEnd!==G.gid){shownEnd=G.gid;showEnd()}tick()}
 function showEnd(){const r=G.players.map((p,i)=>({p,i})).sort((a,b)=>b.p.score-a.p.score);$("#endT").textContent=G.forfeit?"Partie arrêtée":"🎉 Grille terminée !";
-  $("#endB").innerHTML=(G.msg?esc(G.msg)+"<br><br>":"")+r.map(({p,i})=>'<div class="endrow"><span class="pi" style="background:'+PC[i]+'">'+esc(p.name[0])+'</span><b>'+esc(p.name)+'</b><span class="sv">'+p.score+'</span></div>').join("")+(G.solo?'<div class="note" style="margin-top:8px">Temps : '+fmt(((G.ended||Date.now())-G.started)/1000)+'</div>':"");endOpen()}
+  $("#endB").innerHTML=(G.msg?esc(G.msg)+"<br><br>":"")+r.map(({p,i})=>'<div class="endrow"><span class="pi" style="background:'+PC[i]+'">'+esc(p.name[0])+'</span><b>'+esc(p.name)+'</b><span class="sv">'+(Number(p.score)||0)+'</span></div>').join("")+(G.solo?'<div class="note" style="margin-top:8px">Temps : '+fmt(((G.ended||Date.now())-G.started)/1000)+'</div>':"");endOpen()}
 let warned=null,cdShown="";
 function tick(){if(!G)return;const now=Date.now();
   if(G.solo){$("#rC1").textContent=fmt(((G.done?G.ended:now)-G.started)/1000);$("#rC1").classList.remove("low");$("#rTl").parentNode.style.display="none";ov();return}

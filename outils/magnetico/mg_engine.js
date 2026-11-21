@@ -229,7 +229,7 @@ function render(){document.body.classList.remove("booting");if(!G)return;const s
   if(G.done&&shownEnd!==G.gid){shownEnd=G.gid;markPlayed();scoreSrv();if(!G.solo)tally();const r=G.players.map((p,i)=>({p,i})).sort((a,b)=>(isOut(a.i)-isOut(b.i))||(b.p.score-a.p.score));
     balls.forEach(b=>b.el.style.display="none");$("#mgRes").style.display="none";
     $("#endT").textContent=G.solo?"Partie terminée : "+(G.players[0].score||0)+" points":"🏆 "+(r[0].i===s?"Tu gagnes !":r[0].p.name+" gagne !");
-    $("#endB").innerHTML=(G.solo?"<div class='note'>"+(G.found||0)+" mots trouvés sur "+G.words.length+"</div>":r.map(({p,i},k)=>'<div class="endrow"><b class="rk">'+(k+1)+'</b><span class="pi" style="background:'+PCOL[i]+';color:#0b1d2a">'+esc(p.name[0])+"</span><b>"+esc(p.name)+(isOut(i)?" (sorti)":"")+'</b><span class="sv">'+(isOut(i)?0:p.score)+"</span></div>").join(""));
+    $("#endB").innerHTML=(G.solo?"<div class='note'>"+(G.found||0)+" mots trouvés sur "+G.words.length+"</div>":r.map(({p,i},k)=>'<div class="endrow"><b class="rk">'+(k+1)+'</b><span class="pi" style="background:'+PCOL[i]+';color:#0b1d2a">'+esc(p.name[0])+"</span><b>"+esc(p.name)+(isOut(i)?" (sorti)":"")+'</b><span class="sv">'+(isOut(i)?0:(Number(p.score)||0))+"</span></div>").join(""));
     endSound();$("#endWin").classList.add("on")}
   tick()}
 let cdShown="";
