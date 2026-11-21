@@ -19,7 +19,8 @@ module.exports = function (root) {
   const LVL = { fleches: { facile: "facile", normal: "moyen", moyen: "moyen", difficile: "difficile" }, rond: { facile: "facile", moyen: "moyen", normal: "moyen", difficile: "difficile" }, meles: { facile: "facile", moyen: "moyen", normal: "moyen", difficile: "difficile" }, culture: { all: "all" } };
   const canon = { fleches: {}, rond: {}, meles: {}, culture: {} };          // référence → identifiant canonique
   const lists = { fleches: {}, rond: {}, meles: {}, culture: { all: [] } };          // niveau → [références] (ordre du catalogue)
-  GRIDS.forEach(g => { if (!g.lvl) return; canon.fleches[g.id] = "fleches:" + g.id; (lists.fleches[g.lvl] = lists.fleches[g.lvl] || []).push(g.id); });
+  // mots fléchés : deux formats rangés à part — grilles classiques 10 colonnes (« facile ») et format téléphone 8 × 8 (« facile:t »)
+  GRIDS.forEach(g => { if (!g.lvl) return; canon.fleches[g.id] = "fleches:" + g.id; const k = g.fmt === "t" ? g.lvl + ":t" : g.lvl; (lists.fleches[k] = lists.fleches[k] || []).push(g.id); });
   const seen = new Map();
   ROND.forEach(r => { const sig = JSON.stringify(r.cols); if (!seen.has(sig)) seen.set(sig, "rond:" + r.id); canon.rond[r.id] = seen.get(sig); (lists.rond[r.lvl] = lists.rond[r.lvl] || []).push(r.id); });
   for (const lv of ["facile", "moyen", "difficile"]) { lists.meles[lv] = []; for (let k = 1; k <= mctx.NMELES; k++) { const ref = lv + ":n" + k; canon.meles[ref] = "meles:" + ref; lists.meles[lv].push(ref); } }
@@ -57,6 +58,9 @@ module.exports = function (root) {
   // référence du contenu d'une partie (document du salon)
   const refOf = (game, d) => game === "fleches" ? d.grid : game === "rond" ? d.pid : game === "culture" ? (d.qs || []).join(",") : (d.level + ":" + d.mid);
   const level = (game, l) => (LVL[game] || {})[l] || null;
+  // liste d'un niveau dans le format choisi (mots fléchés seulement : « t » = format téléphone)
+  const lkey = (game, lvl, fmt) => game === "fleches" && fmt === "t" ? lvl + ":t" : lvl;
+  const fmtOf = (game, ref) => game === "fleches" && /^T/.test(String(ref || "")) ? "t" : "";
   const cid = (game, ref) => (canon[game] || {})[ref] || null;
   // contenus admissibles pour des participants (historiques déjà chargés)
   function admissible(game, lvl, hists) {
@@ -74,5 +78,5 @@ module.exports = function (root) {
     else { const [lv, mid] = ref.split(":"); const def = mctx.melesDef(mid, lv); const m = mctx.makeMeles(def.theme, lv, def.seed); Object.assign(d, m, { mid: "n" + def.k, found: {} }); }
     d.players.forEach(p => p.score = 0);
   }
-  return { GAMES, CGBY, cgIndex, THEMES, theme, QUOTA, drawSet, setOk, NQ, refOf, level, cid, admissible, pick, byNumber, applyTo, lists, counts: { fleches: GRIDS.length, rond: ROND.length } };
+  return { lkey, fmtOf, GAMES, CGBY, cgIndex, THEMES, theme, QUOTA, drawSet, setOk, NQ, refOf, level, cid, admissible, pick, byNumber, applyTo, lists, counts: { fleches: GRIDS.length, rond: ROND.length } };
 };

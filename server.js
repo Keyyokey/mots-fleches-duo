@@ -124,9 +124,10 @@ async function handleDraw(ws, s, m) {
   const names = [ws.user]; const opp = normPseudo(m.opp); if (PSEUDO_RE.test(opp) && opp !== ws.user && acc && acc.members[opp]) names.push(opp);
   let hists; try { hists = await histsOf(names); } catch (e) { return reply({ ok: false, msg: MSG_ERR }); }
   if (game === "culture") return reply({ ok: true, qs: CAT.drawSet(hists, m.theme) });
-  const adm = CAT.admissible(game, lvl, hists);
+  const lk = CAT.lkey(game, lvl, m.fmt);
+  const adm = CAT.admissible(game, lk, hists);
   const n = Number(m.n) || 0;
-  if (n) { const ref = CAT.byNumber(game, lvl, n); return ref && adm.includes(ref) ? reply({ ok: true, ref, manual: true }) : reply({ ok: false, msg: MSG_NONE }); }
+  if (n) { const ref = CAT.byNumber(game, lk, n); return ref && adm.includes(ref) ? reply({ ok: true, ref, manual: true }) : reply({ ok: false, msg: MSG_NONE }); }
   if (!adm.length) return reply({ ok: false, msg: MSG_NONE });
   return reply({ ok: true, ref: CAT.pick(adm) });
 }
@@ -153,7 +154,7 @@ async function handleLaunch(ws, s, m) {
     const lvl = CAT.level(game, d.level);
     let hists; try { hists = await histsOf(names); } catch (e) { d.blocked = MSG_ERR; d.blockedAt = Date.now(); return publish(ws.room, s, id, d); }
     if (game === "culture") { if (!CAT.setOk(d.qs, hists, d.theme)) CAT.applyTo(game, d, CAT.drawSet(hists, d.theme)); }
-    else { const adm = CAT.admissible(game, lvl, hists); const cur = CAT.refOf(game, d);
+    else { const cur = CAT.refOf(game, d); const adm = CAT.admissible(game, CAT.lkey(game, lvl, CAT.fmtOf(game, cur)), hists);
     if (!adm.includes(cur)) {
       if (d.manual || !adm.length) { d.blocked = MSG_NONE; d.blockedAt = Date.now(); return publish(ws.room, s, id, d); }
       CAT.applyTo(game, d, CAT.pick(adm));                                          // le contenu proposé est devenu exclu : nouveau tirage

@@ -643,6 +643,7 @@ svg.chart{width:100%;height:118px;color:var(--ink);overflow:visible}
 .overlay{position:fixed;inset:0;background:rgba(5,10,20,.45);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);display:none;place-items:center;z-index:50;padding:16px}
 .overlay.on{display:grid;animation:fade .25s}
 .sheet{width:min(440px,100%);padding:20px;display:flex;flex-direction:column;gap:12px}
+/* 21/11 : la fenêtre ne dépasse plus de l'écran du téléphone (une option longue de liste l'élargissait) */.overlay .sheet{min-width:0;max-width:100%;box-sizing:border-box}.sheet select{min-width:0;max-width:100%;width:100%;text-overflow:ellipsis}.sheet .seg button{min-width:0}
 .sheet h3{margin:0;font-size:1.2rem}
 .seg{display:flex;gap:4px;padding:4px;border-radius:14px;background:rgba(0,0,0,.15)}
 .seg button{flex:1;border:none;background:transparent;border-radius:10px;padding:8px;font-weight:600}
@@ -1037,6 +1038,9 @@ body.statsOn .dashbar{display:flex;align-items:center;justify-content:space-betw
   <h3 id="cfgT">Mots fléchés · Solo</h3>
   <div class="seg" id="cfgMode"><button type="button" data-m="solo">👤 Solo</button><button type="button" data-m="multi">👥 À plusieurs</button></div>
   <div class="cfgfl"><div class="seg" id="lvl"></div>
+  <div id="flFmtBox" style="display:none"><div class="note">Format de la grille</div>
+    <div class="seg" id="flFmt"><button type="button" data-v="t">📱 Téléphone 8×8</button><button type="button" data-v="c">🖥️ Classique 10×10</button></div>
+    <div class="note" id="flFmtNote"></div></div>
   <label class="f">Numéro de grille<select id="gnum"></select></label></div>
   <div class="cfgcg" style="display:none"><div class="note">Thème de la partie</div>
     <div class="seg cgth" id="cgTheme"><button type="button" data-v="">🎲 Tout mélangé</button><button type="button" data-v="nourriture">🍽️ Nourriture</button><button type="button" data-v="pates">🍝 Pâtes</button><button type="button" data-v="fromages">🧀 Fromages</button><button type="button" data-v="patisseries">🥐 Pâtisseries</button><button type="button" data-v="fruits">🥭 Fruits exotiques</button><button type="button" data-v="animaux">🐾 Animaux</button><button type="button" data-v="chats">🐱 Chats</button><button type="button" data-v="pays">🌍 Pays & drapeaux</button></div>
@@ -1480,7 +1484,7 @@ function share(){const link=location.origin+"/"+(CODE&&ROOM?CODE:"");const own=R
 $$("[data-open=share]").forEach(b=>b.onclick=share);
 
 // ---------- tuiles de jeu et fenêtre de réglages ----------
-const GAMES={fleches:{nm:"Mots fléchés",lv:[["facile","Facile",414],["normal","Normal",417],["difficile","Difficile",386]],t:true},
+const GAMES={fleches:{nm:"Mots fléchés",lv:[["facile","Facile",414],["normal","Normal",417],["difficile","Difficile",386]],lvT:[150,150,150],t:true},
   rond:{nm:"Le Tourniquet",lv:[["facile","Facile",321],["moyen","Normal",320],["difficile","Difficile",319]],t:true},
   meles:{nm:"Mots mêlés",lv:[["facile","Facile",297],["moyen","Normal",297],["difficile","Difficile",297]]},
   poker:{nm:"Wordflush",lv:[]},culture:{nm:"Culture générale",lv:[]},
@@ -1491,11 +1495,15 @@ let CFG=null;
 // Culture générale : thème de la partie (le dernier choix est gardé)
 const CGTH_NOTE={"":"Images, culture, calculs, casse-tête et une question « Tout le monde a son mot à dire ».",nourriture:"10 photos de plats, fruits, légumes et pâtes du monde entier.",pates:"10 photos de pâtes : sauras-tu reconnaître les orecchiette des conchiglie ?",fromages:"10 fromages de France en photo : camembert, comté, roquefort, époisses…",patisseries:"10 pâtisseries françaises : paris-brest, kouign-amann, cannelé, mille-feuille…",fruits:"10 fruits exotiques : litchi, ramboutan, durian, pitaya…",chats:"10 races de chats : maine coon, sacré de Birmanie, sphynx…",animaux:"10 photos d'animaux : races de chiens, oiseaux, animaux sauvages…",pays:"10 photos de drapeaux, paysages et lieux du monde."};
 function cgThemeInit(){const cur=LS.get("fl-cfg-theme")||"";$$("#cgTheme button").forEach(b=>{b.classList.toggle("on",b.dataset.v===cur);b.onclick=()=>{$$("#cgTheme button").forEach(x=>x.classList.toggle("on",x===b));LS.set("fl-cfg-theme",b.dataset.v);$("#cgThNote").textContent=CGTH_NOTE[b.dataset.v]||""}});if(!$("#cgTheme .on"))$("#cgTheme button").classList.add("on");$("#cgThNote").textContent=CGTH_NOTE[cur]||CGTH_NOTE[""]}
+// mots fléchés : format téléphone 8 × 8 par défaut sur téléphone, grilles classiques 10 × 10 sur ordinateur ; le choix est retenu
+const FLFMT_NOTE={t:"Grilles de 8 × 8 faites pour le téléphone : grandes cases, définitions lisibles.",c:"Les grilles classiques de 10 colonnes, comme dans les magazines."};
+const flFmt=()=>{const v=LS.get("fl-fmt");return v==="t"||v==="c"?v:(matchMedia("(max-width:700px)").matches?"t":"c")};
+function flFmtInit(){const cur=flFmt();$$("#flFmt button").forEach(b=>{b.classList.toggle("on",b.dataset.v===cur);b.onclick=()=>{$$("#flFmt button").forEach(x=>x.classList.toggle("on",x===b));LS.set("fl-fmt",b.dataset.v);$("#flFmtNote").textContent=FLFMT_NOTE[b.dataset.v];fillNums()}});$("#flFmtNote").textContent=FLFMT_NOTE[cur]}
 function openCfg(t,m,opp,quick){const k=t.dataset.key,G=GAMES[k];
   if(m==="solo"&&!ME&&guestN()>=GUEST_MAX){needAccount();return}
   if(m==="multi"&&(!ME||ME.stale)){needMulti();$("#needT").textContent=G.nm+" à plusieurs";$("#need").dataset.k=k;$("#need").classList.add("on");return}
   CFG={k,m,opp,t};{const cm=$("#cfgMode");cm.style.display=m==="resume"||opp?"none":"";cm.querySelectorAll("button").forEach(b=>{b.classList.toggle("on",b.dataset.m===m);b.onclick=()=>{if(b.dataset.m!==CFG.m)openCfg(CFG.t,b.dataset.m)}})}$("#cfgT").textContent=G.nm+" · "+({solo:"Solo",multi:"Multijoueur",resume:"Reprendre la partie"}[m]);
-  const pk=k==="poker",cg=k==="culture";$(".cfgfl").style.display=pk||cg||m==="resume"?"none":"";$(".cfgpk").style.display=pk&&m!=="resume"?"":"none";$(".cfgcg").style.display=cg&&m!=="resume"?"":"none";if(cg)cgThemeInit();{const lf=document.querySelector(".pklvlf");if(lf)lf.style.display=pk&&m==="solo"?"":"none"}
+  const pk=k==="poker",cg=k==="culture";$(".cfgfl").style.display=pk||cg||m==="resume"?"none":"";$(".cfgpk").style.display=pk&&m!=="resume"?"":"none";$(".cfgcg").style.display=cg&&m!=="resume"?"":"none";if(cg)cgThemeInit();$("#flFmtBox").style.display=k==="fleches"&&m!=="resume"?"":"none";if(k==="fleches")flFmtInit();{const lf=document.querySelector(".pklvlf");if(lf)lf.style.display=pk&&m==="solo"?"":"none"}
   if(!pk&&!cg){const lv=$("#lvl");lv.innerHTML=G.lv.map(([v,l],i)=>'<button data-v="'+v+'" class="'+(i===(LS.get("fl-cfg-lvl-"+k)|0)?"on":"")+'">'+l+'</button>').join("");
     lv.querySelectorAll("button").forEach((b,i)=>b.onclick=()=>{lv.querySelectorAll("button").forEach(x=>x.classList.toggle("on",x===b));LS.set("fl-cfg-lvl-"+k,i);fillNums()});
     fillNums()}
@@ -1510,7 +1518,7 @@ function pickGame(opp,mode){mode=mode||"multi";$("#pickT").textContent=mode==="s
   L.innerHTML=PICK.map(([k,n,d])=>'<button type="button" data-k="'+k+'"><b>'+n+'</b><small>'+d+'</small></button>').join("");
   L.querySelectorAll("button").forEach(b=>b.onclick=()=>{$("#pickG").classList.remove("on");const t=$$(".tile").find(x=>x.dataset.key===b.dataset.k);if(t)openCfg(t,mode,mode==="multi"?opp:undefined,mode==="solo"&&b.dataset.k==="culture")});
   $("#pickX").onclick=()=>$("#pickG").classList.remove("on");$("#pickG").classList.add("on");setTimeout(()=>{const f=L.querySelector("button");if(f)f.focus()},50)}
-function fillNums(){const G=GAMES[CFG.k];{const gl=$("#gnum").closest("label");if(gl)gl.style.display=CFG.k==="magnetico"?"none":""}if(CFG.k==="magnetico")return;const i=[...$$("#lvl button")].findIndex(b=>b.classList.contains("on"));const n=(G.lv[i]||G.lv[0])[2];
+function fillNums(){const G=GAMES[CFG.k];{const gl=$("#gnum").closest("label");if(gl)gl.style.display=CFG.k==="magnetico"?"none":""}if(CFG.k==="magnetico")return;const i=[...$$("#lvl button")].findIndex(b=>b.classList.contains("on"));const n=CFG.k==="fleches"&&flFmt()==="t"?G.lvT[i]||G.lvT[0]:(G.lv[i]||G.lv[0])[2];
   const g=$("#gnum");g.innerHTML='<option value="">Grille suivante (au hasard parmi les non jouées)</option>'+Array.from({length:n},(_,j)=>'<option value="'+(j+1)+'">Grille '+(j+1)+'</option>').join("")}
 function bindMode(b){b.onclick=e=>{e.stopPropagation();const t=b.closest(".tile");if(b.dataset.cfg)return openCfg(t,"solo");const m=b.dataset.mode;openCfg(t,m,undefined,m==="resume")}}   // le réglage (niveau) est reproposé à chaque partie ; seul « Reprendre » et Culture (rien à régler) partent tout de suite
 $$(".modes .abtn").forEach(bindMode);
@@ -1535,7 +1543,7 @@ function tuto(k,done){const S=TUTO[k];if(!S||LS.get("fl-tuto-"+k))return done();
   o.classList.add("on");show()}
 $("#cfgGo").onclick=()=>{if(CFG.m!=="resume"&&!CFG.opp&&TUTO[CFG.k]&&!LS.get("fl-tuto-"+CFG.k)){$("#cfg").classList.remove("on");return tuto(CFG.k,()=>$("#cfgGo").onclick())}const{k,m,opp}=CFG;$("#cfg").classList.remove("on");
   const lv=k==="culture"?"":($("#lvl .on")||{}).dataset?.v||"";const q=new URLSearchParams({go:m});if(k==="culture"&&m!=="resume"){const th=(($("#cgTheme .on")||{}).dataset||{}).v||"";if(th)q.set("theme",th)}if(lv&&m!=="resume")q.set("lvl",lv);const n=k==="culture"?"":$("#gnum").value;if(n&&m!=="resume")q.set("n",n);
-  if((k==="fleches"||k==="rond")&&m==="multi")q.set("t","-1");if(opp)q.set("opp",opp);
+  if(k==="fleches"&&m!=="resume")q.set("fmt",flFmt());if((k==="fleches"||k==="rond")&&m==="multi")q.set("t","-1");if(opp)q.set("opp",opp);
   if(k==="poker"){q.set("fmt",($("#pkFmt .on")||{}).dataset?.v||"10");q.set("mise",$("#pkMise").value);q.set("dec",$("#pkDec").value);if(m==="solo")q.set("lvl",$("#pkLvl").value)}
   if(m==="multi"&&!(CODE&&ROOM)){const goTo=c=>location.href="/"+c+"/"+k+"?"+q;   // 19/11 : on reprend le salon du joueur au lieu d'en créer un nouveau à chaque partie
     call("salons",{name:ME.name,token:ME.token}).then(rs=>{const own=(rs&&rs.status===200&&Array.isArray(rs.salons)?rs.salons:[]).filter(x=>x.role==="owner");const pick=own.find(x=>x.name==="Salon de "+ME.name)||own[0];if(pick)return goTo(pick.code);

@@ -34,7 +34,8 @@ def make_def(P,G,S,level,idx,rnd,cfg):
     cd={}
     for (r,c),lst in clues.items():
         lst.sort(key=lambda x:x[0]); cd[f"{r},{c}"]=[x[1] for x in lst]
-    letters=[(r,c) for r in range(R) for c in range(10) if G[r][c]!='#']
+    NC=len(G[0])
+    letters=[(r,c) for r in range(R) for c in range(NC) if G[r][c]!='#']
     # mystery word
     myst="";hint="";nums={}
     if rnd.random()<0.65:
@@ -62,7 +63,7 @@ def make_def(P,G,S,level,idx,rnd,cfg):
     flat=''.join(G)
     kk=base64.b64encode(flat[::-1].encode()).decode()
     name={'facile':'Facile','moyen':'Moyenne','difficile':'Difficile'}[level]
-    return dict(id=cfg['prefix']+str(idx).zfill(3),page=f"{cfg['prefix']}{idx}",name=f"{name} n°{idx}",lvl=level,hint=hint,myst=myst,clues=cd,nums=nums,paper=paper,alt={},dash=[],nr=R,k=kk)
+    return dict(id=cfg['prefix']+str(idx).zfill(3),page=f"{cfg['prefix']}{idx}",name=f"{name} n°{idx}",lvl=level,hint=hint,myst=myst,clues=cd,nums=nums,paper=paper,alt={},dash=[],nr=R,k=kk,**({'nc':NC} if NC!=10 else {}))
 def gen_level(level,seed=1,count=None):
     cfg=LEVELS[level];rnd=random.Random(seed)
     words=[w for w in L if len(w)==2 or Z.get(w,0)>=cfg['minz']]
