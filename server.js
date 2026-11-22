@@ -1126,7 +1126,7 @@ function statErr(b, ip) {
 }
 function sendPage(req, res, file) {
   let p; try { p = page(file, true); } catch { res.writeHead(500); return res.end("Page manquante"); }
-  try { if (req.method === "GET" && !/bot|spider|crawl|preview|uptime/i.test(req.headers["user-agent"] || "")) { const f = path.basename(file), g = { "fl.html": "fleches", "rd.html": "rond", "mm.html": "meles", "mg.html": "magnetico", "md.html": "motdujour", "cg.html": "culture", "poker.html": "poker" }[f]; const q = String(req.url || ""); if (f === "accueil.html") statAdd("accueil"); else if (g) statAdd(g + ":" + (/[?&]go=multi/.test(q) ? "ouverte-multi" : /[?&]go=/.test(q) ? "ouverte-solo" : "ouverte")); } } catch {}
+  try { if (req.method === "GET" && !/bot|spider|crawl|preview|uptime/i.test(req.headers["user-agent"] || "")) { const f = path.basename(file), g = { "fl.html": "fleches", "rd.html": "rond", "mm.html": "meles", "mg.html": "magnetico", "md.html": "motdujour", "cg.html": "culture", "poker.html": "poker" }[f]; const q = String(req.url || ""); const rf = (q.match(/[?&]ref=([a-z0-9-]{2,20})(?:&|$)/) || [])[1]; if (rf) statAdd("ref:" + rf); if (f === "accueil.html") statAdd("accueil"); else if (g) statAdd(g + ":" + (/[?&]go=multi/.test(q) ? "ouverte-multi" : /[?&]go=/.test(q) ? "ouverte-solo" : "ouverte")); } } catch {}
   sendBody(req, res, p, "text/html; charset=utf-8", "no-cache");
 }
 // données lourdes (grilles…) : nom de fichier versionné → mises en cache un an par le navigateur
@@ -1201,6 +1201,9 @@ function adminStatsHtml(days, key) {
   const games = Object.keys(GAME_NAMES).map(g => { const c = t.c; const so = +c[g + ":ouverte-solo"] || 0, mu = +c[g + ":ouverte-multi"] || 0, fi = +c[g + ":finie"] || 0; return so + mu + fi ? `<tr><td>${GAME_NAMES[g]}</td><td>${so}</td><td>${mu}</td><td>${fi}</td></tr>` : ""; }).join("") || `<tr><td colspan="4" class="mut">Aucune partie aujourd'hui</td></tr>`;
   const errs = (rows.length && Array.isArray(days[0].erreurs) ? days[0].erreurs : []).slice(-30).reverse().map(e => `<li><b>${escH(e.t || "")}</b> · ${escH(e.p || "")} · ${escH(e.ua || "")}<br><span>${escH(e.m || "")}</span></li>`).join("") || `<li class="mut">Aucune erreur aujourd'hui</li>`;
   const hist = rows.map(r => `<tr><td>${fmtDay(r.jour)}</td><td>${r.visites}</td><td>${r.lancees}</td><td>${r.finies}</td><td>${r.mjOk}</td><td>${r.erreurs}</td></tr>`).join("");
+  const RN = { tiktok: "TikTok", facebook: "Facebook", instagram: "Instagram", youtube: "YouTube", whatsapp: "WhatsApp", affiche: "Affiche / QR code" }, rt = {}, rs = {};
+  rows.forEach((r, i) => Object.keys(r.c || {}).forEach(x => { if (!x.startsWith("ref:")) return; const n = x.slice(4); rs[n] = (rs[n] || 0) + (+r.c[x] || 0); if (i === 0) rt[n] = +r.c[x] || 0; }));
+  const refs = Object.keys(rs).sort((a, b) => rs[b] - rs[a]).map(n => `<tr><td>${escH(RN[n] || n)}</td><td>${rt[n] || 0}</td><td>${rs[n]}</td></tr>`).join("") || `<tr><td colspan="3" class="mut">Pas encore de visite par un lien court (motipop.fr/tt, /fb…)</td></tr>`;
   const k = encodeURIComponent(key || "");
   return `<!doctype html><html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex"><title>Statistiques — Motipop</title><style>
 body{margin:0;background:#12152e;color:#fff;font:17px/1.4 system-ui,-apple-system,Segoe UI,sans-serif}main{max-width:760px;margin:0 auto;padding:18px 16px 40px}
@@ -1213,6 +1216,7 @@ ul{list-style:none;margin:0;padding:0}li{padding:9px 4px;border-bottom:1px solid
 <h1>Statistiques Motipop</h1><div class="mut">Aujourd'hui, ${fmtDay(t.jour)} · <a href="?key=${k}">actualiser</a> · <a href="/admin/sauvegardes?key=${k}">sauvegardes</a></div>
 <div class="cards">${card(t.visites, "visites de l'accueil", "#9fb5ff")}${card(t.lancees, "parties lancées", "#ffa58a")}${card(t.finies, "parties finies", "#7be0c8")}${card(+t.c["motdujour:partage"] || 0, "résultats partagés", "#c7a2ff")}${card(+t.c["enigme:reponse"] || 0, "réponses à l'énigme", "#f2deb0")}${card(t.mjOk, "Mot du jour trouvé" + (t.mjKo ? " · " + t.mjKo + " raté" + (t.mjKo > 1 ? "s" : "") : ""), "#ffd27a")}${card(t.erreurs, "erreurs chez les joueurs", t.erreurs ? "#ff8a8a" : "#c9d1e6")}</div>
 <h2>Les 14 derniers jours</h2><div class="box"><svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Visites et parties lancées par jour">${bars}</svg><div class="leg"><span><i style="background:#7b9bff"></i>visites</span><span><i style="background:#ff8a6b"></i>parties lancées</span></div></div>
+<h2>D'où viennent les visiteurs (14 jours)</h2><div class="box"><table><tr><th>Provenance</th><th>Aujourd'hui</th><th>14 jours</th></tr>${refs}</table></div>
 <h2>Parties par jeu aujourd'hui</h2><div class="box"><table><tr><th>Jeu</th><th>Solo</th><th>À plusieurs</th><th>Finies</th></tr>${games}</table></div>
 <h2>Erreurs du jour</h2><div class="box"><ul>${errs}</ul></div>
 <h2>Jour par jour</h2><div class="box"><table><tr><th>Jour</th><th>Visites</th><th>Lancées</th><th>Finies</th><th>Mot trouvé</th><th>Erreurs</th></tr>${hist}</table></div>
@@ -1262,6 +1266,9 @@ const server = http.createServer((req, res) => {
     res.writeHead(301, { location: SITE + url.pathname + url.search, "cache-control": "public, max-age=3600" }); return res.end();
   }
   if (url.pathname.startsWith("/admin/")) return void adminRoute(req, res, url);
+  // liens courts à donner dans les vidéos et les bios (22/11) : motipop.fr/tt → accueil, provenance comptée dans /admin/stats
+  const SHORT = { "/tt": "tiktok", "/fb": "facebook", "/ig": "instagram", "/yt": "youtube", "/wa": "whatsapp", "/qr": "affiche" };
+  if (req.method === "GET" && SHORT[url.pathname]) { res.writeHead(302, { location: "/?ref=" + SHORT[url.pathname], "cache-control": "no-store" }); return res.end(); }
   if (url.pathname === "/healthz" && url.searchParams.get("redis") === "1") {
     const t0 = Date.now();
     return void (REDIS ? redis(["PING"]).then(v => ({ ping: v }), e => ({ ping: "échec", err: e.message })) : Promise.resolve({ ping: "pas de Redis" }))
