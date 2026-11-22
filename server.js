@@ -1075,7 +1075,9 @@ function seoTags(file, txt) {
   const t = (txt.match(/<title>([^<]*)<\/title>/) || [])[1] || "Motipop";
   const d = (txt.match(/<meta name="description" content="([^"]*)"/) || [])[1] || "";
   const u = SITE + c;
-  return '\n<link rel="canonical" href="' + u + '"><meta property="og:type" content="website"><meta property="og:site_name" content="Motipop"><meta property="og:image" content="' + SITE + '/motipop-512.png"><meta property="og:locale" content="fr_FR"><meta property="og:url" content="' + u + '"><meta property="og:title" content="' + t + '"><meta property="og:description" content="' + d + '"><meta name="twitter:card" content="summary">';
+  return '\n<link rel="canonical" href="' + u + '"><meta property="og:type" content="website"><meta property="og:site_name" content="Motipop"><meta property="og:image" content="' + SITE + '/motipop-512.png"><meta property="og:locale" content="fr_FR"><meta property="og:url" content="' + u + '"><meta property="og:title" content="' + t + '"><meta property="og:description" content="' + d + '"><meta name="twitter:card" content="summary">' + (c === "/" ? '<script type="application/ld+json">' + JSON.stringify([
+    { "@context": "https://schema.org", "@type": "WebSite", name: "Motipop", alternateName: ["Motipop jeux de mots", "motipop.fr"], url: SITE + "/", inLanguage: "fr-FR" },
+    { "@context": "https://schema.org", "@type": "Organization", name: "Motipop", url: SITE + "/", logo: SITE + "/motipop-512.png" }]).replace(/</g, "\\u003c") + '</script>' : "");
 }
 // informations légales : réglées chez Render (CONTACT_EMAIL, et EDITEUR_NOM / EDITEUR_ADRESSE pour un éditeur professionnel)
 const escH = v => String(v).replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
