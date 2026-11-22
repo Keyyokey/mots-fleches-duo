@@ -871,6 +871,16 @@ body.statsOn .dashbar{display:flex;align-items:center;justify-content:space-betw
 [data-theme=light] .abbtn{background:rgba(15,25,40,.06)}
 .mdv .ve{background:rgba(255,255,255,.12);border:2px solid rgba(255,255,255,.5)}
 .mdgo{min-height:48px;padding:10px 26px;font-size:1.05rem}
+/* 22/11 : sur ordinateur aussi, classements et progression s'ouvrent en panneau (comme sur téléphone) au lieu d'être sous les jeux */
+@media (min-width:621px){
+#v-accueil>.hero2.dash{display:none}
+body.statsOn #v-accueil>.hero2.dash{display:grid;position:fixed;inset:0;z-index:70;margin:0!important;width:auto!important;padding:28px max(24px,calc(50% - 560px)) 40px;overflow-y:auto;overscroll-behavior:contain;align-content:start;background:rgba(8,12,28,.6);backdrop-filter:blur(18px) saturate(140%);-webkit-backdrop-filter:blur(18px) saturate(140%);animation:popin .22s cubic-bezier(.3,1.4,.5,1)}
+[data-theme=light] body.statsOn #v-accueil>.hero2.dash{background:rgba(230,238,248,.72)}
+body.statsOn{overflow:hidden}
+body.statsOn .dashbar{display:flex;grid-column:1/-1;align-items:center;justify-content:space-between;padding:2px 2px 4px}
+.dashbar b{font:800 1.3rem Nunito,Inter,sans-serif}
+#dashX{width:46px;height:46px;display:grid;place-items:center;font-size:1.15rem}
+}
 @media (min-width:621px){.g-bot .tile.cg .illu{position:absolute;right:15px;top:12px;width:128px;height:128px}.g-bot .tile.cg .ring2{width:104px;height:104px}.g-bot .tile.cg .scene{width:64px;height:64px}}
 @media (max-width:620px){
 .games:not(.g-hero){grid-template-columns:1fr 1fr;gap:10px}
@@ -1647,12 +1657,13 @@ $("#dim").addEventListener("click",()=>{closePops();$("#mMenu").classList.remove
   sa.onclick=e=>{e.stopPropagation();set(false);if($("#popSalon").classList.contains("on"))return closePops();openSalon(sa)};
   let fs=0;try{fs=+sessionStorage.getItem("fl-open-stats")||0;sessionStorage.removeItem("fl-open-stats")}catch(e){}
   const qs=new URLSearchParams(location.search).get("stats")==="1";if(qs)history.replaceState(null,"",location.pathname);
-  if((qs||Date.now()-fs<60000)&&innerWidth<=620)setTimeout(()=>set(true),50);
+  if(qs||Date.now()-fs<60000)setTimeout(()=>set(true),50);
   window.__setStats=set})();
 
 // ---------- démarrage ----------
 updPills();renderPeers();renderSalon();renderRank();chart(0);renderResume();connect();loadMe();
-$("#abRank").onclick=e=>{e.stopPropagation();if(innerWidth<=620)$("#mStats").click();else $("#dashSec").scrollIntoView({behavior:"smooth",block:"start"})};
+$("#abRank").onclick=e=>{e.stopPropagation();$("#mStats").click()};
+$("#dashSec").addEventListener("click",e=>{if(e.target===e.currentTarget)$("#dashX").click()});
 $("#abL").onclick=e=>{e.stopPropagation();if(CODE&&ROOM&&!/en ligne/.test($("#abTx").textContent))share();else pillSalon().click()};
 if(CODE&&(!ME||ME.stale))setTimeout(()=>{toast("🔒","Connecte-toi pour ouvrir ce salon.");openMe(pillMe())},300);
 if(new URLSearchParams(location.search).get("open")==="salon")setTimeout(()=>openSalon(pillSalon()),300);
