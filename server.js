@@ -805,6 +805,46 @@ function mjClose(p, st, sc) {
 // audit 21/11 : un même appareil ne peut pas créer des dizaines d'invités pour essayer tous les mots (ni remplir la mémoire)
 const mjGuestIp = new Map();   // "jour|ip" -> nombre d'invités différents
 function mjGuestOk(day, ip, id) { const k = day + "|" + ip; let e = mjGuestIp.get(k); if (!e) { if (mjGuestIp.size > 50000) mjGuestIp.clear(); e = new Set(); mjGuestIp.set(k, e); } if (e.has(id)) return true; if (e.size >= 12) return false; e.add(id); return true; }
+// ---------- Énigme du jour (22/11) : une énigme par jour, réponse gardée jusqu'au lendemain, solution révélée à minuit ----------
+// enigmes.json est à la racine (jamais servi au navigateur) : q = énigme, s = solution affichée, r = réponses acceptées (sans accents)
+let ENIG = []; try { ENIG = JSON.parse(fs.readFileSync(path.join(__dirname, "enigmes.json"), "utf8")).filter(e => e && e.q && e.s && Array.isArray(e.r) && e.r.length); } catch (e) { console.error("Énigmes illisibles :", e.message); }
+const EN_START = Date.UTC(2026, 10, 22);
+const enNum = day => Math.round((Date.UTC(+day.slice(0, 4), +day.slice(4, 6) - 1, +day.slice(6, 8)) - EN_START) / 864e5) + 1;
+const enOf = day => { const n = enNum(day); return ENIG.length ? { n, ...ENIG[((n - 1) % ENIG.length + ENIG.length) % ENIG.length] } : null; };
+const enNorm = v => String(v || "").toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, "").replace(/œ/g, "oe").replace(/æ/g, "ae").replace(/[^a-z0-9]+/g, " ")
+  .replace(/\b(le|la|les|l|un|une|des|du|de|d|c est|cest|ton|ta|tes|mon|ma|mes)\b/g, " ").replace(/\s+/g, " ").trim().split(" ").map(w => w.length > 3 ? w.replace(/[sx]$/, "") : w).join(" ");
+function enLev(a, b) { if (Math.abs(a.length - b.length) > 1) return 9; const d = Array.from({ length: a.length + 1 }, (_, i) => [i]); for (let j = 1; j <= b.length; j++) d[0][j] = j;
+  for (let i = 1; i <= a.length; i++) for (let j = 1; j <= b.length; j++) d[i][j] = Math.min(d[i - 1][j] + 1, d[i][j - 1] + 1, d[i - 1][j - 1] + (a[i - 1] === b[j - 1] ? 0 : 1)); return d[a.length][b.length]; }
+const enOk = (ans, e) => { const a = enNorm(ans); if (!a) return false; return e.r.some(r => { const x = enNorm(r); return a === x || (x.length >= 5 && enLev(a, x) <= 1); }); };
+const EN_MEM = new Map();                                      // sans Redis (tests) : jour → Map(id → réponse)
+async function enGet(day, id) { if (REDIS) { try { return JSON.parse(await redis(["HGET", "en:" + day, id]) || "null"); } catch { return null; } } const m = EN_MEM.get(day); return m ? m.get(id) || null : null; }
+async function enPut(day, id, v, onlyNew) { if (REDIS) { const k = "en:" + day; const r = await redis([onlyNew ? "HSETNX" : "HSET", k, id, JSON.stringify(v)]); redis(["EXPIRE", k, String(40 * 86400)]).catch(() => {}); return onlyNew ? +r === 1 : true; }
+  let m = EN_MEM.get(day); if (!m) { m = new Map(); EN_MEM.set(day, m); } if (onlyNew && m.has(id)) return false; m.set(id, v); return true; }
+async function enCount(day) { if (REDIS) { try { const [t, o] = await Promise.all([redis(["HLEN", "en:" + day]), redis(["GET", "en:" + day + ":ok"])]); return { total: +t || 0, ok: +o || 0 }; } catch { return { total: 0, ok: 0 }; } }
+  const m = EN_MEM.get(day); return { total: m ? m.size : 0, ok: m ? [...m.values()].filter(v => v.ok).length : 0 }; }
+async function enApi(b, out, ip) {
+  const day = parisDay(), e = enOf(day); if (!e) return out(503, { error: "pas d'énigme" });
+  const yday = parisDay(new Date(Date.now() - 86400e3)), ye = enOf(yday);
+  let id = null, name = normPseudo(b.name), pl = null;
+  if (PSEUDO_RE.test(name) && b.token) { try { const p = await getPlayer(name); if (tokOk(p, b.token)) { id = name; pl = p; } } catch {} }
+  if (!id) { const g = String(b.guest || ""); if (/^[a-z0-9]{12,24}$/.test(g)) id = "g:" + g; }
+  let mine = id ? await enGet(day, id) : null;
+  if (b.op === "answer" && id && !mine) {
+    const a = String(b.a || "").replace(/[\u0000-\u001f]/g, " ").trim().slice(0, 40);
+    if (!a) return out(400, { error: "vide", msg: "Écris ta réponse." });
+    if (id.startsWith("g:") && ip && !mjGuestOk("en" + day, ip, id)) return out(429, { error: "trop", msg: "Trop de réponses invitées depuis cet appareil aujourd'hui : crée ton pseudo." });
+    const v = { a, ok: enOk(a, e) };
+    if (await enPut(day, id, v, true)) { mine = v; statAdd("enigme:reponse"); if (REDIS && v.ok) { redis(["INCR", "en:" + day + ":ok"]).catch(() => {}); redis(["EXPIRE", "en:" + day + ":ok", String(40 * 86400)]).catch(() => {}); } }
+    else mine = await enGet(day, id);
+  }
+  // hier : solution, nombre de bonnes réponses, et la réponse du joueur (+5 points une seule fois pour un pseudo qui avait trouvé)
+  let y = null;
+  if (ye && ye.n >= 1) { const ym = id ? await enGet(yday, id) : null; const c = await enCount(yday); let gain = 0;
+    if (ym && ym.ok && pl && !ym.c) { ym.c = 1; await enPut(yday, id, ym, false); addPoints(id, pl, "enigme", 5); savePlayer(id); gain = 5; }
+    y = { n: ye.n, q: ye.q, s: ye.s, total: c.total, ok: c.ok, mine: ym ? { a: ym.a, ok: !!ym.ok } : null, gain }; }
+  const c = await enCount(day);
+  return out(200, { n: e.n, q: e.q, mine: mine ? { a: mine.a } : null, total: c.total, hier: y, ranked: !!pl });
+}
 async function mjApi(b, out, ip) {
   if (b.op === "share") { statAdd("motdujour:partage"); return out(200, { ok: true }); }
   const day = parisDay(), w = MJ.wordOf(day);
@@ -886,6 +926,7 @@ async function api(req, res, route) {
   const name = normPseudo(b.name);
   if (route === "rank") return out(200, await topRank(PSEUDO_RE.test(name) ? name : null));
   if (route === "mj") return mjApi(b, out, clientIp(req));
+  if (route === "en") return enApi(b, out, clientIp(req));
   const bad = (field, detail) => out(400, { error: "saisie", field, msg: "Vérifie les informations saisies.", detail });
   if (!PSEUDO_RE.test(name)) return bad("name", "Pseudo : 2 à 7 caractères, lettres A-Z, chiffres et @ # _ (sans espace).");
   // lecture stricte : si le stockage ne répond pas, on le dit (on ne répond pas « identifiants incorrects »)
@@ -1168,7 +1209,7 @@ h1{font-size:1.6rem;margin:0 0 4px}h2{font-size:1.2rem;margin:26px 0 10px}.mut{c
 table{width:100%;border-collapse:collapse;font-size:.98rem}th,td{text-align:left;padding:8px 6px;border-bottom:1px solid rgba(255,255,255,.1)}th{color:#c9d1e6;font-weight:600}td:not(:first-child),th:not(:first-child){text-align:right}
 ul{list-style:none;margin:0;padding:0}li{padding:9px 4px;border-bottom:1px solid rgba(255,255,255,.1)}li span{color:#ffc2b5;font-size:.95rem;word-break:break-word}a{color:#9fb5ff}</style></head><body><main>
 <h1>Statistiques Motipop</h1><div class="mut">Aujourd'hui, ${fmtDay(t.jour)} · <a href="?key=${k}">actualiser</a> · <a href="/admin/sauvegardes?key=${k}">sauvegardes</a></div>
-<div class="cards">${card(t.visites, "visites de l'accueil", "#9fb5ff")}${card(t.lancees, "parties lancées", "#ffa58a")}${card(t.finies, "parties finies", "#7be0c8")}${card(+t.c["motdujour:partage"] || 0, "résultats partagés", "#c7a2ff")}${card(t.mjOk, "Mot du jour trouvé" + (t.mjKo ? " · " + t.mjKo + " raté" + (t.mjKo > 1 ? "s" : "") : ""), "#ffd27a")}${card(t.erreurs, "erreurs chez les joueurs", t.erreurs ? "#ff8a8a" : "#c9d1e6")}</div>
+<div class="cards">${card(t.visites, "visites de l'accueil", "#9fb5ff")}${card(t.lancees, "parties lancées", "#ffa58a")}${card(t.finies, "parties finies", "#7be0c8")}${card(+t.c["motdujour:partage"] || 0, "résultats partagés", "#c7a2ff")}${card(+t.c["enigme:reponse"] || 0, "réponses à l'énigme", "#f2deb0")}${card(t.mjOk, "Mot du jour trouvé" + (t.mjKo ? " · " + t.mjKo + " raté" + (t.mjKo > 1 ? "s" : "") : ""), "#ffd27a")}${card(t.erreurs, "erreurs chez les joueurs", t.erreurs ? "#ff8a8a" : "#c9d1e6")}</div>
 <h2>Les 14 derniers jours</h2><div class="box"><svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Visites et parties lancées par jour">${bars}</svg><div class="leg"><span><i style="background:#7b9bff"></i>visites</span><span><i style="background:#ff8a6b"></i>parties lancées</span></div></div>
 <h2>Parties par jeu aujourd'hui</h2><div class="box"><table><tr><th>Jeu</th><th>Solo</th><th>À plusieurs</th><th>Finies</th></tr>${games}</table></div>
 <h2>Erreurs du jour</h2><div class="box"><ul>${errs}</ul></div>
@@ -1227,7 +1268,7 @@ const server = http.createServer((req, res) => {
   // /healthz répond 503 si le stockage refuse l'accès : UptimeRobot (qui surveille /healthz) envoie alors une alerte par e-mail
   if (url.pathname === "/healthz" && url.searchParams.get("ip") === "1") { res.writeHead(200, { "content-type": "application/json", "cache-control": "no-store" }); return res.end(JSON.stringify(ipSource(req))); }   // quels en-têtes d'adresse arrivent (sans les valeurs)
   if (url.pathname === "/healthz") { const bad = REDIS && storage.ok === false; res.writeHead(bad ? 503 : 200, { "content-type": "text/plain; charset=utf-8" }); return res.end(bad ? "STOCKAGE KO depuis " + storage.since + " : " + storage.msg : "ok " + salons.size + (REDIS ? " redis" : "")); }
-  const am = url.pathname.match(/^\/api\/p\/(create|login|me|pin|logout|rank|mj|score|wallet|conv|salons|sjoin|screate|skick|scode|sleave|sdelete|hist|solo|skin)$/);
+  const am = url.pathname.match(/^\/api\/p\/(create|login|me|pin|logout|rank|mj|en|score|wallet|conv|salons|sjoin|screate|skick|scode|sleave|sdelete|hist|solo|skin)$/);
   if (am) return void api(req, res, am[1]).catch(e => { console.error(e); try { res.writeHead(500); res.end("{}"); } catch {} });
   // culture générale : index léger des questions (identifiant → type), puis seulement les questions de la partie
   if (url.pathname === "/d/cg-index.js") { cgIdx = cgIdx || pack(Buffer.from("window.__CGI=" + JSON.stringify(CAT.cgIndex()) + ";window.__CGT=" + JSON.stringify(CAT.THEMES) + ";")); return sendBody(req, res, cgIdx, STATIC.js, "public, max-age=600"); }
