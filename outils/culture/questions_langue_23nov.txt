@@ -1,0 +1,101 @@
+# Format : thème | question | bonne réponse | faux 1 | faux 2 | faux 3 | explication
+Expressions françaises|Que veut dire « poser un lapin » ?|Ne pas venir à un rendez-vous|Offrir un cadeau|Faire une blague|Partir très vite|L'expression date du XIXe siècle : « lapin » désignait alors une dette impayée.
+Expressions françaises|Que veut dire « avoir le cafard » ?|Être triste|Avoir peur des insectes|Être très sale|Avoir faim|Le mot vient de Baudelaire, qui parlait du « cafard » pour la mélancolie.
+Expressions françaises|« Tomber dans les pommes » signifie…|S'évanouir|Faire une chute dans un verger|Se tromper|Se régaler|On pense que « pommes » viendrait de « pâmes », le fait de se pâmer.
+Expressions françaises|« Coûter les yeux de la tête », c'est…|Coûter très cher|Faire mal aux yeux|Être difficile à voir|Ne rien coûter|On exagère en imaginant donner ce qu'on a de plus précieux.
+Expressions françaises|« Avoir un poil dans la main » veut dire…|Être paresseux|Être très poilu|Être habile|Avoir de la chance|Le poil aurait eu le temps de pousser tant la main ne travaille pas.
+Expressions françaises|« Mettre les pieds dans le plat », c'est…|Aborder un sujet gênant sans délicatesse|Renverser son assiette|Cuisiner|Marcher dans une flaque|On évoque l'image de quelqu'un qui piétine maladroitement.
+Expressions françaises|« Être dans la lune » signifie…|Être distrait|Être astronaute|Être très heureux|Dormir debout|La lune symbolise le rêve, loin de la réalité.
+Expressions françaises|« Revenir à ses moutons », c'est…|Revenir au sujet principal|Rentrer à la ferme|Compter pour s'endormir|Retrouver ses amis|L'expression vient de la Farce de Maître Pathelin (XVe siècle).
+Expressions françaises|« Casser sa pipe » veut dire…|Mourir|Arrêter de fumer|Se fâcher|Faire une gaffe|Une des nombreuses façons imagées de parler de la mort.
+Expressions françaises|« Faire la grasse matinée », c'est…|Se lever tard|Manger un gros petit-déjeuner|Faire du sport le matin|Travailler tôt|« Gras » évoque ici l'abondance et le confort.
+Expressions françaises|« Avoir la tête dans le guidon » signifie…|Être trop pris par son travail pour prendre du recul|Faire du vélo|Être têtu|Avoir mal à la tête|Comme un cycliste concentré qui ne voit plus le paysage.
+Expressions françaises|« Prendre la mouche », c'est…|Se vexer facilement|Attraper un insecte|Partir en voyage|Aller pêcher|La mouche qui pique déclenche une réaction vive.
+Expressions françaises|« Être fauché comme les blés » veut dire…|Ne plus avoir d'argent|Être très fatigué|Être agriculteur|Avoir de la chance|Fauché comme le champ de blé après la moisson.
+Expressions françaises|« Donner sa langue au chat », c'est…|Renoncer à trouver la réponse|Parler sans arrêt|Nourrir son chat|Dire un secret|Autrefois on disait « jeter sa langue aux chiens ».
+Proverbes à compléter|« Petit à petit, l'oiseau fait… »|son nid|son chant|sa route|son vol|Ce proverbe rappelle que la patience mène au but.
+Proverbes à compléter|« Qui vole un œuf vole… »|un bœuf|une poule|un œuf de plus|un panier|Un petit larcin peut mener à un grand.
+Proverbes à compléter|« Il ne faut pas vendre la peau de l'ours avant de… »|l'avoir tué|l'avoir vu|l'avoir pesé|l'avoir chassé|Il ne faut pas se réjouir trop tôt.
+Proverbes à compléter|« Après la pluie, … »|le beau temps|le soleil couchant|l'arc-en-ciel|la neige|Les moments difficiles finissent par passer.
+Proverbes à compléter|« L'habit ne fait pas… »|le moine|le marchand|le roi|le soldat|Il ne faut pas juger sur les apparences.
+Proverbes à compléter|« Qui sème le vent récolte… »|la tempête|la pluie|le blé|la foudre|Celui qui provoque le désordre en subit les conséquences.
+Proverbes à compléter|« Tant va la cruche à l'eau qu'à la fin elle… »|se casse|se remplit|déborde|se perd|À force de prendre des risques, on finit par échouer.
+Proverbes à compléter|« Les petits ruisseaux font… »|les grandes rivières|les grands lacs|les belles fontaines|les grandes mers|De petites sommes réunies finissent par en faire une grande.
+Proverbes à compléter|« Rien ne sert de courir, il faut… »|partir à point|marcher vite|bien respirer|arriver premier|C'est la morale du Lièvre et la Tortue de La Fontaine.
+Proverbes à compléter|« Quand le chat n'est pas là, … »|les souris dansent|les chiens aboient|les oiseaux chantent|la maison dort|En l'absence du chef, chacun en profite.
+Proverbes à compléter|« Une hirondelle ne fait pas… »|le printemps|l'été|le beau temps|la saison|Un seul signe ne suffit pas pour conclure.
+Proverbes à compléter|« Pierre qui roule n'amasse pas… »|mousse|poussière|argent|terre|Celui qui change souvent de place ne s'enrichit pas.
+Proverbes à compléter|« Chat échaudé craint… »|l'eau froide|l'eau chaude|le feu|la pluie|Après une mauvaise expérience, on se méfie de tout.
+Proverbes à compléter|« Mieux vaut tard que… »|jamais|trop tôt|demain|rien|Il vaut mieux faire les choses en retard que de ne pas les faire.
+Orthographe|Quelle est la bonne orthographe ?|Un événement|Un évènnement|Un évenement|Un èvénement|« Événement » s'écrit aussi « évènement » depuis 1990, mais jamais avec deux n.
+Orthographe|Quelle est la bonne orthographe ?|Apparemment|Apparament|Aparemment|Apparemmant|Les adverbes en -emment viennent des adjectifs en -ent : apparent → apparemment.
+Orthographe|Quelle est la bonne orthographe ?|Un dilemme|Un dilemne|Un dillemme|Un dilème|Le mot vient du grec « dilêmma » : deux m, pas de n.
+Orthographe|Quelle est la bonne orthographe ?|Ils se sont succédé|Ils se sont succédés|Ils se sont succédées|Ils se sont succéder|« Succéder à » : le participe ne s'accorde pas (on succède à quelqu'un).
+Orthographe|Quelle est la bonne orthographe ?|Quatre-vingts ans|Quatre-vingt ans|Quatres-vingts ans|Quatre vingt ans|« Vingt » prend un s quand il est multiplié et termine le nombre.
+Orthographe|Quelle est la bonne orthographe ?|Un rhinocéros|Un rinocéros|Un rhinocéross|Un rhynocéros|Du grec « rhinos » (nez) et « keras » (corne).
+Orthographe|Quelle est la bonne orthographe ?|Bonhomme|Bonhome|Bonnhomme|Bonomme|« Bonhomme » prend deux m, mais « bonhomie » n'en prend qu'un.
+Orthographe|Quelle est la bonne orthographe ?|Je me suis rappelé ce jour|Je me suis rappelé de ce jour|Je me suis rapellé ce jour|Je m'en suis rappelé de ce jour|On se rappelle quelque chose, sans « de ».
+Orthographe|Quelle est la bonne orthographe ?|Une occurrence|Une occurence|Une ocurrence|Une occurance|Deux c et deux r, comme dans « occurrent ».
+Orthographe|Quelle est la bonne orthographe ?|Un abri|Un abrit|Un abris|Un habri|Le s de « abris » n'apparaît qu'au pluriel.
+Orthographe|Quelle est la bonne orthographe ?|Parmi|Parmis|Parmit|Parmie|« Parmi » ne prend jamais de s.
+Orthographe|Quelle est la bonne orthographe ?|Malgré|Malgrès|Malgret|Malgrés|« Malgré » ne prend pas de s.
+Orthographe|Quelle est la bonne orthographe ?|Une hirondelle|Une hyrondelle|Une hirondèle|Une irondelle|Avec un h muet et deux l.
+Orthographe|Quelle est la bonne orthographe ?|Ça m'est égal|Sa m'est égal|Ça m'ait égal|Ça mes égal|« Ça » est le pronom (cela), avec une cédille.
+Synonymes|Quel mot est un synonyme de « courageux » ?|Brave|Peureux|Lent|Timide|« Brave » vient de l'italien « bravo », vaillant.
+Synonymes|Quel mot est un synonyme de « rapide » ?|Véloce|Lourd|Paisible|Tardif|« Véloce » vient du latin « velox », d'où aussi « vélocipède ».
+Synonymes|Quel mot est un synonyme de « joyeux » ?|Gai|Morose|Sombre|Grave|« Morose » et « sombre » sont au contraire des contraires de joyeux.
+Synonymes|Quel mot est un synonyme de « petit » ?|Minuscule|Immense|Colossal|Vaste|« Minuscule » vient du latin « minusculus », un peu plus petit.
+Synonymes|Quel mot est un synonyme de « commencer » ?|Débuter|Achever|Terminer|Clore|Débuter, entamer, amorcer… autant de façons de commencer.
+Synonymes|Quel mot est un synonyme de « habitation » ?|Demeure|Voiture|Jardin|Chemin|Demeure, logis, maison : tous désignent l'endroit où l'on vit.
+Synonymes|Quel mot est un synonyme de « bavard » ?|Loquace|Muet|Discret|Taciturne|« Loquace » vient du latin « loqui », parler.
+Synonymes|Quel mot est un synonyme de « fatigué » ?|Las|Reposé|Dispos|Vif|« Las » est un mot ancien pour dire très fatigué.
+Synonymes|Quel mot est un synonyme de « beau » ?|Splendide|Laid|Banal|Terne|Splendide, magnifique, superbe : plusieurs degrés de beauté.
+Synonymes|Quel mot est un synonyme de « colère » ?|Courroux|Calme|Sérénité|Douceur|« Courroux » est un mot littéraire pour la colère.
+Synonymes|Quel mot est un synonyme de « vieux » ?|Âgé|Neuf|Jeune|Récent|On dit aussi « ancien » pour les objets.
+Synonymes|Quel mot est un synonyme de « peur » ?|Crainte|Audace|Joie|Confiance|Crainte, frayeur, effroi : la peur a beaucoup de nuances.
+Synonymes|Quel mot est un synonyme de « réussir » ?|Triompher|Échouer|Perdre|Abandonner|Triompher vient du « triomphe » des généraux romains victorieux.
+Synonymes|Quel mot est un synonyme de « cacher » ?|Dissimuler|Montrer|Révéler|Exposer|« Dissimuler », c'est cacher ce qui est.
+Origine des mots|D'où vient le mot « café » ?|De l'arabe « qahwa »|Du latin « cafum »|De l'anglais « coffee »|De l'espagnol « cafeto »|Il est passé par le turc « kahve » puis l'italien « caffè ».
+Origine des mots|D'où vient le mot « kiosque » ?|Du turc|Du chinois|Du russe|Du grec|« Köşk » désignait un pavillon de jardin en Turquie.
+Origine des mots|Le mot « sabotage » vient de…|Sabot, la chaussure en bois|Sabre, l'arme|Sabbat, le jour de repos|Saboter, un village|Saboter, c'était d'abord faire du travail bâclé, comme en marchant avec des sabots.
+Origine des mots|Le mot « bistro » viendrait…|D'un mot de patois signifiant boisson ou cabaretier|Du russe « vite »|D'un nom de famille|Du latin « bibere »|La légende du mot russe « bystro » (vite) est séduisante mais douteuse.
+Origine des mots|D'où vient le mot « algèbre » ?|De l'arabe « al-jabr »|Du grec « algos »|Du latin « algebra »|De l'hébreu|Il vient du titre d'un traité du savant Al-Khwârizmî.
+Origine des mots|Le mot « robot » a été inventé en…|Tchéquie|Japon|États-Unis|Allemagne|Par l'écrivain Karel Čapek en 1920, du tchèque « robota », travail forcé.
+Origine des mots|D'où vient le mot « orange » ?|Du sanskrit, par l'arabe et l'espagnol|Du nom de la ville d'Orange|Du latin « aurum », or|Du grec « oranos »|Le sanskrit « naranga » est devenu « naranja », puis « orange ».
+Origine des mots|Le mot « pantalon » vient…|D'un personnage de la comédie italienne|D'un roi de France|D'une ville anglaise|D'un tissu indien|Pantalone, vieillard de la commedia dell'arte, portait de longues culottes.
+Origine des mots|D'où vient le mot « chocolat » ?|De la langue des Aztèques|Du portugais|Du latin|De l'arabe|Le nahuatl « xocolatl » désignait une boisson amère au cacao.
+Origine des mots|Le mot « silhouette » vient…|D'un ministre des Finances du XVIIIe siècle|D'un peintre italien|D'une ville de Belgique|D'un mot grec|Étienne de Silhouette était réputé pour ses économies… et ses portraits découpés.
+Origine des mots|Le mot « tennis » vient du français…|« Tenez ! »|« Tennir »|« Tenaille »|« Tenu »|Au jeu de paume, le serveur criait « Tenez ! » avant de lancer la balle.
+Origine des mots|D'où vient le mot « bijou » ?|Du breton « bizou », anneau|Du latin « bijus »|De l'italien « bigio »|De l'anglais « bijoux »|Le breton « bizou » vient de « biz », le doigt.
+Origine des mots|Le mot « guillemets » viendrait…|D'un imprimeur nommé Guillaume|D'un oiseau|D'une ville normande|Du mot « guillotine »|On l'attribue à l'imprimeur Guillaume, au XVIe siècle.
+Origine des mots|D'où vient le mot « ketchup » ?|D'une sauce de poisson d'Asie|De l'anglais « catch up »|D'une ville américaine|D'un chef italien|Le mot viendrait d'une sauce chinoise ou malaise au poisson fermenté.
+Les années 60-70|En quelle année l'homme a-t-il marché sur la Lune pour la première fois ?|1969|1965|1972|1959|Neil Armstrong a posé le pied sur la Lune le 21 juillet 1969 (heure française).
+Les années 60-70|Quel paquebot français a été mis en service en 1962 ?|Le France|Le Normandie|Le Titanic|Le Queen Mary|Le France a été le plus long paquebot du monde à son lancement.
+Les années 60-70|Quel avion supersonique franco-britannique a volé pour la première fois en 1969 ?|Concorde|Caravelle|Airbus A300|Mirage|Le premier vol de Concorde a eu lieu à Toulouse le 2 mars 1969.
+Les années 60-70|Quelle voiture Citroën est sortie en 1955 et a marqué les années 60 ?|La DS|La 2 CV|La Traction|La Méhari|Surnommée « la déesse », la DS a été présentée au Salon de 1955.
+Les années 60-70|Quelle émission pour enfants commence en 1962 avec Nounours ?|Bonne nuit les petits|L'Île aux enfants|Récré A2|Le Manège enchanté|Nounours, Nicolas et Pimprenelle disaient bonsoir aux enfants.
+Les années 60-70|Quel chanteur était surnommé « l'idole des jeunes » ?|Johnny Hallyday|Claude François|Eddy Mitchell|Michel Sardou|« L'Idole des jeunes » est aussi le titre d'une de ses chansons de 1962.
+Les années 60-70|En quelle année a eu lieu Mai 68 ?|1968|1966|1970|1964|Les événements ont commencé dans les universités au printemps 1968.
+Les années 60-70|Quelle chanteuse a représenté le Luxembourg et gagné l'Eurovision en 1965 ?|France Gall|Sylvie Vartan|Françoise Hardy|Dalida|Elle a gagné avec « Poupée de cire, poupée de son », écrite par Serge Gainsbourg.
+Les années 60-70|Quel jeu de lettres télévisé est apparu en France en 1965 ?|Des chiffres et des lettres|Questions pour un champion|Motus|La Roue de la fortune|Il s'appelait d'abord « Le mot le plus long ».
+Les années 60-70|Le Tour de France 1969 a été gagné par…|Eddy Merckx|Jacques Anquetil|Raymond Poulidor|Bernard Hinault|C'était la première de ses cinq victoires.
+Les années 60-70|Quel objet plastique coloré envahit les cuisines dans les années 60 ?|Le Tupperware|Le Thermos|Le Moulinex|Le Frigidaire|Les fameuses réunions de vente à domicile arrivent en France dans les années 60.
+Les années 60-70|Quelle station de radio périphérique lance « Salut les copains » en 1959 ?|Europe 1|RTL|France Inter|RMC|L'émission a donné son nom au magazine et à toute une génération.
+Les années 60-70|En quelle année la télévision française passe-t-elle à la couleur ?|1967|1959|1975|1981|La deuxième chaîne a commencé à émettre en couleur le 1er octobre 1967.
+Les années 60-70|Quel dessin animé met en scène Pollux et Zébulon ?|Le Manège enchanté|Les Shadoks|Casimir|Maya l'abeille|Le Manège enchanté est arrivé à la télévision française en 1964.
+Régions et spécialités|De quelle région vient la quiche lorraine ?|Lorraine|Alsace|Bretagne|Auvergne|Son nom le dit : elle vient de Lorraine, comme la mirabelle.
+Régions et spécialités|Le kouign-amann est une spécialité…|Bretonne|Basque|Savoyarde|Provençale|Son nom signifie « gâteau au beurre » en breton.
+Régions et spécialités|La bouillabaisse est une spécialité de…|Marseille|Lyon|Bordeaux|Lille|Cette soupe de poissons de roche est l'emblème de Marseille.
+Régions et spécialités|Le cassoulet vient du…|Sud-Ouest|Nord|Jura|Val de Loire|Castelnaudary, Carcassonne et Toulouse se disputent sa paternité.
+Régions et spécialités|La tartiflette est un plat de…|Savoie|Normandie|Corse|Picardie|Elle est faite avec du reblochon, un fromage savoyard.
+Régions et spécialités|Les bêtises sont des bonbons de…|Cambrai|Nancy|Vichy|Montélimar|Selon la légende, elles seraient nées d'une erreur d'un apprenti confiseur.
+Régions et spécialités|Le nougat est la spécialité de…|Montélimar|Reims|Dijon|Rennes|Le nougat de Montélimar est fait avec du miel et des amandes.
+Régions et spécialités|La moutarde est la spécialité de…|Dijon|Arras|Nantes|Pau|La moutarde de Dijon est connue depuis le Moyen Âge.
+Régions et spécialités|Les calissons sont des confiseries d'…|Aix-en-Provence|Agen|Albi|Amiens|Faits de pâte d'amande et de melon confit, ils ont la forme d'une navette.
+Régions et spécialités|La choucroute est surtout une spécialité…|Alsacienne|Bretonne|Normande|Basque|Le chou fermenté est servi avec des saucisses et de la charcuterie.
+Régions et spécialités|Le camembert vient de…|Normandie|Bourgogne|Champagne|Corse|Le village de Camembert se trouve dans l'Orne.
+Régions et spécialités|Les canelés sont des petits gâteaux de…|Bordeaux|Toulouse|Brest|Lille|Ils sont parfumés au rhum et à la vanille.
+Régions et spécialités|La pissaladière est une tarte de…|Nice|Strasbourg|Rouen|Clermont-Ferrand|Elle est garnie d'oignons, d'olives et d'anchois.
+Régions et spécialités|Les rillettes les plus célèbres viennent du…|Mans|Havre|Puy|Creusot|Les rillettes du Mans sont faites avec de la viande de porc.
+Régions et spécialités|Le gâteau basque est souvent fourré à la crème ou à la…|cerise noire|fraise|pomme|poire|La cerise noire d'Itxassou est la plus célèbre.
+Régions et spécialités|L'aligot est un plat de…|l'Aubrac|la Camargue|la Sologne|la Beauce|Purée de pommes de terre filée avec de la tome fraîche.

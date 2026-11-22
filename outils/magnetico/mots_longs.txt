@@ -319,3 +319,103 @@ SUPERMARCHE|Grand magasin en libre-service
 TRAMPOLINE|Toile sur laquelle on rebondit
 VETERINAIRE|Médecin des animaux
 VOCALISATION|Chant sans paroles
+ABRICOTIER|Arbre qui donne des abricots
+ACCORDEON|Instrument à soufflet et à touches
+ADOLESCENCE|Période entre l'enfance et l'âge adulte
+AFFECTUEUX|Qui montre de la tendresse
+AGRICULTEUR|Personne qui cultive la terre
+ALLUMETTE|Petit bâton qui sert à faire du feu
+APPLAUDIR|Taper des mains pour féliciter
+ARCHITECTE|Personne qui dessine les maisons
+ARROSOIR|Récipient pour arroser les plantes
+ASCENSEUR|Cabine qui monte et descend les étages
+ASTRONAUTE|Voyageur de l'espace
+ATTENTION|Fait de bien regarder, de se concentrer
+AVENTURIER|Personne qui aime les aventures
+BALANCOIRE|Siège suspendu sur lequel on se balance
+BICYCLETTE|Vélo
+BOULANGERIE|Magasin où l'on achète le pain
+CAMIONNETTE|Petit camion
+CASSEROLE|Ustensile pour faire chauffer
+CEREMONIE|Fête solennelle
+CHAMPIONNAT|Compétition qui désigne le meilleur
+CHANDELIER|Support de bougies
+CHAUSSETTE|Vêtement qui couvre le pied
+CHOCOLATERIE|Fabrique ou boutique de chocolat
+CINEMATHEQUE|Lieu où l'on garde et projette des films
+CITROUILLE|Grosse courge orange
+CLARINETTE|Instrument à vent en bois
+COLLECTION|Ensemble d'objets rassemblés par goût
+COMMERCANT|Personne qui tient une boutique
+COMPLIMENT|Parole aimable pour féliciter
+CONFITURE|Fruits cuits avec du sucre
+CONTINENT|Très grande étendue de terre
+COQUELICOT|Fleur rouge des champs
+DEMENAGEMENT|Changement de logement
+DICTIONNAIRE|Livre qui donne le sens des mots
+ECHIQUIER|Plateau du jeu d'échecs
+ELEPHANTEAU|Petit de l'éléphant
+EMBOUTEILLAGE|Bouchon de voitures
+EXPLORATEUR|Personne qui part découvrir des terres
+FAMILIALE|Qui concerne la famille
+FEUILLETON|Histoire racontée en épisodes
+FORGERON|Artisan qui travaille le fer
+FRAMBOISIER|Arbuste qui donne des framboises
+GENEROSITE|Qualité de celui qui donne volontiers
+GOURMANDISE|Amour des bonnes choses à manger
+HORLOGERIE|Fabrication des montres et horloges
+INONDATION|Débordement des eaux
+INSTITUTRICE|Maîtresse d'école
+INVENTAIRE|Liste détaillée de ce que l'on possède
+JARDINIER|Personne qui entretient le jardin
+LIBELLULE|Insecte aux ailes transparentes
+LOCOMOTIVE|Machine qui tire les wagons
+MAGNETOPHONE|Appareil qui enregistre les sons
+MANDARINE|Petit agrume
+MARIONNETTE|Poupée qu'on fait bouger avec des fils
+MEDICAMENT|Remède
+MOUSTACHE|Poils au-dessus de la lèvre
+NOSTALGIE|Regret du passé
+OBSERVATOIRE|Lieu où l'on observe le ciel
+PATISSERIE|Boutique de gâteaux
+PHOTOGRAPHE|Personne qui prend des photos
+QUINCAILLERIE|Magasin d'outils et d'ustensiles
+RESTAURANT|Lieu où l'on mange contre paiement
+SPECTATEUR|Personne qui assiste à un spectacle
+STATIONNEMENT|Fait de garer son véhicule
+TRANQUILLITE|Calme, paix
+UNIVERSITE|École des études supérieures
+VACANCIER|Personne en vacances
+VIOLONCELLE|Grand instrument à cordes joué assis
+ACCROBRANCHE|Parcours dans les arbres
+AQUARELLISTE|Peintre qui travaille à l'eau
+ARCHIPEL|Groupe d'îles
+AUTOMOBILISTE|Conducteur de voiture
+BALLERINE|Danseuse de ballet
+BOUQUINISTE|Marchand de vieux livres
+BRODERIE|Ornement cousu sur un tissu
+CACAHUETE|Graine que l'on grignote à l'apéritif
+CAMPANILE|Clocher séparé de l'église
+CARAMBOLAGE|Série de voitures qui se heurtent
+CHAMPIGNONNIERE|Lieu où l'on cultive les champignons
+CHARCUTERIE|Boutique de jambon et saucisson
+CONFISERIE|Boutique de bonbons
+CONTREBASSE|Le plus grand des violons
+CROISIERE|Voyage en bateau
+DEGUSTATION|Fait de goûter avec attention
+DIPLOMATE|Représentant d'un pays à l'étranger
+EMBARCADERE|Lieu où l'on monte dans le bateau
+EPOUVANTAIL|Mannequin qui fait peur aux oiseaux
+FARANDOLE|Danse en chaîne
+FERRONNERIE|Travail du fer forgé
+HARMONICA|Petit instrument à souffle
+HORTICULTEUR|Personne qui cultive les fleurs
+ILLUMINATION|Décoration lumineuse
+KALEIDOSCOPE|Tube aux images colorées qui changent
+LIMONADIER|Patron de café
+MARMELADE|Confiture d'agrumes
+MOISSONNEUSE|Machine qui récolte les céréales
+PARACHUTISTE|Personne qui saute en parachute
+PELERINAGE|Voyage vers un lieu saint
+PHARMACIEN|Personne qui vend les médicaments
+RANDONNEUR|Marcheur sur les sentiers
