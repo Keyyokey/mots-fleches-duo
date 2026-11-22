@@ -156,18 +156,13 @@ const PHONE=()=>matchMedia("(max-width:620px) and (pointer:coarse)").matches;
 function fit(){const g=$("#mdGrid"),K=$("#mdKeys");if(!S||!PHONE()){document.body.classList.remove("tj");g.style.removeProperty("--mdc");g.style.removeProperty("--mdf");K.style.marginTop="";return}
   document.body.classList.add("tj");K.style.marginTop="0px";
   // partie finie (21/11) : on garde l'affichage de la partie (titre, pastille, bouton Classement, alphabet, grille) et on ajoute seulement le bloc de fin avec Pop
-  if(S.done){const c=fit.lock||Math.max(30,Math.min(48,Math.floor((Math.min(innerWidth,560)-12-16-(S.len-1)*6)/S.len)));g.style.setProperty("--mdc",c+"px");g.style.setProperty("--mdf",Math.round(c*.6)+"px");return}
-  const vv=window.visualViewport,kbOpen=!!(vv&&vv.height<innerHeight-120);
-  // taille FIXE pendant la partie : on calcule toujours comme si le clavier était ouvert (≈ 42 % de l'écran sur iPhone et Android),
-  // et on ne fait jamais grandir la grille après coup → plus de saut quand le clavier s'ouvre ou se ferme
-  const vh=kbOpen?vv.height:Math.round(innerHeight*0.58);
-  const byW=Math.floor((Math.min(innerWidth,560)-12-16-(S.len-1)*6)/S.len);
-  const set=c=>{c=Math.max(30,Math.min(64,byW,c));g.style.setProperty("--mdc",c+"px");g.style.setProperty("--mdf",Math.round(c*.6)+"px");return c};
-  // 1) taille de départ, 2) on agrandit les cases avec la place qui reste, 3) on descend le bloc vers le clavier
-  let c=set(40);const bottom=()=>$("#mdBar").getBoundingClientRect().bottom+(vv?-vv.offsetTop:0);
-  c=Math.min(fit.lock||99,c+Math.floor((vh-10-bottom())/6));fit.lock=Math.min(fit.lock||99,c);c=set(c);
-  const left=Math.max(0,Math.floor(vh-10-bottom()));K.style.marginTop=(kbOpen?left:0)+"px"}
-addEventListener("resize",()=>setTimeout(fit,60));if(window.visualViewport)visualViewport.addEventListener("resize",()=>{fit();if(document.activeElement===inp&&PHONE())scrollTo(0,0)});
+  // 22/11 (demande de Juvenal, capture iPhone) : les cases prennent toute la largeur (max 64 px) et ne changent plus de taille,
+  // clavier ouvert ou fermé ; si le clavier cache la ligne en cours, on fait seulement défiler la page jusqu'à elle
+  const byW=Math.floor((Math.min(innerWidth,560)-12-16-(S.len-1)*6)/S.len),c=Math.max(30,Math.min(64,byW));
+  g.style.setProperty("--mdc",c+"px");g.style.setProperty("--mdf",Math.round(c*.6)+"px");if(!S.done)showRow()}
+function showRow(){const vv=window.visualViewport;if(!vv||!S||S.done||!PHONE())return;const rows=$("#mdGrid").children,r=rows[Math.min(rows.length-1,(S.tries||[]).length)];if(!r)return;
+  const b=r.getBoundingClientRect().bottom,lim=vv.offsetTop+vv.height-10;if(b>lim)scrollBy(0,Math.ceil(b-lim))}
+addEventListener("resize",()=>setTimeout(fit,60));if(window.visualViewport)visualViewport.addEventListener("resize",()=>{fit();if(document.activeElement===inp&&PHONE())setTimeout(showRow,80)});
 // ---------- sons (fabriqués dans la page, suivent le réglage Son du site) ----------
 const SFX=(function(){let A=null,M=null,last=0;
   const on=()=>LS.get("fl-sound")!=="off";
