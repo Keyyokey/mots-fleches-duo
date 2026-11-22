@@ -1213,7 +1213,7 @@ h1{font-size:1.6rem;margin:0 0 4px}h2{font-size:1.2rem;margin:26px 0 10px}.mut{c
 .leg{display:flex;gap:16px;margin:8px 4px 0;font-size:.95rem;color:#d6dcef}.leg i{display:inline-block;width:12px;height:12px;border-radius:3px;margin-right:6px;vertical-align:-1px}
 table{width:100%;border-collapse:collapse;font-size:.98rem}th,td{text-align:left;padding:8px 6px;border-bottom:1px solid rgba(255,255,255,.1)}th{color:#c9d1e6;font-weight:600}td:not(:first-child),th:not(:first-child){text-align:right}
 ul{list-style:none;margin:0;padding:0}li{padding:9px 4px;border-bottom:1px solid rgba(255,255,255,.1)}li span{color:#ffc2b5;font-size:.95rem;word-break:break-word}a{color:#9fb5ff}</style></head><body><main>
-<h1>Statistiques Motipop</h1><div class="mut">Aujourd'hui, ${fmtDay(t.jour)} · <a href="?key=${k}">actualiser</a> · <a href="/admin/sauvegardes?key=${k}">sauvegardes</a></div>
+<h1>Statistiques Motipop</h1><div class="mut">Aujourd'hui, ${fmtDay(t.jour)} · <a href="?key=${k}">actualiser</a> · <a href="/admin/champion?key=${k}">champion d'hier</a> · <a href="/admin/sauvegardes?key=${k}">sauvegardes</a></div>
 <div class="cards">${card(t.visites, "visites de l'accueil", "#9fb5ff")}${card(t.lancees, "parties lancées", "#ffa58a")}${card(t.finies, "parties finies", "#7be0c8")}${card(+t.c["motdujour:partage"] || 0, "résultats partagés", "#c7a2ff")}${card(+t.c["enigme:reponse"] || 0, "réponses à l'énigme", "#f2deb0")}${card(t.mjOk, "Mot du jour trouvé" + (t.mjKo ? " · " + t.mjKo + " raté" + (t.mjKo > 1 ? "s" : "") : ""), "#ffd27a")}${card(t.erreurs, "erreurs chez les joueurs", t.erreurs ? "#ff8a8a" : "#c9d1e6")}</div>
 <h2>Les 14 derniers jours</h2><div class="box"><svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Visites et parties lancées par jour">${bars}</svg><div class="leg"><span><i style="background:#7b9bff"></i>visites</span><span><i style="background:#ff8a6b"></i>parties lancées</span></div></div>
 <h2>D'où viennent les visiteurs (14 jours)</h2><div class="box"><table><tr><th>Provenance</th><th>Aujourd'hui</th><th>14 jours</th></tr>${refs}</table></div>
@@ -1222,6 +1222,33 @@ ul{list-style:none;margin:0;padding:0}li{padding:9px 4px;border-bottom:1px solid
 <h2>Jour par jour</h2><div class="box"><table><tr><th>Jour</th><th>Visites</th><th>Lancées</th><th>Finies</th><th>Mot trouvé</th><th>Erreurs</th></tr>${hist}</table></div>
 <p class="mut">Chiffres anonymes. Données brutes : <a href="?key=${k}&amp;format=json">format JSON</a>.</p></main></body></html>`;
 }
+function championHtml(day, top, played, w, key, back) {
+  const k = encodeURIComponent(key || ""), esc = v => String(v).replace(/[&<>"']/g, c => "&#" + c.charCodeAt(0) + ";");
+  const mois = ["janvier","février","mars","avril","mai","juin","juillet","août","septembre","octobre","novembre","décembre"];
+  const ds = +day.slice(6, 8) + " " + mois[+day.slice(4, 6) - 1], num = Math.round((Date.UTC(+day.slice(0, 4), +day.slice(4, 6) - 1, +day.slice(6, 8)) - Date.UTC(2026, 10, 20)) / 864e5) + 1;
+  const pop = (fs.readdirSync(path.join(__dirname, "public", "d")).find(n => /^pop-victoire-.*\.webp$/.test(n)) || "");
+  const data = JSON.stringify({ ds, num, played, top: top.map(x => ({ name: x.name, pts: x.pts, n: x.n, ok: x.ok, ms: x.ms })), pop: pop ? "/d/" + pop : "" }).replace(/</g, "\\u003c");
+  return `<!doctype html><meta charset=utf-8><meta name=viewport content="width=device-width,initial-scale=1"><meta name=robots content=noindex><title>Champion du Mot du jour</title>
+<style>body{margin:0;background:#0d1020;color:#fff;font:16px Nunito,system-ui,sans-serif;text-align:center;padding:16px}canvas{width:min(100%,540px);border-radius:14px;box-shadow:0 10px 30px #0008}
+a,button{display:inline-block;margin:10px 6px;padding:12px 20px;border-radius:30px;border:0;background:#ff7a6b;color:#1a0f12;font:800 17px Nunito,sans-serif;text-decoration:none;cursor:pointer}.l{background:#2a2f4a;color:#fff}p{color:#c9c3ec}</style>
+<p>Mot du jour n° ${num} · ${esc(ds)} · ${played} joueur${played > 1 ? "s" : ""}${w ? " · mot : " + esc(w) : ""}</p>
+${top.length ? '<canvas id=c width=1080 height=1350></canvas><br><button id=dl>Télécharger l’image</button>' : "<p>Personne n'a marqué de points ce jour-là.</p>"}
+<br><a class=l href="?key=${k}&jours=${back + 1}">◀ Jour d'avant</a>${back > 1 ? `<a class=l href="?key=${k}&jours=${back - 1}">Jour d'après ▶</a>` : ""}<a class=l href="/admin/stats?key=${k}">Statistiques</a>
+<script>const D=${data};const c=document.getElementById('c');
+async function go(){if(!c)return;try{await document.fonts.load('900 80px Nunito')}catch(e){}
+const x=c.getContext('2d'),W=1080,H=1350;let g=x.createLinearGradient(0,0,W,H);g.addColorStop(0,'#0f1d33');g.addColorStop(1,'#1b1440');x.fillStyle=g;x.fillRect(0,0,W,H);
+const blob=(cx,cy,r,col)=>{const q=x.createRadialGradient(cx,cy,0,cx,cy,r);q.addColorStop(0,col);q.addColorStop(1,'transparent');x.fillStyle=q;x.fillRect(0,0,W,H)};blob(150,80,650,'#0f4a4f');blob(980,1300,700,'#3a2378');
+const T=(t,X,Y,f,col,al)=>{x.font=f;x.fillStyle=col;x.textAlign=al||'center';x.fillText(t,X,Y)};
+T('🏆 CHAMPION DU MOT DU JOUR',W/2,120,'900 46px Nunito','#7ff0de');T('n° '+D.num+' · '+D.ds,W/2,180,'700 38px Nunito','#c9c3ec');
+if(D.pop){const im=new Image();im.src=D.pop;await im.decode().catch(()=>{});try{x.drawImage(im,W/2-230,215,460,460)}catch(e){}}
+const a=D.top[0];let fs=110;x.font='900 '+fs+'px Nunito';while(x.measureText(a.name).width>940&&fs>50){fs-=6;x.font='900 '+fs+'px Nunito'}
+T(a.name,W/2,790,'900 '+fs+'px Nunito','#ffffff');
+const det=a.ok?('trouvé en '+a.n+' essai'+(a.n>1?'s':'')+(a.ms?' · '+Math.round(a.ms/1000)+' s':'')):'meilleur score';T(a.pts+' points · '+det,W/2,860,'800 42px Nunito','#ffc857');
+let y=960;D.top.slice(1).forEach((p,i)=>{x.fillStyle='rgba(255,255,255,.07)';x.beginPath();x.roundRect(180,y-56,720,84,22);x.fill();T((i?'🥉 ':'🥈 ')+p.name,215,y,'800 38px Nunito','#e8e4ff','left');T(p.pts+' pts',865,y,'800 38px Nunito','#c9c3ec','right');y+=104});
+T('Le mot d\\'aujourd\\'hui t\\'attend 👉',W/2,1215,'800 40px Nunito','#e8e4ff');x.fillStyle='#ff7a6b';x.beginPath();x.roundRect(W/2-200,1245,400,76,38);x.fill();T('motipop.fr',W/2,1298,'900 44px Nunito','#1a0f12');
+document.getElementById('dl').onclick=()=>c.toBlob(b=>{const u=URL.createObjectURL(b),l=document.createElement('a');l.href=u;l.download='champion-motdujour-'+D.num+'.png';l.click()},'image/png')}
+const f=new FontFace('Nunito','url(${"/d/" + (fs.readdirSync(path.join(__dirname, "public", "d")).find(n => /^f-nunito-.*\.woff2$/.test(n)) || "")})',{weight:'200 1000'});f.load().then(z=>{document.fonts.add(z);go()},go);</script>`;
+}
 // espace d'administration des sauvegardes (seulement si ADMIN_KEY est réglée chez Render ; la clé n'est jamais écrite dans les journaux)
 async function adminRoute(req, res, url) {
     const key = url.searchParams.get("key") || req.headers["x-admin-key"];
@@ -1229,6 +1256,11 @@ async function adminRoute(req, res, url) {
     const J = (c, o) => { res.writeHead(c, { "content-type": "application/json; charset=utf-8", "cache-control": "no-store" }); res.end(JSON.stringify(o, null, 1)); };
     if (url.pathname === "/admin/stats") { statFlush(); const days = []; for (let i = 0; i < 14; i++) { const d = parisDay(new Date(Date.now() - i * 86400e3)); let o = null; if (d === STAT.day) o = { c: STAT.c, errs: STAT.errs }; else if (REDIS) { try { o = JSON.parse(await redis(["GET", "stat:" + d]) || "null"); } catch {} } if (o) days.push({ jour: d, compteurs: o.c, erreurs: i === 0 ? o.errs : (o.errs || []).length }); } if (url.searchParams.get("format") === "json") return J(200, { aide: "accueil = visites de l'accueil ; <jeu>:ouverte-solo / -multi = parties lancées ; <jeu>:finie = parties terminées avec points ; erreurs = pages qui ont planté chez un joueur (détail du jour)", jours: days });
       res.writeHead(200, { "content-type": "text/html; charset=utf-8", "cache-control": "no-store", "referrer-policy": "no-referrer" }); return res.end(adminStatsHtml(days, url.searchParams.get("key"))); }
+    if (url.pathname === "/admin/champion") {          // image « champion du Mot du jour » d'hier, à télécharger pour les réseaux
+      const back = Math.max(1, Math.min(30, +url.searchParams.get("jours") || 1)), yd = parisDay(new Date(Date.now() - back * 864e5));
+      let d = null; try { d = await MJ.dayList(yd); } catch {}
+      res.writeHead(200, { "content-type": "text/html; charset=utf-8", "cache-control": "no-store", "referrer-policy": "no-referrer" });
+      return res.end(championHtml(yd, d ? d.list.filter(x => x.pts > 0).slice(0, 3) : [], d ? d.played : 0, d ? d.w : "", url.searchParams.get("key"), back)); }
     if (!REDIS) return J(503, { error: "Pas de stockage Redis sur ce serveur" });
     try {
       if (url.pathname === "/admin/sauvegardes" && req.method === "GET") return J(200, { sauvegardes: await listBackups(), aide: "Télécharger : /admin/telecharger?key=…&date=AAAAMMJJ · Sauvegarde immédiate : POST /admin/sauvegarder · Restaurer : POST /admin/restaurer?date=AAAAMMJJ&confirmer=RESTAURER" });
