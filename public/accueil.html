@@ -1610,9 +1610,9 @@ function share(){const link=location.origin+"/"+(CODE&&ROOM?CODE:"");const own=R
 $$("[data-open=share]").forEach(b=>b.onclick=share);
 
 // ---------- tuiles de jeu et fenêtre de réglages ----------
-const GAMES={fleches:{nm:"Mots fléchés",lv:[["facile","Facile",414],["normal","Normal",417],["difficile","Difficile",386]],lvT:[150,150,150],t:true},
-  rond:{nm:"Le Tourniquet",lv:[["facile","Facile",321],["moyen","Normal",320],["difficile","Difficile",319]],t:true},
-  meles:{nm:"Mots mêlés",lv:[["facile","Facile",297],["moyen","Normal",297],["difficile","Difficile",297]]},
+const GAMES={fleches:{nm:"Mots fléchés",lv:[["facile","Facile",414],["normal","Normal",417],["difficile","Difficile",386]],lvT:[250,250,250],t:true},
+  rond:{nm:"Le Tourniquet",lv:[["facile","Facile",740],["moyen","Normal",740],["difficile","Difficile",740]],t:true},
+  meles:{nm:"Mots mêlés",lv:[["facile","Facile",397],["moyen","Normal",397],["difficile","Difficile",397]]},
   poker:{nm:"Wordflush",lv:[]},culture:{nm:"Culture générale",lv:[]},
   magnetico:{nm:"Magnético",lv:[["facile","Facile",0],["normal","Normal",0],["difficile","Difficile",0]]}};
 $$(".tile").forEach(t=>t.addEventListener("click",e=>{if(e.target.closest(".modes"))return;const was=t.classList.contains("lift");$$(".tile").forEach(x=>x.classList.remove("lift"));if(!was)t.classList.add("lift")}));
