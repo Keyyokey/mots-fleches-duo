@@ -806,6 +806,7 @@ function mjClose(p, st, sc) {
 const mjGuestIp = new Map();   // "jour|ip" -> nombre d'invités différents
 function mjGuestOk(day, ip, id) { const k = day + "|" + ip; let e = mjGuestIp.get(k); if (!e) { if (mjGuestIp.size > 50000) mjGuestIp.clear(); e = new Set(); mjGuestIp.set(k, e); } if (e.has(id)) return true; if (e.size >= 12) return false; e.add(id); return true; }
 async function mjApi(b, out, ip) {
+  if (b.op === "share") { statAdd("motdujour:partage"); return out(200, { ok: true }); }
   const day = parisDay(), w = MJ.wordOf(day);
   // qui joue : un pseudo connecté (classé) ou un invité (identifiant tiré au hasard par son navigateur)
   let id = null, name = normPseudo(b.name), pl = null;
@@ -1167,7 +1168,7 @@ h1{font-size:1.6rem;margin:0 0 4px}h2{font-size:1.2rem;margin:26px 0 10px}.mut{c
 table{width:100%;border-collapse:collapse;font-size:.98rem}th,td{text-align:left;padding:8px 6px;border-bottom:1px solid rgba(255,255,255,.1)}th{color:#c9d1e6;font-weight:600}td:not(:first-child),th:not(:first-child){text-align:right}
 ul{list-style:none;margin:0;padding:0}li{padding:9px 4px;border-bottom:1px solid rgba(255,255,255,.1)}li span{color:#ffc2b5;font-size:.95rem;word-break:break-word}a{color:#9fb5ff}</style></head><body><main>
 <h1>Statistiques Motipop</h1><div class="mut">Aujourd'hui, ${fmtDay(t.jour)} · <a href="?key=${k}">actualiser</a> · <a href="/admin/sauvegardes?key=${k}">sauvegardes</a></div>
-<div class="cards">${card(t.visites, "visites de l'accueil", "#9fb5ff")}${card(t.lancees, "parties lancées", "#ffa58a")}${card(t.finies, "parties finies", "#7be0c8")}${card(t.mjOk, "Mot du jour trouvé" + (t.mjKo ? " · " + t.mjKo + " raté" + (t.mjKo > 1 ? "s" : "") : ""), "#ffd27a")}${card(t.erreurs, "erreurs chez les joueurs", t.erreurs ? "#ff8a8a" : "#c9d1e6")}</div>
+<div class="cards">${card(t.visites, "visites de l'accueil", "#9fb5ff")}${card(t.lancees, "parties lancées", "#ffa58a")}${card(t.finies, "parties finies", "#7be0c8")}${card(+t.c["motdujour:partage"] || 0, "résultats partagés", "#c7a2ff")}${card(t.mjOk, "Mot du jour trouvé" + (t.mjKo ? " · " + t.mjKo + " raté" + (t.mjKo > 1 ? "s" : "") : ""), "#ffd27a")}${card(t.erreurs, "erreurs chez les joueurs", t.erreurs ? "#ff8a8a" : "#c9d1e6")}</div>
 <h2>Les 14 derniers jours</h2><div class="box"><svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Visites et parties lancées par jour">${bars}</svg><div class="leg"><span><i style="background:#7b9bff"></i>visites</span><span><i style="background:#ff8a6b"></i>parties lancées</span></div></div>
 <h2>Parties par jeu aujourd'hui</h2><div class="box"><table><tr><th>Jeu</th><th>Solo</th><th>À plusieurs</th><th>Finies</th></tr>${games}</table></div>
 <h2>Erreurs du jour</h2><div class="box"><ul>${errs}</ul></div>

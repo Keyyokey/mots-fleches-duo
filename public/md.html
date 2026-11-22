@@ -47,6 +47,8 @@
 .mdend .w{font:800 1.6rem Nunito,Inter,sans-serif;letter-spacing:.12em;background:linear-gradient(90deg,#ff7aa8,#a78bfa);-webkit-background-clip:text;background-clip:text;color:transparent}
 .mdend .def{color:var(--muted);font-size:.92rem}
 .mdend .row{display:flex;gap:8px;flex-wrap:wrap;justify-content:center}
+.mdmini{display:flex;flex-direction:column;gap:3px;margin:4px 0 2px}.mdmini div{display:flex;gap:3px;justify-content:center}.mdmini i{width:16px;height:16px;border-radius:4px;background:#3a4258}.mdmini .m2{background:#14b8a0}.mdmini .m1{background:#f59e0b}
+#mdShare{min-height:52px;padding:0 26px;font-size:1.05rem}
 .mdtabs{display:flex;gap:6px;margin-bottom:8px}
 .mdtabs button{flex:1;min-height:38px;border-radius:12px;border:1px solid var(--stroke);background:var(--glass);color:var(--ink);font:700 .85rem Inter,sans-serif;cursor:pointer}
 .mdtabs button.on{background:var(--glass2);border-color:rgba(255,122,168,.6)}
@@ -211,7 +213,7 @@ function draw(){if(!S)return;
   $("#mdKeys").innerHTML=!S.done||S.tries.length?"AZERTYUIOPQSDFGHJKLMWXCVBN".split("").map(L=>'<span class="'+(L in st?"k"+st[L]:"")+'">'+L+"</span>").join(""):"";
   $("#mdBar").style.display=S.done?"none":"";inp.disabled=!!S.done;if(S.done){if(document.activeElement===inp)inp.blur();inp.hidden=true}
   const e=$("#mdEnd");e.classList.toggle("on",!!S.done);if(S.done)fit();
-  if(S.done){const n=S.tries.length;e.innerHTML=(S.ok?'<img class="mdpop" src="/d/pop-victoire-d9b3c764d3.webp" width="120" height="120" alt="Pop saute de joie">':'')+(S.ok?'<h3>Trouvé en '+n+" essai"+(n>1?"s":"")+(S.ms?" · "+fmt(S.ms):"")+" !</h3>":"<h3>Pas cette fois…</h3>")+'<div class="gain">+'+(S.pts||0)+' points aujourd\'hui</div><div class="w">'+esc(S.word)+'</div><div class="def">'+esc(S.def||"")+'</div><div class="row"><button class="btn primary" id="mdShare">Partager mon résultat</button></div><small class="note">Nouveau mot demain à minuit.</small>';
+  if(S.done){const n=S.tries.length;e.innerHTML=(S.ok?'<img class="mdpop" src="/d/pop-victoire-d9b3c764d3.webp" width="120" height="120" alt="Pop saute de joie">':'')+(S.ok?'<h3>Trouvé en '+n+" essai"+(n>1?"s":"")+(S.ms?" · "+fmt(S.ms):"")+" !</h3>":"<h3>Pas cette fois…</h3>")+'<div class="gain">+'+(S.pts||0)+' points aujourd\'hui</div><div class="w">'+esc(S.word)+'</div><div class="def">'+esc(S.def||"")+'</div><div class="mdmini" aria-hidden="true">'+S.tries.map(t=>'<div>'+t.c.map(c=>'<i class="m'+c+'"></i>').join("")+'</div>').join("")+'</div><div class="row"><button class="btn primary" id="mdShare">Partager mon résultat</button></div><small class="note">Le mot n\'est jamais montré : rien n\'est gâché.</small><small class="note">Nouveau mot demain à minuit.</small>';
     $("#mdShare").onclick=share}
   list()}
 function fmt(ms){const s=Math.round(ms/1000);return s<60?s+" s":Math.floor(s/60)+" min "+String(s%60).padStart(2,"0")}
@@ -248,7 +250,10 @@ function send(){if(!S||S.done||busy)return;const g=cur();if(g.length<S.len){say(
     if(S.done){say(S.ok?"Bravo !":"");}else{say("");inp.focus()}}).catch(()=>{busy=false;say("Pas de connexion : réessaie.")})}
 function shake(){const rows=$("#mdGrid").querySelectorAll(".mdrow"),r=rows[S.tries.length];if(r){r.classList.remove("shake");void r.offsetWidth;r.classList.add("shake")}}
 function share(){const sq=S.tries.map(t=>t.c.map(c=>c===2?"🟩":c===1?"🟧":"⬛").join("")).join("\n");
-  const txt="Motipop · Mot du jour du "+dayTxt(S.day)+"\n"+(S.ok?S.tries.length+"/6":"X/6")+"\n"+sq+"\n"+location.origin+"/motdujour";
+  // numéro du jour (n° 1 = 20/11/2026), résultat, carrés sans le mot, défi et lien
+  const num=Math.round((Date.UTC(+S.day.slice(0,4),+S.day.slice(4,6)-1,+S.day.slice(6,8))-Date.UTC(2026,10,20))/864e5)+1;
+  const txt="Motipop · Mot du jour n° "+num+" · "+(S.ok?S.tries.length+"/6":"X/6")+"\n"+sq+"\n"+(S.ok?"Fais mieux que moi :":"À toi de le trouver :")+"\n"+location.origin+"/motdujour";
+  try{call({op:"share"}).catch(()=>{})}catch(e){}
   if(navigator.share)navigator.share({text:txt}).catch(()=>{});else if(navigator.clipboard)navigator.clipboard.writeText(txt).then(()=>say("Résultat copié : colle-le où tu veux !"),()=>say(txt));else say(txt)}
 call({}).then(r=>{S=r;draw();if(!S.done&&matchMedia("(pointer:fine)").matches)inp.focus()}).catch(()=>{$("#mdInfo").textContent="Le mot du jour n'a pas pu être chargé. Vérifie ta connexion."});
 setInterval(()=>{if(document.hidden||!S||busy)return;call({}).then(r=>{if(r&&r.board&&S){S.board=r.board;if(r.mine)S.mine=r.mine;const b=r.board;$("#mdCount").textContent=b.found?b.found+(b.found>1?" joueurs l'ont trouvé":" joueur l'a trouvé")+" aujourd'hui":"Personne ne l'a encore trouvé aujourd'hui";list()}}).catch(()=>{})},30000);
