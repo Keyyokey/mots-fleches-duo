@@ -960,6 +960,9 @@ body.statsOn .dashbar{display:flex;grid-column:1/-1;align-items:center;justify-c
 [data-theme=light] .pop .lnk{color:#0b6b66!important}
 .pop .in::placeholder{color:rgba(255,255,255,.72);opacity:1;letter-spacing:.12em}
 [data-theme=light] .pop .in::placeholder{color:rgba(15,25,40,.6)}
+
+/* mode daltonien (menu → Daltonien) : orange = bien placée, bleu = ailleurs */
+html.cb .mdv .v2{background:linear-gradient(135deg,#f07a2c,#d9601a)!important}html.cb .mdv .v1{border:3px solid #4d94ff!important}
 </style>
 </head>
 <body>
@@ -1047,7 +1050,7 @@ body.statsOn .dashbar{display:flex;grid-column:1/-1;align-items:center;justify-c
   <button class="mi" data-act="pseudo"><span class="mic"><span class="av-me" id="mAv">?</span></span><span class="mt"><b id="mMe">Pseudo</b><small id="mMeSub">Se connecter · Ma page</small></span></button>
   <button class="mi" data-act="salon"><span class="mic"><svg viewBox="0 0 48 28" class="sofa"><path d="M8 6q0-4 4-4h24q4 0 4 4v8H8z" fill="currentColor" opacity=".85"/><path d="M2 12q0-3 3-3t3 3v4h32v-4q0-3 3-3t3 3v10q0 3-3 3H5q-3 0-3-3z" fill="currentColor"/></svg></span><span class="mt"><b id="mSalon">Nom du salon</b><small>Mes salons · rejoindre · créer</small></span></button>
   <button class="mi" data-act="share"><span class="mic share-mini">✳︎</span><span class="mt"><b>Partager</b><small>Inviter des amis</small></span></button>
-  <div class="mrow"><button class="mq" data-act="theme" id="mTheme">🌙 Sombre</button><button class="mq" data-act="deco" id="mDeco">🎃 Décor</button><button class="mq" data-act="sound" id="mSound">🔊 Son</button><button class="mq" data-act="music" id="mMusic" style="grid-column:1/-1;flex:1 1 100%">Musique</button></div>
+  <div class="mrow"><button class="mq" data-act="theme" id="mTheme">🌙 Sombre</button><button class="mq" data-act="deco" id="mDeco">🎃 Décor</button><button class="mq" data-act="sound" id="mSound">🔊 Son</button><button class="mq" data-act="cb" id="mCb">Daltonien</button><button class="mq" data-act="music" id="mMusic" style="grid-column:1/-1;flex:1 1 100%">Musique</button></div>
 </div>
 <div class="hline"></div>
 
@@ -1129,7 +1132,7 @@ body.statsOn .dashbar{display:flex;grid-column:1/-1;align-items:center;justify-c
       </div>
     </div>
   </div>
-<footer class="sitefoot" style="margin:22px 4px 34px;display:flex;flex-wrap:wrap;justify-content:center;gap:6px 16px;font-size:.85rem"><a href="/regles" style="color:inherit;opacity:.8">Règles et jetons</a><a href="/mentions-legales" style="color:inherit;opacity:.8">Mentions légales</a><a href="/confidentialite" style="color:inherit;opacity:.8">Confidentialité</a><a href="/conditions" style="color:inherit;opacity:.8">Conditions d'utilisation</a></footer>
+<footer class="sitefoot" style="margin:22px 4px 34px;display:flex;flex-wrap:wrap;justify-content:center;gap:6px 16px;font-size:.85rem"><a href="/regles" style="color:inherit;opacity:.8">Règles et jetons</a><a href="/mentions-legales" style="color:inherit;opacity:.8">Mentions légales</a><a href="/confidentialite" style="color:inherit;opacity:.8">Confidentialité</a><a href="?tuto=1" onclick="if(window.motipopVisite){event.preventDefault();motipopVisite()}" style="color:inherit;opacity:.8">Visite guidée</a><a href="/conditions" style="color:inherit;opacity:.8">Conditions d'utilisation</a></footer>
 </main>
 
 </div>
@@ -1710,7 +1713,8 @@ $("#dim").addEventListener("click",()=>{closePops();$("#mMenu").classList.remove
   m.addEventListener("click",e=>{e.stopPropagation();const a=e.target.closest("[data-act]")?.dataset.act;if(!a)return;
     if(a==="pseudo"){close();openMe(b)}else if(a==="salon"){close();openSalon(b)}else if(a==="share"){close();share()}
     else if(a==="theme"){$("#themeBtn").click()}
-    else if(a==="deco"){$("#decoBtn").click()}else if(a==="sound"){$("#soundBtn").click()}});
+    else if(a==="deco"){$("#decoBtn").click()}else if(a==="sound"){$("#soundBtn").click()}else if(a==="cb"){try{localStorage.setItem("fl-cb",localStorage.getItem("fl-cb")==="on"?"off":"on")}catch(_){}cbSync()}});
+  function cbSync(){let on=false;try{on=localStorage.getItem("fl-cb")==="on"}catch(_){}document.documentElement.classList.toggle("cb",on);const b=document.getElementById("mCb");if(b)b.textContent=(on?"✓ ":"")+"Daltonien"}cbSync();
   document.addEventListener("click",e=>{if(!e.target.closest("#mMenu")&&!e.target.closest("#mBtn"))close()})})();
 
 // ---------- téléphone : boutons Stats et Salon de l'en-tête ----------
@@ -1907,5 +1911,67 @@ document.querySelectorAll(".tile").forEach(function(t){t.classList.add("zz");io.
 fetch("/api/p/mj",{method:"POST",headers:{"content-type":"application/json"},body:"{}"}).then(r=>r.json()).then(r=>{const e=document.getElementById("mdtCount");{const g=document.getElementById("mdtGrid"),n=+(r&&r.len)||0;if(g&&n&&r.first)g.innerHTML='<i class="v2">'+String(r.first).slice(0,1)+'</i>'+'<i class="ve"></i>'.repeat(n-1)}if(e&&r&&r.board)e.textContent=r.board.found?(r.board.found+(r.board.found>1?" joueurs l'ont trouvé aujourd'hui":" joueur l'a trouvé aujourd'hui")):"Sois le premier à le trouver aujourd'hui !"}).catch(()=>{});</script>
 <script src="/d/musique-82e455b4fc.js" defer></script><script src="/d/lettres-28c2b6ea4b.js" defer></script>
 <script>addEventListener("DOMContentLoaded",()=>{const M=window.MotipopMusique;if(!M)return;M.bind(document.getElementById("musicBtn"));M.bind(document.getElementById("mMusic"),true)})</script>
+<!-- 22/11 : visite guidée de Pop (1re visite ; ?tuto=1 pour la revoir ; lien « Visite guidée » en bas de page) -->
+<style id="poptuto">
+#ptO{position:fixed;inset:0;z-index:200;cursor:pointer;-webkit-tap-highlight-color:transparent}
+#ptO .pz{position:fixed;background:rgba(8,12,28,.5);backdrop-filter:blur(7px);-webkit-backdrop-filter:blur(7px);transition:all .45s cubic-bezier(.4,.1,.2,1)}
+#ptO .pr{position:fixed;border-radius:22px;box-shadow:0 0 0 3px #fff,0 0 30px 6px rgba(127,240,222,.6);transition:all .45s cubic-bezier(.4,.1,.2,1);pointer-events:none;animation:ptP 1.6s ease-in-out infinite}
+@keyframes ptP{50%{box-shadow:0 0 0 3px #fff,0 0 44px 12px rgba(127,240,222,.8)}}
+#ptO .pb{position:fixed;left:50%;transform:translateX(-50%);width:min(358px,calc(100vw - 32px));background:#fff;color:#15122b;border-radius:24px;padding:18px 20px 16px;text-align:center;box-shadow:0 14px 40px rgba(0,0,0,.5);transition:top .4s,opacity .3s}
+#ptO .pb h4{margin:0;font:700 1.55rem/1.2 "Playfair Display",Georgia,serif;color:#15122b}
+#ptO .pb p{margin:7px 0 0;font:600 1.05rem/1.35 Inter,system-ui,sans-serif;color:#2f2a4d}
+#ptO .pb .go{display:inline-block;margin-top:14px;padding:14px 34px;border-radius:30px;background:#ff7a6b;color:#1a0f12;font:800 1.2rem Inter,sans-serif;border:0;cursor:pointer}
+#ptO .pm{position:fixed;width:96px;height:96px;border-radius:50%;background:radial-gradient(circle at 50% 40%,#2de2c8,#5b3fd1);box-shadow:0 8px 24px rgba(0,0,0,.45);overflow:hidden;display:grid;place-items:center;transition:top .4s,left .4s,opacity .3s}
+#ptO .pm img{width:110px;margin-top:16px}
+#ptO .pB{position:fixed;left:50%;bottom:96px;width:min(280px,64vw);transform:translateX(-50%);filter:drop-shadow(0 20px 30px rgba(0,0,0,.5));transition:opacity .3s}
+#ptO .pc,#ptO .ps{position:fixed;bottom:max(22px,env(safe-area-inset-bottom));padding:12px 20px;border-radius:30px;background:#1b1f3a;border:1px solid rgba(255,255,255,.4);font:700 1rem Inter,sans-serif;color:#fff}
+#ptO .pc{left:18px}#ptO .ps{right:18px;cursor:pointer}
+#ptO .pg{position:fixed;left:0;right:0;top:0;height:5px;background:rgba(255,255,255,.15)}#ptO .pg i{display:block;height:100%;background:#7ff0de;transition:width .4s}
+#ptO .hide{opacity:0!important;pointer-events:none}
+@media (prefers-reduced-motion:reduce){#ptO *{transition:none!important;animation:none!important}}
+</style>
+<script>
+(function(){
+  const POPB="/d/pop-bonjour-c9931f8ee8.webp",POPE="/d/pop-explique-171569b04b.webp",POPV="/d/pop-victoire-d9b3c764d3.webp";
+  const vis=s=>{const e=typeof s==="string"?document.querySelector(s):s;if(!e)return null;const r=e.getBoundingClientRect();return r.width>0&&r.height>0&&getComputedStyle(e).visibility!=="hidden"?e:null};
+  const steps=()=>[
+    {big:POPB,h:"Bonjour ! Je suis Pop.",p:"Je te fais visiter ?"},
+    {t:".g-hero .tile",h:"Un mot à trouver chaque jour.",p:"Le même pour tout le monde !"},
+    {t:"#papy",h:"Une énigme chaque matin.",p:"La réponse arrive le lendemain."},
+    {t:".games:not(.g-hero)",box:()=>{const ts=[...document.querySelectorAll(".games:not(.g-hero) .tile")].slice(0,4).map(e=>e.getBoundingClientRect());return {left:Math.min(...ts.map(r=>r.left)),top:Math.min(...ts.map(r=>r.top)),right:Math.max(...ts.map(r=>r.right)),bottom:Math.max(...ts.map(r=>r.bottom))}},h:"Tes jeux sont ici.",p:"Seul ou à deux !"},
+    {t:"#abRank",h:"Ici, le classement.",p:"Qui est le meilleur ?"},
+    {t:"#mSal",alt:"#mBtn",h:"Ton pseudo et ton salon.",p:"Crée ton pseudo, puis ton salon : c'est ta table de jeu."},
+    {t:"#abL",h:"Invite un ami ici.",p:"Il reçoit le lien par WhatsApp."},
+    {t:'.tile[data-key="fleches"]',h:"Pour jouer à deux…",p:"…touche un jeu, puis « Multijoueurs »."},
+    {big:POPV,end:1,h:"À toi de jouer !",p:""}
+  ].filter(s=>!s.t||vis(s.t)||(s.alt&&vis(s.alt)));
+  function run(){
+    if(document.getElementById("ptO"))return;const S=steps();let i=0;
+    const o=document.createElement("div");o.id="ptO";o.setAttribute("role","dialog");o.setAttribute("aria-label","Visite guidée");
+    o.innerHTML='<div class="pz"></div><div class="pz"></div><div class="pz"></div><div class="pz"></div><div class="pr"></div><div class="pg"><i></i></div><img class="pB" alt=""><div class="pb"></div><div class="pm hide"><img src="'+POPE+'" alt=""></div><div class="pc">Touche pour continuer</div><button class="ps" type="button">Passer</button>';
+    document.body.appendChild(o);document.documentElement.style.overflow="hidden";
+    const Z=o.querySelectorAll(".pz"),ring=o.querySelector(".pr"),bub=o.querySelector(".pb"),pm=o.querySelector(".pm"),pB=o.querySelector(".pB");
+    const done=()=>{try{localStorage.setItem("fl-pop-tuto","1")}catch(_){}o.remove();document.documentElement.style.overflow="";removeEventListener("resize",place)};
+    function place(){const s=S[i];const W=innerWidth,H=innerHeight;bub.innerHTML="<h4>"+s.h+"</h4>"+(s.p?"<p>"+s.p+"</p>":"")+(s.end?'<button class="go" type="button">C\'est parti !</button>':"");
+      o.querySelector(".pg i").style.width=((i+1)/S.length*100)+"%";o.querySelector(".pc").classList.toggle("hide",!!s.end);o.querySelector(".ps").classList.toggle("hide",!!s.end);
+      const el=s.t&&(vis(s.t)||vis(s.alt));
+      if(!el){Z[0].style.cssText="left:0;top:0;width:100%;height:100%";[1,2,3].forEach(k=>Z[k].style.cssText="width:0;height:0");ring.style.opacity=0;pm.classList.add("hide");
+        pB.src=s.big||POPB;pB.classList.remove("hide");bub.style.top=Math.max(60,H*0.14)+"px";return}
+      pB.classList.add("hide");const r=s.box?s.box():el.getBoundingClientRect(),pd=8;const L=Math.max(0,r.left-pd),T=Math.max(0,r.top-pd),R=Math.min(W,r.right+pd),B=Math.min(H,r.bottom+pd);
+      Z[0].style.cssText=`left:0;top:0;width:100%;height:${T}px`;Z[1].style.cssText=`left:0;top:${B}px;width:100%;height:${Math.max(0,H-B)}px`;
+      Z[2].style.cssText=`left:0;top:${T}px;width:${L}px;height:${B-T}px`;Z[3].style.cssText=`left:${R}px;top:${T}px;width:${Math.max(0,W-R)}px;height:${B-T}px`;
+      Object.assign(ring.style,{left:L+"px",top:T+"px",width:(R-L)+"px",height:(B-T)+"px",opacity:1});
+      const bh=bub.offsetHeight||120;let by=B+18,down=true;if(by+bh>H-90){by=T-bh-18;down=false}if(by<10){by=Math.min(H-bh-90,Math.max(10,B+18))}
+      bub.style.top=by+"px";const pt=down?by+bh-12:by-90;pm.style.top=pt+"px";pm.style.left=(Math.min(W,(W+Math.min(358,W-32))/2)-96)+"px";pm.classList.toggle("hide",pt<8||pt+96>H-80)}
+    function show(){const s=S[i],el=s.t&&(vis(s.t)||vis(s.alt));
+      if(el){const r=s.box?s.box():el.getBoundingClientRect();const need=r.top<70||r.bottom>innerHeight-260;if(need){scrollBy({top:r.top-Math.max(80,(innerHeight-Math.min(r.bottom-r.top,innerHeight*.55))/3),behavior:"smooth"});setTimeout(place,380);setTimeout(place,800);return}}
+      place()}
+    o.addEventListener("click",e=>{if(e.target.closest(".ps")||e.target.closest(".go")){done();return}if(i<S.length-1){i++;show()}else done()});
+    addEventListener("resize",place);scrollTo({top:0});setTimeout(show,50)}
+  window.motipopVisite=run;
+  addEventListener("load",()=>{let seen=false;try{seen=localStorage.getItem("fl-pop-tuto")==="1"}catch(_){}
+    const force=/[?&]tuto=1/.test(location.search);if(force||(!seen&&!navigator.webdriver))setTimeout(run,900)});
+})();
+</script>
 </body>
 </html>

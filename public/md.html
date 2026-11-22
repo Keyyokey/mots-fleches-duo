@@ -113,7 +113,7 @@ body.tj .mdrow{gap:6px}
 @media (min-width:940px){.mdlay{display:grid;grid-template-columns:minmax(0,560px) 330px;max-width:910px;align-items:start;gap:18px}.mdside{position:sticky;top:16px}}
 @media (max-width:620px){.wrap{padding:10px}.md .card,.mdside .card{padding:12px}}
 </style>
-</head>
+<style id="cb">html.cb .c2{background:linear-gradient(135deg,#f07a2c,#d9601a)!important;color:#fff}html.cb .c1{background:rgba(61,139,253,.22)!important;border:3px solid #4d94ff!important}html.cb .k2{background:#e8691e!important;color:#fff}html.cb .k1{border:3px solid #4d94ff!important}html.cb .c1::after{content:"";position:absolute;right:4px;top:4px;width:7px;height:7px;border-radius:50%;background:#4d94ff}html.cb .c1{position:relative}</style></head>
 <body class="sk-new g-md">
 <div id="skTop" class="skph"></div>
 <div class="blob b1"></div><div class="blob b2"></div><div class="blob b3"></div>
@@ -249,7 +249,7 @@ function send(){if(!S||S.done||busy)return;const g=cur();if(g.length<S.len){say(
     {const t=S.tries[S.tries.length-1];if(t)t.c.forEach((c,i)=>SFX.tile(i,c));const end=S.len*.11+.25;if(S.done)(S.ok?SFX.win:SFX.lose)(end)}
     if(S.done){say(S.ok?"Bravo !":"");}else{say("");inp.focus()}}).catch(()=>{busy=false;say("Pas de connexion : réessaie.")})}
 function shake(){const rows=$("#mdGrid").querySelectorAll(".mdrow"),r=rows[S.tries.length];if(r){r.classList.remove("shake");void r.offsetWidth;r.classList.add("shake")}}
-function share(){const sq=S.tries.map(t=>t.c.map(c=>c===2?"🟩":c===1?"🟧":"⬛").join("")).join("\n");
+function share(){const sq=S.tries.map(t=>t.c.map(c=>c===2?(document.documentElement.classList.contains("cb")?"🟧":"🟩"):c===1?(document.documentElement.classList.contains("cb")?"🟦":"🟧"):"⬛").join("")).join("\n");
   // numéro du jour (n° 1 = 20/11/2026), résultat, carrés sans le mot, défi et lien
   const num=Math.round((Date.UTC(+S.day.slice(0,4),+S.day.slice(4,6)-1,+S.day.slice(6,8))-Date.UTC(2026,10,20))/864e5)+1;
   const txt="Motipop · Mot du jour n° "+num+" · "+(S.ok?S.tries.length+"/6":"X/6")+"\n"+sq+"\n"+(S.ok?"Fais mieux que moi :":"À toi de le trouver :")+"\n"+location.origin+"/motdujour";
@@ -260,6 +260,6 @@ setInterval(()=>{if(document.hidden||!S||busy)return;call({}).then(r=>{if(r&&r.b
 if(location.hostname==="localhost")window.__t=c=>eval(c);
 })();
 </script>
-<script>window.SK_HDR=1;</script><script src="/d/sk-7f5e4d9942.js"></script>
+<script>window.SK_HDR=1;</script><script src="/d/sk-ddedd74a54.js"></script>
 <script src="/d/icons-bbcd7285b6.js" defer></script>
 </body></html>
