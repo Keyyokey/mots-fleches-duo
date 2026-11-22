@@ -1142,12 +1142,45 @@ function sendAudio(req, res, name) {
   res.writeHead(200, { ...H, "content-length": buf.length });
   res.end(req.method === "HEAD" ? undefined : buf);
 }
+// page lisible des statistiques (22/11) : mêmes chiffres que ?format=json, rendus côté serveur (aucun appel depuis la page)
+const GAME_NAMES = { fleches: "Mots fléchés", rond: "Tourniquet", meles: "Mots mêlés", culture: "Culture générale", poker: "Wordflush", magnetico: "Magnético", motdujour: "Mot du jour" };
+function adminStatsHtml(days, key) {
+  const sum = (c, re) => Object.keys(c || {}).filter(k => re.test(k)).reduce((a, k) => a + (+c[k] || 0), 0);
+  const fmtDay = d => { const m = ["janv.", "févr.", "mars", "avr.", "mai", "juin", "juil.", "août", "sept.", "oct.", "nov.", "déc."]; return Number(d.slice(6, 8)) + " " + m[Number(d.slice(4, 6)) - 1]; };
+  const rows = days.map(d => { const c = d.compteurs || {}; return { jour: d.jour, visites: +c.accueil || 0, lancees: sum(c, /:ouverte/), finies: sum(c, /:finie$/), mjOk: +c["motdujour:trouve"] || 0, mjKo: +c["motdujour:rate"] || 0, erreurs: Array.isArray(d.erreurs) ? d.erreurs.length : (+d.erreurs || 0), c }; });
+  const t = rows[0] || { visites: 0, lancees: 0, finies: 0, mjOk: 0, mjKo: 0, erreurs: 0, c: {}, jour: parisDay() };
+  const card = (n, l, col) => `<div class="card"><b style="color:${col}">${n}</b><span>${l}</span></div>`;
+  const byDay = Object.fromEntries(rows.map(r => [r.jour, r])), chrono = Array.from({ length: 14 }, (_, i) => { const d = parisDay(new Date(Date.now() - (13 - i) * 86400e3)); return byDay[d] || { jour: d, visites: 0, lancees: 0 }; }), max = Math.max(1, ...chrono.map(r => Math.max(r.visites, r.lancees)));
+  const W = 640, H = 220, bw = W / Math.max(1, chrono.length);
+  const bars = chrono.map((r, i) => { const x = i * bw, hv = Math.round(r.visites / max * (H - 40)), hl = Math.round(r.lancees / max * (H - 40));
+    return `<rect x="${x + bw * .14}" y="${H - 24 - hv}" width="${bw * .34}" height="${hv}" rx="3" fill="#7b9bff"><title>${fmtDay(r.jour)} : ${r.visites} visites</title></rect><rect x="${x + bw * .52}" y="${H - 24 - hl}" width="${bw * .34}" height="${hl}" rx="3" fill="#ff8a6b"><title>${fmtDay(r.jour)} : ${r.lancees} parties</title></rect><text x="${x + bw / 2}" y="${H - 6}" text-anchor="middle">${escH(fmtDay(r.jour).split(" ")[0])}</text>`; }).join("");
+  const games = Object.keys(GAME_NAMES).map(g => { const c = t.c; const so = +c[g + ":ouverte-solo"] || 0, mu = +c[g + ":ouverte-multi"] || 0, fi = +c[g + ":finie"] || 0; return so + mu + fi ? `<tr><td>${GAME_NAMES[g]}</td><td>${so}</td><td>${mu}</td><td>${fi}</td></tr>` : ""; }).join("") || `<tr><td colspan="4" class="mut">Aucune partie aujourd'hui</td></tr>`;
+  const errs = (rows.length && Array.isArray(days[0].erreurs) ? days[0].erreurs : []).slice(-30).reverse().map(e => `<li><b>${escH(e.t || "")}</b> · ${escH(e.p || "")} · ${escH(e.ua || "")}<br><span>${escH(e.m || "")}</span></li>`).join("") || `<li class="mut">Aucune erreur aujourd'hui</li>`;
+  const hist = rows.map(r => `<tr><td>${fmtDay(r.jour)}</td><td>${r.visites}</td><td>${r.lancees}</td><td>${r.finies}</td><td>${r.mjOk}</td><td>${r.erreurs}</td></tr>`).join("");
+  const k = encodeURIComponent(key || "");
+  return `<!doctype html><html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex"><title>Statistiques — Motipop</title><style>
+body{margin:0;background:#12152e;color:#fff;font:17px/1.4 system-ui,-apple-system,Segoe UI,sans-serif}main{max-width:760px;margin:0 auto;padding:18px 16px 40px}
+h1{font-size:1.6rem;margin:0 0 4px}h2{font-size:1.2rem;margin:26px 0 10px}.mut{color:#c9d1e6}
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin-top:14px}.card{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.16);border-radius:18px;padding:14px;display:flex;flex-direction:column}.card b{font-size:2rem;line-height:1.1}.card span{color:#d6dcef;font-size:.95rem}
+.box{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.14);border-radius:18px;padding:12px;overflow-x:auto}svg{width:100%;height:auto;display:block}svg text{fill:#c9d1e6;font-size:11px}
+.leg{display:flex;gap:16px;margin:8px 4px 0;font-size:.95rem;color:#d6dcef}.leg i{display:inline-block;width:12px;height:12px;border-radius:3px;margin-right:6px;vertical-align:-1px}
+table{width:100%;border-collapse:collapse;font-size:.98rem}th,td{text-align:left;padding:8px 6px;border-bottom:1px solid rgba(255,255,255,.1)}th{color:#c9d1e6;font-weight:600}td:not(:first-child),th:not(:first-child){text-align:right}
+ul{list-style:none;margin:0;padding:0}li{padding:9px 4px;border-bottom:1px solid rgba(255,255,255,.1)}li span{color:#ffc2b5;font-size:.95rem;word-break:break-word}a{color:#9fb5ff}</style></head><body><main>
+<h1>Statistiques Motipop</h1><div class="mut">Aujourd'hui, ${fmtDay(t.jour)} · <a href="?key=${k}">actualiser</a> · <a href="/admin/sauvegardes?key=${k}">sauvegardes</a></div>
+<div class="cards">${card(t.visites, "visites de l'accueil", "#9fb5ff")}${card(t.lancees, "parties lancées", "#ffa58a")}${card(t.finies, "parties finies", "#7be0c8")}${card(t.mjOk, "Mot du jour trouvé" + (t.mjKo ? " · " + t.mjKo + " raté" + (t.mjKo > 1 ? "s" : "") : ""), "#ffd27a")}${card(t.erreurs, "erreurs chez les joueurs", t.erreurs ? "#ff8a8a" : "#c9d1e6")}</div>
+<h2>Les 14 derniers jours</h2><div class="box"><svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Visites et parties lancées par jour">${bars}</svg><div class="leg"><span><i style="background:#7b9bff"></i>visites</span><span><i style="background:#ff8a6b"></i>parties lancées</span></div></div>
+<h2>Parties par jeu aujourd'hui</h2><div class="box"><table><tr><th>Jeu</th><th>Solo</th><th>À plusieurs</th><th>Finies</th></tr>${games}</table></div>
+<h2>Erreurs du jour</h2><div class="box"><ul>${errs}</ul></div>
+<h2>Jour par jour</h2><div class="box"><table><tr><th>Jour</th><th>Visites</th><th>Lancées</th><th>Finies</th><th>Mot trouvé</th><th>Erreurs</th></tr>${hist}</table></div>
+<p class="mut">Chiffres anonymes. Données brutes : <a href="?key=${k}&amp;format=json">format JSON</a>.</p></main></body></html>`;
+}
 // espace d'administration des sauvegardes (seulement si ADMIN_KEY est réglée chez Render ; la clé n'est jamais écrite dans les journaux)
 async function adminRoute(req, res, url) {
     const key = url.searchParams.get("key") || req.headers["x-admin-key"];
     if (!adminOk(key)) { res.writeHead(404, { "content-type": "text/plain; charset=utf-8" }); return res.end("Introuvable"); }
     const J = (c, o) => { res.writeHead(c, { "content-type": "application/json; charset=utf-8", "cache-control": "no-store" }); res.end(JSON.stringify(o, null, 1)); };
-    if (url.pathname === "/admin/stats") { statFlush(); const days = []; for (let i = 0; i < 14; i++) { const d = parisDay(new Date(Date.now() - i * 86400e3)); let o = null; if (d === STAT.day) o = { c: STAT.c, errs: STAT.errs }; else if (REDIS) { try { o = JSON.parse(await redis(["GET", "stat:" + d]) || "null"); } catch {} } if (o) days.push({ jour: d, compteurs: o.c, erreurs: i === 0 ? o.errs : (o.errs || []).length }); } return J(200, { aide: "accueil = visites de l'accueil ; <jeu>:ouverte-solo / -multi = parties lancées ; <jeu>:finie = parties terminées avec points ; erreurs = pages qui ont planté chez un joueur (détail du jour)", jours: days }); }
+    if (url.pathname === "/admin/stats") { statFlush(); const days = []; for (let i = 0; i < 14; i++) { const d = parisDay(new Date(Date.now() - i * 86400e3)); let o = null; if (d === STAT.day) o = { c: STAT.c, errs: STAT.errs }; else if (REDIS) { try { o = JSON.parse(await redis(["GET", "stat:" + d]) || "null"); } catch {} } if (o) days.push({ jour: d, compteurs: o.c, erreurs: i === 0 ? o.errs : (o.errs || []).length }); } if (url.searchParams.get("format") === "json") return J(200, { aide: "accueil = visites de l'accueil ; <jeu>:ouverte-solo / -multi = parties lancées ; <jeu>:finie = parties terminées avec points ; erreurs = pages qui ont planté chez un joueur (détail du jour)", jours: days });
+      res.writeHead(200, { "content-type": "text/html; charset=utf-8", "cache-control": "no-store", "referrer-policy": "no-referrer" }); return res.end(adminStatsHtml(days, url.searchParams.get("key"))); }
     if (!REDIS) return J(503, { error: "Pas de stockage Redis sur ce serveur" });
     try {
       if (url.pathname === "/admin/sauvegardes" && req.method === "GET") return J(200, { sauvegardes: await listBackups(), aide: "Télécharger : /admin/telecharger?key=…&date=AAAAMMJJ · Sauvegarde immédiate : POST /admin/sauvegarder · Restaurer : POST /admin/restaurer?date=AAAAMMJJ&confirmer=RESTAURER" });
