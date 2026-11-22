@@ -886,6 +886,9 @@ body.statsOn .dashbar{display:flex;align-items:center;justify-content:space-betw
 .games:not(.g-hero) .tile .modes.acts{left:10px!important;right:10px!important;top:50%!important;bottom:auto!important;transform:translateY(-50%)!important;flex-direction:column;gap:8px}
 .games:not(.g-hero) .tile .abtn{width:100%!important;justify-content:center}
 .games:not(.g-hero) .tile:not(.lift) .modes.acts{opacity:0!important;pointer-events:none!important}
+.games:not(.g-hero) .tile:has(.abtn[data-mode="resume"]){min-height:206px!important}
+.games:not(.g-hero) .tile:has(.abtn[data-mode="resume"]) .modes.acts{gap:6px}
+.games:not(.g-hero) .tile:has(.abtn[data-mode="resume"]) .abtn{min-height:42px!important;padding-top:4px;padding-bottom:4px}
 .g-hero .tile.mdt{min-height:0!important;padding:18px!important;gap:12px}
 .g-hero .mdt .txt{display:contents}
 .g-hero .mdt .tag{order:1}.g-hero .mdt h2{order:2;margin:0}.g-hero .mdt .mdvis{order:3}.g-hero .mdt .txt p{order:4;margin:0}.g-hero .mdt .mdtpill{order:5}.g-hero .mdt .mdgo{order:6}
