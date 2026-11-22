@@ -133,6 +133,16 @@
   ]
  },
  {
+  "q": "Si tu me retournes tête en bas, je deviens un 9.",
+  "s": "Le chiffre 6",
+  "r": [
+   "6",
+   "six",
+   "chiffre 6",
+   "chiffre six"
+  ]
+ },
+ {
   "q": "Je fais le tour du jardin sans jamais bouger.",
   "s": "La clôture",
   "r": [
@@ -145,12 +155,31 @@
   ]
  },
  {
+  "q": "J'ai plein de couches, et quand on me coupe, on pleure.",
+  "s": "L'oignon",
+  "r": [
+   "oignon",
+   "ognon",
+   "echalote"
+  ]
+ },
+ {
   "q": "Je suis noir quand on m'achète, rouge quand je brûle, et gris quand on me jette.",
   "s": "Le charbon",
   "r": [
    "charbon",
    "braise",
    "charbon de bois"
+  ]
+ },
+ {
+  "q": "Couché sur le côté, je deviens le signe de l'infini.",
+  "s": "Le chiffre 8",
+  "r": [
+   "8",
+   "huit",
+   "chiffre 8",
+   "chiffre huit"
   ]
  },
  {
@@ -165,6 +194,14 @@
   ]
  },
  {
+  "q": "Je suis orange, je pousse sous la terre, et les lapins m'adorent.",
+  "s": "La carotte",
+  "r": [
+   "carotte",
+   "carottes"
+  ]
+ },
+ {
   "q": "Je suis tout petit et je tiens les tableaux au mur. Pour me planter, on me tape sur la tête.",
   "s": "Le clou",
   "r": [
@@ -174,11 +211,30 @@
   ]
  },
  {
+  "q": "Multiplie n'importe quel nombre par moi : le résultat sera toujours moi.",
+  "s": "Le zéro",
+  "r": [
+   "0",
+   "zero",
+   "chiffre 0",
+   "chiffre zero"
+  ]
+ },
+ {
   "q": "Chez moi, jeudi arrive avant mercredi.",
   "s": "Le dictionnaire",
   "r": [
    "dictionnaire",
    "dico"
+  ]
+ },
+ {
+  "q": "Je suis vert, rond et tout petit. Je vis serré avec mes frères dans une cosse.",
+  "s": "Le petit pois",
+  "r": [
+   "petit pois",
+   "pois",
+   "petits pois"
   ]
  },
  {
@@ -193,6 +249,16 @@
   ]
  },
  {
+  "q": "Un fermier a 15 moutons. Ils meurent tous, sauf 9. Combien lui en reste-t-il ?",
+  "s": "9 moutons",
+  "r": [
+   "9",
+   "neuf",
+   "9 moutons",
+   "neuf moutons"
+  ]
+ },
+ {
   "q": "On me mélange, on me coupe, on me distribue… mais personne ne me mange.",
   "s": "Le jeu de cartes",
   "r": [
@@ -203,10 +269,28 @@
   ]
  },
  {
+  "q": "Je suis rouge et ronde, et je fais la sauce des pâtes.",
+  "s": "La tomate",
+  "r": [
+   "tomate",
+   "tomates"
+  ]
+ },
+ {
   "q": "J'ai un œil, mais je ne vois rien. On passe un fil dans mon œil.",
   "s": "L'aiguille",
   "r": [
    "aiguille"
+  ]
+ },
+ {
+  "q": "Si tu m'additionnes avec moi-même ou si tu me multiplies par moi-même, tu trouves le même résultat.",
+  "s": "Le chiffre 2",
+  "r": [
+   "2",
+   "deux",
+   "chiffre 2",
+   "chiffre deux"
   ]
  },
  {
@@ -220,6 +304,16 @@
   ]
  },
  {
+  "q": "Je suis orange et énorme. À Halloween, on me creuse pour faire une lanterne.",
+  "s": "La citrouille",
+  "r": [
+   "citrouille",
+   "potiron",
+   "courge",
+   "citrouilles"
+  ]
+ },
+ {
   "q": "Je m'ouvre quand il pleut et je me ferme quand il fait beau.",
   "s": "Le parapluie",
   "r": [
@@ -228,11 +322,33 @@
   ]
  },
  {
+  "q": "Combien de fois peut-on enlever 2 à 10 ?",
+  "s": "Une seule fois (après, ce n'est plus 10 !)",
+  "r": [
+   "1",
+   "1 fois",
+   "une fois",
+   "fois",
+   "une seule fois",
+   "seule fois",
+   "un seule fois"
+  ]
+ },
+ {
   "q": "Je suis fait d'eau, mais si on me met dans l'eau chaude, je disparais.",
   "s": "Le glaçon",
   "r": [
    "glacon",
    "glace"
+  ]
+ },
+ {
+  "q": "Je ressemble à un petit arbre vert, et beaucoup d'enfants ne m'aiment pas.",
+  "s": "Le brocoli",
+  "r": [
+   "brocoli",
+   "brocolis",
+   "broccoli"
   ]
  },
  {
@@ -247,10 +363,29 @@
   ]
  },
  {
+  "q": "Additionne tous les points d'un dé à jouer : tu me trouves.",
+  "s": "21",
+  "r": [
+   "21",
+   "vingt et un",
+   "vingt un"
+  ]
+ },
+ {
   "q": "J'ai quatre pieds mais je ne marche jamais, et on mange sur moi.",
   "s": "La table",
   "r": [
    "table"
+  ]
+ },
+ {
+  "q": "Je pousse sous la terre. On me mange en frites, en purée ou en gratin.",
+  "s": "La pomme de terre",
+  "r": [
+   "pomme de terre",
+   "pommes de terre",
+   "patate",
+   "patates"
   ]
  },
  {
@@ -259,6 +394,16 @@
   "r": [
    "marteau",
    "maillet"
+  ]
+ },
+ {
+  "q": "Je suis le plus petit nombre qui s'écrit avec deux chiffres.",
+  "s": "Le nombre 10",
+  "r": [
+   "10",
+   "dix",
+   "nombre 10",
+   "nombre dix"
   ]
  },
  {
@@ -271,12 +416,30 @@
   ]
  },
  {
+  "q": "Je suis violette et brillante, et je suis la star de la ratatouille.",
+  "s": "L'aubergine",
+  "r": [
+   "aubergine",
+   "aubergines"
+  ]
+ },
+ {
   "q": "Je suis verte en été et rousse en automne. Avant l'hiver, je tombe de l'arbre.",
   "s": "La feuille",
   "r": [
    "feuille",
    "feuilles",
    "feuille d arbre"
+  ]
+ },
+ {
+  "q": "On raconte que les chats ont ce nombre de vies.",
+  "s": "9 vies",
+  "r": [
+   "9",
+   "neuf",
+   "9 vies",
+   "neuf vies"
   ]
  },
  {
@@ -288,10 +451,27 @@
   ]
  },
  {
+  "q": "On m'effeuille une feuille après l'autre, et on garde mon cœur pour la fin.",
+  "s": "L'artichaut",
+  "r": [
+   "artichaut",
+   "artichauts"
+  ]
+ },
+ {
   "q": "J'ai d'abord rampé sur les feuilles, maintenant je vole de fleur en fleur.",
   "s": "Le papillon",
   "r": [
    "papillon"
+  ]
+ },
+ {
+  "q": "On dit que je fais fuir les vampires. Ma tête se sépare en gousses.",
+  "s": "L'ail",
+  "r": [
+   "ail",
+   "gousse d ail",
+   "gousse"
   ]
  },
  {
@@ -301,6 +481,15 @@
    "chevre",
    "bouc",
    "biquette"
+  ]
+ },
+ {
+  "q": "Je suis vert, long et plein d'eau. On me coupe en rondelles dans la salade.",
+  "s": "Le concombre",
+  "r": [
+   "concombre",
+   "concombres",
+   "cornichon"
   ]
  },
  {
