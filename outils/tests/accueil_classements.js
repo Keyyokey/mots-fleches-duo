@@ -7,7 +7,7 @@ const api=async(r,b)=>(await fetch(U+'/api/p/'+r,{method:'POST',headers:{'conten
  let p=await pg();await p.goto(U+'/');await p.waitForTimeout(1200);
  ok(!(await p.$('#heroT'))&&!(await p.$('#ctaPlay'))&&!/Ton univers de/.test(await p.textContent('body')),'bloc « Ton univers de jeux » retiré');
  ok(!(await p.$('.space'))&&!(await p.$('.salonbox')),'ancienne section « Mon espace » du bas retirée');
- ok(await p.evaluate(()=>{const d=document.querySelector('.dash'),g=document.querySelector('.games'),f=document.querySelector('.sitefoot');return !!(d.compareDocumentPosition(g)&4&&g.compareDocumentPosition(f)&4)}),'ordre : classements + progression → Nos jeux → pied de page');
+ ok(await p.evaluate(()=>{const y=s=>document.querySelector(s).getBoundingClientRect().top;return y('#amisBar')<y('.g-hero')&&y('.g-hero')<y('.games:not(.g-hero)')&&y('.games:not(.g-hero)')<y('.dash')&&y('.dash')<y('.sitefoot')}),'ordre : barre amis → Mot du jour → Nos jeux → classements + progression → pied de page');
  const al=await p.evaluate(()=>{const r=e=>document.querySelector(e).getBoundingClientRect();const l=r('.dleft'),pr=r('.progcard');return{top:Math.abs(l.top-pr.top),bot:Math.abs(l.bottom-pr.bottom),side:l.right<pr.left}});ok(al.top<1&&al.bot<1&&al.side,'ordinateur : colonnes alignées (haut et bas) et côte à côte');
  ok(await p.evaluate(()=>!document.getElementById('cRank').hidden&&document.getElementById('cSalon').hidden),'onglet « Classement général » ouvert par défaut');
  await p.click('.rtabs [data-r=cSalon]');ok(await p.evaluate(()=>document.getElementById('cRank').hidden&&!document.getElementById('cSalon').hidden&&/salon/.test(document.getElementById('cSalon').textContent)),'onglet « Classement de ton salon » (hors salon : message)');

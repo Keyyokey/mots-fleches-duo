@@ -855,6 +855,47 @@ body.statsOn .dashbar{display:flex;align-items:center;justify-content:space-betw
 #mStats[aria-expanded=true]{background:linear-gradient(135deg,var(--accent),var(--violet));color:#fff}
 }
 .slm{display:flex!important;align-items:stretch;gap:0;padding:0!important;overflow:hidden}.slm .slo{all:unset;box-sizing:border-box;display:flex;align-items:center;gap:8px;flex:1;min-width:0;padding:10px 12px;cursor:pointer}.slm .slx{all:unset;box-sizing:border-box;cursor:pointer;padding:0 12px;min-height:44px;display:flex;align-items:center;font-weight:700;font-size:.76rem;opacity:.8;border-left:1px solid rgba(255,255,255,.16)}.slm .slx:hover,.slm .slx:focus-visible{opacity:1;color:#ff8fa3}.slm .slo:focus-visible,.slm .slx:focus-visible{outline:2px solid #00ADB5;outline-offset:-2px}</style>
+<style id="accueil-v3">
+/* 22/11 : Mot du jour en tête, barre amis, tuiles de jeux compactes */
+#v-accueil.on{display:flex;flex-direction:column}
+#v-accueil>.abar{order:0}#v-accueil>.g-hero{order:1}#v-accueil>.sec2{order:2}#v-accueil>.games:not(.g-hero){order:3}#v-accueil>.amis{order:4}#v-accueil>.hero2{order:5;margin-top:22px}#v-accueil>.sitefoot{order:6}
+.g-hero{margin-bottom:4px}
+#v-accueil.on>.games,#v-accueil.on>.sec2,#v-accueil.on>.abar,#v-accueil.on>.hero2{width:100%;box-sizing:border-box}
+.abar{display:flex;align-items:center;gap:10px;width:100%;max-width:var(--content-max);margin:4px auto 14px;padding:8px 8px 8px 12px;box-sizing:border-box;border-radius:18px}
+.abl{flex:1;min-width:0;display:flex;align-items:center;gap:10px;background:none;border:0;color:inherit;font:700 1rem Inter,system-ui,sans-serif;text-align:left;min-height:44px;cursor:pointer;padding:0}
+.abav{display:flex;flex-shrink:0}.abav:empty{display:none}
+.abav span{width:32px;height:32px;border-radius:50%;margin-left:-9px;display:grid;place-items:center;color:#fff;font:800 .85rem Inter,sans-serif;border:2px solid rgba(255,255,255,.85)}.abav span:first-child{margin-left:0}
+.abtx{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.abtx i{display:inline-block;width:9px;height:9px;border-radius:50%;background:#22BD92;margin-right:7px;vertical-align:1px}
+.abbtn{flex-shrink:0;min-height:44px;padding:0 16px;border-radius:22px;border:1px solid var(--stroke);background:rgba(255,255,255,.12);color:inherit;font:800 .95rem Inter,system-ui,sans-serif;cursor:pointer}
+[data-theme=light] .abbtn{background:rgba(15,25,40,.06)}
+.mdv .ve{background:rgba(255,255,255,.12);border:2px solid rgba(255,255,255,.5)}
+.mdgo{min-height:48px;padding:10px 26px;font-size:1.05rem}
+@media (min-width:621px){.g-bot .tile.cg .illu{position:absolute;right:15px;top:12px;width:128px;height:128px}.g-bot .tile.cg .ring2{width:104px;height:104px}.g-bot .tile.cg .scene{width:64px;height:64px}}
+@media (max-width:620px){
+.games:not(.g-hero){grid-template-columns:1fr 1fr;gap:10px}
+.games:not(.g-hero)>.g-bot{display:contents}
+.games:not(.g-hero) .tile{min-height:178px!important;padding:14px!important;border-radius:20px}
+.games:not(.g-hero) .tile .vis,.games:not(.g-hero) .tile .illu{zoom:.62}
+.games:not(.g-hero) .tile .vis,.games:not(.g-hero) .tile.cg .illu{right:10px!important;top:10px!important}
+.games:not(.g-hero) .tile .txt{padding-top:86px!important}
+.games:not(.g-hero) .tile .txt p{display:none}
+.games:not(.g-hero) .tile h2{font-size:1.3rem!important;line-height:1.05}
+.games:not(.g-hero) .tile .tag{font-size:.7rem;padding:3px 8px}
+.games:not(.g-hero) .tile.lift .vis,.games:not(.g-hero) .tile.lift .illu,.games:not(.g-hero) .tile.lift .txt{opacity:0!important}
+.games:not(.g-hero) .tile .modes.acts{left:10px!important;right:10px!important;top:50%!important;bottom:auto!important;transform:translateY(-50%)!important;flex-direction:column;gap:8px}
+.games:not(.g-hero) .tile .abtn{width:100%!important;justify-content:center}
+.games:not(.g-hero) .tile:not(.lift) .modes.acts{opacity:0!important;pointer-events:none!important}
+.g-hero .tile.mdt{min-height:0!important;padding:18px!important;gap:12px}
+.g-hero .mdt .txt{display:contents}
+.g-hero .mdt .tag{order:1}.g-hero .mdt h2{order:2;margin:0}.g-hero .mdt .mdvis{order:3}.g-hero .mdt .txt p{order:4;margin:0}.g-hero .mdt .mdtpill{order:5}.g-hero .mdt .mdgo{order:6}
+.g-hero .mdt .mdvis{position:relative!important;left:auto!important;right:auto!important;top:auto!important;bottom:auto!important;transform:none!important;z-index:2}
+.g-hero .mdt .txt>*{position:relative;z-index:2;opacity:1!important;transform:none!important;filter:none!important}
+.g-hero .mdv i{width:44px;height:48px;font-size:1.45rem}
+.g-hero .mdt .mdgo{align-self:stretch;justify-content:center;min-height:54px;font-size:1.15rem}
+.g-hero .mdt .txt p{font-size:1rem}
+}
+</style>
 </head>
 <body>
 <div class="blob b1"></div><div class="blob b2"></div><div class="blob b3"></div>
@@ -947,6 +988,13 @@ body.statsOn .dashbar{display:flex;align-items:center;justify-content:space-betw
 
 <!-- ============ ACCUEIL ============ -->
 <main class="view on" id="v-accueil">
+  <div class="abar glass" id="amisBar"><button type="button" class="abl" id="abL"><span class="abav" id="abAv"></span><span class="abtx" id="abTx">Joue avec tes amis</span></button><button type="button" class="abbtn" id="abRank">Classement</button></div>
+  <div class="games g-hero">
+      <div class="tile mdt" style="--tg:linear-gradient(135deg,#3a1030 0%,#8c2a5c 50%,#ff7aa8 100%);--ga:#ffd1e1" data-game="Mot du jour" data-key="motdujour" onclick="if(!event.target.closest('a'))location.href='/motdujour'">
+        <div class="txt"><span class="tag">Défi du jour</span><h2>Mot du jour</h2><p>6 essais · même mot pour tous</p><span class="mdtpill" id="mdtCount">…</span><a class="mdgo" href="/motdujour">Jouer</a></div>
+        <div class="mdvis"><div class="mdv" id="mdtGrid" aria-hidden="true"><i class="v2">M</i><i class="v1">O</i><i class="v0">T</i><i class="v2">S</i></div></div>
+      </div>
+  </div>
   <section class="hero2 dash" id="dashSec" aria-label="Mon espace">
     <div class="dashbar"><b>Mes stats</b><button class="glass-pill sq" id="dashX" aria-label="Fermer">✕</button></div>
     <div class="dleft">
@@ -966,18 +1014,12 @@ body.statsOn .dashbar{display:flex;align-items:center;justify-content:space-betw
   <h2 class="sec2" id="nosJeux"><span aria-hidden="true">🎮</span> Nos jeux</h2>
 
   <div class="games">
-    <div class="g-new">
-      <div class="tile mdt" style="--tg:linear-gradient(135deg,#3a1030 0%,#8c2a5c 50%,#ff7aa8 100%);--ga:#ffd1e1" data-game="Mot du jour" data-key="motdujour" onclick="if(!event.target.closest('a'))location.href='/motdujour'">
-        <div class="txt"><span class="tag">Défi du jour · Nouveau</span><h2>Mot du jour</h2><p>Un mot en 6 essais, le même pour tout le monde. Nouveau mot à minuit.</p><span class="mdtpill" id="mdtCount">…</span><a class="mdgo" href="/motdujour">🎯 Jouer au mot du jour</a></div>
-        <div class="mdvis"><div class="mdv" aria-hidden="true"><i class="v2">M</i><i class="v1">O</i><i class="v0">T</i><i class="v2">S</i></div></div>
-      </div>
+    <div class="g-bot g-row1">
       <div class="tile mgt" style="--tg:linear-gradient(135deg,#1b1440 0%,#3b2a8c 48%,#00ADB5 100%);--ga:#7cf3ff" data-game="Magnético" data-key="magnetico" data-multi="1">
-        <div class="txt"><span class="tag">Nouveau · Réflexe</span><h2>Magnético</h2><p>Les syllabes s'entrechoquent : touche-les dans le bon ordre pour reformer le mot. Seul ou jusqu'à 4.</p></div>
+        <div class="txt"><span class="tag">Réflexe</span><h2>Magnético</h2><p>Les syllabes s'entrechoquent : touche-les dans le bon ordre pour reformer le mot. Seul ou jusqu'à 4.</p></div>
         <div class="vis"><div class="mgv" aria-hidden="true"><i class="bb mb1">MA</i><i class="bb mb2">GNÉ</i><i class="bb mb3">TI</i><i class="bb mb4">CO</i></div></div>
         <div class="modes acts"><button class="abtn" data-mode="solo"><span>👤</span> Solo</button><button class="abtn" data-mode="multi"><span>👥</span> Multijoueurs</button><button class="abtn abtn-s" data-cfg="1" aria-label="Réglages de la partie"><span>⚙️</span> Réglages</button></div>
       </div>
-    </div>
-    <div class="g-top">
       <div class="tile" style="--tg:linear-gradient(135deg,#0b3d2e 0%,#0f7a4f 50%,#1fae6e 100%);--ga:#f4be4d" data-game="Wordflush" data-key="poker" data-multi="1">
         <div class="txt"><span class="tag">Stratégie</span><h2>Wordflush</h2><p>Forme le meilleur mot avec ta main, mise et bluffe pour remporter le pot.</p></div>
         <div class="vis"><div class="fan"><div class="cd">M<small>2</small></div><div class="cd">O<small>1</small></div><div class="cd">X<small>10</small></div><div class="chip" style="left:8px"></div><div class="chip" style="left:30px;bottom:6px"></div></div></div>
@@ -1381,9 +1423,12 @@ const pillMe=()=>window.innerWidth<=620?$("#mBtn"):$(".me-pill"),pillSalon=()=>w
 const PCOL=["#5ad8ff","#ffa45c","#7cf0a9","#c49bff","#ff8fb1","#ffd166"];
 const colOf=n=>PCOL[[...String(n)].reduce((a,c)=>a+c.charCodeAt(0),0)%PCOL.length];
 const GAMEL={accueil:"à l'accueil",fleches:"aux mots fléchés",rond:"au Tourniquet",meles:"aux mots mêlés",poker:"à Wordflush",magnetico:"à Magnético"};
-function renderPeers(){const box=$("#cPeers");if(!CODE||!ROOM){box.innerHTML='<div class="note">Rejoins ou crée un salon (bouton 🛋️) pour voir qui est connecté et jouer à plusieurs.</div>';return}
+function renderBar(rows){const av=$("#abAv"),tx=$("#abTx");if(!av||!tx)return;if(!rows){av.innerHTML="";tx.textContent="Joue avec tes amis";return}
+  const o=rows.filter(r=>!r.me);av.innerHTML=o.slice(0,4).map(r=>'<span style="background:'+colOf(r.n)+'">'+esc(r.n[0])+'</span>').join("");
+  tx.innerHTML=o.length?'<i></i>'+o.length+(o.length>1?" amis en ligne":" ami en ligne"):"Invite un ami"}
+function renderPeers(){const box=$("#cPeers");if(!CODE||!ROOM){renderBar(null);box.innerHTML='<div class="note">Rejoins ou crée un salon (bouton 🛋️) pour voir qui est connecté et jouer à plusieurs.</div>';return}
   const seen=new Set(),rows=[];PEERS.forEach(p=>{const pr=p.presence||{};const n=(pr.name||"").trim();const me=p.id===MYID;const key=n||p.id;if(seen.has(key))return;seen.add(key);rows.push({n:n||"Invité",me,where:pr.page||(pr.gid?"fleches":"")})});
-  rows.sort((a,b)=>b.me-a.me);
+  rows.sort((a,b)=>b.me-a.me);renderBar(rows);
   box.innerHTML=rows.map(r=>'<div class="row'+(r.me?" me":"")+'"><span class="dot"></span><span class="av" style="background:'+colOf(r.n)+'">'+esc(r.n[0])+'</span><span class="nm">'+esc(r.n)+(r.where&&GAMEL[r.where]&&!r.me?' <small class="note">'+GAMEL[r.where]+'</small>':"")+'</span>'+(r.me?"":'<button class="plus" title="Proposer une partie" data-n="'+esc(r.n)+'">+</button>')+'</div>').join("")
     +(rows.length<2?'<div class="row"><span class="dot" style="background:var(--muted);box-shadow:none"></span><span class="nm note">En attente d\'un joueur… <a href="#" id="invLink">inviter</a></span></div>':"");
   box.querySelectorAll(".plus").forEach(b=>b.onclick=()=>pickGame(b.dataset.n));
@@ -1604,6 +1649,8 @@ $("#dim").addEventListener("click",()=>{closePops();$("#mMenu").classList.remove
 
 // ---------- démarrage ----------
 updPills();renderPeers();renderSalon();renderRank();chart(0);renderResume();connect();loadMe();
+$("#abRank").onclick=e=>{e.stopPropagation();if(innerWidth<=620)$("#mStats").click();else $("#dashSec").scrollIntoView({behavior:"smooth",block:"start"})};
+$("#abL").onclick=e=>{e.stopPropagation();if(CODE&&ROOM&&!/en ligne/.test($("#abTx").textContent))share();else pillSalon().click()};
 if(CODE&&(!ME||ME.stale))setTimeout(()=>{toast("🔒","Connecte-toi pour ouvrir ce salon.");openMe(pillMe())},300);
 if(new URLSearchParams(location.search).get("open")==="salon")setTimeout(()=>openSalon(pillSalon()),300);
 // lien d'invitation d'un responsable : /#rejoindre=NOM&code=CODE → fenêtre « Rejoindre un salon » remplie
@@ -1765,7 +1812,7 @@ if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",
 (function(){if(!("IntersectionObserver" in window))return;var io=new IntersectionObserver(function(es){es.forEach(function(e){e.target.classList.toggle("zz",!e.isIntersecting)})},{rootMargin:"60px"});
 document.querySelectorAll(".tile").forEach(function(t){t.classList.add("zz");io.observe(t)})})();</script>
 <script>// 20/11 : mot du jour, nombre de joueurs qui l'ont trouvé aujourd'hui
-fetch("/api/p/mj",{method:"POST",headers:{"content-type":"application/json"},body:"{}"}).then(r=>r.json()).then(r=>{const e=document.getElementById("mdtCount");if(e&&r&&r.board)e.textContent=r.board.found?(r.board.found+(r.board.found>1?" joueurs l'ont trouvé aujourd'hui":" joueur l'a trouvé aujourd'hui")):"Sois le premier à le trouver aujourd'hui !"}).catch(()=>{});</script>
+fetch("/api/p/mj",{method:"POST",headers:{"content-type":"application/json"},body:"{}"}).then(r=>r.json()).then(r=>{const e=document.getElementById("mdtCount");{const g=document.getElementById("mdtGrid"),n=+(r&&r.len)||0;if(g&&n&&r.first)g.innerHTML='<i class="v2">'+String(r.first).slice(0,1)+'</i>'+'<i class="ve"></i>'.repeat(n-1)}if(e&&r&&r.board)e.textContent=r.board.found?(r.board.found+(r.board.found>1?" joueurs l'ont trouvé aujourd'hui":" joueur l'a trouvé aujourd'hui")):"Sois le premier à le trouver aujourd'hui !"}).catch(()=>{});</script>
 <script src="/d/musique-82e455b4fc.js" defer></script><script src="/d/lettres-28c2b6ea4b.js" defer></script>
 <script>addEventListener("DOMContentLoaded",()=>{const M=window.MotipopMusique;if(!M)return;M.bind(document.getElementById("musicBtn"));M.bind(document.getElementById("mMusic"),true)})</script>
 </body>
