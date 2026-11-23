@@ -795,7 +795,11 @@ const MJ = (() => {
 })();
 const MJ_TOTAL = new Map(), MJ_PRIZE = new Map();   // sans Redis (tests locaux) : points cumulés par pseudo, gagnants du jour
 // fin de journée d'un joueur : ses moyennes (mots trouvés, essais, temps pour trouver, temps pour la 1re lettre bien placée)
-function mjClose(p, st, sc) {
+// 23/11 : « Série du jour » — jours d'affilée où le Mot du jour a été terminé ; tous les 7 jours, 10 jetons offerts (une fois par jour)
+const mjPrev = day => { const d = new Date(Date.UTC(+day.slice(0, 4), +day.slice(4, 6) - 1, +day.slice(6, 8)) - 864e5); return d.toISOString().slice(0, 10).replace(/-/g, ""); };
+function mjSerie(p, day) { const z = p.ser = p.ser || { last: "", n: 0 }; if (z.last === day) return; z.n = z.last === mjPrev(day) ? z.n + 1 : 1; z.last = day; if (z.n % 7 === 0) { ensureWallet(p); p.coins = Math.round(p.coins + 10); z.gift = day; } }
+function mjClose(p, st, sc, day) {
+  if (day) mjSerie(p, day);
   const a = p.mj = p.mj || { days: 0, found: 0, pts: 0, nF: 0, msF: 0, gN: 0, gMs: 0 };
   if (st.ok) { a.found++; a.nF += st.t.length; a.msF += st.ms || 0; }
   if (sc.firstG != null) { a.gN++; a.gMs += sc.firstG; }
@@ -871,7 +875,7 @@ async function mjApi(b, out, ip) {
       const delta = sc.pts - before;
       if (s.t.length === 1) { pl.mj = pl.mj || { days: 0, found: 0, pts: 0, nF: 0, msF: 0, gN: 0, gMs: 0 }; pl.mj.days++; }
       if (delta > 0) { addPoints(id, pl, "motdujour", delta); pl.mj.pts = (pl.mj.pts || 0) + delta; if (REDIS) redis(["ZINCRBY", "mj:pts", String(delta), id]).catch(() => {}); else MJ_TOTAL.set(id, (MJ_TOTAL.get(id) || 0) + delta); MJ.resetTot(); }
-      if (s.ok || s.t.length >= 6) mjClose(pl, s, sc);
+      if (s.ok || s.t.length >= 6) mjClose(pl, s, sc, day);
       savePlayer(id);
     }
     return out(200, { ...MJ.view(day, s, w), pts: sc.pts, gained: sc.pts - before, board: await MJ.board(day), mine: pl ? mjMine(pl) : undefined });
@@ -879,7 +883,7 @@ async function mjApi(b, out, ip) {
   // op « etat » : ma grille du jour + les chiffres du jour + les classements
   return out(200, { ...MJ.view(day, st, w), pts: st && st.t && st.t.length ? MJ.score(st, w).pts : 0, board: await MJ.board(day), ranked: !!pl, mine: pl ? mjMine(pl) : undefined });
 }
-const mjMine = p => { const a = p.mj || {}; return { days: a.days || 0, found: a.found || 0, pts: a.pts || 0, avgN: a.found ? +(a.nF / a.found).toFixed(1) : null, avgMs: a.found ? Math.round(a.msF / a.found) : null, avgG: a.gN ? Math.round(a.gMs / a.gN) : null, wins: p.mjWins || 0 }; };
+const mjMine = p => { const a = p.mj || {}; return { days: a.days || 0, found: a.found || 0, pts: a.pts || 0, avgN: a.found ? +(a.nF / a.found).toFixed(1) : null, avgMs: a.found ? Math.round(a.msF / a.found) : null, avgG: a.gN ? Math.round(a.gMs / a.gN) : null, wins: p.mjWins || 0, ser: (() => { const z = p.ser || {}, d = parisDay(); return { n: z.last === d || z.last === mjPrev(d) ? z.n || 0 : 0, today: z.last === d, gift: z.gift === d }; })() }; };
 // minuit (Paris) : le 1er du classement du jour qui se termine gagne 5 jetons (une seule fois, même si le serveur redémarre)
 async function mjPrize() {
   const yd = parisDay(new Date(Date.now() - 864e5));
