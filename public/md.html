@@ -115,6 +115,7 @@ body.tj .mdrow{gap:6px}
 </style>
 <style id="cb">html.cb .c2{background:linear-gradient(135deg,#f07a2c,#d9601a)!important;color:#fff}html.cb .c1{background:rgba(61,139,253,.22)!important;border:3px solid #4d94ff!important}html.cb .k2{background:#e8691e!important;color:#fff}html.cb .k1{border:3px solid #4d94ff!important}html.cb .c1::after{content:"";position:absolute;right:4px;top:4px;width:7px;height:7px;border-radius:50%;background:#4d94ff}html.cb .c1{position:relative}</style><style id="mdserie">.mdser{margin:10px auto 6px;padding:10px 12px;border-radius:16px;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.16);max-width:420px}.mdser .sh{font:800 1rem Nunito,Inter,sans-serif;margin-bottom:8px}.mdser .sds{display:flex;gap:6px;justify-content:center}.mdser .sd{position:relative;flex:1;max-width:46px;height:52px;border-radius:12px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;background:rgba(255,255,255,.08);border:1.5px solid rgba(255,255,255,.18);font:800 .95rem Nunito,Inter,sans-serif;color:inherit}.mdser .sd svg{display:block}.mdser .sd.ok{background:rgba(34,197,94,.22);border-color:rgba(34,197,94,.6);color:#bbf7d0}.mdser .sd.now{background:linear-gradient(160deg,#22c55e,#15803d);border-color:#86efac;color:#fff;transform:scale(1.08)}.mdser small{display:block;margin-top:8px;opacity:.85}html[data-theme="light"] .mdser{background:rgba(255,255,255,.6);border-color:rgba(20,30,60,.12)}html[data-theme="light"] .mdser .sd.ok{color:#166534}</style>
 <style id="mdcls">@media (min-width:621px),(pointer:fine){#mdGrid:not(:has(.mdrow)){min-height:360px}#mdKeys:empty{min-height:54px}.md>.glass.card:first-child{min-height:109px}}</style><style id="lisible">#mdLenP{font-size:.9rem!important}body.tj .gtop .gname{display:flex;flex-wrap:wrap;align-items:center;column-gap:6px;row-gap:3px;white-space:normal;line-height:1.15}body.tj .gtop .gname>.hpill{white-space:nowrap}@media(max-width:340px){.mdrkbtn span{display:none}}</style>
+<style id="mdtap">.mdkeys span{cursor:pointer;user-select:none;-webkit-user-select:none;touch-action:manipulation;transition:transform .08s}.mdkeys span:active{transform:scale(.9)}.mddel{display:inline-flex;align-items:center;justify-content:center;min-width:52px}.mddel svg{width:24px;height:24px}.mdbar{gap:8px}.mdbar .note{margin-right:auto}body.tj.mdnew .mdbar .note{display:block;font-size:.88rem;line-height:1.25;color:var(--txt,#fff);opacity:.92}body.tj .mdbar{justify-content:flex-end;align-items:center}.mdkeys.off span{cursor:default}</style>
 </head>
 <body class="sk-new g-md">
 <div id="skTop" class="skph"></div>
@@ -126,10 +127,10 @@ body.tj .mdrow{gap:6px}
     <div class="glass card">
       <div class="mdhead"><div><b id="mdInfo">Chargement…</b><br><small>Le même mot pour tout le monde · 6 essais · nouveau mot à minuit</small></div><span class="mdcount" id="mdCount">…</span></div>
     </div>
-    <div class="mdkeys" id="mdKeys" aria-hidden="true"></div>
+    <div class="mdkeys" id="mdKeys" aria-label="Clavier"></div>
     <div class="glass mdgrid" id="mdGrid" aria-label="Grille du mot du jour"><input id="mdIn" type="text" inputmode="text" autocomplete="off" autocorrect="off" autocapitalize="characters" spellcheck="false" enterkeyhint="go" aria-label="Saisie des lettres" data-lpignore="true" data-form-type="other"></div>
     <div class="mdmsg" id="mdMsg" role="status" aria-live="polite"></div>
-    <div class="mdbar" id="mdBar"><span class="note">Touche la grille, écris ton mot, puis Valider.</span><button class="btn primary" id="mdOk">Valider</button></div>
+    <div class="mdbar" id="mdBar"><span class="note" id="mdNote">Devine le mot en 6 essais : touche les lettres, puis Valider.</span><button class="btn ghost mddel" id="mdDel" aria-label="Effacer la dernière lettre"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M21 5H9l-6 7 6 7h12a1 1 0 0 0 1-1V6a1 1 0 0 0-1-1Z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><path d="m12 9 6 6m0-6-6 6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></button><button class="btn primary" id="mdOk">Valider</button></div>
     <div class="glass card mdend" id="mdEnd" aria-live="polite"></div>
   </div>
   <aside class="mdside" aria-label="Classement du mot du jour">
@@ -269,6 +270,14 @@ function share(){const sq=S.tries.map(t=>t.c.map(c=>c===2?(document.documentElem
   if(navigator.share)navigator.share({text:txt}).catch(()=>{});else if(navigator.clipboard)navigator.clipboard.writeText(txt).then(()=>say("Résultat copié : colle-le où tu veux !"),()=>say(txt));else say(txt)}
 call({}).then(r=>{S=r;draw();if(!S.done&&matchMedia("(pointer:fine)").matches)inp.focus()}).catch(()=>{$("#mdInfo").textContent="Le mot du jour n'a pas pu être chargé. Vérifie ta connexion."});
 setInterval(()=>{if(document.hidden||!S||busy)return;call({}).then(r=>{if(r&&r.board&&S){S.board=r.board;if(r.mine)S.mine=r.mine;const b=r.board;$("#mdCount").textContent=b.found?b.found+(b.found>1?" joueurs l'ont trouvé":" joueur l'a trouvé")+" aujourd'hui":"Personne ne l'a encore trouvé aujourd'hui";list()}}).catch(()=>{})},30000);
+// clavier de l'écran : toucher une lettre l'écrit (sans ouvrir le clavier du téléphone)
+(function(){const K=$("#mdKeys");const put=v=>{inp.value=v;inp.dispatchEvent(new Event("input"))};
+K.addEventListener("pointerdown",e=>{if(e.target.closest("span"))e.preventDefault()});
+K.addEventListener("click",e=>{const x=e.target.closest("span");if(!x||!S||S.done||busy)return;const L=x.textContent.trim();if(!/^[A-Z]$/.test(L))return;if(!inp.value&&L===S.first){put(L);return}if(cur().length>=S.len){say("Le mot fait "+S.len+" lettres : touche Valider.");return}put(cur()+L)});
+$("#mdDel").addEventListener("pointerdown",e=>e.preventDefault());
+$("#mdDel").onclick=()=>{if(!S||S.done||busy)return;const c=cur();put(c.length>1?c.slice(0,-1):"")};
+const upd=()=>{document.body.classList.toggle("mdnew",!!S&&!S.done&&!(S.tries||[]).length);K.classList.toggle("off",!S||!!S.done);$("#mdDel").style.display=S&&S.done?"none":""};
+const d0=draw;draw=function(){d0.apply(this,arguments);try{upd()}catch(e){}};upd()})();
 if(location.hostname==="localhost")window.__t=c=>eval(c);
 })();
 </script>

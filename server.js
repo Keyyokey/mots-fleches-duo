@@ -863,7 +863,7 @@ async function mjApi(b, out, ip) {
   const m = await MJ.load(day); const st = id ? m.get(id) : null;
   if (id && id.startsWith("g:") && !st && (b.op === "start" || b.op === "essai") && ip && !mjGuestOk(day, ip, id)) return out(429, { error: "trop", msg: "Trop de parties invitées depuis cet appareil aujourd'hui : crée ton pseudo pour jouer." });
   // le chrono démarre à la 1re lettre tapée (pas à l'ouverture de la page)
-  if (b.op === "start") { if (!id) return out(400, { error: "joueur" }); if (!st) { const s = { t: [], ts: [], at: Date.now() }; m.set(id, s); MJ.persist(day, id, s); } return out(200, { ok: 1 }); }
+  if (b.op === "start") { if (!id) return out(400, { error: "joueur" }); if (!st) { const s = { t: [], ts: [], at: Date.now() }; m.set(id, s); MJ.persist(day, id, s); statAdd("motdujour:ouverte-solo"); } return out(200, { ok: 1 }); }
   if (b.op === "essai") {
     if (!id) return out(400, { error: "joueur" });
     const g = MJ.strip(b.g);
@@ -1256,7 +1256,7 @@ ul{list-style:none;margin:0;padding:0}li{padding:9px 4px;border-bottom:1px solid
 <div class="cards">${card(t.visites, "visites de l'accueil", "#9fb5ff")}${card(t.lancees, "parties lancées", "#ffa58a")}${card(t.finies, "parties finies", "#7be0c8")}${card(+t.c["motdujour:partage"] || 0, "résultats partagés", "#c7a2ff")}${card(+t.c["enigme:reponse"] || 0, "réponses à l'énigme", "#f2deb0")}${card(t.mjOk, "Mot du jour trouvé" + (t.mjKo ? " · " + t.mjKo + " raté" + (t.mjKo > 1 ? "s" : "") : ""), "#ffd27a")}${card(t.erreurs, "erreurs chez les joueurs", t.erreurs ? "#ff8a8a" : "#c9d1e6")}</div>
 <h2>Les 14 derniers jours</h2><div class="box"><svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Visites et parties lancées par jour">${bars}</svg><div class="leg"><span><i style="background:#7b9bff"></i>visites</span><span><i style="background:#ff8a6b"></i>parties lancées</span></div></div>
 <h2>D'où viennent les visiteurs (14 jours)</h2><div class="box"><table><tr><th>Provenance</th><th>Aujourd'hui</th><th>14 jours</th></tr>${refs}</table></div>
-<h2>Parties par jeu aujourd'hui</h2><p class="mut" style="margin:-4px 0 10px">« Page ouverte » : la page du jeu affichée par un lien direct (ex. Mot du jour depuis Facebook). Le total « parties lancées » additionne les 3 colonnes.</p><div class="box"><table><tr><th>Jeu</th><th>Page ouverte</th><th>Solo</th><th>À plusieurs</th><th>Finies</th></tr>${games}</table></div>
+<h2>Parties par jeu aujourd'hui</h2><p class="mut" style="margin:-4px 0 10px">« Page ouverte » : la page du jeu affichée par un lien direct (ex. Mot du jour depuis Facebook). Pour le Mot du jour, « Solo » = joueurs qui ont tapé au moins une lettre (avec ou sans pseudo). Le total « parties lancées » additionne les 3 colonnes.</p><div class="box"><table><tr><th>Jeu</th><th>Page ouverte</th><th>Solo</th><th>À plusieurs</th><th>Finies</th></tr>${games}</table></div>
 <h2>Erreurs du jour</h2><div class="box"><ul>${errs}</ul></div>
 <h2>Jour par jour</h2><div class="box"><table><tr><th>Jour</th><th>Visites</th><th>Lancées</th><th>Finies</th><th>Mot trouvé</th><th>Erreurs</th></tr>${hist}</table></div>
 <p class="mut">Chiffres anonymes. Données brutes : <a href="?key=${k}&amp;format=json">format JSON</a>.</p></main></body></html>`;
