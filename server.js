@@ -440,6 +440,12 @@ async function migratePlayer(name, p) {
   }
   p.migS = 1; savePlayer(name);
 }
+// 23/11 : remis — supprimé par erreur par l'audit de 3 h (il sert à « Mes salons » : joueurs connectés, parties ouvertes)
+function liveInfo(id) {
+  const s = salons.get(id); let live = 0, open = 0;
+  if (s) { live = s.sockets.size; for (const k in s.docs) { const d = s.docs[k]; if (d && d.players && !d.solo && !d.done) open++; } }
+  return { live, open };
+}
 // liste complète des salons accessibles, du plus récemment ouvert au plus ancien
 async function salonList(name, p) {
   await migratePlayer(name, p);
