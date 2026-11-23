@@ -156,6 +156,7 @@ body.booting #boot{display:flex;position:fixed;inset:0;z-index:50;align-items:ce
 /* textes plus lisibles sur mobile (58fd75b, auparavant ajouté à la main dans mg.html) */
 #mgNsyl,#mgLvl,.hpill{font-size:.88rem!important}
 </style>
+<style id="mgcalc">.mgeq{font:900 1.45rem Nunito,Inter,sans-serif;color:var(--txt,#fff);padding:0 2px;align-self:center;white-space:nowrap}.mgbox.calc #mgSlots{align-items:center;flex-wrap:nowrap;justify-content:center;gap:12px}.mgnum{min-width:62px!important}</style>
 </head>
 <body class="sk-new booting g-mg">
 <div id="skTop" class="skph"></div>
@@ -228,13 +229,36 @@ function rng(seed){let a=seed>>>0;return()=>{a=(a+0x6D2B79F5)>>>0;let t=a;t=Math
 let POOL=null;function pool(lvl){POOL=POOL||{};if(POOL[lvl])return POOL[lvl];const s=new Set();(window.MG_MOTS[lvl]||[]).forEach(e=>e.split("|")[0].split("-").forEach(x=>s.add(x)));return POOL[lvl]=[...s]}
 // un mot de la partie : syllabes, définition, rareté, et ses syllabes pièges (les mêmes pour tous les joueurs)
 const WC={};function word(k){const ck=G.gid+":"+k;if(WC[ck])return WC[ck];return WC[ck]=word0(k)}
-function word0(k){const e=window.MG_MOTS[G.level][G.words[k]].split("|");const s=e[0].split("-");const n=TRAPS[G.level]||0;const r=rng((G.seed|0)+k*7919);const P=pool(G.level);const tr=[];
+function word0(k){if(typeof G.words[k]==="string")return calcItem(+G.words[k].slice(1)||1,rng((G.seed|0)+k*7919));const e=window.MG_MOTS[G.level][G.words[k]].split("|");const s=e[0].split("-");const n=TRAPS[G.level]||0;const r=rng((G.seed|0)+k*7919);const P=pool(G.level);const tr=[];
   for(let t=0;t<200&&tr.length<n;t++){const base=s[Math.floor(r()*s.length)],c=P[Math.floor(r()*P.length)];
     if(!c||s.includes(c)||tr.includes(c)||Math.abs(c.length-base.length)>1)continue;if(t<120&&c[0]!==base[0]&&c.slice(-1)!==base.slice(-1))continue;tr.push(c)}
   return{s,def:e[1],rar:+e[2]||1,traps:tr,word:s.join("")}}
+// ---------- calculs (23/11, demande de Juvenal) : « 2 + … = 7 », le nombre qui manque circule parmi les bulles ----------
+// palier 1 : + et − jusqu'à 10 · 2 : jusqu'à 20, tables de 2, 5, 10 · 3 : jusqu'à 50, tables de 2 à 6, divisions simples · 4 : jusqu'à 100, tables jusqu'à 9
+const CALC_RAR=[0,2,2.5,3,3.5],CALC_TRAPS=[0,3,4,5,5];
+function calcItem(t,r){const I=(a,b)=>a+Math.floor(r()*(b-a+1));let a,b,c,op;
+  const kind=t===1?(r()<.55?"+":"-"):t===2?(r()<.35?"x":r()<.6?"+":"-"):(r()<.3?"x":r()<.5?"/":r()<.75?"+":"-");
+  const M=[0,10,20,50,100][t];
+  if(kind==="+"){c=I(t===1?3:6,M);a=I(1,c-1);b=c-a;op="+"}
+  else if(kind==="-"){a=I(t===1?3:8,M);b=I(1,a-1);c=a-b;op="−"}
+  else if(kind==="x"){const T=t===2?[2,5,10]:t===3?[2,3,4,5,6]:[3,4,6,7,8,9];a=T[I(0,T.length-1)];b=I(2,t===2?10:9);c=a*b;if(r()<.5){const z=a;a=b;b=z}op="×"}
+  else{b=I(2,t===3?5:9);c=I(2,t===3?8:10);a=b*c;op="÷"}
+  const gap=t===1?(r()<.5?2:I(0,1)):I(0,2),vals=[a,b,c],ans=vals[gap];
+  const ex=vals.map((v,i)=>i===gap?"…":String(v));const eq=ex[0]+" "+op+" "+ex[1]+" = "+ex[2];
+  const cand=[ans+1,ans-1,ans+2,ans-2,ans+10,ans-10,a+b,Math.abs(a-b),...vals,ans*2,Math.floor(ans/2)];
+  if(ans>=10){const d=String(ans).split("").reverse().join("");cand.unshift(+d)}
+  const tr=[];for(let i=0;i<60&&tr.length<CALC_TRAPS[t];i++){const v=cand[Math.floor(r()*cand.length)];if(v>=0&&v!==ans&&!tr.includes(String(v)))tr.push(String(v))}
+  return{s:[String(ans)],def:"Le nombre qui manquait : "+ans,rar:CALC_RAR[t],traps:tr,word:a+" "+op+" "+b+" = "+c,math:true,eq,gap,tier:t}}
+// où tombent les calculs et quel palier : facile 3 sur 10, normal 4, difficile 5 ; la difficulté monte, le dernier est facile (récompense)
+const CALC_PLAN={facile:[[2,1],[5,2],[9,1]],normal:[[1,1],[4,2],[6,3],[9,1]],difficile:[[1,2],[3,3],[5,3],[7,4],[9,1]]};
+function mixPlan(lvl,idx){const L=window.MG_MOTS[lvl]||[],P=CALC_PLAN[lvl]||[];const diff=i=>{const e=(L[i]||"").split("|");return e[0].split("-").length+(+e[2]||1)};
+  const w=idx.slice(0,NWORDS-P.length).sort((x,y)=>diff(x)-diff(y)),out=[];let j=0;
+  for(let k=0;k<NWORDS;k++){const m=P.find(p=>p[0]===k);out.push(m?"m"+m[1]:w[j++])}
+  // sans calcul en dernière place, le dernier mot est le plus facile
+  return out}
 function pickWords(lvl,seed){const L=window.MG_MOTS[lvl]||[];let pl={};try{pl=JSON.parse(LS.get("fl2-played-mg")||"{}")}catch(e){}const r=rng(seed),out=[];
-  for(let t=0;t<4000&&out.length<NWORDS;t++){const i=Math.floor(r()*L.length);if(out.includes(i)||/\|a$/.test(L[i])||(t<3000&&pl[lvl+i]))continue;out.push(i)}return out}
-function markPlayed(){try{const pl=JSON.parse(LS.get("fl2-played-mg")||"{}");G.words.forEach(i=>pl[G.level+i]=1);const k=Object.keys(pl);if(k.length>3000)k.slice(0,k.length-3000).forEach(x=>delete pl[x]);LS.set("fl2-played-mg",JSON.stringify(pl))}catch(e){}}
+  for(let t=0;t<4000&&out.length<NWORDS;t++){const i=Math.floor(r()*L.length);if(out.includes(i)||/\|a$/.test(L[i])||(t<3000&&pl[lvl+i]))continue;out.push(i)}return mixPlan(lvl,out)}
+function markPlayed(){try{const pl=JSON.parse(LS.get("fl2-played-mg")||"{}");G.words.forEach(i=>{if(typeof i==="number")pl[G.level+i]=1});const k=Object.keys(pl);if(k.length>3000)k.slice(0,k.length-3000).forEach(x=>delete pl[x]);LS.set("fl2-played-mg",JSON.stringify(pl))}catch(e){}}
 
 /* ---------- joueurs, salon ---------- */
 function mySeat(){if(!G)return null;if(G.solo)return 0;if(!ME)return null;const i=G.players.findIndex(p=>String(p.name).toUpperCase()===ME.name);return i<0?null:i}
@@ -294,13 +318,13 @@ function randn(){const u=1-Math.random(),v=Math.random();return Math.sqrt(-2*Mat
 function setupWord(k,startAt){size();balls.forEach(b=>b.el.remove());cur=k;const w=word(k);
   const all=w.s.map((t,j)=>({id:"s"+j,t})).concat(w.traps.map((t,j)=>({id:"t"+j,t})));const r=rng((G.seed|0)+k*31);
   for(let j=all.length-1;j>0;j--){const q=Math.floor(r()*(j+1)),x=all[j];all[j]=all[q];all[q]=x}
-  balls=all.map((a,j)=>{const el=document.createElement("button");el.type="button";el.className="mgball";el.setAttribute("aria-label","Syllabe "+a.t);el.style.display="none";
+  balls=all.map((a,j)=>{const el=document.createElement("button");el.type="button";el.className="mgball";el.setAttribute("aria-label",(w.math?"Nombre ":"Syllabe ")+a.t);el.style.display="none";
     const c=(j+k)%4,core=document.createElement("span");core.className="mgcore c"+c+" l"+Math.min(5,a.t.length);const sp=document.createElement("span");sp.textContent=a.t;core.appendChild(sp);el.appendChild(core);
     const b={id:a.id,t:a.t,c,x:-200,y:-200,vx:0,vy:0,on:false,entering:false,hit:-1e9,el,core,rot:0};el.addEventListener("pointerdown",e=>{e.preventDefault();pick(b)});field.insertBefore(el,$("#mgRes"));return b});
   queue=balls.slice();placed=w.s.map(()=>null);locked=w.s.map(()=>false);ent=null;lastTick=-1;errN=0;sentF=false;wStart=startAt||performance.now();
   phase="play";$("#mgRes").style.display="none";$("#mgMsg").textContent="";$("#mgBox").className="mgbox";$("#mgBtns").classList.remove("off");field.classList.remove("flash");
-  $("#mgNum").textContent="Mot "+(k+1)+" / "+G.words.length;$("#mgLvl").textContent=LVLN[G.level]+" · "+(w.traps.length?w.traps.length+(w.traps.length>1?" pièges":" piège"):"aucun piège");
-  $("#mgNsyl").textContent="Le mot · "+w.s.length+" syllabes";slots()}
+  $("#mgNum").textContent=(w.math?"Calcul ":"Mot ")+(k+1)+" / "+G.words.length;$("#mgLvl").textContent=LVLN[G.level]+" · "+(w.traps.length?w.traps.length+(w.traps.length>1?" pièges":" piège"):"aucun piège");
+  $("#mgNsyl").textContent=w.math?"Trouve le nombre qui manque":"Le mot · "+w.s.length+" syllabes";$("#mgBox").classList.toggle("calc",!!w.math);slots()}
 let side=0;
 function startEntry(b,now){side=(side+1)%4;const u=.25+Math.random()*.5;let P,n;
   if(side===0){P={x:u*W,y:0};n={x:0,y:1}}else if(side===1){P={x:W,y:u*H};n={x:-1,y:0}}else if(side===2){P={x:u*W,y:H};n={x:0,y:-1}}else{P={x:0,y:u*H};n={x:1,y:0}}
@@ -332,6 +356,11 @@ function bar(left){const b=$("#mgBar");b.style.width=Math.max(0,left/TIME*100)+"
 /* ---------- encadré du mot ---------- */
 let slotEls=[];
 function slots(){const w=word(cur),box=$("#mgSlots");box.innerHTML="";slotEls=[];const reveal=phase==="res"||phase==="timeout";
+  if(w.math){const b=placed[0],txt=reveal?w.s[0]:(b?b.t:"");const parts=w.eq.split(" ");parts.forEach(p=>{if(p!=="…"){const e=document.createElement("span");e.className="mgeq";e.textContent=p;box.appendChild(e);return}
+      if(!txt){const e=document.createElement("div");e.className="mgempty mgnum";box.appendChild(e);slotEls.push(e);return}
+      const el=document.createElement("button");el.type="button";el.className="mgslot mgnum"+(locked[0]?" lock":"");el.textContent=txt;el.style.fontSize="21px";
+      el.onclick=()=>{if(phase!=="play"||locked[0]||!placed[0])return;queue.push(placed[0]);placed[0]=null;SFX.back();slots()};box.appendChild(el);slotEls.push(el)});
+    $("#mgOk").style.opacity=placed.indexOf(null)<0?1:.5;return}
   w.s.forEach((t,k)=>{const b=placed[k],txt=reveal?t:(b?b.t:"");
     if(!txt){const e=document.createElement("div");e.className="mgempty";box.appendChild(e);slotEls.push(e);return}
     const el=document.createElement("button");el.type="button";el.className="mgslot"+(locked[k]?" lock":"");el.textContent=txt;el.style.fontSize=w.s.length>=6?"13px":w.s.length===5?"16px":"19px";
@@ -369,7 +398,7 @@ function finishSolo(why){phase="timeout";SFX.time();slots();showRes(false,null,w
 function showRes(ok,l,why){balls.forEach(b=>b.el.style.display="none");ent=null;bursts.forEach(u=>u.el.style.opacity=0);$("#mgBtns").classList.add("off");
   const w=word(cur),r=$("#mgRes"),col=ok?"#3ddc97":"#ffc857",last=cur===G.words.length-1;
   r.innerHTML='<div class="ttl" style="color:'+col+'">'+(ok?"Bien joué !":esc(why||""))+'</div><div class="wd" style="text-shadow:0 0 14px '+col+'">'+esc(w.word)+'</div><div class="def">'+esc(w.def)+"</div>"+
-    (ok?'<div class="rows"><div><span>'+w.s.length+" syllabes × 10 × "+String(w.rar).replace(".",",")+'</span><b>'+l.base+'</b></div><div><span>Syllabes bien placées</span><b>+'+l.good+'</b></div><div><span>Bonus vitesse</span><b>+'+l.bonus+"</b></div>"+(l.first?'<div><span>Premier à trouver</span><b>+5</b></div>':"")+'<div class="tot"><span>Total</span><b>+'+l.pts+"</b></div></div>":"")+
+    (ok?'<div class="rows"><div><span>'+(w.math?"Calcul niveau "+w.tier+" × 10 × ":w.s.length+" syllabes × 10 × ")+String(w.rar).replace(".",",")+'</span><b>'+l.base+'</b></div><div><span>'+(w.math?"Bonne réponse":"Syllabes bien placées")+'</span><b>+'+l.good+'</b></div><div><span>Bonus vitesse</span><b>+'+l.bonus+"</b></div>"+(l.first?'<div><span>Premier à trouver</span><b>+5</b></div>':"")+'<div class="tot"><span>Total</span><b>+'+l.pts+"</b></div></div>":"")+
     (G.solo?'<button class="btn primary" id="mgNext" type="button">'+(last?"Voir le score":"Mot suivant")+"</button>":'<div class="cd" id="mgCd"><span class="w">En attente des autres joueurs…</span><span class="n"></span><i></i></div>');
   r.style.display="flex";if(G.solo)$("#mgNext").onclick=nextSolo}
 function nextSolo(){if(cur>=G.words.length-1){G.done=true;G.ended=Date.now();save();render();return}G.i=cur+1;save();setupWord(G.i);t0=null}
