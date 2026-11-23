@@ -296,7 +296,7 @@ function again(lv){const o=G,LVL=lv||G.level;if(o.solo){open(newGame(choose(LVL)
   drawReq(LVL,0,opp).then(r=>{if(!r.ok)return blockedWin(r.msg);const ng=newGame(ROND.find(x=>x.id===r.ref),o.players.map(p=>p.name),false,LVL);ng.prev=o.gid;open(ng);save()})}
 function start(){const go=Q.get("go"),lvl=Q.get("lvl")||"facile",n=Number(Q.get("n"))||0;const solo=()=>{try{return JSON.parse(LS.get(SOLOKEY)||"null")}catch(e){return null}};
   if(go==="solo"||(go==="resume"&&!CODE)){soloBoot(go,lvl,n);return}
-  if(!CODE){const g=solo();if(g&&!g.done){open(g);return}/* 23/11 : adresse publique (ex. depuis Google) : partie solo tout de suite, plus de renvoi vers l'accueil */soloBoot("solo",lvl,n);return}
+  if(!CODE){const g=solo();if(g&&!g.done){soloBoot("resume",lvl,n);return}/* 23/11 : adresse publique (ex. depuis Google) : partie solo tout de suite ; une partie gardée reprend sans compter le temps d'absence */soloBoot("solo",lvl,n);return}
   if(!ME){if(go==="resume"){const g=solo();if(g&&!g.done){open(g);return}}location.replace(HOME+"?need=pseudo");return}
   connect();const t0=Date.now();const iv=setInterval(()=>{if(G){clearInterval(iv);return}if(window.__snapped||Object.keys(docs).length||Date.now()-t0>2500){clearInterval(iv);const d=docs[DOC];
     const mine=d&&!d.done&&d.players&&(d.players.some(p=>String(p.name).toUpperCase()===ME.name)||d.players.some(p=>p.name==="Invité"));

@@ -981,7 +981,7 @@ function again(){const o=G;if(o.solo){NEWSOLO("all",0,null,o.theme);return}
 function start(){const go=Q.get("go");const solo=()=>{try{return JSON.parse(LS.get(SOLOKEY)||"null")}catch(e){return null}};
   if(!ALLIDS.length){blockedWin("Les questions n'ont pas pu être chargées. Recharge la page.");return}
   if(go==="solo"||(go==="resume"&&!CODE)){soloBoot(go);return}
-  if(!CODE){const g=solo();if(g&&!g.done){open(g);return}/* 23/11 : adresse publique (ex. depuis Google) : partie solo tout de suite, plus de renvoi vers l'accueil */soloBoot("solo");return}
+  if(!CODE){const g=solo();if(g&&!g.done){soloBoot("resume");return}/* 23/11 : adresse publique (ex. depuis Google) : partie solo tout de suite ; une partie gardée reprend sans compter le temps d'absence */soloBoot("solo");return}
   if(!ME){if(go==="resume"){const g=solo();if(g&&!g.done){open(g);return}}location.replace(HOME+"?need=pseudo");return}
   connect();const t0=Date.now();const iv=setInterval(()=>{if(G){clearInterval(iv);return}if(window.__snapped||Object.keys(docs).length||Date.now()-t0>2500){clearInterval(iv);const d=docs[DOC];
     const mine=d&&!d.done&&d.players&&(d.players.some(p=>String(p.name).toUpperCase()===ME.name)||d.players.some(p=>p.name==="Invité"));
