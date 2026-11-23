@@ -83,7 +83,7 @@ function apply(file, txt, site) {
   txt = txt.replace("</head>", GAME_FLAG + CSS + '<script type="application/ld+json">' + JSON.stringify(ld).replace(/</g, "\\u003c") + "</script>\n</head>");
   const block = '<section id="seoTxt" aria-labelledby="seoT"><h2 id="seoT">' + esc(c.h1) + '</h2><p><b>' + esc(c.intro) + '</b></p>' + c.body.map(p => "<p>" + esc(p) + "</p>").join("") +
     '<h3>Questions fréquentes</h3>' + c.faq.map(([q, a]) => "<details><summary>" + esc(q) + "</summary><p>" + esc(a) + "</p></details>").join("") +
-    '<p style="margin-top:14px"><a href="/">Tous les jeux de Motipop</a> · <a href="/regles">Règles détaillées</a></p></section>';
+    '<p style="margin-top:14px">' + (file === "md.html" ? '<a href="/solution">Solution du mot du jour d\'hier</a> · ' : "") + '<a href="/">Tous les jeux de Motipop</a> · <a href="/regles">Règles détaillées</a></p></section>';
   txt = txt.replace(/<body([^>]*)>/, '<body$1><h1 class="sr-h1">' + esc(c.h1) + '</h1>');
   const i = txt.lastIndexOf("</body>");
   return i < 0 ? txt : txt.slice(0, i) + block + txt.slice(i);

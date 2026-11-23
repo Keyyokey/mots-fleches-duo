@@ -791,7 +791,7 @@ const MJ = (() => {
     try { const r = REDIS ? await redis(["GET", "mj:prize:" + yd]) : MJ_PRIZE.get(yd); if (r) prize = Object.assign({ day: yd }, typeof r === "string" ? JSON.parse(r) : r); } catch {}
     return { found: d.found, played: d.played, len: d.w.length, max: MAXPTS(d.w), today: d.list.slice(0, 15), total, prize };
   }
-  return { strip, wordOf, colors, load, persist, view, board, score, dayList, MAXPTS, dict, size: () => words.length, resetTot: () => { totCache = null; } };
+  return { strip, wordOf, colors, load, persist, view, board, score, dayList, MAXPTS, dict, defOf: w => defs[w] || "", size: () => words.length, resetTot: () => { totCache = null; } };
 })();
 const MJ_TOTAL = new Map(), MJ_PRIZE = new Map();   // sans Redis (tests locaux) : points cumulés par pseudo, gagnants du jour
 // fin de journée d'un joueur : ses moyennes (mots trouvés, essais, temps pour trouver, temps pour la 1re lettre bien placée)
@@ -1086,6 +1086,35 @@ const EDITEUR_HTML = envClean(process.env.EDITEUR_NOM)
   ? "<b>" + escH(envClean(process.env.EDITEUR_NOM)) + "</b>" + (envClean(process.env.EDITEUR_ADRESSE) ? " — " + escH(envClean(process.env.EDITEUR_ADRESSE)) : "")
   : "Motipop est édité à titre non professionnel par un particulier. Conformément à l'article 1-1 de la loi n° 2004-575 du 21 juin 2004 pour la confiance dans l'économie numérique, ses coordonnées ont été communiquées à l'hébergeur.";
 const SITEMAP_PATHS = ["/", "/motdujour", "/fleches", "/rond", "/meles", "/magnetico", "/culture", "/poker", "/regles", "/mentions-legales"];
+
+// 23/11/2026 : « Solution du mot du jour » — une page par jour PASSÉ (jamais le mot du jour ni un mot à venir), du 20/11/2026 à hier
+function solDays() { const out = [], today = parisDay(); for (let t = Date.UTC(2026, 10, 20); ; t += 864e5) { const d = new Date(t).toISOString().slice(0, 10); if (d.replace(/-/g, "") >= today) break; out.push(d); } return out.reverse(); }
+const solEsc = v => String(v).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]);
+const solDate = d => new Date(d + "T12:00:00Z").toLocaleDateString("fr-FR", { weekday: "long", day: "numeric", month: "long", year: "numeric", timeZone: "UTC" });
+async function solHtml(d) {
+  const day = d.replace(/-/g, ""), w = MJ.wordOf(day), def = MJ.defOf(w), n = Math.round((Date.parse(d + "T00:00:00Z") - Date.UTC(2026, 10, 20)) / 864e5) + 1;
+  let st = { found: 0, played: 0 }; try { st = await MJ.dayList(day); } catch {}
+  const en = enNum(day) >= 1 ? enOf(day) : null, all = solDays(), others = all.filter(x => x !== d).slice(0, 14), date = solDate(d);
+  const title = "Solution du mot du jour du " + date.replace(/^\w+ /, "") + " — Motipop", desc = "Le mot du jour n° " + n + " de Motipop (" + date + ") était " + w + " : " + (def || "6 ou 7 lettres") + ". Retrouve aussi la réponse de l'énigme du jour.";
+  let t = fs.readFileSync(path.join(__dirname, "public", "legal.html"), "utf8");
+  t = t.replace(/<title>[^<]*<\/title>/, "<title>" + solEsc(title) + "</title>").replace(/<meta name="description" content="[^"]*">/, '<meta name="description" content="' + solEsc(desc) + '">');
+  const can = SITE + "/solution/" + d;
+  t = t.replace("</head>", '<link rel="canonical" href="' + can + '"><meta property="og:title" content="' + solEsc(title) + '"><meta property="og:description" content="' + solEsc(desc) + '"><meta property="og:url" content="' + can + '"><meta property="og:image" content="' + SITE + '/motipop-512.png"><meta property="og:type" content="article">' +
+    '<style>.sw{display:flex;flex-wrap:wrap;gap:8px;margin:10px 0 14px}.sw span{width:52px;height:56px;display:grid;place-items:center;border-radius:12px;font:900 30px Nunito,Inter,sans-serif;color:#fff;background:linear-gradient(160deg,#22c55e,#15803d);box-shadow:0 6px 16px rgba(0,0,0,.25)}.cta{display:inline-block;margin:6px 0 4px;padding:12px 22px;border-radius:999px;font:800 1.05rem Nunito,Inter,sans-serif;color:#fff!important;text-decoration:none;background:linear-gradient(135deg,#14b8a6,#7c5cff)}.arch{display:flex;flex-wrap:wrap;gap:8px}.arch a{color:var(--ink);text-decoration:none;font-weight:700;font-size:.9rem;padding:7px 12px;border-radius:999px;background:var(--glass);border:1px solid var(--stroke)}@media(max-width:420px){.sw span{width:42px;height:46px;font-size:24px}}</style>' +
+    '<script type="application/ld+json">' + JSON.stringify({ "@context": "https://schema.org", "@type": "Article", headline: title.replace(" — Motipop", ""), datePublished: d, inLanguage: "fr-FR", author: { "@type": "Organization", name: "Motipop" }, publisher: { "@type": "Organization", name: "Motipop", url: SITE + "/" }, mainEntityOfPage: can }).replace(/</g, "\\u003c") + "</script></head>");
+  const body = '<h1>Solution du <em>mot du jour</em></h1><p class="lead">Mot du jour n° ' + n + " · " + solEsc(date) + '</p>' +
+    '<section class="card"><h2>La réponse était</h2><div class="sw" aria-label="' + solEsc(w) + '">' + [...w].map(c => "<span>" + solEsc(c) + "</span>").join("") + "</div>" +
+    (def ? "<p><b>Définition :</b> " + solEsc(def) + "</p>" : "") +
+    (st.played ? "<p>" + st.found + " joueur" + (st.found > 1 ? "s" : "") + " sur " + st.played + " l'" + (st.found > 1 ? "ont" : "a") + " trouvé ce jour-là.</p>" : "") +
+    '<a class="cta" href="/motdujour">Jouer au mot du jour d\'aujourd\'hui</a><p class="note">Un nouveau mot chaque jour à minuit, le même pour tout le monde : 6 essais, la première lettre est donnée.</p></section>' +
+    (en ? '<section class="card"><h2>L\'énigme du jour n° ' + en.n + "</h2><p>" + solEsc(en.q) + "</p><p><b>Réponse :</b> " + solEsc(en.s) + '</p><p class="note">Une nouvelle énigme chaque matin sur <a href="/">l\'accueil de Motipop</a>.</p></section>' : "") +
+    (others.length ? '<section class="card"><h2>Les solutions précédentes</h2><div class="arch">' + others.map(x => '<a href="/solution/' + x + '">' + solEsc(solDate(x).replace(/ \d{4}$/, "")) + "</a>").join("") + "</div></section>" : "") +
+    '<section class="card"><h2>Comment jouer au mot du jour ?</h2><p>Tape un mot de la bonne longueur et valide. Une case verte : la lettre est à la bonne place. Une case cerclée de jaune : la lettre est dans le mot, mais ailleurs. Une case grise : elle n\'y est pas. Tu as 6 essais. Le jeu est gratuit, sans téléchargement, et tu peux comparer ton résultat avec tes amis.</p><p><a href="/regles#motdujour">Toutes les règles</a> · <a href="/">Les 7 jeux de Motipop</a></p></section>';
+  const a = t.indexOf('<div class="wrap">') + '<div class="wrap">'.length, b = t.indexOf("<footer>");
+  t = t.slice(0, a) + body + t.slice(b);
+  t = t.replace(/<script>\(function\(\)\{var m=\{"\/mentions-legales"[\s\S]*?<\/script>/, "");
+  return t.replace("<head>", "<head>\n<script>window.SUPPORT=" + SUPPORT + ";</script>" + TRANSFER_JS + SW_REG);
+}
 function page(file, inject) {
   const st = fs.statSync(file);
   const c = pages[file];
@@ -1300,7 +1329,7 @@ const server = http.createServer((req, res) => {
   if (url.pathname.startsWith("/admin/")) return void adminRoute(req, res, url);
   // liens courts à donner dans les vidéos et les bios (22/11) : motipop.fr/tt → accueil, provenance comptée dans /admin/stats
   const SHORT = { "/tt": "tiktok", "/fb": "facebook", "/ig": "instagram", "/yt": "youtube", "/wa": "whatsapp", "/qr": "affiche" };
-  if (req.method === "GET" && SHORT[url.pathname]) { res.writeHead(302, { location: "/?ref=" + SHORT[url.pathname], "cache-control": "no-store" }); return res.end(); }
+  if (req.method === "GET" && SHORT[url.pathname]) { const src = SHORT[url.pathname]; res.writeHead(302, { location: (["tiktok", "facebook", "instagram", "youtube"].includes(src) ? "/motdujour?ref=" : "/?ref=") + src, "cache-control": "no-store" }); return res.end(); }   // 23/11 : les pubs promettent le Mot du jour → on y arrive directement
   if (url.pathname === "/healthz" && url.searchParams.get("redis") === "1") {
     const t0 = Date.now();
     return void (REDIS ? redis(["PING"]).then(v => ({ ping: v }), e => ({ ping: "échec", err: e.message })) : Promise.resolve({ ping: "pas de Redis" }))
@@ -1328,11 +1357,14 @@ const server = http.createServer((req, res) => {
   // images des skins (fichiers binaires, gardées en mémoire après la 1re lecture)
   { const sm = url.pathname.match(/^\/d\/skins\/([a-z0-9-]{3,80})\.(jpg|png|webp)$/); if (sm) return sendSkin(req, res, sm[1] + "." + sm[2], sm[2]); }
   if (url.pathname.startsWith("/d/")) return sendStatic(req, res, url.pathname.slice(3));
+  if (url.pathname === "/solution" || url.pathname === "/solution/") { const d = solDays()[0]; res.writeHead(302, { location: "/solution/" + d, "cache-control": "no-store" }); return res.end(); }
+  { const sm = url.pathname.match(/^\/solution\/(\d{4}-\d{2}-\d{2})\/?$/); if (sm) { if (!solDays().includes(sm[1])) { res.writeHead(302, { location: "/solution", "cache-control": "no-store" }); return res.end(); }
+    solHtml(sm[1]).then(html => sendBody(req, res, pack(Buffer.from(html)), "text/html; charset=utf-8", "no-cache")).catch(e => { console.error("solution :", e.message); res.writeHead(500); res.end("Erreur"); }); return; } }
   if (url.pathname === "/robots.txt") { res.writeHead(200, { "content-type": "text/plain; charset=utf-8", "cache-control": "public, max-age=86400" }); return res.end("User-agent: *\nAllow: /\nDisallow: /api/\nDisallow: /maquette\nDisallow: /healthz\n\nSitemap: " + SITE + "/sitemap.xml\n"); }
   if (url.pathname === "/sitemap.xml") {
     const day = new Date().toISOString().slice(0, 10);
     res.writeHead(200, { "content-type": "application/xml; charset=utf-8", "cache-control": "public, max-age=86400" });
-    return res.end('<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n' + SITEMAP_PATHS.map(p => "  <url><loc>" + SITE + p + "</loc><lastmod>" + day + "</lastmod><changefreq>" + "weekly" + "</changefreq><priority>" + (p === "/" ? "1.0" : "0.8") + "</priority></url>").join("\n") + "\n</urlset>\n");
+    return res.end('<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n' + SITEMAP_PATHS.concat(solDays().map(d => "/solution/" + d)).map(p => "  <url><loc>" + SITE + p + "</loc><lastmod>" + day + "</lastmod><changefreq>" + "weekly" + "</changefreq><priority>" + (p === "/" ? "1.0" : "0.8") + "</priority></url>").join("\n") + "\n</urlset>\n");
   }
   if (url.pathname === "/maquette" || url.pathname === "/maquette/") return sendPage(req, res, path.join(__dirname, "public", "maquette.html"));
   // Wordflush = le nom du poker (8/11/2026) : /wordflush et /CODE/wordflush mènent à la table

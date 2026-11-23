@@ -964,6 +964,7 @@ body.statsOn .dashbar{display:flex;grid-column:1/-1;align-items:center;justify-c
 /* mode daltonien (menu → Daltonien) : orange = bien placée, bleu = ailleurs */
 html.cb .mdv .v2{background:linear-gradient(135deg,#f07a2c,#d9601a)!important}html.cb .mdv .v1{border:3px solid #4d94ff!important}
 </style>
+<style id="mdsol">.mdt .mdsol{order:99;display:block;text-align:center;margin:10px 0 0;font-weight:700;font-size:.92rem;color:#ffe3ee;text-decoration:underline;text-underline-offset:3px}</style>
 <style id="lisible">@media(max-width:600px){.tag{font-size:.75rem!important;letter-spacing:.04em!important}.abtn{font-size:.9rem!important;width:auto!important;min-width:132px}.abtn-s{font-size:.88rem!important}#mdtCount{font-size:.88rem}}.mdvis{max-width:100%;min-width:0}.mdv{max-width:100%;min-width:0}.mdv i{flex:0 1 44px;min-width:0;aspect-ratio:44/48;height:auto!important}@media(max-width:380px){#abTx{white-space:normal!important;text-overflow:clip!important;overflow:visible!important;line-height:1.15;font-size:.92rem}}</style>
 </head>
 <body>
@@ -1060,7 +1061,7 @@ html.cb .mdv .v2{background:linear-gradient(135deg,#f07a2c,#d9601a)!important}ht
   <div class="abar glass" id="amisBar"><button type="button" class="abl" id="abL"><span class="abav" id="abAv"></span><span class="abtx" id="abTx">Joue avec tes amis</span></button><button type="button" class="abbtn" id="abRank">Classement</button></div>
   <div class="games g-hero">
       <div class="tile mdt" style="--tg:linear-gradient(135deg,#3a1030 0%,#8c2a5c 50%,#ff7aa8 100%);--ga:#ffd1e1" data-game="Mot du jour" data-key="motdujour" onclick="if(!event.target.closest('a'))location.href='/motdujour'">
-        <div class="txt"><span class="tag">Défi du jour</span><h2>Mot du jour</h2><p>6 essais · même mot pour tous</p><span class="mdtpill" id="mdtCount">…</span><a class="mdgo" href="/motdujour">Jouer</a></div>
+        <div class="txt"><span class="tag">Défi du jour</span><h2>Mot du jour</h2><p>6 essais · même mot pour tous</p><span class="mdtpill" id="mdtCount">…</span><a class="mdgo" href="/motdujour">Jouer</a><a class="mdsol" href="/solution">Solution d'hier</a></div>
         <div class="mdvis"><div class="mdv" id="mdtGrid" aria-hidden="true"><i class="v2">M</i><i class="v1">O</i><i class="v0">T</i><i class="v2">S</i></div></div>
       </div>
     <aside class="papy" id="papy" aria-label="L'énigme du jour" hidden>
