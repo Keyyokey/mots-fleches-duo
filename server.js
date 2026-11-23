@@ -1067,6 +1067,7 @@ const SITE = (process.env.SITE_URL || "https://mots-fleches-duo.onrender.com").r
 // seulement si l'on vient bien de l'ancienne adresse (le referrer), puis on efface le fragment de l'adresse
 const TRANSFER_JS = '<script>(function(){var h=location.hash,m="#motipop-transfert=";if(h.indexOf(m)!==0)return;try{if(/^https:\\/\\/[a-z0-9-]+\\.onrender\\.com\\//.test(document.referrer)){var d=JSON.parse(decodeURIComponent(h.slice(m.length)));for(var k in d)if(/^fl-/.test(k)&&typeof d[k]==="string"&&localStorage.getItem(k)===null)localStorage.setItem(k,d[k])}}catch(e){}history.replaceState(null,"",location.pathname+location.search)})()</script>';
 const OLDHOST_REDIRECT = !/\.onrender\.com/i.test(SITE);   // actif seulement quand SITE_URL est un vrai domaine
+const SEOP = require("./seo_pages");
 const CANON = { "regles.html": "/regles", "legal.html": "/mentions-legales", "accueil.html": "/", "fl.html": "/fleches", "rd.html": "/rond", "mm.html": "/meles", "mg.html": "/magnetico", "md.html": "/motdujour", "cg.html": "/culture", "poker.html": "/poker" };
 function seoTags(file, txt) {
   const c = CANON[path.basename(file)]; if (c === undefined) return "";
@@ -1091,6 +1092,7 @@ function page(file, inject) {
   if (c && c.mtime === st.mtimeMs) return c;
   if (/\.(woff2|webp|png)$/.test(file)) { const raw = fs.readFileSync(file); return (pages[file] = { raw, gz: raw, br: raw, bin: true, etag: '"' + crypto.createHash("sha1").update(raw).digest("base64url").slice(0, 16) + '"', mtime: st.mtimeMs }); }   // police : binaire, déjà compressée
   let txt = fs.readFileSync(file, "utf8");
+  if (inject) { txt = SEOP.apply(path.basename(file), txt, SITE); if (path.basename(file) === "accueil.html" && !/<h1/.test(txt)) txt = txt.replace(/<body([^>]*)>/, '<body$1><h1 style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap">Motipop, jeux de mots gratuits en ligne : mot du jour, mots fléchés, mots mêlés</h1>'); }
   if (txt.includes("{{CONTACT}}") || txt.includes("{{EDITEUR}}")) txt = txt.split("{{CONTACT}}").join(CONTACT_HTML).split("{{EDITEUR}}").join(EDITEUR_HTML);
   if (inject) txt = txt.replace("<head>", "<head>\n<script>window.SUPPORT=" + SUPPORT + ";</script>" + (txt.includes('rel="manifest"') ? "" : '<link rel="manifest" href="/manifest.webmanifest">') + TRANSFER_JS + SW_REG + (txt.includes('rel="canonical"') ? "" : seoTags(file, txt)));
   return (pages[file] = { ...pack(Buffer.from(txt)), mtime: st.mtimeMs });

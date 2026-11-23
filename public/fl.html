@@ -525,7 +525,7 @@ function again(lv){const old=G,LVL=lv||G.level;FMT=fmtOfId(old.grid);needLvl(LVL
 function live(d){return !!(d&&!d.done&&!d.solo&&d.players&&Date.now()-Math.max(d.turnStart||0,d.go||0,d.started||0)<15*60e3)}
 function start(){const go=Q.get("go"),lvl=Q.get("lvl")||"facile",n=Number(Q.get("n"))||0;
   if(go==="solo"||(go==="resume"&&!CODE)){soloBoot(go,lvl,n);return}
-  if(!CODE){let g=null;try{g=JSON.parse(LS.get(SOLOKEY)||"null")}catch(e){}if(g&&!g.done){open(g);return}location.replace("/");return}
+  if(!CODE){let g=null;try{g=JSON.parse(LS.get(SOLOKEY)||"null")}catch(e){}if(g&&!g.done){open(g);return}/* 23/11 : adresse publique (ex. depuis Google) : partie solo tout de suite, plus de renvoi vers l'accueil */soloBoot("solo",lvl,n);return}
   if(!ME){location.replace(HOME+"?need=pseudo");return}
   // à plusieurs : la partie du salon, ou une nouvelle
   const ready=()=>{const d=docs[DOC];
