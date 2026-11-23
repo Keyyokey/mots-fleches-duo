@@ -787,7 +787,7 @@ a.logo{text-decoration:none;color:inherit}a.logo:focus-visible{outline:2px solid
 @media (max-width:699px){.herocard{padding:20px 16px;min-height:0}.hvis{display:none}.ctas .cta{flex:1 1 100%;justify-content:center}}
 @media (prefers-reduced-motion:reduce){.hc,.ctas .btn.primary{animation:none!important}}
 </style>
-<script src="/d/icons-bbcd7285b6.js" defer></script><style id="tlogo-sm">@media (max-width:420px){#logoHome .tlogo svg{height:31px!important}#logoHome small{font-size:.54rem!important;letter-spacing:.12em!important}}</style><style id="dash">.dash .dleft{display:flex;flex-direction:column;gap:14px;min-width:0}.dash .card{border-radius:var(--radius-card)}
+<script src="/d/icons-8d7b87098e.js" defer></script><style id="tlogo-sm">@media (max-width:420px){#logoHome .tlogo svg{height:31px!important}#logoHome small{font-size:.54rem!important;letter-spacing:.12em!important}}</style><style id="dash">.dash .dleft{display:flex;flex-direction:column;gap:14px;min-width:0}.dash .card{border-radius:var(--radius-card)}
 .rtabs{display:flex;gap:8px;margin:0 0 12px;flex-wrap:wrap}.rtabs button{flex:1 1 auto;padding:9px 14px;border-radius:14px;border:1px solid var(--stroke,rgba(255,255,255,.18));background:rgba(255,255,255,.08);color:inherit;font:800 .98rem Nunito,Inter,sans-serif;cursor:pointer;backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px)}
 .rtabs button.on{background:rgba(255,255,255,.2);border-color:rgba(255,255,255,.35);box-shadow:inset 0 1px 0 rgba(255,255,255,.25)}.rtabs button:focus-visible{outline:2px solid #2DE2C8;outline-offset:2px}
 .sitefoot{text-align:center}
@@ -964,7 +964,7 @@ body.statsOn .dashbar{display:flex;grid-column:1/-1;align-items:center;justify-c
 /* mode daltonien (menu → Daltonien) : orange = bien placée, bleu = ailleurs */
 html.cb .mdv .v2{background:linear-gradient(135deg,#f07a2c,#d9601a)!important}html.cb .mdv .v1{border:3px solid #4d94ff!important}
 </style>
-<style id="lisible">@media(max-width:600px){.tag{font-size:.75rem!important;letter-spacing:.04em!important}.abtn{font-size:.9rem!important;width:auto!important;min-width:132px}.abtn-s{font-size:.88rem!important}#mdtCount{font-size:.88rem}}</style>
+<style id="lisible">@media(max-width:600px){.tag{font-size:.75rem!important;letter-spacing:.04em!important}.abtn{font-size:.9rem!important;width:auto!important;min-width:132px}.abtn-s{font-size:.88rem!important}#mdtCount{font-size:.88rem}}.mdvis{max-width:100%;min-width:0}.mdv{max-width:100%;min-width:0}.mdv i{flex:0 1 44px;min-width:0;aspect-ratio:44/48;height:auto!important}@media(max-width:380px){#abTx{white-space:normal!important;text-overflow:clip!important;overflow:visible!important;line-height:1.15;font-size:.92rem}}</style>
 </head>
 <body>
 <div class="blob b1"></div><div class="blob b2"></div><div class="blob b3"></div>
@@ -1273,6 +1273,7 @@ const ICO=(()=>{let n=0;
   const rays=[0,45,90,135,180,225,270,315].map(a=>'<rect fill="url(#B)" x="22" y="3.5" width="4" height="8" rx="2" transform="rotate('+a+' 24 24)"/>').join("");
   const spk='<path fill="url(#B)" d="M7 19a3 3 0 0 1 3-3h5.5l8.3-6.7c1.3-1 3.2-.1 3.2 1.6v26.2c0 1.7-1.9 2.6-3.2 1.6L15.5 32H10a3 3 0 0 1-3-3z"/>';
   return{
+    eye:mk(["#EBDDFF","#A98BFF","#6B4FE0"],"#8C6BFF",'<path fill="url(#B)" d="M4 24c4.5-8 11.5-13 20-13s15.5 5 20 13c-4.5 8-11.5 13-20 13S8.5 32 4 24z"/>','<circle cx="24" cy="24" r="7" fill="#1b1e3a"/><circle cx="25.5" cy="22.5" r="2.6" fill="#fff"/>'),
     moon:mk(ORANGE,"#FF9A2E",moonP,'<path d="M17 13.5a13.5 13.5 0 0 0-3.2 15" fill="none" stroke="#fff" stroke-opacity=".7" stroke-width="1.6" stroke-linecap="round"/>'),
     sun:mk(["#FFF19A","#FFC93C","#FF9420"],"#FFB020",rays+'<circle fill="url(#B)" cx="24" cy="24" r="9.5"/>'),
     snd:mk(["#C9F4FF","#6CC8F5","#3A7FE0"],"#4BA3F0",spk+'<path fill="none" stroke="url(#B)" stroke-width="3.4" stroke-linecap="round" d="M32 18.5a8 8 0 0 1 0 11M36.5 14a14 14 0 0 1 0 20"/>'),
@@ -1653,7 +1654,7 @@ $("#cfgX").onclick=()=>$("#cfg").classList.remove("on");
 // ---------- tutoriel : quelques étapes la 1re fois qu'on lance un jeu ----------
 const TUTO={
  fleches:[["👆","Choisis un mot","Touche une définition (ou une case) : le mot s'éclaire dans la grille. ⇄ change le sens."],["⌨️","Écris et valide","Tape les lettres puis « Valider » : 1 point par bonne lettre, 3 de plus par mot complété. 💡 révèle une lettre, sans points."],["🔢","Le mot mystère","Les cases numérotées (2 points de plus chacune) forment le mot mystère, avec un indice sous la grille. À deux, chacun son tour."]],
- rond:[["⭕","18 définitions","Chaque rond est une définition : sa réponse fait toujours 6 lettres."],["✍️","Écris tout autour","Touche un rond, tape les 6 lettres puis « Valider ». Le mot s'écrit dans les cases qui l'entourent, partagées avec les ronds voisins."],["🎯","Ricochets","Mot juste : +10 points. Si ton mot complète un voisin, c'est un ricochet : +10 de plus."]],
+ rond:[["⭕","18 définitions","Chaque rond est une définition : sa réponse fait toujours 6 lettres."],["✍️","Écris tout autour","Touche un rond, tape les 6 lettres puis « Valider ». Le mot commence dans la case du haut et tourne dans le sens des aiguilles d'une montre ↻ ; les cases sont numérotées de 1 à 6."],["🎯","Ricochets","Mot juste : +10 points. Si ton mot complète un voisin, c'est un ricochet : +10 de plus."]],
  magnetico:[["🫧","Les syllabes arrivent","Elles entrent dans le cadre, flottent et s'entrechoquent. Attention : en Normal et Difficile, des syllabes pièges se glissent parmi elles."],["👆","Touche-les dans l'ordre","Chaque syllabe touchée file dans l'encadré du mot. Touche une case pour la renvoyer, puis « Valider »."],["⭐","Les points","Mot trouvé : 10 par syllabe × difficulté + bonus de vitesse. +1 par syllabe bien placée, −5 par essai faux. À plusieurs, le premier à trouver gagne +5."]],
  meles:[["🔎","Trouve les mots","Les mots de la liste sont cachés dans la grille, dans tous les sens, même à l'envers."],["👉","Glisse ou touche","Glisse du début à la fin du mot, ou touche sa 1re puis sa dernière lettre."],["⚡","Le plus rapide gagne","Chaque mot trouvé rapporte des points. À deux, un mot déjà pris ne compte plus."]],
  culture:[["❓","10 questions mélangées","Images, culture, calculs, casse-tête et une question « Tout le monde a son mot à dire »."],["⏱️","20 secondes","Choisis parmi 4 réponses (touches 1 à 4). Bonne réponse : 10 points, et jusqu'à 5 de plus si tu es rapide."],["🗣️","À toi de le dire","Pour « Tout le monde a son mot à dire », tape ta réponse en 30 s : toutes les bonnes réponses comptent, une réponse originale rapporte +3."]],
@@ -1715,7 +1716,7 @@ $("#dim").addEventListener("click",()=>{closePops();$("#mMenu").classList.remove
     if(a==="pseudo"){close();openMe(b)}else if(a==="salon"){close();openSalon(b)}else if(a==="share"){close();share()}
     else if(a==="theme"){$("#themeBtn").click()}
     else if(a==="deco"){$("#decoBtn").click()}else if(a==="sound"){$("#soundBtn").click()}else if(a==="cb"){try{localStorage.setItem("fl-cb",localStorage.getItem("fl-cb")==="on"?"off":"on")}catch(_){}cbSync()}});
-  function cbSync(){let on=false;try{on=localStorage.getItem("fl-cb")==="on"}catch(_){}document.documentElement.classList.toggle("cb",on);const b=document.getElementById("mCb");if(b)b.textContent=(on?"✓ ":"")+"Daltonien"}cbSync();
+  function cbSync(){let on=false;try{on=localStorage.getItem("fl-cb")==="on"}catch(_){}document.documentElement.classList.toggle("cb",on);const b=document.getElementById("mCb");if(b)b.innerHTML=(typeof ICO!=="undefined"&&ICO.eye?ICO.eye():"")+(on?"✓ ":"")+"Daltonien"}cbSync();
   document.addEventListener("click",e=>{if(!e.target.closest("#mMenu")&&!e.target.closest("#mBtn"))close()})})();
 
 // ---------- téléphone : boutons Stats et Salon de l'en-tête ----------

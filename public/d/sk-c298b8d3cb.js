@@ -30,7 +30,7 @@ function mount(){const c0=code();if(c0)LS.set("fl-ok-"+c0,"1");D.body.prepend(ho
 const HDR=()=>PAGE==="poker"||!!window.SK_HDR;
 const theme=()=>HDR()?(D.documentElement.dataset.theme==="light"?"light":"dark"):D.body.classList.contains("light")?"light":"dark";
 function cbApply(){document.documentElement.classList.toggle("cb",LS.get("fl-cb")==="on")}
-function mIcons(){cbApply();const cbb=q("#mCb");if(cbb)cbb.innerHTML=(LS.get("fl-cb")==="on"?"✓ ":"")+"Daltonien";const t=q("#mTheme");if(!t)return;t.innerHTML=theme()==="light"?ICO.sun()+"Clair":ICO.moon()+"Sombre";q("#mSound").innerHTML=LS.get("fl-sound")!=="off"?ICO.snd()+"Son":ICO.mute()+"Muet";const d=q("#mDeco");if(d)d.innerHTML=ICO[SEASON_ICO]()+"Décor"}
+function mIcons(){cbApply();const cbb=q("#mCb");if(cbb)cbb.innerHTML=ICO.eye()+(LS.get("fl-cb")==="on"?"✓ ":"")+"Daltonien";const t=q("#mTheme");if(!t)return;t.innerHTML=theme()==="light"?ICO.sun()+"Clair":ICO.moon()+"Sombre";q("#mSound").innerHTML=LS.get("fl-sound")!=="off"?ICO.snd()+"Son":ICO.mute()+"Muet";const d=q("#mDeco");if(d)d.innerHTML=ICO[SEASON_ICO]()+"Décor"}
 function syncTheme(){host.dataset.theme=theme();if(HDR()){q("#skSound").innerHTML=LS.get("fl-sound")==="off"?ICO.mute():ICO.snd();q("#skDeco").innerHTML=ICO[SEASON_ICO]();q("#skDeco").classList.toggle("off",LS.get("fl-deco")==="off");q("#skTheme").innerHTML=theme()==="light"?ICO.sun():ICO.moon();mIcons();return}q("#skTheme").textContent=theme()==="light"?"☀️":"🌙";const s=$("soundBtn");if(s)q("#skSound").textContent=/🔇|off|coup/i.test(s.textContent+s.title+(s.getAttribute("aria-pressed")||""))&&!/🔊/.test(s.textContent)?"🔇":"🔊";
   const dc=$("decoBtn");q("#skDeco").style.opacity=LS.get("fl-deco")==="off"?".4":"1";if(dc)q("#skDeco").textContent=(dc.textContent||"🎃").trim().slice(0,2)||"🎃"}
 const click=id=>{if(HDR()){if(id==="themeBtn"){const t=theme()==="light"?"dark":"light";D.documentElement.dataset.theme=t;LS.set("fl-theme",t)}
@@ -185,6 +185,7 @@ const ICO=(()=>{let n=0;
   const rays=[0,45,90,135,180,225,270,315].map(a=>'<rect fill="url(#B)" x="22" y="3.5" width="4" height="8" rx="2" transform="rotate('+a+' 24 24)"/>').join("");
   const spk='<path fill="url(#B)" d="M7 19a3 3 0 0 1 3-3h5.5l8.3-6.7c1.3-1 3.2-.1 3.2 1.6v26.2c0 1.7-1.9 2.6-3.2 1.6L15.5 32H10a3 3 0 0 1-3-3z"/>';
   return{
+    eye:mk(["#EBDDFF","#A98BFF","#6B4FE0"],"#8C6BFF",'<path fill="url(#B)" d="M4 24c4.5-8 11.5-13 20-13s15.5 5 20 13c-4.5 8-11.5 13-20 13S8.5 32 4 24z"/>','<circle cx="24" cy="24" r="7" fill="#1b1e3a"/><circle cx="25.5" cy="22.5" r="2.6" fill="#fff"/>'),
     moon:mk(ORANGE,"#FF9A2E",moonP,'<path d="M17 13.5a13.5 13.5 0 0 0-3.2 15" fill="none" stroke="#fff" stroke-opacity=".7" stroke-width="1.6" stroke-linecap="round"/>'),
     sun:mk(["#FFF19A","#FFC93C","#FF9420"],"#FFB020",rays+'<circle fill="url(#B)" cx="24" cy="24" r="9.5"/>'),
     snd:mk(["#C9F4FF","#6CC8F5","#3A7FE0"],"#4BA3F0",spk+'<path fill="none" stroke="url(#B)" stroke-width="3.4" stroke-linecap="round" d="M32 18.5a8 8 0 0 1 0 11M36.5 14a14 14 0 0 1 0 20"/>'),

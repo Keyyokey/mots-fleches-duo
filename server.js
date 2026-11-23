@@ -724,18 +724,21 @@ const poker = makePoker({
 // classés (du jour : essais puis temps ; depuis le début : mots trouvés). Invités : jouent aussi, comptés dans « trouvé par ».
 const MJ = (() => {
   const strip = w => String(w || "").normalize("NFD").replace(/[̀-ͯ]/g, "").toUpperCase().replace(/[^A-Z]/g, "");
-  let words = [], defs = {}, dict = new Set();
+  let words = [], defs = {}, dict = new Set(), allDefs = {};
   // un « beau » mot du jour : pas de pluriel, ni de verbe conjugué (finales typiques), ni de définition qui commence par un article
   const mjNice = (w, d) => !/(S|X|Z|AIT|AI|ERA|IONS|IEZ|ONS|EZ|ERAI|[^I]A)$/.test(w) && !(/ENT$/.test(w) && !/(MENT|CENT|GENT|DENT|PENT)$/.test(w)) && !/^(A |Au |Aux |De |Du |Des |Il |Elle |Ils |On |Tu |Je |Nous |Vous )/.test(d || "");
   try {
     const f = fs.readdirSync(path.join(__dirname, "public", "d")).find(n => /^magnetico-[0-9a-f]{10}\.js$/.test(n));
     const sb = { window: {} }; require("vm").runInNewContext(fs.readFileSync(path.join(__dirname, "public", "d", f), "utf8"), sb);
-    for (const lv in sb.window.MG_MOTS) for (const e of sb.window.MG_MOTS[lv]) { const [s, d, r] = e.split("|"); const w = strip(s); dict.add(w); if (lv === "facile" && r === "1" && w.length >= 6 && w.length <= 7 && mjNice(w, d)) { words.push(w); defs[w] = d; } }
+    for (const lv in sb.window.MG_MOTS) for (const e of sb.window.MG_MOTS[lv]) { const [s, d, r] = e.split("|"); const w = strip(s); dict.add(w); if (!allDefs[w]) allDefs[w] = d; if (lv === "facile" && r === "1" && w.length >= 6 && w.length <= 7 && mjNice(w, d)) { words.push(w); defs[w] = d; } }
   } catch (e) { console.error("Mot du jour : liste de mots illisible :", e.message); }
   try { fs.readFileSync(path.join(__dirname, "poker_mots.txt"), "utf8").split(/\s+/).forEach(w => { if (w) dict.add(strip(w)); }); } catch {}
   // ordre fixe mélangé une fois (graine), un mot par jour à partir du 20/11/2026 ; un mot ne revient pas avant d'avoir épuisé la liste
   words = [...new Set(words)].sort(); let seed = 20261120; const rnd = () => (seed = (seed * 1103515245 + 12345) % 2147483648) / 2147483648;
   for (let i = words.length - 1; i > 0; i--) { const j = Math.floor(rnd() * (i + 1)); [words[i], words[j]] = [words[j], words[i]]; }
+  // 23/11/2026 : participes, adjectifs et verbes conjugués remplacés par des noms, à la même place (les autres jours ne bougent pas ; les 4 premiers jours déjà joués sont gardés)
+  const MJ_FIX = { ELEVEE: "BOUQUET", FERMEE: "CHATEAU", GLISSE: "DIAMANT", PASSEE: "FLACON", PLACEE: "BAGAGE", PRIVEE: "GARDIEN", PUISSE: "SEMELLE", RESTEE: "VACARME", SACREE: "CRISTAL", SITUEE: "PLANCHE" };
+  for (let i = 4; i < words.length; i++) { const nw = MJ_FIX[words[i]]; if (nw && allDefs[nw] && !words.includes(nw)) { words[i] = nw; defs[nw] = allDefs[nw]; } }
   const D0 = Date.UTC(2026, 10, 20);
   const dayNo = day => Math.round((Date.UTC(+day.slice(0, 4), +day.slice(4, 6) - 1, +day.slice(6, 8)) - D0) / 864e5);
   const wordOf = day => words.length ? words[((dayNo(day) % words.length) + words.length) % words.length] : "MOTIPOP";
