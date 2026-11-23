@@ -1601,12 +1601,12 @@ $(".salon-pill").onclick=e=>{e.stopPropagation();if($("#popSalon").classList.con
 function afterLogin(){updPills();loadMe();renderRank();renderSalon();renderPeers();if(ws&&ws.readyState===1)ws.send(JSON.stringify({t:"presence",presence:{name:ME?ME.name:"",page:"accueil"}}))}
 
 // ---------- partager ----------
-function share(){const link=location.origin+"/"+(CODE&&ROOM?CODE:"");const own=ROOM&&ROOM.role==="owner";
+function share(noNative){const link=location.origin+"/"+(CODE&&ROOM?CODE:"");const own=ROOM&&ROOM.role==="owner";
   const txt=CODE&&ROOM?"On fait une partie ? Rejoins mon salon « "+ROOM.name+" » sur "+link+(own?" — dans « Rejoindre un salon », saisis le nom et le code d'accès "+ROOM.acode:""):"Viens jouer sur Motipop avec moi : "+link;
-  if(navigator.share){navigator.share({title:"Motipop",text:txt,url:link}).catch(()=>{});return}
+  if(navigator.share&&noNative!==true){navigator.share({title:"Motipop",text:txt,url:link}).catch(()=>{});return}
   mini("📤 Partager",(own?"Nom du salon : <b>"+esc(ROOM.name)+"</b><br>Code d'accès : <b style='letter-spacing:.15em'>"+esc(ROOM.acode)+"</b><br>":CODE&&ROOM?"Pour entrer, il faut le nom du salon et son code d'accès, que seul le responsable connaît.<br>":"")+"<style>.shwa,.shcp{display:flex!important;align-items:center;justify-content:center;gap:10px;min-height:50px;width:100%;font-weight:800;font-size:1.05rem;text-decoration:none!important}.shwa{background:#0f7a3f!important;border-color:#0f7a3f!important;color:#fff!important}.shcp{background:rgba(255,255,255,.14)!important;color:#fff!important;border:1px solid rgba(255,255,255,.35)!important}[data-theme=light] .shcp{background:rgba(15,25,40,.06)!important;color:#0f1a2a!important;border-color:rgba(15,25,40,.25)!important}.shcp svg{flex-shrink:0}</style><div style='display:flex;flex-direction:column;gap:10px;margin:12px 0 4px'><a class='btn shwa' target='_blank' rel='noopener' href='https://wa.me/?text="+encodeURIComponent(txt)+"'><svg viewBox='0 0 24 24' width='22' height='22' aria-hidden='true'><path fill='#fff' d='M12 2.2A9.7 9.7 0 0 0 3.6 16.8L2.3 21.7l5-1.3A9.7 9.7 0 1 0 12 2.2zm0 1.8a7.9 7.9 0 1 1-4.1 14.6l-.3-.2-2.9.8.8-2.8-.2-.3A7.9 7.9 0 0 1 12 4z'/><path fill='#fff' d='M8.9 7.4c.2 0 .4 0 .6.4l.8 1.9c.1.2.1.4 0 .6l-.5.7c-.1.2-.2.3 0 .6a6.8 6.8 0 0 0 3.3 2.9c.2.1.4.1.6-.1l.7-.8c.2-.2.4-.2.6-.1l1.8.9c.3.1.4.2.4.4 0 .5-.2 1.3-.9 1.7-.6.4-1.4.5-2.5.1a10.4 10.4 0 0 1-5.6-5.2c-.6-1.2-.4-2.2.1-2.9.3-.4.6-.6.9-.6z'/></svg><span>Envoyer sur WhatsApp</span></a><button class='btn shcp' id='cpLink'><svg viewBox='0 0 24 24' width='20' height='20' aria-hidden='true'><rect x='8' y='8' width='12' height='12' rx='2.5' fill='none' stroke='currentColor' stroke-width='2'/><path d='M16 8V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h2' fill='none' stroke='currentColor' stroke-width='2'/></svg><span>Copier le message</span></button></div>");
   $("#cpLink").onclick=e=>{const sp=e.currentTarget.querySelector("span");(navigator.clipboard?navigator.clipboard.writeText(txt):Promise.reject()).then(()=>sp.textContent="Copié ✓",()=>sp.textContent=txt)}}
-$$("[data-open=share]").forEach(b=>b.onclick=share);
+$$("[data-open=share]").forEach(b=>b.onclick=()=>share());
 
 // ---------- tuiles de jeu et fenêtre de réglages ----------
 const GAMES={fleches:{nm:"Mots fléchés",lv:[["facile","Facile",414],["normal","Normal",417],["difficile","Difficile",386]],lvT:[250,250,250],t:true},
@@ -1938,19 +1938,21 @@ fetch("/api/p/mj",{method:"POST",headers:{"content-type":"application/json"},bod
     {t:".g-hero .tile",h:"Un mot à trouver chaque jour.",p:"Le même pour tout le monde !"},
     {t:"#papy",h:"Une énigme chaque matin.",p:"La réponse arrive le lendemain."},
     {t:".games:not(.g-hero)",box:()=>{const ts=[...document.querySelectorAll(".games:not(.g-hero) .tile")].slice(0,4).map(e=>e.getBoundingClientRect());return {left:Math.min(...ts.map(r=>r.left)),top:Math.min(...ts.map(r=>r.top)),right:Math.max(...ts.map(r=>r.right)),bottom:Math.max(...ts.map(r=>r.bottom))}},h:"Tes jeux sont ici.",p:"Seul ou à deux !"},
-    {t:"#abRank",h:"Ici, le classement.",p:"Qui est le meilleur ?"},
+    {t:"#abRank",h:"Ici, le classement.",p:"Touche « Classement » pour l'ouvrir."},
+    {t:"#cRank",act:1,box:()=>document.querySelector(".rankcard").getBoundingClientRect(),pre:()=>{if(!document.body.classList.contains("statsOn")){const b=document.getElementById("mStats");b&&b.click()}},post:()=>{if(document.body.classList.contains("statsOn")){const x=document.getElementById("dashX");x&&x.click()}},h:"Le voici !",p:"Les meilleurs joueurs et ta place. L'onglet « Classement de ton salon » montre seulement toi et tes amis."},
     {t:"#mSal",alt:"#mBtn",h:"Ton pseudo et ton salon.",p:"Crée ton pseudo, puis ton salon : c'est ta table de jeu."},
-    {t:"#abL",h:"Invite un ami ici.",p:"Il reçoit le lien par WhatsApp."},
+    {t:"#abL",h:"Pour inviter un ami…",p:"…touche « Joue avec tes amis »."},
+    {t:"#mini",act:1,pre:()=>{try{share(true)}catch(_){}},post:()=>{const m=document.getElementById("mini");m&&m.classList.remove("on")},h:"Envoie-lui le lien.",p:"Touche « Envoyer sur WhatsApp » : ton ami reçoit le lien, il l'ouvre et vous jouez ensemble."},
     {t:'.tile[data-key="fleches"]',h:"Pour jouer à deux…",p:"…touche un jeu, puis « Multijoueurs »."},
     {big:POPV,end:1,h:"À toi de jouer !",p:""}
-  ].filter(s=>!s.t||vis(s.t)||(s.alt&&vis(s.alt)));
+  ].filter(s=>!s.t||s.act||vis(s.t)||(s.alt&&vis(s.alt)));
   function run(){
     if(document.getElementById("ptO"))return;const S=steps();let i=0;
     const o=document.createElement("div");o.id="ptO";o.setAttribute("role","dialog");o.setAttribute("aria-label","Visite guidée");
     o.innerHTML='<div class="pz"></div><div class="pz"></div><div class="pz"></div><div class="pz"></div><div class="pr"></div><div class="pg"><i></i></div><img class="pB" alt=""><div class="pb"></div><div class="pm hide"><img src="'+POPE+'" alt=""></div><div class="pc">Touche pour continuer</div><button class="ps" type="button">Passer</button>';
     document.body.appendChild(o);document.documentElement.style.overflow="hidden";
     const Z=o.querySelectorAll(".pz"),ring=o.querySelector(".pr"),bub=o.querySelector(".pb"),pm=o.querySelector(".pm"),pB=o.querySelector(".pB");
-    const done=()=>{try{localStorage.setItem("fl-pop-tuto","1")}catch(_){}o.remove();document.documentElement.style.overflow="";removeEventListener("resize",place)};
+    const done=()=>{const c=S[i];if(c&&c.post)c.post();try{localStorage.setItem("fl-pop-tuto","1")}catch(_){}o.remove();document.documentElement.style.overflow="";removeEventListener("resize",place)};
     function place(){const s=S[i];const W=innerWidth,H=innerHeight;bub.innerHTML="<h4>"+s.h+"</h4>"+(s.p?"<p>"+s.p+"</p>":"")+(s.end?'<button class="go" type="button">C\'est parti !</button>':"");
       o.querySelector(".pg i").style.width=((i+1)/S.length*100)+"%";o.querySelector(".pc").classList.toggle("hide",!!s.end);o.querySelector(".ps").classList.toggle("hide",!!s.end);
       const el=s.t&&(vis(s.t)||vis(s.alt));
@@ -1961,11 +1963,11 @@ fetch("/api/p/mj",{method:"POST",headers:{"content-type":"application/json"},bod
       Z[2].style.cssText=`left:0;top:${T}px;width:${L}px;height:${B-T}px`;Z[3].style.cssText=`left:${R}px;top:${T}px;width:${Math.max(0,W-R)}px;height:${B-T}px`;
       Object.assign(ring.style,{left:L+"px",top:T+"px",width:(R-L)+"px",height:(B-T)+"px",opacity:1});
       const bh=bub.offsetHeight||120;let by=B+18,down=true;if(by+bh>H-90){by=T-bh-18;down=false}if(by<10){by=Math.min(H-bh-90,Math.max(10,B+18))}
-      bub.style.top=by+"px";const pt=down?by+bh-12:by-90;pm.style.top=pt+"px";pm.style.left=(Math.min(W,(W+Math.min(358,W-32))/2)-96)+"px";pm.classList.toggle("hide",pt<8||pt+96>H-80)}
-    function show(){const s=S[i],el=s.t&&(vis(s.t)||vis(s.alt));
-      if(el){const r=s.box?s.box():el.getBoundingClientRect();const need=r.top<70||r.bottom>innerHeight-260;if(need){scrollBy({top:r.top-Math.max(80,(innerHeight-Math.min(r.bottom-r.top,innerHeight*.55))/3),behavior:"smooth"});setTimeout(place,380);setTimeout(place,800);return}}
+      bub.style.top=by+"px";const pt=down?by+bh-12:by-90;pm.style.top=pt+"px";pm.style.left=(Math.min(W,(W+Math.min(358,W-32))/2)-96)+"px";const pl=parseFloat(pm.style.left);pm.classList.toggle("hide",pt<8||pt+96>H-80||(pt<B&&pt+96>T&&pl<R&&pl+96>L))}
+    function show(){const s=S[i];if(s.pre&&!s._on){s._on=1;s.pre();ring.style.opacity=0;setTimeout(show,450);return}const el=s.t&&(vis(s.t)||vis(s.alt));
+      if(el&&!s.act){const r=s.box?s.box():el.getBoundingClientRect();const need=r.top<70||r.bottom>innerHeight-260;if(need){scrollBy({top:r.top-Math.max(80,(innerHeight-Math.min(r.bottom-r.top,innerHeight*.55))/3),behavior:"smooth"});setTimeout(place,380);setTimeout(place,800);return}}
       place()}
-    o.addEventListener("click",e=>{if(e.target.closest(".ps")||e.target.closest(".go")){done();return}if(i<S.length-1){i++;show()}else done()});
+    o.addEventListener("click",e=>{if(e.target.closest(".ps")||e.target.closest(".go")){done();return}if(i<S.length-1){const c=S[i];if(c.post){c.post();c._on=0}i++;show()}else done()});
     addEventListener("resize",place);scrollTo({top:0});setTimeout(show,50)}
   window.motipopVisite=run;
   addEventListener("load",()=>{let seen=false;try{seen=localStorage.getItem("fl-pop-tuto")==="1"}catch(_){}
