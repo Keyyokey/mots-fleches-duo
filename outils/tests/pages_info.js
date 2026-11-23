@@ -7,7 +7,7 @@ for(const [w,h,n] of [[375,812,"mobile"],[1280,900,"pc"]]){const p=await b.newPa
   t(!info.sx&&!info.ph&&info.logo,n+" "+path+" : pas de débordement, pas de champ vide, logo ("+info.title+")");
   if(path==="/confidentialite"||path==="/conditions")t(info.y>200,n+" "+path+" ouvre la bonne section (défilé à "+info.y+" px)");
   if(n==="mobile"&&(path==="/regles"||path==="/mentions-legales"))await p.screenshot({path:SP+"pg_"+path.slice(1)+".png",fullPage:false});}
- await p.goto(U+"/");await p.waitForTimeout(1200);const links=await p.$$eval(".sitefoot a",a=>a.map(x=>x.getAttribute("href")));t(links.length===4,n+" pied de page de l'accueil : "+links.join(" "));
+ await p.goto(U+"/");await p.waitForTimeout(1200);const links=await p.$$eval(".sitefoot a",a=>a.map(x=>x.getAttribute("href")));t(links.length===5,n+" pied de page de l'accueil : "+links.join(" "));
  await p.close()}
 const sm=await (await fetch(U+"/sitemap.xml")).text();t(sm.includes("/regles")&&sm.includes("/mentions-legales"),"sitemap contient les nouvelles pages");
 const lg=await (await fetch(U+"/mentions-legales")).text();console.log("   contact affiché :",(lg.match(/Contact : ([^<]*<[^>]*>[^<]*)/)||[])[1]);t(lg.includes('rel="canonical" href="'),"adresse canonique");

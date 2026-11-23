@@ -1459,12 +1459,9 @@ const fmtN=n=>Math.round(n||0).toLocaleString("fr-FR");
 const CODE=((location.pathname.match(/^\/([A-Za-z0-9]{5})\/?$/)||[])[1]||"").toUpperCase()||null;
 const RE=/^[A-Z0-9@#_]{2,7}$/;
 let ME=null;try{ME=JSON.parse(LS.get("fl-me")||"null")}catch(e){}if(ME&&!RE.test(ME.name||""))ME=null;
-const NAMES=(()=>{try{return JSON.parse(LS.get("fl-salon-names")||"{}")}catch(e){return{}}})();
-function saveNames(){LS.set("fl-salon-names",JSON.stringify(NAMES))}
 function store(){if(ME)LS.set("fl-me",JSON.stringify(ME));else LS.del("fl-me")}
 async function call(route,body){try{const r=await fetch("/api/p/"+route,{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify(body||{})});let j={};try{j=await r.json()}catch(e){}return{status:r.status,...j}}catch(e){return{status:0,msg:"Pas de connexion au serveur. Réessaie dans un instant."}}}
 function clean(v){return String(v||"").normalize("NFD").replace(/[̀-ͯ]/g,"").toUpperCase().replace(/[^A-Z0-9@#_]/g,"").slice(0,7)}
-function newCode(){const CH="ABCDEFGHJKMNPQRSTUVWXYZ23456789";const a=new Uint32Array(5);crypto.getRandomValues(a);return[...a].map(x=>CH[x%CH.length]).join("")}
 function salonName(c){if(c===CODE&&ROOM)return ROOM.name;const x=(ME&&ME.salons||[]).find(s=>s.code===c);return x?x.name:""}
 let ROOM=null;                                      // salon ouvert : nom, rôle (envoyés par le serveur après vérification de l'accès)
 
@@ -1653,10 +1650,10 @@ $$(".modes .abtn").forEach(bindMode);
 $("#cfgX").onclick=()=>$("#cfg").classList.remove("on");
 // ---------- tutoriel : quelques étapes la 1re fois qu'on lance un jeu ----------
 const TUTO={
- fleches:[["👆","Choisis un mot","Touche une définition (ou une case) : le mot s'éclaire dans la grille. ⇄ change le sens."],["⌨️","Écris et valide","Tape les lettres puis « Valider » : 1 point par bonne lettre, 3 de plus par mot complété. 💡 révèle une lettre, sans points."],["🔢","Le mot mystère","Les cases numérotées (2 points de plus chacune) forment le mot mystère, avec un indice sous la grille. À deux, chacun son tour."]],
+ fleches:[["👆","Choisis un mot","Touche une définition (ou une case) : le mot s'éclaire dans la grille. ⇄ change le sens."],["⌨️","Écris et valide","Tape les lettres puis « Valider » : 1 point par bonne lettre, 3 de plus par mot complété. 💡 révèle une lettre, sans points."],["🔢","Le mot mystère","Les cases numérotées (2 points de plus chacune) forment le mot mystère, avec un indice sous la grille. À plusieurs, chacun son tour."]],
  rond:[["⭕","18 définitions","Chaque rond est une définition : sa réponse fait toujours 6 lettres."],["✍️","Écris tout autour","Touche un rond, tape les 6 lettres puis « Valider ». Le mot commence dans la case du haut et tourne dans le sens des aiguilles d'une montre ↻ ; les cases sont numérotées de 1 à 6."],["🎯","Ricochets","Mot juste : +10 points. Si ton mot complète un voisin, c'est un ricochet : +10 de plus."]],
  magnetico:[["🫧","Les syllabes arrivent","Elles entrent dans le cadre, flottent et s'entrechoquent. Attention : en Normal et Difficile, des syllabes pièges se glissent parmi elles."],["👆","Touche-les dans l'ordre","Chaque syllabe touchée file dans l'encadré du mot. Touche une case pour la renvoyer, puis « Valider »."],["⭐","Les points","Mot trouvé : 10 par syllabe × difficulté + bonus de vitesse. +1 par syllabe bien placée, −5 par essai faux. À plusieurs, le premier à trouver gagne +5."]],
- meles:[["🔎","Trouve les mots","Les mots de la liste sont cachés dans la grille, dans tous les sens, même à l'envers."],["👉","Glisse ou touche","Glisse du début à la fin du mot, ou touche sa 1re puis sa dernière lettre."],["⚡","Le plus rapide gagne","Chaque mot trouvé rapporte des points. À deux, un mot déjà pris ne compte plus."]],
+ meles:[["🔎","Trouve les mots","Les mots de la liste sont cachés dans la grille, dans tous les sens, même à l'envers."],["👉","Glisse ou touche","Glisse du début à la fin du mot, ou touche sa 1re puis sa dernière lettre."],["⚡","Le plus rapide gagne","Chaque mot trouvé rapporte des points. À plusieurs, un mot déjà pris ne compte plus."]],
  culture:[["❓","10 questions mélangées","Images, culture, calculs, casse-tête et une question « Tout le monde a son mot à dire »."],["⏱️","20 secondes","Choisis parmi 4 réponses (touches 1 à 4). Bonne réponse : 10 points, et jusqu'à 5 de plus si tu es rapide."],["🗣️","À toi de le dire","Pour « Tout le monde a son mot à dire », tape ta réponse en 30 s : toutes les bonnes réponses comptent, une réponse originale rapporte +3."]],
  poker:[["🃏","Tes lettres","Tu reçois 2 lettres cachées. L'Académicien retourne 3 lettres au milieu, puis les 2 dernières."],["🪙","Mise ou arrête-toi","À chaque tour, deux choix : S'arrêter ou Miser. Si quelqu'un mise plus, égale sa mise ou arrête-toi. Si tous les autres s'arrêtent, tu gagnes le pot."],["🏆","Le meilleur mot","À la fin, forme un mot avec tes lettres et celles du milieu (au moins une des tiennes). Le meilleur score emporte le pot."]]};
 // 20/11 : dernière étape commune, les réglages du jeu
