@@ -1,8 +1,8 @@
 // Accueil après le retrait du bloc « Ton univers de jeux » (10/11/2026) : classement à onglets + joueurs connectés | Ma progression, puis Nos jeux, pied de page centré
-const {chromium}=require('/tmp/claude-0/-home-claude/8d6d2643-6576-5f68-8c95-f3700fc6f9e7/scratchpad/node_modules/playwright');
+const {chromium}=require(process.env.PW||'playwright');
 const U='http://localhost:3100';const out=[];const ok=(c,l)=>{out.push(c);console.log((c?'✅ ':'❌ ')+l)};
 const api=async(r,b)=>(await fetch(U+'/api/p/'+r,{method:'POST',headers:{'content-type':'application/json','x-forwarded-for':'10.13.'+Math.floor(Math.random()*250)+'.4'},body:JSON.stringify(b)})).json();
-(async()=>{const br=await chromium.launch({executablePath:'/opt/pw-browsers/chromium'});const errs=[];
+(async()=>{const br=await chromium.launch({executablePath:process.env.CHROMIUM||'/opt/pw-browsers/chromium'});const errs=[];
  const pg=async(w=1280)=>{const p=await (await br.newContext({viewport:{width:w,height:900},colorScheme:'dark'})).newPage();p.on('pageerror',e=>errs.push(e.message));await p.route(/fonts\./,r=>r.abort());return p};
  let p=await pg();await p.goto(U+'/');await p.waitForTimeout(1200);
  ok(!(await p.$('#heroT'))&&!(await p.$('#ctaPlay'))&&!/Ton univers de/.test(await p.textContent('body')),'bloc « Ton univers de jeux » retiré');

@@ -155,8 +155,10 @@ body.booting #boot{display:flex;position:fixed;inset:0;z-index:50;align-items:ce
 .mgball{z-index:1}
 /* textes plus lisibles sur mobile (58fd75b, auparavant ajouté à la main dans mg.html) */
 #mgNsyl,#mgLvl,.hpill{font-size:.88rem!important}
+
+/* calculs (23/11) */
+.mgeq{font:900 1.45rem Nunito,Inter,sans-serif;color:var(--txt,#fff);padding:0 2px;align-self:center;white-space:nowrap}.mgbox.calc #mgSlots{align-items:center;flex-wrap:nowrap;justify-content:center;gap:12px}.mgnum{min-width:62px!important}
 </style>
-<style id="mgcalc">.mgeq{font:900 1.45rem Nunito,Inter,sans-serif;color:var(--txt,#fff);padding:0 2px;align-self:center;white-space:nowrap}.mgbox.calc #mgSlots{align-items:center;flex-wrap:nowrap;justify-content:center;gap:12px}.mgnum{min-width:62px!important}</style>
 </head>
 <body class="sk-new booting g-mg">
 <div id="skTop" class="skph"></div>
@@ -324,7 +326,7 @@ function setupWord(k,startAt){size();balls.forEach(b=>b.el.remove());cur=k;const
   queue=balls.slice();placed=w.s.map(()=>null);locked=w.s.map(()=>false);ent=null;lastTick=-1;errN=0;sentF=false;wStart=startAt||performance.now();
   phase="play";$("#mgRes").style.display="none";$("#mgMsg").textContent="";$("#mgBox").className="mgbox";$("#mgBtns").classList.remove("off");field.classList.remove("flash");
   $("#mgNum").textContent=(w.math?"Calcul ":"Mot ")+(k+1)+" / "+G.words.length;$("#mgLvl").textContent=LVLN[G.level]+" · "+(w.traps.length?w.traps.length+(w.traps.length>1?" pièges":" piège"):"aucun piège");
-  $("#mgNsyl").textContent=w.math?"Trouve le nombre qui manque":"Le mot · "+w.s.length+" syllabes";$("#mgBox").classList.toggle("calc",!!w.math);slots()}
+  $("#mgNsyl").textContent=w.math?"Touche le nombre qui manque, puis Valider":"Touche les "+w.s.length+" syllabes dans l'ordre";$("#mgBox").classList.toggle("calc",!!w.math);slots()}
 let side=0;
 function startEntry(b,now){side=(side+1)%4;const u=.25+Math.random()*.5;let P,n;
   if(side===0){P={x:u*W,y:0};n={x:0,y:1}}else if(side===1){P={x:W,y:u*H};n={x:-1,y:0}}else if(side===2){P={x:u*W,y:H};n={x:0,y:-1}}else{P={x:0,y:u*H};n={x:1,y:0}}

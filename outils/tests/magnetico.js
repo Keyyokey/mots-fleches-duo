@@ -7,7 +7,7 @@ const sleep = ms => new Promise(r => setTimeout(r, ms));
 // pose les bonnes syllabes dans l'ordre (ou une liste donnée) puis valide
 const play = (p, wrong) => p.evaluate(w => window.__t(`(()=>{const x=word(cur);const want=${w ? 'x.s.slice().reverse()' : 'x.s'};for(const t of want){const b=balls.find(b=>b.on&&!b.entering&&b.t===t&&!placed.includes(b));if(!b)return "pas encore "+t;pick(b)}validate();return "ok"})()`), wrong);
 (async () => {
-  const br = await chromium.launch({ executablePath: '/opt/pw-browsers/chromium' }); const errs = [];
+  const br = await chromium.launch({executablePath:process.env.CHROMIUM||'/opt/pw-browsers/chromium'}); const errs = [];
   const page = async (me, w = 390) => { const c = await br.newContext({ viewport: { width: w, height: 844 }, hasTouch: w < 500, isMobile: w < 500, deviceScaleFactor: 2 }); const p = await c.newPage(); p.on('pageerror', e => errs.push((me ? me.name : 'solo') + ': ' + e.message)); await p.route(/fonts\./, r => r.abort()); await p.goto(U + '/regles');
     await p.evaluate(m => { if (m) localStorage.setItem('fl-me', JSON.stringify(m)) }, me); return p };
   // ---- solo ----

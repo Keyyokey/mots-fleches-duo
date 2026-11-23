@@ -1,5 +1,5 @@
-const {chromium}=require('/tmp/pw/node_modules/playwright');const U='http://localhost:3999';
-(async()=>{const b=await chromium.launch({executablePath:'/opt/pw-browsers/chromium'});const errs=[];
+const {chromium}=require(process.env.PW||'playwright');const U='http://localhost:3999';
+(async()=>{const b=await chromium.launch({executablePath:process.env.CHROMIUM||'/opt/pw-browsers/chromium'});const errs=[];
 const c=await b.newContext({viewport:{width:1100,height:800}});const p=await c.newPage();p.on('pageerror',e=>errs.push(e.message));
 // compte de test
 const nm='Q'+Math.floor(Math.random()*90000+10000).toString(36).toUpperCase().slice(0,5);

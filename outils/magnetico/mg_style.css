@@ -92,3 +92,6 @@
 .mgball{z-index:1}
 /* textes plus lisibles sur mobile (58fd75b, auparavant ajouté à la main dans mg.html) */
 #mgNsyl,#mgLvl,.hpill{font-size:.88rem!important}
+
+/* calculs (23/11) */
+.mgeq{font:900 1.45rem Nunito,Inter,sans-serif;color:var(--txt,#fff);padding:0 2px;align-self:center;white-space:nowrap}.mgbox.calc #mgSlots{align-items:center;flex-wrap:nowrap;justify-content:center;gap:12px}.mgnum{min-width:62px!important}

@@ -1,6 +1,6 @@
-const {chromium}=require('/tmp/pw/node_modules/playwright');
+const {chromium}=require(process.env.PW||'playwright');
 const U='http://localhost:3999';const res=[];const ok=(c,l)=>{res.push((c?'✅ ':'❌ ')+l);return c};
-(async()=>{const br=await chromium.launch({executablePath:'/opt/pw-browsers/chromium'});const errs=[];
+(async()=>{const br=await chromium.launch({executablePath:process.env.CHROMIUM||'/opt/pw-browsers/chromium'});const errs=[];
  const p=await (await br.newContext({viewport:{width:1280,height:900}})).newPage();p.on('pageerror',e=>errs.push(e.message));const NV=[];p.on('framenavigated',f=>{if(f===p.mainFrame())NV.push(f.url())});const LU=()=>NV.filter(u=>/go=/.test(u)).pop()||p.url();
  const home=async()=>{NV.length=0;await p.goto(U+'/');await p.evaluate(()=>['fleches','rond','meles','culture','poker'].forEach(k=>localStorage.setItem('fl-tuto-'+k,'1')));await p.waitForTimeout(900)};
  let CFGON=false;const mode=async(k,sel)=>{await p.hover('.tile[data-key='+k+']');await p.waitForTimeout(700);await p.click('.tile[data-key='+k+'] '+sel);await p.waitForTimeout(400);CFGON=await p.evaluate(()=>{const c=document.querySelector('#cfg');return !!(c&&c.classList.contains('on'))}).catch(()=>false);if(CFGON&&sel!=='[data-cfg]'){await p.click('#cfgGo')}await p.waitForTimeout(1200)};

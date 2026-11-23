@@ -6,7 +6,7 @@ const SHOT = process.env.SHOT || '/tmp';
 const api = async (r, b) => (await fetch(U + '/api/p/' + r, { method: 'POST', headers: { 'content-type': 'application/json', 'x-forwarded-for': '10.7.' + Math.floor(Math.random() * 250) + '.' + Math.floor(Math.random() * 250) }, body: JSON.stringify(b) })).json();
 const sleep = ms => new Promise(r => setTimeout(r, ms));
 (async () => {
-  const br = await chromium.launch({ executablePath: '/opt/pw-browsers/chromium' }); const errs = [];
+  const br = await chromium.launch({executablePath:process.env.CHROMIUM||'/opt/pw-browsers/chromium'}); const errs = [];
   const sfx = Math.floor(Math.random() * 900 + 100); const names = ['MA', 'MB', 'MC', 'MD', 'ME'].map(x => x + sfx);
   const P = []; for (const n of names) { const r = await api('create', { name: n, pin: '2468' }); P.push({ name: n, token: r.token }) }
   const sl = await api('screate', { ...P[0], sname: 'Meles ' + sfx }); for (const p of P.slice(1)) await api('sjoin', { ...p, sname: 'Meles ' + sfx, scode: sl.salon.acode });

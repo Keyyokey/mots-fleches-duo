@@ -1,5 +1,5 @@
-const {chromium}=require('/tmp/pw/node_modules/playwright');
-(async()=>{const b=await chromium.launch({executablePath:'/opt/pw-browsers/chromium'});const errs=[];const c=await b.newContext({viewport:{width:420,height:800},deviceScaleFactor:2});await c.addInitScript(()=>localStorage.setItem('fl-tuto-magnetico','1'));const p=await c.newPage();p.on('pageerror',e=>errs.push(e.message));
+const {chromium}=require(process.env.PW||'playwright');
+(async()=>{const b=await chromium.launch({executablePath:process.env.CHROMIUM||'/opt/pw-browsers/chromium'});const errs=[];const c=await b.newContext({viewport:{width:420,height:800},deviceScaleFactor:2});await c.addInitScript(()=>localStorage.setItem('fl-tuto-magnetico','1'));const p=await c.newPage();p.on('pageerror',e=>errs.push(e.message));
 await p.goto('http://localhost:3999/magnetico?go=solo&lvl=normal');
 const counts=[];for(let i=0;i<12;i++){await p.waitForTimeout(1000);counts.push(await p.$$eval('.mgpass',x=>x.filter(e=>+e.style.opacity>0.05).length))}
 console.log('bulles de passage visibles chaque seconde :',counts.join(' '));

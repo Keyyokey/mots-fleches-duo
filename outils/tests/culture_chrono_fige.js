@@ -1,5 +1,5 @@
-const {chromium}=require('/tmp/pw/node_modules/playwright');
-(async()=>{const b=await chromium.launch({executablePath:'/opt/pw-browsers/chromium'});const errs=[];const c=await b.newContext({viewport:{width:1100,height:760}});await c.addInitScript(()=>localStorage.setItem('fl-tuto-culture','1'));const p=await c.newPage();p.on('pageerror',e=>errs.push(e.message));
+const {chromium}=require(process.env.PW||'playwright');
+(async()=>{const b=await chromium.launch({executablePath:process.env.CHROMIUM||'/opt/pw-browsers/chromium'});const errs=[];const c=await b.newContext({viewport:{width:1100,height:760}});await c.addInitScript(()=>localStorage.setItem('fl-tuto-culture','1'));const p=await c.newPage();p.on('pageerror',e=>errs.push(e.message));
 await p.goto('http://localhost:3999/culture?go=solo');await p.waitForTimeout(3500);
 // première question à choix
 for(let i=0;i<3;i++){const sond=await p.evaluate(()=>window.__t('curQ().k'));if(sond!=='sond')break;await p.evaluate(()=>window.__t('answer(0,"x")'));await p.waitForTimeout(500);await p.click('#cgNext').catch(()=>{});await p.waitForTimeout(800)}

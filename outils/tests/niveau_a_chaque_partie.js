@@ -1,5 +1,5 @@
-const {chromium}=require('/tmp/pw/node_modules/playwright');
-(async()=>{const b=await chromium.launch({executablePath:'/opt/pw-browsers/chromium'});const errs=[];let ok=0,ko=0;const chk=(c,m)=>{console.log((c?'✅ ':'❌ ')+m);c?ok++:ko++};
+const {chromium}=require(process.env.PW||'playwright');
+(async()=>{const b=await chromium.launch({executablePath:process.env.CHROMIUM||'/opt/pw-browsers/chromium'});const errs=[];let ok=0,ko=0;const chk=(c,m)=>{console.log((c?'✅ ':'❌ ')+m);c?ok++:ko++};
 const c=await b.newContext({viewport:{width:390,height:844},isMobile:true,hasTouch:true});
 await c.addInitScript(()=>{for(const k of ['fleches','rond','meles','magnetico','poker','culture'])localStorage.setItem('fl-tuto-'+k,'1')});
 const p=await c.newPage();p.on('pageerror',e=>errs.push(e.message));

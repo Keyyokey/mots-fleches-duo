@@ -4,7 +4,7 @@ global.setTimeout=(f,ms)=>{const id={f,at:NOW+(ms||0),on:true};Q.push(id);return
 function run(ms){const end=NOW+ms;for(;;){Q.sort((a,b)=>a.at-b.at);const n=Q.find(x=>x.on&&x.at<=end);if(!n)break;n.on=false;NOW=Math.max(NOW,n.at);n.f()}NOW=end}
 const out=[];const ok=(c,l)=>{out.push((c?'✅ ':'❌ ')+l);if(!c)console.log('❌',l)};
 const sent=[];const wallets={};const pts={};const JP={};
-const mk=require('/home/claude/fleches-site/poker.js');
+const mk=require(require('path').join(__dirname,'..','..','poker.js'));
 const P=mk({send:(ws,o)=>sent.push([ws,o]),wallet:n=>({coins:wallets[n]??1000}),pay:(n,d)=>{wallets[n]=(wallets[n]??1000)+d},points:(n,p)=>{pts[n]=(pts[n]||0)+p},
   jackpot:{get:r=>JP[r]||0,add:(r,n)=>{JP[r]=Math.max(0,(JP[r]||0)+n)}}});
 const E=P.evaluateWord;

@@ -1,5 +1,5 @@
-const {chromium}=require('/tmp/pw/node_modules/playwright');const U='http://localhost:3999';
-(async()=>{const b=await chromium.launch({executablePath:'/opt/pw-browsers/chromium'});const errs=[];let ok=0,ko=0;const chk=(c,m)=>{console.log((c?'✅ ':'❌ ')+m);c?ok++:ko++};
+const {chromium}=require(process.env.PW||'playwright');const U='http://localhost:3999';
+(async()=>{const b=await chromium.launch({executablePath:process.env.CHROMIUM||'/opt/pw-browsers/chromium'});const errs=[];let ok=0,ko=0;const chk=(c,m)=>{console.log((c?'✅ ':'❌ ')+m);c?ok++:ko++};
 const c=await b.newContext({viewport:{width:1100,height:800}});const p=await c.newPage();p.on('pageerror',e=>errs.push(e.message));
 const mk=async()=>{const nm='S'+Math.random().toString(36).slice(2,7).toUpperCase();const r=await p.request.post(U+'/api/p/create',{data:{name:nm,pin:'1234'}});const j=await r.json();return {nm,tok:j.token}};
 const A=await mk(),B=await mk();const api=(who,route,d)=>p.request.post(U+'/api/p/'+route,{data:Object.assign({name:who.nm,token:who.tok},d)}).then(r=>r.json());

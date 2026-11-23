@@ -1,7 +1,7 @@
-const {chromium}=require('/tmp/claude-0/-home-claude/8d6d2643-6576-5f68-8c95-f3700fc6f9e7/scratchpad/node_modules/playwright');
+const {chromium}=require(process.env.PW||'playwright');
 const U='http://localhost:3100';const res=[];const ok=(c,l)=>{res.push((c?'✅ ':'❌ ')+l);return c};
 const api=async(r,b)=>(await fetch(U+'/api/p/'+r,{method:'POST',headers:{'content-type':'application/json','x-forwarded-for':'10.9.'+Math.floor(Math.random()*250)+'.7'},body:JSON.stringify(b)})).json();
-(async()=>{const br=await chromium.launch({executablePath:'/opt/pw-browsers/chromium'});const errs=[];const sfx=Math.floor(Math.random()*900+100);
+(async()=>{const br=await chromium.launch({executablePath:process.env.CHROMIUM||'/opt/pw-browsers/chromium'});const errs=[];const sfx=Math.floor(Math.random()*900+100);
  const A={name:'AN'+sfx},B={name:'BO'+sfx};A.token=(await api('create',{name:A.name,pin:'1357'})).token;B.token=(await api('create',{name:B.name,pin:'2468'})).token;
  const sl=await api('screate',{...A,sname:'SB '+sfx});await api('sjoin',{...B,sname:'SB '+sfx,scode:sl.salon.acode});const C=sl.salon.code;
  const mk=async(w,me)=>{const c=await br.newContext({viewport:{width:w,height:w<500?844:900},hasTouch:w<500});const p=await c.newPage();p.on('pageerror',e=>errs.push(e.message));await p.goto(U+'/');await p.evaluate(m=>{localStorage.setItem('fl-me',JSON.stringify(m));['fleches','rond','meles','culture','poker'].forEach(k=>localStorage.setItem('fl-tuto-'+k,'1'))},me);return p};

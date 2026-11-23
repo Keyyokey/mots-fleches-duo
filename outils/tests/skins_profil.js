@@ -1,4 +1,4 @@
-const {chromium}=require('/tmp/claude-0/-home-claude/8d6d2643-6576-5f68-8c95-f3700fc6f9e7/scratchpad/node_modules/playwright');
+const {chromium}=require(process.env.PW||'playwright');
 const U='http://localhost:3100';const res=[];const ok=(c,l)=>{res.push((c?'✅ ':'❌ ')+l);return c};
 const api=async(r,b)=>{const x=await fetch(U+'/api/p/'+r,{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify(b)});return {status:x.status,...await x.json()}};
 (async()=>{const nm='SK'+Math.floor(Math.random()*9000+1000);const a=await api('create',{name:nm,pin:'2468'});const T={name:nm,token:a.token};
@@ -6,7 +6,7 @@ const api=async(r,b)=>{const x=await fetch(U+'/api/p/'+r,{method:'POST',headers:
  r=await api('skin',{...T,skin:'inconnu/x'});ok(r.status===400,'serveur : habillage inconnu refusé');
  r=await api('skin',{...T,skin:'patineuse/classique'});ok(r.status===(new Date().getMonth()===11?200:403),'serveur : série Hiver seulement en décembre');
  r=await api('skin',{name:nm,token:'faux',skin:'leo/classique'});ok(r.status===401,'serveur : sans le bon jeton, refusé');
- const br=await chromium.launch({executablePath:'/opt/pw-browsers/chromium'});const errs=[];
+ const br=await chromium.launch({executablePath:process.env.CHROMIUM||'/opt/pw-browsers/chromium'});const errs=[];
  for(const [w,h] of [[1280,900],[375,812]]){const p=await (await br.newContext({viewport:{width:w,height:h}})).newPage();p.on('pageerror',e=>errs.push(e.message));
   await p.goto(U+'/');await p.evaluate(m=>localStorage.setItem('fl-me',JSON.stringify(m)),T);await p.goto(U+'/');await p.waitForTimeout(1500);
   const pill=w<=620?'#mBtn':'.me-pill';await p.click(pill);await p.waitForTimeout(400);

@@ -11,7 +11,7 @@ const sleep = ms => new Promise(r => setTimeout(r, ms));
 const typeSys = (p, txt) => p.evaluate(t => { const k = document.getElementById('kb'); for (const l of t) { k.value = '​' + l; k.dispatchEvent(new Event('input')) } }, txt);
 const backSys = p => p.evaluate(() => { const k = document.getElementById('kb'); k.value = ''; k.dispatchEvent(new Event('input')) });
 (async () => {
-  const br = await chromium.launch({ executablePath: '/opt/pw-browsers/chromium' }); const errs = [];
+  const br = await chromium.launch({executablePath:process.env.CHROMIUM||'/opt/pw-browsers/chromium'}); const errs = [];
   const sfx = Math.floor(Math.random() * 900 + 100); const r0 = await api('create', { name: 'TA' + sfx, pin: '1470' }); const ME = { name: 'TA' + sfx, token: r0.token };
   const page = async (w = 390) => { const c = await br.newContext({ viewport: { width: w, height: 800 }, hasTouch: w < 500, isMobile: w < 500 }); const p = await c.newPage(); p.on('pageerror', e => errs.push(e.message)); await p.goto(U + '/');
     await p.evaluate(m => { localStorage.setItem('fl-me', JSON.stringify(m)); ['fleches', 'rond', 'meles', 'culture', 'poker'].forEach(k => localStorage.setItem('fl-tuto-' + k, '1')) }, ME); return p };

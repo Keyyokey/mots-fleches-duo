@@ -2,10 +2,11 @@
 // 1) les pages générées (mg.html, en-têtes partagés) sont à jour : relancer build_mg.py puis partage.py ne change rien
 //    (avant : un style ajouté à la main dans mg.html disparaissait à la régénération)
 // 2) la page des règles correspond aux jeux : Mot du jour aux points, mots fléchés et mots mêlés à plusieurs (2 à 4)
-// 3) plus de code mort connu (accueil : NAMES/saveNames/newCode ; serveur : liveInfo)
+// 3) plus de code mort connu (accueil : NAMES/saveNames/newCode). ATTENTION : liveInfo() du serveur SERT (liste des salons) :
+//    l'audit du 23/11 l'avait retiré par erreur → « Serveur occupé » en ligne ; ce test vérifie maintenant qu'il est là ET appelé.
 // Lancer depuis la racine du dépôt, serveur local sur le port 3999 : node outils/tests/restes_anciennes_versions.js
 const {execSync}=require("child_process");const fs=require("fs");
-const {chromium}=require(process.env.PW||"/tmp/pw/node_modules/playwright");
+const {chromium}=require(process.env.PW||'playwright');
 const U="http://localhost:3999";let ok=0,ko=0;const t=(c,m)=>{c?ok++:ko++;console.log((c?"✅ ":"❌ ")+m)};
 (async()=>{
  const before=execSync("git diff -- public/mg.html public/*.html").toString();
@@ -15,8 +16,8 @@ const U="http://localhost:3999";let ok=0,ko=0;const t=(c,m)=>{c?ok++:ko++;consol
  const mg=fs.readFileSync("public/mg.html","utf8");t(/#mgNsyl,#mgLvl,\.hpill\{font-size:\.88rem!important\}/.test(mg),"Magnético : textes lisibles sur mobile gardés après régénération");
  const acc=fs.readFileSync("public/accueil.html","utf8"),srv=fs.readFileSync("server.js","utf8");
  t(!/fl-salon-names|function newCode|function saveNames/.test(acc),"accueil : plus d'ancienne clé fl-salon-names ni de newCode");
- t(!/function liveInfo/.test(srv),"serveur : plus de liveInfo inutilisé");
- const br=await chromium.launch();const errs=[];
+ t(/function liveInfo/.test(srv)&&/liveInfo\(m\.id\)|liveInfo\(/.test(srv.replace(/function liveInfo/,"")),"serveur : liveInfo est présent et appelé (liste des salons)");
+ const br=await chromium.launch({executablePath:process.env.CHROMIUM||'/opt/pw-browsers/chromium'});const errs=[];
  for(const [w,h] of [[1280,900],[390,844]]){const p=await (await br.newContext({viewport:{width:w,height:h}})).newPage();p.on("pageerror",e=>errs.push(e.message));
   await p.goto(U+"/regles");await p.waitForTimeout(800);
   const s=await p.evaluate(()=>{const g=id=>(document.getElementById(id)||{}).innerText||"";return{md:g("motdujour")||[...document.querySelectorAll("section")].map(x=>x.innerText).find(x=>/Mot du jour/.test(x))||"",fl:g("fleches"),mm:g("meles"),sw:document.documentElement.scrollWidth}});

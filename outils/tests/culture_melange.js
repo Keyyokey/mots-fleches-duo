@@ -1,5 +1,5 @@
-const {chromium}=require("/tmp/claude-0/-home-claude/8d6d2643-6576-5f68-8c95-f3700fc6f9e7/scratchpad/node_modules/playwright");
-(async()=>{const b=await chromium.launch({executablePath:"/opt/pw-browsers/chromium"});const ctx=await b.newContext({viewport:{width:420,height:860}});const p=await ctx.newPage();
+const {chromium}=require(process.env.PW||'playwright');
+(async()=>{const b=await chromium.launch({executablePath:process.env.CHROMIUM||'/opt/pw-browsers/chromium'});const ctx=await b.newContext({viewport:{width:420,height:860}});const p=await ctx.newPage();
 const req=[];p.on("request",r=>req.push(r.url()));const errs=[];p.on("pageerror",e=>errs.push(e.message));
 await p.route(/upload\.wikimedia/,r=>r.abort());
 const t0=Date.now();await p.goto("http://localhost:3100/culture?go=solo");await p.waitForFunction(()=>{const q=document.querySelector("#cgQ");return q&&q.textContent&&!/Chargement/.test(q.textContent)},null,{timeout:10000});

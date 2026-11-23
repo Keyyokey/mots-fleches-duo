@@ -1,6 +1,6 @@
-const {chromium}=require('/tmp/pw/node_modules/playwright');
+const {chromium}=require(process.env.PW||'playwright');
 const U='http://localhost:3999';const res=[];const ok=(c,l)=>{res.push((c?'✅ ':'❌ ')+l);return c};
-(async()=>{const br=await chromium.launch({executablePath:'/opt/pw-browsers/chromium'});const errs=[];
+(async()=>{const br=await chromium.launch({executablePath:process.env.CHROMIUM||'/opt/pw-browsers/chromium'});const errs=[];
  const ctx=await br.newContext({viewport:{width:1280,height:900}});const p=await ctx.newPage();p.on('pageerror',e=>errs.push(e.message));const NV=[];p.on('framenavigated',f=>{if(f===p.mainFrame())NV.push(f.url())});
  const mode=async(k,sel)=>{await p.hover('.tile[data-key='+k+']');await p.waitForTimeout(700);await p.click('.tile[data-key='+k+'] '+sel);await p.waitForTimeout(400);if(await p.evaluate(()=>document.querySelector('#cfg').classList.contains('on')))await p.click('#cfgGo');await p.waitForTimeout(600)};
  await p.goto(U+'/');await p.waitForTimeout(900);await p.evaluate(()=>Object.keys(localStorage).filter(k=>k.startsWith('fl-tuto')).forEach(k=>localStorage.removeItem(k)));await p.goto(U+'/');await p.waitForTimeout(900);NV.length=0;

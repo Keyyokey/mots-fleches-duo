@@ -25,3 +25,16 @@ Test ajouté : outils/tests/restes_anciennes_versions.js (pages générées à j
 
 Prochain thème : 26/11 — Mots fléchés.
 
+
+## 23/11/2026 (soir) — Garde-fous après deux incidents (fait avec Juvenal, hors calendrier)
+
+Incidents :
+1. **liveInfo() supprimé par l'audit du matin** alors qu'il sert à la liste des salons → « Serveur occupé » en ligne sur « Mes salons » et à la création de salon. Rétabli (8eacb73). Le test restes_anciennes_versions.js exigeait cette suppression : corrigé, il vérifie maintenant que liveInfo est présent ET appelé.
+2. **Mot du jour sur téléphone** : les lettres au-dessus de la grille ressemblaient à un clavier mais ne réagissaient pas, et la consigne était cachée → les visiteurs venus de Facebook repartaient sans jouer. Corrigé (87bb59e : lettres qui écrivent au toucher, bouton Effacer, consigne visible).
+
+Garde-fous ajoutés :
+- `bash outils/tests/tout_lancer.sh` : lance TOUS les tests (serveurs 3999 et 3100 démarrés par le script, SOLO_MIN_MS=2000). Résultat ce soir : 31 réussis, 0 en échec. Sautés et pourquoi : faux_upstash.js (outil), magnetico_bulles_passage_trace.js (trace), wordflush_mobile_phases.js (captures d'écran, ne vérifie rien), poker_v2_moteur.js (ancien moteur v2 remplacé par le v3), sauvegardes.js (demande le faux Upstash).
+- Tous les tests : `require(process.env.PW||'playwright')` et Chromium via `process.env.CHROMIUM` (fini les chemins d'anciennes sessions). poker_v2_moteur.js : chemin relatif vers poker.js.
+- Nouveau test `nouveau_visiteur_mobile.js` : téléphone neuf, navigateur Facebook, 8 pages d'arrivée ; consigne visible, rien qui déborde, tuiles-lettres qui écoutent le toucher, et parcours complet du Mot du jour. Il échoue bien sur l'ancien md.html. Il a trouvé 3 pages sans consigne, corrigées : Mots mêlés (« fais glisser ton doigt sur les lettres d'un mot »), Magnético (« Touche les N syllabes dans l'ordre »), Tourniquet (« Touche un rond pour lire sa définition, puis tape le mot »).
+- Magnético : les calculs (53cbda7) avaient été écrits dans public/mg.html ; reportés dans outils/magnetico/mg_engine.js et mg_style.css, page régénérée identique.
+- Consigne de l'audit de nuit mise à jour : suite complète AVANT et APRÈS, pas de commit si un test qui passait échoue, recherche de tous les appels avant de supprimer du code, vérification en ligne de l'accueil, de « Mes salons » et du Mot du jour après déploiement, revert immédiat si cassé.

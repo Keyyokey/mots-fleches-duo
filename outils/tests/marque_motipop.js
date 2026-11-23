@@ -1,6 +1,6 @@
-const {chromium}=require("/tmp/claude-0/-home-claude/8d6d2643-6576-5f68-8c95-f3700fc6f9e7/scratchpad/node_modules/playwright");
+const {chromium}=require(process.env.PW||'playwright');
 const SP="/tmp/claude-0/-home-claude/8d6d2643-6576-5f68-8c95-f3700fc6f9e7/scratchpad/";
-(async()=>{const b=await chromium.launch({executablePath:"/opt/pw-browsers/chromium"});const errs=[];
+(async()=>{const b=await chromium.launch({executablePath:process.env.CHROMIUM||'/opt/pw-browsers/chromium'});const errs=[];
 for(const vw of [[390,844,"mobile"],[1280,800,"pc"]]){const ctx=await b.newContext({viewport:{width:vw[0],height:vw[1]},deviceScaleFactor:vw[2]==="mobile"?2:1});
 for(const [path,name] of [["/","accueil"],["/fleches?go=solo","fl"],["/rond?go=solo","rd"],["/meles?go=solo","mm"],["/culture?go=solo","cg"],["/poker","poker"]]){
  const p=await ctx.newPage();p.on("pageerror",e=>errs.push(name+": "+e.message));await p.route(/upload\.wikimedia|fonts\./,r=>r.abort());

@@ -2,7 +2,7 @@
 // pour que le clavier du téléphone garde le joueur en face du cercle (la page ne descend plus vers les cases de réponse).
 const PW=process.env.PW||'playwright';const {chromium}=require(PW);
 const U=process.env.U||'http://localhost:3999';const res=[];const ok=(c,l)=>{res.push((c?'✅ ':'❌ ')+l);return c};
-(async()=>{const br=await chromium.launch({executablePath:'/opt/pw-browsers/chromium'});const errs=[];
+(async()=>{const br=await chromium.launch({executablePath:process.env.CHROMIUM||'/opt/pw-browsers/chromium'});const errs=[];
  const c=await br.newContext({viewport:{width:390,height:844},hasTouch:true,isMobile:true});const p=await c.newPage();p.on('pageerror',e=>errs.push(e.message));
  await p.goto(U+'/');await p.evaluate(()=>['fleches','rond','meles','culture','poker'].forEach(k=>localStorage.setItem('fl-tuto-'+k,'1')));
  await p.goto(U+'/rond?go=solo&lvl=facile');await p.waitForTimeout(5000);

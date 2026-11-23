@@ -1,7 +1,7 @@
-const {chromium}=require('/tmp/claude-0/-home-claude/8d6d2643-6576-5f68-8c95-f3700fc6f9e7/scratchpad/node_modules/playwright');
+const {chromium}=require(process.env.PW||'playwright');
 const U='http://localhost:3100';
 const api=async(r,b)=>(await fetch(U+'/api/p/'+r,{method:'POST',headers:{'content-type':'application/json','x-forwarded-for':'10.9.'+Math.floor(Math.random()*250)+'.7'},body:JSON.stringify(b)})).json();
-(async()=>{const br=await chromium.launch({executablePath:'/opt/pw-browsers/chromium'});const errs=[];const sfx=Math.floor(Math.random()*900+100);
+(async()=>{const br=await chromium.launch({executablePath:process.env.CHROMIUM||'/opt/pw-browsers/chromium'});const errs=[];const sfx=Math.floor(Math.random()*900+100);
  const A={name:'AN'+sfx},B={name:'BO'+sfx};A.token=(await api('create',{name:A.name,pin:'1357'})).token;B.token=(await api('create',{name:B.name,pin:'2468'})).token;
  const S=(await api('screate',{name:A.name,token:A.token,sname:'Test CG'})).salon;const C=S.code;const J=await api('sjoin',{name:B.name,token:B.token,sname:'Test CG',scode:S.acode});console.log('join',J.ok,J.msg||'');
  const mk=async me=>{const c=await br.newContext({viewport:{width:390,height:844}});const p=await c.newPage();p.on('pageerror',e=>errs.push(e.message));await p.route(/upload\.wikimedia|fonts\./,r=>r.abort());await p.goto(U+'/');await p.evaluate(m=>{localStorage.setItem('fl-me',JSON.stringify(m));localStorage.setItem('fl-tuto-culture','1')},me);return p};

@@ -1,6 +1,6 @@
 // Wordflush v3 : dock d'actions en bas (téléphone), mot composé en tuiles sans clavier, saisie directe au clavier (ordinateur)
 // Lancer : serveur local sur le port 3100 (SOLO_MIN_MS=2000), puis `node wordflush_tuiles.js`
-const {chromium}=require(process.env.PW||"/tmp/claude-0/-home-claude/8d6d2643-6576-5f68-8c95-f3700fc6f9e7/scratchpad/node_modules/playwright");
+const {chromium}=require(process.env.PW||'playwright');
 let ok=0,ko=0;const T=(c,m)=>{c?ok++:ko++;console.log((c?"✅ ":"❌ ")+m)};
 async function partie(b,mobile){const p=await b.newPage(mobile?{viewport:{width:390,height:844},isMobile:true,hasTouch:true}:{viewport:{width:1280,height:900}});const errs=[];p.on("pageerror",e=>errs.push(e.message));await p.route(/fonts\./,r=>r.abort());
   await p.goto("http://localhost:3100/poker?go=solo");await p.waitForTimeout(2500);await p.getByText("Lancer la partie").click().catch(()=>{});const L=mobile?"téléphone":"ordinateur";const vu={};
@@ -33,4 +33,4 @@ async function partie(b,mobile){const p=await b.newPage(mobile?{viewport:{width:
     if(s.ph==="abattage"&&vu.mot&&!vu.res){vu.res=1;await p.waitForTimeout(800);const a=await p.evaluate(()=>({act:getComputedStyle(document.querySelector(".pkact")).display,carte:getComputedStyle(document.querySelector(".pkleft>.pkcard")).display,res:!document.querySelector("#pkRes").hidden}));
       T(a.act==="none"&&a.res&&(!mobile||a.carte==="none"),L+" : au résultat, plus aucun bouton de mise affiché")}}
   T(vu.mise&&vu.mot&&vu.res,L+" : les 3 phases ont été jouées");T(errs.length===0,L+" : aucune erreur JavaScript "+JSON.stringify(errs));await p.close()}
-(async()=>{const b=await chromium.launch({executablePath:"/opt/pw-browsers/chromium"});await partie(b,true);await partie(b,false);console.log(ok+" ✅ / "+ko+" ❌");await b.close();process.exit(ko?1:0)})();
+(async()=>{const b=await chromium.launch({executablePath:process.env.CHROMIUM||'/opt/pw-browsers/chromium'});await partie(b,true);await partie(b,false);console.log(ok+" ✅ / "+ko+" ❌");await b.close();process.exit(ko?1:0)})();
