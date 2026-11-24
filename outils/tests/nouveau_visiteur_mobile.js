@@ -52,7 +52,7 @@ const PAGES=[['Mot du jour','/motdujour?ref=facebook'],['Accueil','/?ref=whatsap
     ok(await p.evaluate(()=>document.activeElement!==document.getElementById('mdIn')),'Mot du jour : le clavier du téléphone ne s\'ouvre pas quand on touche les lettres');
     await p.tap('#mdOk');await p.waitForTimeout(800);
     ok((await p.evaluate(()=>document.getElementById('mdMsg').textContent.trim())).length>0,'Mot du jour : Valider répond quelque chose');
-    ok(await p.evaluate(()=>{const n=document.getElementById('mdNote');return !!n&&n.getBoundingClientRect().height>0}),'Mot du jour : la consigne « touche les lettres » est visible');
+    ok(await p.evaluate(()=>{const n=document.getElementById('mdNote');return !!n&&n.getBoundingClientRect().height>0}),'Mot du jour : la consigne « tape ton mot » est visible');
    }}
   await c.close()}
  await br.close();console.log(res.join('\n'));const ko=res.filter(r=>r.startsWith('❌')).length;console.log(ko?ko+' problème(s)':'tout est bon');process.exit(ko?1:0)})();

@@ -130,7 +130,7 @@ body.tj .mdrow{gap:6px}
     <div class="mdkeys" id="mdKeys" aria-label="Clavier"></div>
     <div class="glass mdgrid" id="mdGrid" aria-label="Grille du mot du jour"><input id="mdIn" type="text" inputmode="text" autocomplete="off" autocorrect="off" autocapitalize="characters" spellcheck="false" enterkeyhint="go" aria-label="Saisie des lettres" data-lpignore="true" data-form-type="other"></div>
     <div class="mdmsg" id="mdMsg" role="status" aria-live="polite"></div>
-    <div class="mdbar" id="mdBar"><span class="note" id="mdNote">Devine le mot en 6 essais : touche les lettres, puis Valider.</span><button class="btn ghost mddel" id="mdDel" aria-label="Effacer la dernière lettre"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M21 5H9l-6 7 6 7h12a1 1 0 0 0 1-1V6a1 1 0 0 0-1-1Z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><path d="m12 9 6 6m0-6-6 6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></button><button class="btn primary" id="mdOk">Valider</button></div>
+    <div class="mdbar" id="mdBar"><span class="note" id="mdNote">Devine le mot en 6 essais : touche la grille, tape ton mot, puis Valider.</span><button class="btn ghost mddel" id="mdDel" aria-label="Effacer la dernière lettre"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M21 5H9l-6 7 6 7h12a1 1 0 0 0 1-1V6a1 1 0 0 0-1-1Z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><path d="m12 9 6 6m0-6-6 6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></button><button class="btn primary" id="mdOk">Valider</button></div>
     <div class="glass card mdend" id="mdEnd" aria-live="polite"></div>
   </div>
   <aside class="mdside" aria-label="Classement du mot du jour">
@@ -283,4 +283,65 @@ if(location.hostname==="localhost")window.__t=c=>eval(c);
 </script>
 <script>window.SK_HDR=1;</script><script src="/d/sk-d812b07a92.js"></script>
 <script src="/d/icons-8d7b87098e.js" defer></script>
+<style id="popguide">
+/* Pop qui guide (25/11) : seulement pour un visiteur arrivé par un lien de suivi, une seule fois */
+#popg{position:fixed;left:12px;bottom:calc(12px + env(safe-area-inset-bottom));z-index:80;display:flex;align-items:flex-end;gap:6px;max-width:min(340px,calc(100vw - 24px));pointer-events:none;animation:pgIn .45s cubic-bezier(.2,1.3,.4,1) both}
+#popg img{width:72px;height:72px;flex:none;filter:drop-shadow(0 6px 12px rgba(0,0,0,.35));pointer-events:auto}
+#popg .pgb{position:relative;pointer-events:auto;padding:12px 34px 12px 14px;border-radius:18px 18px 18px 6px;background:var(--glass2,rgba(20,28,50,.92));border:1px solid var(--stroke,rgba(255,255,255,.2));backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);box-shadow:0 10px 26px rgba(0,0,0,.3);font:800 1rem/1.3 Nunito,Inter,sans-serif;color:var(--ink,#eef2f7);margin-bottom:26px}
+#popg .pgx{all:unset;position:absolute;top:6px;right:6px;width:26px;height:26px;border-radius:50%;display:grid;place-items:center;cursor:pointer;color:var(--muted,#9aa3b5)}
+#popg .pgx:focus-visible{outline:2px solid #00ADB5}
+#popg .pgx svg{width:14px;height:14px}
+#pgHand{position:fixed;z-index:81;width:44px;height:44px;pointer-events:none;transform:translate(-30%,10%);animation:pgTap 1.1s ease-in-out infinite;filter:drop-shadow(0 3px 6px rgba(0,0,0,.45))}
+#pgRing{position:fixed;z-index:79;pointer-events:none;border-radius:12px;box-shadow:0 0 0 3px #ffc857,0 0 18px rgba(255,200,87,.6);animation:pgRing 1.1s ease-in-out infinite}
+#popg.top{bottom:auto;top:calc(8px + env(safe-area-inset-top))}
+#popg .pgkb{display:flex;flex-direction:column;align-items:center;gap:3px;margin-top:8px}
+#popg .pgkb div{display:flex;gap:3px}
+#popg .pgkb span{width:21px;height:25px;border-radius:5px;display:grid;place-items:center;font:800 .68rem Nunito,Inter,sans-serif;color:#eef2f7;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.18)}
+#popg .pgkb span.k{animation:pgKey 3.2s infinite}
+#popg .pgkb span.k2{animation-delay:.8s}#popg .pgkb span.k3{animation-delay:1.6s}#popg .pgkb span.k4{animation-delay:2.4s}
+[data-theme=light] #popg .pgkb span{color:#14202b;background:rgba(15,25,40,.06);border-color:rgba(15,25,40,.15)}
+@keyframes pgKey{0%,18%,100%{transform:none;background:rgba(255,255,255,.12)}6%{transform:translateY(1px) scale(.9);background:linear-gradient(135deg,#00ADB5,#7c5cf0);color:#fff}}
+@keyframes pgIn{from{opacity:0;transform:translateY(20px) scale(.9)}}
+@keyframes pgTap{50%{transform:translate(-30%,10%) scale(.86)}}
+@keyframes pgRing{50%{box-shadow:0 0 0 5px #ffc857,0 0 26px rgba(255,200,87,.75)}}
+@media (prefers-reduced-motion:reduce){#popg,#pgHand,#pgRing,#popg .pgkb span.k{animation:none}}
+</style>
+<script>/* Pop qui guide : 2 ou 3 gestes au maximum, puis il s'en va. On mesure avec / sans Pop (moitié des visiteurs chacun). */
+(function(){try{
+ var o=JSON.parse(localStorage.getItem("fl-src")||"null");if(!o||!o.r||localStorage.getItem("fl-popguide"))return;
+ var G=localStorage.getItem("fl-popguide-g");if(G!=="pop"&&G!=="sans"){G=Math.random()<.5?"pop":"sans";localStorage.setItem("fl-popguide-g",G)}
+ var send=function(e){try{navigator.sendBeacon("/api/suivi",JSON.stringify({r:o.r,e:e,v:o.v}))}catch(x){}};
+ var $=function(s){return document.querySelector(s)},t0=Date.now();
+ // on attend que le mot du jour soit chargé ; seulement si aucun essai n'a encore été fait
+ (function wait(){var keys=document.querySelectorAll("#mdKeys span");if(!keys.length||!document.body.classList.contains("mdnew")){if(Date.now()-t0<8000)return setTimeout(wait,250);return}start()})();
+ function start(){localStorage.setItem("fl-popguide","1");send(G);var inp=$("#mdIn"),played=false;
+  var onPlay=function(){if(played)return;var v=(inp&&inp.value||"");if(v.length>=1){played=true;send(G+"joue")}};
+  if(inp)inp.addEventListener("input",onPlay);
+  if(G!=="pop")return;
+  var wrap=document.createElement("div");wrap.id="popg";wrap.setAttribute("role","status");wrap.setAttribute("aria-live","polite");
+  wrap.innerHTML='<img src="/d/pop-explique-171569b04b.webp" alt="Pop"><div class="pgb"><span id="pgTxt"></span><div class="pgkb" id="pgKb" aria-hidden="true"><div><span>A</span><span>Z</span><span class="k">E</span><span>R</span><span>T</span><span>Y</span><span class="k k3">U</span><span>I</span><span>O</span><span>P</span></div><div><span class="k k2">Q</span><span>S</span><span>D</span><span>F</span><span>G</span><span>H</span><span>J</span><span>K</span><span>L</span><span class="k k4">M</span></div><div><span>W</span><span>X</span><span>C</span><span>V</span><span>B</span><span>N</span></div></div><button class="pgx" type="button" aria-label="Fermer l\'aide de Pop"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="M6 6l12 12M18 6 6 18"/></svg></button></div>';
+  document.body.appendChild(wrap);
+  var hand=document.createElement("div");hand.id="pgHand";hand.innerHTML='<svg viewBox="0 0 48 48"><path d="M18 6a4 4 0 0 1 8 0v14l9.2 2.3a5 5 0 0 1 3.7 5.8l-2.2 11.4A6 6 0 0 1 30.8 44H21a6 6 0 0 1-4.8-2.4l-7.4-9.9a3.6 3.6 0 0 1 5-5.1l4.2 3.2V6Z" fill="#fff" stroke="#1b2333" stroke-width="2.4" stroke-linejoin="round"/></svg>';
+  var ring=document.createElement("div");ring.id="pgRing";document.body.appendChild(ring);document.body.appendChild(hand);
+  var target=null,step=0,done=false;
+  function place(){if(!target||done){hand.style.display=ring.style.display="none";return}var r=target.getBoundingClientRect();hand.style.display=ring.style.display="";
+   ring.style.left=(r.left-3)+"px";ring.style.top=(r.top-3)+"px";ring.style.width=(r.width+6)+"px";ring.style.height=(r.height+6)+"px";hand.style.left=(r.left+r.width/2)+"px";hand.style.top=(r.top+r.height/2)+"px"}
+  function say(t,el){$("#pgTxt").textContent=t;target=el;place()}
+  function end(){if(done)return;done=true;target=null;place();wrap.style.transition="opacity .4s";wrap.style.opacity="0";setTimeout(function(){wrap.remove();hand.remove();ring.remove()},450)}
+  wrap.querySelector(".pgx").onclick=end;
+  addEventListener("scroll",place,{passive:true});addEventListener("resize",place);
+  // geste 1 : la ligne de la grille ; la toucher ouvre le clavier, et on tape le mot avec (la rangée de lettres du haut sert seulement à voir les lettres déjà utilisées)
+  var row=document.querySelector("#mdGrid .mdrow")||$("#mdGrid");var kbv=$("#pgKb");
+  var coarse=matchMedia("(pointer:coarse)").matches;
+  say(coarse?"Touche la grille : ton clavier s'ouvre. Tape ton mot.":"Tape ton mot avec ton clavier.",row);step=1;
+  if(inp){inp.addEventListener("focus",function(){if(done||step!==1)return;if(coarse){wrap.classList.add("top");say("Tape ton mot avec le clavier.",null)}});
+   inp.addEventListener("blur",function(){wrap.classList.remove("top");setTimeout(place,50)});
+   inp.addEventListener("input",function(){if(done)return;var v=inp.value||"";
+    if(step===1&&v.length>=1){step=2;kbv.style.display="none";say("Quand le mot est complet, touche Valider.",$("#mdOk"))}})}
+  // geste 3 : le premier essai est envoyé → Pop félicite et s'en va
+  new MutationObserver(function(){if(!done&&step>=1&&!document.body.classList.contains("mdnew")){step=3;say("Bravo ! Regarde les couleurs, puis continue. À toi !",null);setTimeout(end,3500)}}).observe(document.body,{attributes:true,attributeFilter:["class"]});
+  setTimeout(function(){if(step===1)place()},600);setTimeout(end,120000)}
+}catch(e){}})();</script>
+
+
 </body></html>
