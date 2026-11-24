@@ -13,7 +13,7 @@ FILTRE="${1:-}"
 # poker_v2_moteur.js : teste l'ancien moteur Wordflush v2, remplacé par le v3 (wordflush_simple_moteur.js le couvre)
 SAUTER="faux_upstash.js magnetico_bulles_passage_trace.js wordflush_mobile_phases.js poker_v2_moteur.js"
 pkill -9 -f "node server.js" 2>/dev/null; sleep 1
-PORT=3999 SOLO_MIN_MS=2000 node server.js > /tmp/motipop-3999.log 2>&1 & S1=$!
+ADMIN_KEY=test1234567890abcdef PORT=3999 SOLO_MIN_MS=2000 node server.js > /tmp/motipop-3999.log 2>&1 & S1=$!
 PORT=3100 SOLO_MIN_MS=2000 node server.js > /tmp/motipop-3100.log 2>&1 & S2=$!
 sleep 4
 OK=0; KO=0; LISTE=""

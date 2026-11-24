@@ -1123,7 +1123,7 @@ async function solHtml(d) {
   const a = t.indexOf('<div class="wrap">') + '<div class="wrap">'.length, b = t.indexOf("<footer>");
   t = t.slice(0, a) + body + t.slice(b);
   t = t.replace(/<script>\(function\(\)\{var m=\{"\/mentions-legales"[\s\S]*?<\/script>/, "");
-  return t.replace("<head>", "<head>\n<script>window.SUPPORT=" + SUPPORT + ";</script>" + TRANSFER_JS + SW_REG);
+  return t.replace("<head>", "<head>\n<script>window.SUPPORT=" + SUPPORT + ";</script>" + TRANSFER_JS + SW_REG + SUIVI_JS);
 }
 function page(file, inject) {
   const st = fs.statSync(file);
@@ -1133,7 +1133,7 @@ function page(file, inject) {
   let txt = fs.readFileSync(file, "utf8");
   if (inject) { txt = SEOP.apply(path.basename(file), txt, SITE); if (path.basename(file) === "accueil.html" && !/<h1/.test(txt)) txt = txt.replace(/<body([^>]*)>/, '<body$1><h1 style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap">Motipop, jeux de mots gratuits en ligne : mot du jour, mots fléchés, mots mêlés</h1>'); }
   if (txt.includes("{{CONTACT}}") || txt.includes("{{EDITEUR}}")) txt = txt.split("{{CONTACT}}").join(CONTACT_HTML).split("{{EDITEUR}}").join(EDITEUR_HTML);
-  if (inject) txt = txt.replace("<head>", "<head>\n<script>window.SUPPORT=" + SUPPORT + ";</script>" + (txt.includes('rel="manifest"') ? "" : '<link rel="manifest" href="/manifest.webmanifest">') + TRANSFER_JS + SW_REG + (txt.includes('rel="canonical"') ? "" : seoTags(file, txt)));
+  if (inject) txt = txt.replace("<head>", "<head>\n<script>window.SUPPORT=" + SUPPORT + ";</script>" + (txt.includes('rel="manifest"') ? "" : '<link rel="manifest" href="/manifest.webmanifest">') + TRANSFER_JS + SW_REG + SUIVI_JS + (txt.includes('rel="canonical"') ? "" : seoTags(file, txt)));
   return (pages[file] = { ...pack(Buffer.from(txt)), mtime: st.mtimeMs });
 }
 function sendBody(req, res, p, type, cache) {
@@ -1172,6 +1172,21 @@ function sendPage(req, res, file) {
 const STATIC = { js: "text/javascript; charset=utf-8", json: "application/json", svg: "image/svg+xml", css: "text/css; charset=utf-8", woff2: "font/woff2", webp: "image/webp", png: "image/png" };
 const skinCache = new Map();
 let cgIdx = null;
+const SUIVI_VUS = new Map();   // visiteur déjà compté pour cette étape aujourd'hui (mémoire seulement, vidée chaque jour)
+function suivi(r, e, v) {
+  if (!/^[a-z0-9-]{2,20}$/.test(r) || !/^(arrive|joue|fini|revient)$/.test(e) || !/^[a-z0-9]{8,24}$/.test(v)) return;
+  const d = parisDay(); if (SUIVI_VUS.day !== d) { SUIVI_VUS.clear(); SUIVI_VUS.day = d; }
+  const k = v + "|" + r + "|" + e; if (SUIVI_VUS.has(k) || SUIVI_VUS.size > 50000) return; SUIVI_VUS.set(k, 1);
+  statAdd("suivi:" + r + ":" + e);
+}
+// le visiteur garde 14 jours le lien par lequel il est arrivé ; on note s'il joue, finit une partie, revient un autre jour
+const SUIVI_JS = '<script>(function(){try{var K="fl-src",q=location.search.match(/[?&]ref=([a-z0-9-]{2,20})/),now=new Date(),day=now.getFullYear()*1e4+(now.getMonth()+1)*100+now.getDate(),o=null;try{o=JSON.parse(localStorage.getItem(K)||"null")}catch(e){}'+
+ 'var send=function(e){if(!o)return;o.s=o.s||{};var k=e+day;if(o.s[k])return;o.s[k]=1;try{localStorage.setItem(K,JSON.stringify(o))}catch(x){}try{navigator.sendBeacon("/api/suivi",JSON.stringify({r:o.r,e:e,v:o.v}))}catch(x){}};'+
+ 'if(q&&!/bot|spider|crawl/i.test(navigator.userAgent)){if(!o||o.r!==q[1]){o={r:q[1],d:day,v:Math.random().toString(36).slice(2,12)+Date.now().toString(36).slice(-4)}}send("arrive")}'+
+ 'if(o&&Date.now()-(o.t||(o.t=Date.now()))>14*864e5){localStorage.removeItem(K);o=null}'+
+ 'if(o&&o.d!==day)send("revient");if(!o)return;window.__suivi=send;'+
+ 'if(location.pathname!=="/"){var j=function(){send("joue");removeEventListener("pointerdown",j,true);removeEventListener("keydown",j,true)};addEventListener("pointerdown",j,true);addEventListener("keydown",j,true)}'+
+ 'var F=window.fetch;window.fetch=function(u,i){var p=F.apply(this,arguments);try{var s=String(u);if(/\\/api\\/p\\/score/.test(s))p.then(function(r){if(r.ok)send("fini")});else if(/\\/api\\/p\\/mj/.test(s))p.then(function(r){return r.clone().json()}).then(function(v){if(v&&v.done)send("fini")}).catch(function(){});else if(/\\/api\\/p\\/en/.test(s)&&i&&/answer/.test(String(i.body||"")))p.then(function(r){if(r.ok)send("fini")})}catch(e){}return p}}catch(e){}})();</script>';
 const SW_REG = '<script>if("serviceWorker"in navigator&&(location.protocol==="https:"||location.hostname==="localhost"))addEventListener("load",function(){navigator.serviceWorker.register("/sw.js").catch(function(){})})</script>';
 const SW_JS = `// Motipop · service worker : n'enregistre que la page « hors connexion » (le jeu se charge toujours en ligne)
 const V = "motipop-hl-1", OFF = "/hors-ligne";
@@ -1243,6 +1258,12 @@ function adminStatsHtml(days, key) {
   const RN = { tiktok: "TikTok", facebook: "Facebook", instagram: "Instagram", youtube: "YouTube", whatsapp: "WhatsApp", affiche: "Affiche / QR code" }, rt = {}, rs = {};
   rows.forEach((r, i) => Object.keys(r.c || {}).forEach(x => { if (!x.startsWith("ref:")) return; const n = x.slice(4); rs[n] = (rs[n] || 0) + (+r.c[x] || 0); if (i === 0) rt[n] = +r.c[x] || 0; }));
   const refs = Object.keys(rs).sort((a, b) => rs[b] - rs[a]).map(n => `<tr><td>${escH(RN[n] || n)}</td><td>${rt[n] || 0}</td><td>${rs[n]}</td></tr>`).join("") || `<tr><td colspan="3" class="mut">Pas encore de visite par un lien court (motipop.fr/tt, /fb…)</td></tr>`;
+  // parcours par lien de suivi (14 jours) : arrivés → ont joué → ont fini → sont revenus
+  const CAN = { t: "TikTok", f: "Facebook", i: "Instagram", w: "WhatsApp", y: "YouTube", q: "Affiche" }, JEU = { md: "Mot du jour", fl: "Fléchés", mm: "Mêlés", rd: "Tourniquet", cg: "Culture G", mg: "Magnético", wf: "Wordflush", ac: "Accueil" };
+  const sv = {}; rows.forEach(r => Object.keys(r.c || {}).forEach(x => { const m = x.match(/^suivi:([a-z0-9-]+):(arrive|joue|fini|revient)$/); if (!m) return; (sv[m[1]] = sv[m[1]] || { arrive: 0, joue: 0, fini: 0, revient: 0 })[m[2]] += +r.c[x] || 0; }));
+  const svName = r => { const m = r.match(/^([tfiwyq])-([a-z]{2})(?:-(\d))?$/); return m ? `${CAN[m[1]]} · ${JEU[m[2]] || m[2]}${m[3] ? " · n° " + m[3] : ""}` : (RN[r] || r); };
+  const pc = (a, b) => b ? ` <span class="mut">(${Math.round(100 * a / b)} %)</span>` : "";
+  const suiviRows = Object.keys(sv).sort((a, b) => sv[b].arrive - sv[a].arrive).map(r => { const o = sv[r]; return `<tr><td>${escH(svName(r))}<br><span class="mut">${escH(r)}</span></td><td>${o.arrive}</td><td>${o.joue}${pc(o.joue, o.arrive)}</td><td>${o.fini}${pc(o.fini, o.arrive)}</td><td>${o.revient}${pc(o.revient, o.arrive)}</td></tr>`; }).join("") || `<tr><td colspan="5" class="mut">Personne n'est encore arrivé par un lien de suivi (ex. motipop.fr/tmd1)</td></tr>`;
   const k = encodeURIComponent(key || "");
   return `<!doctype html><html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex"><title>Statistiques — Motipop</title><style>
 body{margin:0;background:#12152e;color:#fff;font:17px/1.4 system-ui,-apple-system,Segoe UI,sans-serif}main{max-width:760px;margin:0 auto;padding:18px 16px 40px}
@@ -1255,6 +1276,7 @@ ul{list-style:none;margin:0;padding:0}li{padding:9px 4px;border-bottom:1px solid
 <h1>Statistiques Motipop</h1><div class="mut">Aujourd'hui, ${fmtDay(t.jour)} · <a href="?key=${k}">actualiser</a> · <a href="/admin/champion?key=${k}">champion d'hier</a> · <a href="/admin/sauvegardes?key=${k}">sauvegardes</a></div>
 <div class="cards">${card(t.visites, "visites de l'accueil", "#9fb5ff")}${card(t.lancees, "parties lancées", "#ffa58a")}${card(t.finies, "parties finies", "#7be0c8")}${card(+t.c["motdujour:partage"] || 0, "résultats partagés", "#c7a2ff")}${card(+t.c["enigme:reponse"] || 0, "réponses à l'énigme", "#f2deb0")}${card(t.mjOk, "Mot du jour trouvé" + (t.mjKo ? " · " + t.mjKo + " raté" + (t.mjKo > 1 ? "s" : "") : ""), "#ffd27a")}${card(t.erreurs, "erreurs chez les joueurs", t.erreurs ? "#ff8a8a" : "#c9d1e6")}</div>
 <h2>Les 14 derniers jours</h2><div class="box"><svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Visites et parties lancées par jour">${bars}</svg><div class="leg"><span><i style="background:#7b9bff"></i>visites</span><span><i style="background:#ff8a6b"></i>parties lancées</span></div></div>
+<h2>Ce que font les visiteurs des liens (14 jours)</h2><p class="mut" style="margin:-4px 0 10px">Chaque personne est comptée une fois par jour et par étape. « A joué » : a touché le jeu. « A fini » : Mot du jour terminé, énigme répondue ou partie enregistrée. « Revenu » : est revenu un autre jour (14 jours au plus).</p><div class="box"><table><tr><th>Lien</th><th>Arrivés</th><th>A joué</th><th>A fini</th><th>Revenu</th></tr>${suiviRows}</table></div>
 <h2>D'où viennent les visiteurs (14 jours)</h2><div class="box"><table><tr><th>Provenance</th><th>Aujourd'hui</th><th>14 jours</th></tr>${refs}</table></div>
 <h2>Parties par jeu aujourd'hui</h2><p class="mut" style="margin:-4px 0 10px">« Page ouverte » : la page du jeu affichée par un lien direct (ex. Mot du jour depuis Facebook). Pour le Mot du jour, « Solo » = joueurs qui ont tapé au moins une lettre (avec ou sans pseudo). Le total « parties lancées » additionne les 3 colonnes.</p><div class="box"><table><tr><th>Jeu</th><th>Page ouverte</th><th>Solo</th><th>À plusieurs</th><th>Finies</th></tr>${games}</table></div>
 <h2>Erreurs du jour</h2><div class="box"><ul>${errs}</ul></div>
@@ -1338,6 +1360,10 @@ const server = http.createServer((req, res) => {
   }
   if (url.pathname.startsWith("/admin/")) return void adminRoute(req, res, url);
   // liens courts à donner dans les vidéos et les bios (22/11) : motipop.fr/tt → accueil, provenance comptée dans /admin/stats
+  // 24/11 : liens de suivi /<canal><jeu><n> — ex. /tmd1 = TikTok, Mot du jour, vidéo 1 → /motdujour?ref=t-md-1
+  { const m = req.method === "GET" && url.pathname.toLowerCase().match(/^\/([tfiwyq])(md|fl|mm|rd|cg|mg|wf|ac)([1-9])?\/?$/);
+    if (m) { const dest = { md: "/motdujour", fl: "/fleches", mm: "/meles", rd: "/rond", cg: "/culture", mg: "/magnetico", wf: "/poker", ac: "/" }[m[2]];
+      res.writeHead(302, { location: dest + "?ref=" + m[1] + "-" + m[2] + (m[3] ? "-" + m[3] : ""), "cache-control": "no-store" }); return res.end(); } }
   const SHORT = { "/tt": "tiktok", "/fb": "facebook", "/ig": "instagram", "/yt": "youtube", "/wa": "whatsapp", "/qr": "affiche" };
   if (req.method === "GET" && SHORT[url.pathname]) { const src = SHORT[url.pathname]; res.writeHead(302, { location: (["tiktok", "facebook", "instagram", "youtube"].includes(src) ? "/motdujour?ref=" : "/?ref=") + src, "cache-control": "no-store" }); return res.end(); }   // 23/11 : les pubs promettent le Mot du jour → on y arrive directement
   if (url.pathname === "/healthz" && url.searchParams.get("redis") === "1") {
@@ -1352,6 +1378,11 @@ const server = http.createServer((req, res) => {
   if (am) return void api(req, res, am[1]).catch(e => { console.error(e); try { res.writeHead(500); res.end("{}"); } catch {} });
   // culture générale : index léger des questions (identifiant → type), puis seulement les questions de la partie
   if (url.pathname === "/d/cg-index.js") { cgIdx = cgIdx || pack(Buffer.from("window.__CGI=" + JSON.stringify(CAT.cgIndex()) + ";window.__CGT=" + JSON.stringify(CAT.THEMES) + ";")); return sendBody(req, res, cgIdx, STATIC.js, "public, max-age=600"); }
+  if (url.pathname === "/api/suivi" && req.method === "POST") {   // parcours des visiteurs venus d'un lien : arrive, joue, fini, revient
+    let body = ""; req.on("data", d => { body += d; if (body.length > 400) req.destroy(); });
+    req.on("end", () => { try { const o = JSON.parse(body || "{}"); suivi(String(o.r || ""), String(o.e || ""), String(o.v || "")); } catch {} res.writeHead(204); res.end(); });
+    return;
+  }
   if (url.pathname === "/api/err" && req.method === "POST") {
     let body = ""; req.on("data", d => { body += d; if (body.length > 4000) req.destroy(); });
     req.on("end", () => { try { statErr(JSON.parse(body || "{}"), clientIp(req)); } catch {} res.writeHead(204); res.end(); });
