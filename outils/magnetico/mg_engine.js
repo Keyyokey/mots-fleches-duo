@@ -132,9 +132,9 @@ function setupWord(k,startAt){size();balls.forEach(b=>b.el.remove());cur=k;const
     const c=(j+k)%4,core=document.createElement("span");core.className="mgcore c"+c+" l"+Math.min(5,a.t.length);const sp=document.createElement("span");sp.textContent=a.t;core.appendChild(sp);el.appendChild(core);
     const b={id:a.id,t:a.t,c,x:-200,y:-200,vx:0,vy:0,on:false,entering:false,hit:-1e9,el,core,rot:0};el.addEventListener("pointerdown",e=>{e.preventDefault();pick(b)});field.insertBefore(el,$("#mgRes"));return b});
   queue=balls.slice();placed=w.s.map(()=>null);locked=w.s.map(()=>false);ent=null;lastTick=-1;errN=0;sentF=false;wStart=startAt||performance.now();
-  phase="play";$("#mgRes").style.display="none";$("#mgMsg").textContent="";$("#mgBox").className="mgbox";$("#mgBtns").classList.remove("off");field.classList.remove("flash");
+  phase="play";$("#mgRes").style.display="none";$("#mgMsg").textContent="";boxState("");$("#mgBtns").classList.remove("off");field.classList.remove("flash");
   $("#mgNum").textContent=(w.math?"Calcul ":"Mot ")+(k+1)+" / "+G.words.length;$("#mgLvl").textContent=LVLN[G.level]+" · "+(w.traps.length?w.traps.length+(w.traps.length>1?" pièges":" piège"):"aucun piège");
-  $("#mgNsyl").textContent=w.math?"Touche le nombre qui manque, puis Valider":"Touche les "+w.s.length+" syllabes dans l'ordre";$("#mgBox").classList.toggle("calc",!!w.math);slots()}
+  $("#mgNsyl").textContent=w.math?"Touche le nombre qui manque":"Touche les "+w.s.length+" syllabes dans l'ordre";$("#mgBox").classList.toggle("calc",!!w.math);slots()}
 let side=0;
 function startEntry(b,now){side=(side+1)%4;const u=.25+Math.random()*.5;let P,n;
   if(side===0){P={x:u*W,y:0};n={x:0,y:1}}else if(side===1){P={x:W,y:u*H};n={x:-1,y:0}}else if(side===2){P={x:u*W,y:H};n={x:0,y:-1}}else{P={x:0,y:u*H};n={x:1,y:0}}
@@ -165,10 +165,12 @@ function bar(left){const b=$("#mgBar");b.style.width=Math.max(0,left/TIME*100)+"
 
 /* ---------- encadré du mot ---------- */
 let slotEls=[];
+// état de la boîte réponse (ok / ko) sans perdre « calc »
+function boxState(s){const b=$("#mgBox");b.classList.remove("ok","ko");if(s)b.classList.add(s)}
 function slots(){const w=word(cur),box=$("#mgSlots");box.innerHTML="";slotEls=[];const reveal=phase==="res"||phase==="timeout";
-  if(w.math){const b=placed[0],txt=reveal?w.s[0]:(b?b.t:"");const parts=w.eq.split(" ");parts.forEach(p=>{if(p!=="…"){const e=document.createElement("span");e.className="mgeq";e.textContent=p;box.appendChild(e);return}
+  if(w.math){const b=placed[0],txt=reveal?w.s[0]:(b?b.t:"");const parts=w.eq.split(" ");parts.forEach(p=>{if(p!=="…"){const e=document.createElement("span");e.className=/^[0-9]+$/.test(p)?"mgeq mgnum mgknown":"mgeq mgop";e.textContent=p;box.appendChild(e);return}
       if(!txt){const e=document.createElement("div");e.className="mgempty mgnum";box.appendChild(e);slotEls.push(e);return}
-      const el=document.createElement("button");el.type="button";el.className="mgslot mgnum"+(locked[0]?" lock":"");el.textContent=txt;el.style.fontSize="21px";
+      const el=document.createElement("button");el.type="button";el.className="mgslot mgnum"+(locked[0]?" lock":"");el.textContent=txt;
       el.onclick=()=>{if(phase!=="play"||locked[0]||!placed[0])return;queue.push(placed[0]);placed[0]=null;SFX.back();slots()};box.appendChild(el);slotEls.push(el)});
     $("#mgOk").style.opacity=placed.indexOf(null)<0?1:.5;return}
   w.s.forEach((t,k)=>{const b=placed[k],txt=reveal?t:(b?b.t:"");
@@ -194,7 +196,7 @@ function leftNow(){return t0==null?TIME:Math.max(0,TIME-(performance.now()-t0)/1
 function validate(){const w=word(cur);if(phase!=="play"||!canPlay()||placed.indexOf(null)>=0)return;const s=G.solo?0:mySeat();
   const good=placed.map((b,k)=>b.t===w.s[k]),newly=good.filter((g,k)=>g&&!locked[k]).length;
   if(good.every(Boolean)){const left=leftNow(),base=Math.round(w.s.length*10*w.rar),bonus=Math.round(10*left/TIME),pts=base+bonus+newly;
-    phase="ok";$("#mgBox").className="mgbox ok";SFX.ok();const br=$("#mgBox").getBoundingClientRect();particles(br.left+br.width/2,br.top+br.height/2,"#3ddc97",26,140,document.body,true);
+    phase="ok";boxState("ok");SFX.ok();const br=$("#mgBox").getBoundingClientRect();particles(br.left+br.width/2,br.top+br.height/2,"#3ddc97",26,140,document.body,true);
     const l={base,bonus,good:newly,pts,first:0};
     if(G.solo){G.players[0].score+=pts;G.found=(G.found||0)+1;save();showRes(true,l);render();return}
     sentF=true;patch("f",fKey(cur,s),{t:Date.now(),p:pts},{ifAbsent:true,score:{i:s,add:pts}}).then(()=>patch("fb",cur,s,{ifAbsent:true})).then(()=>{l.first=5;l.pts+=5;showRes(true,l);return patch("fs",cur,s,{score:{i:s,add:5}})}).catch(()=>{});
@@ -202,7 +204,7 @@ function validate(){const w=word(cur);if(phase!=="play"||!canPlay()||placed.inde
   placed=placed.map((b,k)=>{if(good[k])return b;queue.push(b);return null});locked=good.map((g,k)=>g||locked[k]);
   const add=newly-5;if(G.solo){G.players[0].score+=add;save();render()}else patch("e",fKey(cur,s)+"_"+(++errN),1,{score:{i:s,add}}).catch(()=>{});
   SFX.bad();if(newly)setTimeout(SFX.lock,450);const m=$("#mgMsg");m.textContent=(newly?"+"+newly+" bien placée"+(newly>1?"s":"")+" · ":"")+"−5";m.style.color="#ff8fa3";
-  const bx=$("#mgBox");bx.className="mgbox";void bx.offsetWidth;bx.className="mgbox ko";field.classList.add("flash");phase="ko";koT=performance.now()+650;slots()}
+  const bx=$("#mgBox");boxState("");void bx.offsetWidth;boxState("ko");field.classList.add("flash");phase="ko";koT=performance.now()+650;slots()}
 function passWord(){if(phase!=="play"||!canPlay())return;if(G.solo){finishSolo("Mot passé");return}const s=mySeat();phase="timeout";patch("p",fKey(cur,s),1).catch(()=>{});slots();showRes(false,null,"Mot passé")}
 function finishSolo(why){phase="timeout";SFX.time();slots();showRes(false,null,why)}
 function showRes(ok,l,why){balls.forEach(b=>b.el.style.display="none");ent=null;bursts.forEach(u=>u.el.style.opacity=0);$("#mgBtns").classList.add("off");
@@ -224,7 +226,7 @@ function loop(now){requestAnimationFrame(loop);const dt=Math.min(2,(now-lt)/16.6
   const me=mySeat();
   if(S.ph==="entry"||S.ph==="play"){if(S.ph==="play"&&t0==null)t0=now-(Date.now()-S.c0);
     if(phase==="play"||phase==="ko"){if(!ent&&queue.length&&now-(wStart+(balls.length-queue.length)*GAP)>=0)startEntry(queue.shift(),now);updEntry(dt);step(dt,now);draw(now);
-      if(phase==="ko"&&now>koT){phase="play";$("#mgBox").className="mgbox";field.classList.remove("flash")}}
+      if(phase==="ko"&&now>koT){phase="play";boxState("");field.classList.remove("flash")}}
     bar(S.ph==="play"?(S.c1-Date.now())/1000:TIME);
     // tout le monde a trouvé ou passé : le mot se ferme pour tous
     if(S.ph==="play"&&!(G.cut&&G.cut[S.i])&&active().every(i=>resolved(S.i,i)))patch("cut",S.i,Date.now(),{ifAbsent:true}).catch(()=>{})}
@@ -233,7 +235,7 @@ function loop(now){requestAnimationFrame(loop);const dt=Math.min(2,(now-lt)/16.6
   if(active().length<2&&!G.done)endMulti()}
 function soloFrame(now,dt){if(cur!==G.i){setupWord(G.i,now);t0=null}
   if(phase==="play"||phase==="ko"){if(!ent&&queue.length&&now-(wStart+(balls.length-queue.length)*GAP)>=0)startEntry(queue.shift(),now);
-    if(!ent&&!queue.length&&t0==null)t0=now;updEntry(dt);step(dt,now);draw(now);if(phase==="ko"&&now>koT){phase="play";$("#mgBox").className="mgbox";field.classList.remove("flash")}
+    if(!ent&&!queue.length&&t0==null)t0=now;updEntry(dt);step(dt,now);draw(now);if(phase==="ko"&&now>koT){phase="play";boxState("");field.classList.remove("flash")}
     bar(leftNow());if(t0!=null&&phase==="play"&&leftNow()<=0)finishSolo("Temps écoulé")}}
 function endMulti(){if(G.done)return;if(endMulti.g===G.gid&&Date.now()-endMulti.t<4000)return;endMulti.g=G.gid;endMulti.t=Date.now();
   patch("z","end",1,{ifAbsent:true,extra:{done:true,ended:Date.now()}}).catch(()=>{})}

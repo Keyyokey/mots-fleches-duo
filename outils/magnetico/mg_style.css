@@ -94,4 +94,27 @@
 #mgNsyl,#mgLvl,.hpill{font-size:.88rem!important}
 
 /* calculs (23/11) */
-.mgeq{font:900 1.45rem Nunito,Inter,sans-serif;color:var(--txt,#fff);padding:0 2px;align-self:center;white-space:nowrap}.mgbox.calc #mgSlots{align-items:center;flex-wrap:nowrap;justify-content:center;gap:12px}.mgnum{min-width:62px!important}
+
+
+/* 25/11 : la réponse à trouver est AU-DESSUS des bulles, mise en avant (bordure lumineuse qui respire, fond plus clair) */
+.mgbox{position:relative;border:2px solid transparent;background:linear-gradient(160deg,rgba(25,227,236,.16),rgba(124,92,240,.12)) padding-box,linear-gradient(#141c36,#141c36) padding-box,linear-gradient(135deg,#19e3ec,#7c5cf0,#ffc857) border-box;box-shadow:0 0 0 4px rgba(25,227,236,.10),0 0 26px rgba(25,227,236,.35),0 10px 26px rgba(0,0,0,.25)}
+.mgbox:not(.ok):not(.ko){animation:mgglow 2.4s ease-in-out infinite}
+@keyframes mgglow{50%{box-shadow:0 0 0 6px rgba(25,227,236,.16),0 0 36px rgba(124,92,240,.45),0 10px 26px rgba(0,0,0,.25)}}
+.mgbox.ok{background:linear-gradient(160deg,rgba(61,220,151,.22),rgba(61,220,151,.08)) padding-box,linear-gradient(#141c36,#141c36) padding-box,linear-gradient(135deg,#3ddc97,#19e3ec) border-box}
+.mgbox.ko{background:linear-gradient(160deg,rgba(255,93,122,.2),rgba(255,93,122,.06)) padding-box,linear-gradient(#141c36,#141c36) padding-box,linear-gradient(135deg,#ff5d7a,#ffc857) border-box}
+:root[data-theme="light"] .mgbox,:root[data-theme="light"] .mgbox.ok,:root[data-theme="light"] .mgbox.ko{background:linear-gradient(#fff,#f1fbfc) padding-box,linear-gradient(135deg,#00ADB5,#7c5cf0,#f0a500) border-box}
+.mgboxh{color:#ffe08a;font-size:.78rem}
+:root[data-theme="light"] .mgboxh{color:#7a5200}
+#mgSlots>*{height:56px}
+.mgempty{border:2px dashed rgba(255,224,138,.75);background:rgba(255,200,87,.08)}
+/* calcul : nombres, signes et case à remplir sur une même ligne, même hauteur, centrés, bien répartis */
+.mgbox.calc #mgSlots{display:flex;align-items:center;justify-content:center;flex-wrap:nowrap;gap:8px}
+.mgbox.calc #mgSlots>*{flex:0 0 auto;height:56px;display:flex;align-items:center;justify-content:center;margin:0;padding:0;box-sizing:border-box;font:900 28px/1 Nunito,Inter,sans-serif;letter-spacing:0;vertical-align:middle}
+.mgbox.calc .mgnum{width:72px;min-width:0!important;border-radius:14px}
+.mgbox.calc .mgknown{color:var(--ink,#fff);background:rgba(255,255,255,.06);border:1.5px solid rgba(255,255,255,.14)}
+:root[data-theme="light"] .mgbox.calc .mgknown{color:#0f131a;background:rgba(15,25,40,.04);border-color:rgba(15,25,40,.12)}
+.mgbox.calc .mgop{width:26px;color:var(--ink,#fff);opacity:.85}
+:root[data-theme="light"] .mgbox.calc .mgop{color:#0f131a}
+.mgbox.calc .mgslot{font-size:28px}
+@media (max-width:380px){.mgbox.calc .mgnum{width:62px}.mgbox.calc #mgSlots>*{font-size:24px}.mgbox.calc .mgop{width:20px}}
+@media (prefers-reduced-motion:reduce){.mgbox{animation:none!important}}
