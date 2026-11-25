@@ -805,14 +805,15 @@ const MJ = (() => {
   const MAXPTS = w => (w.length - 1) * 2 + 12;
   const sortDay = (a, b) => b.pts - a.pts || b.ok - a.ok || a.n - b.n || (a.ms ?? 9e9) - (b.ms ?? 9e9);
   async function dayList(day) {
-    const m = await load(day), w = wordOf(day); let found = 0, played = 0; const list = [];
+    const m = await load(day), w = wordOf(day); let found = 0, played = 0, nG = 0; const list = [];
     for (const [id, st] of m) {
       const t = st.t || []; if (!t.length) continue; played++; if (st.ok) found++;
-      if (id.startsWith("g:")) continue;
+      // 25/11 : les invités apparaissent aussi au classement du jour (« Invité 1 »…), mais ne gagnent pas les 5 jetons
+      const guest = id.startsWith("g:");
       const sc = score(st, w), last = st.ts && st.ts.length ? st.ts[st.ts.length - 1] : undefined;
-      list.push({ name: id, pts: sc.pts, ok: st.ok ? 1 : 0, n: t.length, ms: st.ok ? st.ms : last, g: sc.g, y: sc.y, done: st.ok || t.length >= 6 ? 1 : 0 });
+      list.push({ name: id, guest: guest ? 1 : undefined, pts: sc.pts, ok: st.ok ? 1 : 0, n: t.length, ms: st.ok ? st.ms : last, g: sc.g, y: sc.y, done: st.ok || t.length >= 6 ? 1 : 0 });
     }
-    list.sort(sortDay);
+    list.sort(sortDay); list.forEach(x => { if (x.guest) x.name = "Invité " + (++nG); });   // numérotés dans l'ordre du classement, sans rien révéler de l'invité
     return { found, played, list, w };
   }
   let totCache = null;
@@ -928,7 +929,7 @@ async function mjPrize() {
   const yd = parisDay(new Date(Date.now() - 864e5));
   try {
     if (REDIS ? await redis(["EXISTS", "mj:prize:" + yd]) : MJ_PRIZE.has(yd)) return;
-    const d = await MJ.dayList(yd); const top = d.list[0]; if (!top || top.pts <= 0) return;
+    const d = await MJ.dayList(yd); const top = d.list.find(x => !x.guest); if (!top || top.pts <= 0) return;
     const rec = JSON.stringify({ name: top.name, pts: top.pts, coins: 5 });
     if (REDIS) { const ok = await redis(["SET", "mj:prize:" + yd, rec, "NX", "EX", String(90 * 86400)]); if (!ok) return; } else MJ_PRIZE.set(yd, rec);
     const p = await getPlayer(top.name); if (!p) return;
@@ -1410,7 +1411,7 @@ async function adminRoute(req, res, url) {
       const back = Math.max(1, Math.min(30, +url.searchParams.get("jours") || 1)), yd = parisDay(new Date(Date.now() - back * 864e5));
       let d = null; try { d = await MJ.dayList(yd); } catch {}
       res.writeHead(200, { "content-type": "text/html; charset=utf-8", "cache-control": "no-store", "referrer-policy": "no-referrer" });
-      return res.end(championHtml(yd, d ? d.list.filter(x => x.pts > 0).slice(0, 3) : [], d ? d.played : 0, d ? d.w : "", url.searchParams.get("key"), back)); }
+      return res.end(championHtml(yd, d ? d.list.filter(x => x.pts > 0 && !x.guest).slice(0, 3) : [], d ? d.played : 0, d ? d.w : "", url.searchParams.get("key"), back)); }
     if (!REDIS) return J(503, { error: "Pas de stockage Redis sur ce serveur" });
     try {
       if (url.pathname === "/admin/sauvegardes" && req.method === "GET") return J(200, { sauvegardes: await listBackups(), aide: "Télécharger : /admin/telecharger?key=…&date=AAAAMMJJ · Sauvegarde immédiate : POST /admin/sauvegarder · Restaurer : POST /admin/restaurer?date=AAAAMMJJ&confirmer=RESTAURER" });
