@@ -1742,6 +1742,8 @@ updPills();renderPeers();renderSalon();renderRank();chart(0);renderResume();conn
   $("#papyT").onclick=()=>{if(innerWidth>620)return;const o=!P.classList.contains("open");P.classList.toggle("open",o);$("#papyT").setAttribute("aria-expanded",String(o));if(o&&!$("#papyF").hidden)setTimeout(()=>$("#papyI").focus(),60)};
   $("#papyF").onsubmit=e=>{e.preventDefault();const a=$("#papyI").value.trim();if(!a)return $("#papyI").focus();const b=$("#papyF button");b.disabled=true;
     call({op:"answer",a}).then(r=>{if(r&&r.msg&&!r.q)toast("✍️",esc(r.msg));draw(r)}).catch(()=>toast("⚠️","Réponse non envoyée, réessaie.")).finally(()=>b.disabled=false)};
+  // 25/11 (Juvenal) : sur téléphone, l'énigme s'affiche déjà déroulée ; on peut toujours la rouler
+  P.classList.add("open");$("#papyT").setAttribute("aria-expanded","true");
   load();window.__papyLoad=load;
 })();
 $("#abRank").onclick=e=>{e.stopPropagation();$("#mStats").click()};
