@@ -1006,14 +1006,19 @@ function render(){const st=ST;document.body.dataset.ph=st&&st.started?st.phase:"
     +(st.mymax?'<div class="rv mmax" style="animation-delay:'+Math.max(0,base+st.results.length*900-el)+'ms"><span>💡 Ton Mot Max : <b>'+esc(st.mymax.word)+'</b></span><span>'+detail(st.mymax)+' = <b>'+st.mymax.total_score+'</b>'+mmGap(st)+'</span></div>':'')}else r.hidden=true;
   // actions
   const myTurn=me&&st.phase==="mise"&&st.turn===st.me;const owe=me?Math.max(0,st.bet-me.roundBet):0;
-  $$(".pkact .btn").forEach(b=>b.disabled=!myTurn);
+  // pendant la distribution, on attend le croupier (avant : « LÉO réfléchit… » et chrono figé, on croyait le jeu bloqué)
+  const dealMs=st.phase==="mise"&&st.dealEnd?st.dealEnd-(Date.now()+skew):0;
+  $$(".pkact .btn").forEach(b=>b.disabled=!myTurn||dealMs>0);
   // deux choix : S'arrêter ou Miser (au moins la mise minimale, ou la mise en cours ; + et − pour monter)
   const maxTo=me?me.roundBet+me.stack:0,minTo=Math.min(maxTo,Math.max(st.bet||0,st.minBet||st.ante*2));
   if(myTurn){if(!BET||BET.key!==st.hand+"/"+st.shown+"/"+st.bet)BET={key:st.hand+"/"+st.shown+"/"+st.bet,v:minTo};BET.min=minTo;BET.max=maxTo;BET.v=Math.max(minTo,Math.min(BET.v,maxTo));betShow()}
   stepsShow(st,me);forceShow(st,me);$(".pkact").classList.toggle("myturn",!!myTurn);
   // une seule ligne, courte : ce qu'il faut faire maintenant (Juvenal, 17/11 : « intuitif »)
   const fl=st.force&&me&&!me.folded?st.force.level:0,dots=fl?"<span class='fdots l"+fl+"' aria-label='Force de ta main : "+FLV[fl]+"'>"+[1,2,3,4].map(k=>"<i"+(k<=fl?" class='on'":"")+"></i>").join("")+"</span>":"";
-  $("#pkRisk").innerHTML=myTurn?dots+"<b class='yt'>À toi !</b><span>"+(owe?"Mise <b>"+st.bet+"</b> pour rester, ou arrête-toi":"Mise au moins <b>"+minTo+"</b>, ou arrête-toi")+"</span>":(st.phase==="mise"&&st.seats&&st.seats[st.turn]?esc(st.seats[st.turn].name)+" réfléchit…":"");
+  const riskH=myTurn?dots+"<b class='yt'>À toi !</b><span>"+(owe?"Mise <b>"+st.bet+"</b> pour rester, ou arrête-toi":"Mise au moins <b>"+minTo+"</b>, ou arrête-toi")+"</span>":(st.phase==="mise"&&st.seats&&st.seats[st.turn]?esc(st.seats[st.turn].name)+" réfléchit…":"");
+  clearTimeout(render.dh);
+  if(dealMs>0){$("#pkRisk").innerHTML="<span>🃏 L'Académicien distribue les lettres…</span>";render.dh=setTimeout(()=>{if(ST!==st)return;$("#pkRisk").innerHTML=riskH;$$(".pkact .btn").forEach(b=>b.disabled=!myTurn)},dealMs+60)}
+  else $("#pkRisk").innerHTML=riskH;
   if(!myTurn){$("#pkRaise").hidden=true;$("#pkAllin").hidden=true}else RZ={min:Math.min(minTo,maxTo),max:maxTo,pot:st.pot,bet:st.bet,owe,stack:me.stack,mine:me.roundBet||0};
   wfRender(st,me,myTurn);
   // phase « mot »
@@ -1021,7 +1026,8 @@ function render(){const st=ST;document.body.dataset.ph=st&&st.started?st.phase:"
   if(PREV&&PREV.phase!=="mot"&&st.phase==="mot"&&me&&!me.folded){toast("✍️","À toi ! <b>45 s</b> pour taper ton mot");bell();setTimeout(wfFocus,100)}
   if(PREV&&PREV.phase!=="abattage"&&st.phase==="abattage"&&st.jackpotWon)setTimeout(()=>{announce&&announce("🎰 CAGNOTTE !",st.jackpotWon.names.join(", ")+" +"+st.jackpotWon.each*st.jackpotWon.names.length);bell()},2500);
   if(PREV&&PREV.phase!=="abattage"&&st.phase==="abattage"&&st.msg){toast(st.results&&st.results.some(x=>x.win)?"🏆":"🔁",esc(st.msg));bell();const mine=me&&st.results&&st.results.find(x=>x.name===me.name&&x.win&&x.gain);if(mine){const d=st.results.length>1||mine.word?1600+st.seats.filter((x,i)=>i!==st.me&&x.hand).length*1300+1200:600;setTimeout(()=>winFx(mine.gain),d)}}
-  if(PREV&&PREV.turn!==st.turn&&myTurn&&!(SOUND&&window.MotipopSons&&MotipopSons.play("ding")))tone(660,.25,.08);
+  // c'est à toi : deux notes douces et graves (plus de « ding » aigu juste après la mise du robot)
+  if(PREV&&PREV.turn!==st.turn&&myTurn&&SOUND){tone(392,.32,.05);tone(523,.4,.045,.14)}
   if((st.phase==="fin"&&PREV&&PREV.phase!=="fin")||(me&&(!PREV||PREV.me<0)))loadWallet();
   dealer(PREV,st);applyHide();
   renderDeck(st.deckLeft);tick()}
@@ -1074,7 +1080,8 @@ if(matchMedia("(pointer:coarse)").matches)$("#pkIn").setAttribute("inputmode","n
 function wfFly(from,to,n){if(!from||!to||matchMedia("(prefers-reduced-motion:reduce)").matches)return;const a=from.getBoundingClientRect(),z=to.getBoundingClientRect();if(!a.width||!z.width)return;
   for(let j=0;j<n;j++){const c=document.createElement("i");c.className="wfchip";c.style.left=(a.left+a.width/2-9)+"px";c.style.top=(a.top+a.height/2-9)+"px";document.body.appendChild(c);
     setTimeout(()=>{c.style.transform="translate("+Math.round(z.left+z.width/2-a.left-a.width/2+(j-(n-1)/2)*7)+"px,"+Math.round(z.top+z.height/2-a.top-a.height/2)+"px)"},30+j*80);setTimeout(()=>{c.style.opacity="0"},520+j*80);setTimeout(()=>c.remove(),760+j*80)}
-  if(SOUND)for(let j=0;j<Math.min(n,3);j++)tone(1500+j*240,.05,.03,.45+j*.07)}
+  // jetons posés sur le tapis : petits « toc » doux et mats
+  if(SOUND)for(let j=0;j<Math.min(n,3);j++)noise(.06,.22,"lowpass",900,.7,.42+j*.09,.004)}
 function wfSeatEl(i){return document.querySelector('.seat[data-i="'+i+'"] .ava')}
 function wfRender(st,me,myTurn){const b=document.body;b.classList.toggle("wf-in",!!(me&&!me.gone&&!me.out));const fold=!!(me&&me.folded&&st.phase==="mise"&&st.started);b.classList.toggle("wf-fold",fold);
   if(fold)$("#pkRisk").innerHTML="Tu es couché : tu reviens au prochain coup.";
@@ -1200,7 +1207,7 @@ function fly(key,delay,o){const run=DEAL.run;return new Promise(res=>setTimeout(
   const land=()=>{DEAL.hide.delete(key);landSnd();const e=ckEl(key);if(e){e.style.visibility="";e.classList.remove("settle");void e.offsetWidth;e.classList.add("settle");if(o.flip){e.classList.remove("flip");void e.offsetWidth;e.classList.add("flip");flipSnd()}}res()};
   if(!t||!from||!t.animate){land();return}
   const to=t.getBoundingClientRect(),c=document.createElement("div");c.className="card-l back pkfly";
-  c.style.cssText="position:fixed;left:"+from.left+"px;top:"+from.top+"px;width:"+to.width+"px;height:"+to.height+"px;margin:0;z-index:60;pointer-events:none";document.body.appendChild(c);swish();gesture(to.left+to.width/2-(from.left+from.width/2));
+  c.style.cssText="position:fixed;left:"+from.left+"px;top:"+from.top+"px;width:"+to.width+"px;height:"+to.height+"px;margin:0;z-index:200;pointer-events:none";document.body.appendChild(c);swish();gesture(to.left+to.width/2-(from.left+from.width/2));
   const dx=to.left-from.left,dy=to.top-from.top,rot=(Math.random()*6-3).toFixed(1),spin=dx<0?-200:200,ov=Math.sign(dy||1)*6;
   const S=(x,y,r,sc,sh)=>({transform:"translate("+x+"px,"+y+"px) rotate("+r+"deg) scale("+sc+")",boxShadow:sh});
   c.animate([Object.assign(S(0,0,-6,.9,"0 2px 4px rgba(0,0,0,.4)"),{opacity:0}),Object.assign(S(dx*.05,dy*.05-6,spin*.1,.96,"0 10px 18px rgba(0,0,0,.45)"),{opacity:1,offset:.12}),
@@ -1213,7 +1220,7 @@ function gesture(dx){const d=document.querySelector(".pkdealer .dav");if(!d||!d.
 function turnUp(k,delay){const run=DEAL.run;setTimeout(()=>{if(run!==DEAL.run)return;const e=faceUp(k);if(e){e.classList.remove("flip");void e.offsetWidth;e.classList.add("flip");flipSnd()}},delay)}
 // carte « brûlée » : le croupier écarte la carte du dessus avant de retourner des lettres communes
 function burn(delay){const run=DEAL.run;setTimeout(()=>{if(run!==DEAL.run)return;const from=deckRect();if(!from)return;const c=document.createElement("div");c.className="card-l back pkfly";
-  c.style.cssText="position:fixed;left:"+from.left+"px;top:"+from.top+"px;width:"+from.width+"px;height:"+from.height+"px;margin:0;z-index:60;pointer-events:none";document.body.appendChild(c);swish();
+  c.style.cssText="position:fixed;left:"+from.left+"px;top:"+from.top+"px;width:"+from.width+"px;height:"+from.height+"px;margin:0;z-index:200;pointer-events:none";document.body.appendChild(c);swish();
   c.animate([{transform:"translate(0,0)",opacity:1},{transform:"translate(-40px,8px) rotate(-14deg)",opacity:0}],{duration:1100,easing:"cubic-bezier(.4,0,.2,1)"}).onfinish=()=>c.remove()},delay)}
 function talk(t){const b=$("#pkDealerSay");if(!b)return;b.textContent=t;b.classList.remove("on");void b.offsetWidth;b.classList.add("on")}
 function dealer(P,st){if(!P||!st)return;const d=$("#pkDealer");if(d)d.classList.toggle("on",!!st.started);
@@ -1222,14 +1229,16 @@ function dealer(P,st){if(!P||!st)return;const d=$("#pkDealer");if(d)d.classList.
     for(let r=0;r<2;r++)for(let k=0;k<n;k++){const i=(start+k)%n,s=st.seats[i];if(!(s.hand||!s.out))continue;order.push({key:"s"+i+"-"+r,flip:i===st.me})}
     const nb=Math.min(3,st.shown||0);for(let b=0;b<nb;b++)order.push({key:"b"+b,flip:true,board:true});
     DEAL.down.clear();order.forEach(o=>{DEAL.hide.add(o.key);if(o.flip){DEAL.down.add(o.key);o.flip=false}});applyHide();
-    announce("Coup "+st.hand+(st.maxHands?" / "+st.maxHands:""),st.hand>1?"Nouvelle donne":"La partie commence");setTimeout(()=>talk("Coup "+st.hand+" : je distribue…"),2300);let t=2700;
-    order.forEach(o=>{if(o.board&&o.key==="b0"){t+=500;setTimeout(()=>{talk("Les 3 premières lettres");announce("1er tour de mise","3 lettres communes",true)},t-200);t+=1500;burn(t);t+=1300}fly(o.key,t,o);t+=o.board?780:520});
+    announce("Coup "+st.hand+(st.maxHands?" / "+st.maxHands:""),st.hand>1?"Nouvelle donne":"La partie commence");talk("Coup "+st.hand+" : je distribue…");let t=1500;
+    // durées accordées avec le serveur (poker.js, t.grace) : 7,2 s + 0,76 s par joueur, un peu de marge
+    order.forEach(o=>{if(o.board&&o.key==="b0"){t+=300;setTimeout(()=>talk("Les 3 premières lettres"),t);t+=600;burn(t);t+=700}fly(o.key,t,o);t+=o.board?520:380});
     // fin de la donne : les 3 lettres communes se retournent une à une, puis tu découvres tes 2 lettres
-    t+=700;order.filter(o=>o.board).forEach(o=>{turnUp(o.key,t);t+=560});if(st.me>=0){t+=200;turnUp("s"+st.me+"-0",t);turnUp("s"+st.me+"-1",t+320);t+=800}
-    setTimeout(()=>{if(st.me>=0&&ST&&ST.turn===st.me&&ST.phase==="mise")talk("À toi de parler")},t+300);return}
+    t+=700;order.filter(o=>o.board).forEach(o=>{turnUp(o.key,t);t+=350});if(st.me>=0){t+=150;turnUp("s"+st.me+"-0",t);turnUp("s"+st.me+"-1",t+250);t+=600}
+    // pas d'annonce au centre ici : elle cacherait les lettres au moment de décider
+    setTimeout(()=>{if(ST&&ST.hand===st.hand&&ST.phase==="mise")talk(st.me>=0&&ST.turn===st.me?"1er tour de mise : à toi !":"1er tour de mise")},t);return}
   // nouvelle lettre commune (4e, 5e)
   if(st.started&&P.hand===st.hand&&(st.shown||0)>(P.shown||0)){const keys=[];for(let b=P.shown||0;b<st.shown;b++)keys.push("b"+b);keys.forEach(k=>{DEAL.hide.add(k);DEAL.down.add(k)});applyHide();
-    talk("Les 2 dernières lettres");announce("2e tour de mise","2 dernières lettres");let t=2200;burn(t);t+=1300;keys.forEach(k=>{DEAL.down.add(k);fly(k,t,{board:true});turnUp(k,t+1600);t+=850});return}
+    talk("Les 2 dernières lettres");let t=600;burn(t);t+=700;keys.forEach(k=>{DEAL.down.add(k);fly(k,t,{board:true});turnUp(k,t+1250);t+=600});setTimeout(()=>{if(ST&&ST.hand===st.hand&&ST.phase==="mise")talk("2e tour de mise")},t+1300);return}
   // abattage : les lettres cachées des adversaires se retournent une à une
   if(P.phase!=="abattage"&&st.phase==="abattage"){DEAL.down.clear();st.seats.forEach((s,i)=>{if(i!==st.me&&s.hand)[0,1].forEach(r=>DEAL.down.add("s"+i+"-"+r))});talk("Abattage !");announce("Abattage","Les lettres se dévoilent",true);let t=1600;st.seats.forEach((s,i)=>{if(i===st.me||!s.hand)return;[0,1].forEach(r=>{setTimeout(()=>{const e=faceUp("s"+i+"-"+r);if(e){e.classList.remove("flip");void e.offsetWidth;e.classList.add("flip");flipSnd()}},t);t+=650})})}
   if(P.phase!=="mot"&&st.phase==="mot"){talk("Faites vos mots !");announce("Faites vos mots","45 secondes",true)}

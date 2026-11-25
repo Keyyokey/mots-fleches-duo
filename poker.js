@@ -145,7 +145,7 @@ module.exports = function (hooks) {
     t.commit = crypto.createHash("sha256").update(t.revealDeck).digest("hex").slice(0, 16);
     for (const s of active(t)) { const a = Math.min(t.ante, s.stack); s.stack -= a; s.inPot += a; t.pot += a; if (!s.stack) s.allin = true; }
     t.shown = 3; t.phase = "mise"; t.round = 1;
-    t.grace = Math.ceil(4 + active(t).length * 1.1 + 8.5);   // annonce du coup + 2 lettres par joueur + 3 lettres communes
+    t.grace = Math.ceil(7.4 + active(t).length * 0.76);   // donne vue par le joueur (poker.html, dealer) : 2 lettres par joueur + 3 lettres communes
     t.first = (t.hand - 1) % t.seats.length;
     startRound(t);
   }
@@ -163,7 +163,7 @@ module.exports = function (hooks) {
     t.dealEnd = Date.now() + g * 1000;
     broadcast(t);
     const i = t.turn;
-    if (s.bot) later(t, g * 1000 + 1200 + rnd(1600), () => botAct(t, i));
+    if (s.bot) later(t, g * 1000 + 900 + rnd(1200), () => botAct(t, i));
     if (s.gone) later(t, 300, () => act(t, i, "fold", true));
   }
   function act(t, i, a, auto, amt) {
@@ -191,7 +191,7 @@ module.exports = function (hooks) {
     ask(t);
   }
   function nextStreet(t) {
-    if (t.shown < 5) { t.shown = 5; t.round = 2; t.grace = 7; t.msg = "L'Académicien retourne les 2 dernières lettres"; return startRound(t); }
+    if (t.shown < 5) { t.shown = 5; t.round = 2; t.grace = 4; t.msg = "L'Académicien retourne les 2 dernières lettres"; return startRound(t); }
     wordPhase(t);
   }
   function wordPhase(t) {
