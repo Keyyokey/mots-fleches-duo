@@ -408,7 +408,8 @@ function particles(x,y,col,n,spread,host,fixed){for(let i=0;i<n;i++){const s=doc
   s.style.background=i%3?col:"#fff";s.style.boxShadow="0 0 8px "+col;host.appendChild(s);const a=i/n*2*Math.PI+Math.random()*.5,d=spread*(.6+Math.random()*.7),sz=.6+Math.random()*.9;
   s.animate([{transform:"translate("+(x-4)+"px,"+(y-4)+"px) scale("+sz+")",opacity:1},{transform:"translate("+(x-4+Math.cos(a)*d)+"px,"+(y-4+Math.sin(a)*d)+"px) scale(.1)",opacity:0}],{duration:520+Math.random()*260,easing:"cubic-bezier(.15,.7,.3,1)"}).onfinish=()=>s.remove()}}
 function canPlay(){if(!G||G.done)return false;if(G.solo)return true;const s=mySeat();return s!==null&&!isOut(s)&&!resolved(cur,s)}
-function pick(b){if(phase!=="play"||!b.on||b.entering||!canPlay())return;const k=placed.indexOf(null);if(k<0)return;
+// une bulle qui entre se touche dès que son centre est dans le cadre (avant : 1 à 2 s sans réaction au premier clic)
+function pick(b){if(phase!=="play"||!b.on||(b.entering&&!(b.x>0&&b.x<W&&b.y>0&&b.y<H))||!canPlay())return;const k=placed.indexOf(null);if(k<0)return;
   const r0=b.el.getBoundingClientRect(),col=getComputedStyle(b.core).getPropertyValue("--g").trim()||"#19e3ec";placed[k]=b;b.on=false;b.el.style.display="none";$("#mgMsg").textContent="";
   const ring=document.createElement("span");ring.className="mgring";ring.style.borderColor=col;ring.style.boxShadow="0 0 18px "+col;field.appendChild(ring);
   ring.animate([{transform:"translate("+(b.x-R)+"px,"+(b.y-R)+"px) scale(.8)",opacity:1},{transform:"translate("+(b.x-R)+"px,"+(b.y-R)+"px) scale(2)",opacity:0}],{duration:420,easing:"ease-out"}).onfinish=()=>ring.remove();
