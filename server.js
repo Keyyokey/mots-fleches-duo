@@ -1183,7 +1183,33 @@ function sendBody(req, res, p, type, cache) {
 // recopié dans Redis toutes les 10 min (clé stat:AAAAMMJJ, 60 jours) : ~150 commandes par jour. Lecture : /admin/stats?key=…
 const STAT = { day: null, c: {}, errs: [], dirty: false };
 function statDay() { const d = parisDay(); if (STAT.day !== d) { if (STAT.day && STAT.dirty) statFlush(); STAT.day = d; STAT.c = {}; STAT.errs = []; STAT.dirty = false; } return d; }
-function statAdd(k, n = 1) { statDay(); STAT.c[k] = (STAT.c[k] || 0) + n; STAT.dirty = true; }
+// 25/11 : les visites et parties faites depuis un appareil du propriétaire (cookie mp_moi, posé en ouvrant les stats) sont
+// rangées à part (« moi:… ») et n'entrent dans aucun chiffre des joueurs
+const { AsyncLocalStorage } = require("async_hooks"); const REQ = new AsyncLocalStorage();
+function statAdd(k, n = 1) { statDay(); const st = REQ.getStore(); if (st && st.moi && !/^(v:moi|moi:)/.test(k)) k = "moi:" + k; STAT.c[k] = (STAT.c[k] || 0) + n; STAT.dirty = true; }
+// provenance d'une visite : lien de suivi ou lien court, navigateur intégré d'une appli (Facebook, Instagram, TikTok), puis page d'origine
+const BOT_RE = /bot\b|bot\/|spider|crawl|slurp|preview|facebookexternalhit|facebot|meta-externalagent|whatsapp|telegram|discord|slack|linkedin|embedly|skype|headless|lighthouse|pagespeed|python|curl|wget|axios|node-fetch|go-http|java\/|okhttp|uptime|monitor|scrapy|httpclient|libwww|render\//i;
+const CANAL = { t: "tiktok", f: "facebook", i: "instagram", w: "whatsapp", y: "youtube", q: "affiche" };
+function visitSource(req, url) {
+  const ua = req.headers["user-agent"] || "", ref = url.searchParams.get("ref") || "";
+  if (/^[tfiwyq]-[a-z]{2}/.test(ref)) return CANAL[ref[0]];
+  if (/^(tiktok|facebook|instagram|youtube|whatsapp|affiche)$/.test(ref)) return ref;
+  if (ref) return "lien";
+  if (/FBAN|FBAV|FB_IAB|FBIOS|FB4A|\[FB/.test(ua)) return "facebook";
+  if (/Instagram/.test(ua)) return "instagram";
+  if (/musical_ly|Bytedance|TikTok|trill_/i.test(ua)) return "tiktok";
+  let h = ""; try { h = new URL(req.headers.referer || "").hostname.toLowerCase(); } catch {}
+  if (!h) return "direct";
+  if (/(^|\.)motipop\.fr$|^localhost$|onrender\.com$/.test(h)) return "interne";
+  if (/facebook|(^|\.)fb\.(com|me)$|messenger/.test(h)) return "facebook";
+  if (/tiktok/.test(h)) return "tiktok";
+  if (/instagram/.test(h)) return "instagram";
+  if (/youtube|youtu\.be/.test(h)) return "youtube";
+  if (/whatsapp|(^|\.)wa\.me$/.test(h)) return "whatsapp";
+  if (/google|bing|duckduckgo|qwant|ecosia|yahoo|brave|startpage|lilo/.test(h)) return "recherche";
+  return "autre";
+}
+const cookieOf = (req, n) => { const m = (req.headers.cookie || "").match(new RegExp("(?:^|;\\s*)" + n + "=([^;]*)")); return m ? decodeURIComponent(m[1]) : ""; };
 function statFlush() { if (!REDIS || !STAT.day || !STAT.dirty) return; STAT.dirty = false; redis(["SET", "stat:" + STAT.day, JSON.stringify({ c: STAT.c, errs: STAT.errs }), "EX", String(60 * 86400)]).catch(e => { STAT.dirty = true; console.error("Compteurs non sauvegardés :", e.message); }); }
 setInterval(statFlush, 10 * 60e3).unref();
 process.on("SIGTERM", () => { try { statFlush(); } catch {} });
@@ -1198,7 +1224,17 @@ function statErr(b, ip) {
 }
 function sendPage(req, res, file) {
   let p; try { p = page(file, true); } catch { res.writeHead(500); return res.end("Page manquante"); }
-  try { if (req.method === "GET" && !/bot|spider|crawl|preview|uptime/i.test(req.headers["user-agent"] || "")) { const f = path.basename(file), g = { "fl.html": "fleches", "rd.html": "rond", "mm.html": "meles", "mg.html": "magnetico", "md.html": "motdujour", "cg.html": "culture", "poker.html": "poker" }[f]; const q = String(req.url || ""); const rf = (q.match(/[?&]ref=([a-z0-9-]{2,20})(?:&|$)/) || [])[1]; if (rf) statAdd("ref:" + rf); if (f === "accueil.html") statAdd("accueil"); else if (g) statAdd(g + ":" + (/[?&]go=multi/.test(q) ? "ouverte-multi" : /[?&]go=/.test(q) ? "ouverte-solo" : "ouverte")); } } catch {}
+  try { if (req.method === "GET") { const ua = req.headers["user-agent"] || "";
+    if (BOT_RE.test(ua) || !ua) statAdd("v:robot" + (/facebookexternalhit|facebot|meta-externalagent/i.test(ua) ? ":facebook" : ""));
+    else if (cookieOf(req, "mp_moi") === "1") statAdd("v:moi");
+    else { const url = new URL(req.url, "http://x"); let src = visitSource(req, url); statAdd("pv:" + src);
+      const day = parisDay(), ck = []; if (cookieOf(req, "mp_j") !== day) { if (src === "interne") src = "direct";
+        statAdd("u:" + src); statAdd("u:tous"); statAdd("ud:" + (/Mobi|Android|iPhone|iPad/.test(ua) ? "tel" : "pc"));
+        if (!cookieOf(req, "mp_n")) { statAdd("n:" + src); statAdd("n:tous"); }
+        const sec = req.headers["x-forwarded-proto"] === "https" ? "; Secure" : "";
+        ck.push("mp_j=" + day + "; Max-Age=172800; Path=/; SameSite=Lax" + sec, "mp_n=1; Max-Age=31536000; Path=/; SameSite=Lax" + sec, "mp_src=" + src + "; Path=/; SameSite=Lax" + sec);
+        res.setHeader("Set-Cookie", ck); } } }
+    if (req.method === "GET" && !BOT_RE.test(req.headers["user-agent"] || "") && cookieOf(req, "mp_moi") !== "1") { const f = path.basename(file), g = { "fl.html": "fleches", "rd.html": "rond", "mm.html": "meles", "mg.html": "magnetico", "md.html": "motdujour", "cg.html": "culture", "poker.html": "poker" }[f]; const q = String(req.url || ""); const rf = (q.match(/[?&]ref=([a-z0-9-]{2,20})(?:&|$)/) || [])[1]; if (rf) statAdd("ref:" + rf); if (f === "accueil.html") statAdd("accueil"); else if (g) statAdd(g + ":" + (/[?&]go=multi/.test(q) ? "ouverte-multi" : /[?&]go=/.test(q) ? "ouverte-solo" : "ouverte")); } } catch {}
   sendBody(req, res, p, "text/html; charset=utf-8", "no-cache");
 }
 // données lourdes (grilles…) : nom de fichier versionné → mises en cache un an par le navigateur
@@ -1213,9 +1249,10 @@ function suivi(r, e, v) {
   statAdd("suivi:" + r + ":" + e);
 }
 // le visiteur garde 14 jours le lien par lequel il est arrivé ; on note s'il joue, finit une partie, revient un autre jour
-const SUIVI_JS = '<script>(function(){try{var K="fl-src",q=location.search.match(/[?&]ref=([a-z0-9-]{2,20})/),now=new Date(),day=now.getFullYear()*1e4+(now.getMonth()+1)*100+now.getDate(),o=null;try{o=JSON.parse(localStorage.getItem(K)||"null")}catch(e){}'+
+const SUIVI_JS = '<script>(function(){try{if(/(?:^|; )mp_moi=1/.test(document.cookie))return;var K="fl-src",q=location.search.match(/[?&]ref=([a-z0-9-]{2,20})/),now=new Date(),day=now.getFullYear()*1e4+(now.getMonth()+1)*100+now.getDate(),o=null;try{o=JSON.parse(localStorage.getItem(K)||"null")}catch(e){}'+
  'var send=function(e){if(!o)return;o.s=o.s||{};var k=e+day;if(o.s[k])return;o.s[k]=1;try{localStorage.setItem(K,JSON.stringify(o))}catch(x){}try{navigator.sendBeacon("/api/suivi",JSON.stringify({r:o.r,e:e,v:o.v}))}catch(x){}};'+
  'if(q&&!/bot|spider|crawl/i.test(navigator.userAgent)){if(!o||o.r!==q[1]){o={r:q[1],d:day,v:Math.random().toString(36).slice(2,12)+Date.now().toString(36).slice(-4)}}send("arrive")}'+
+ 'else if(!o){var sm=document.cookie.match(/(?:^|; )mp_src=([a-z]+)/);if(sm&&sm[1]!=="interne"&&!/bot|spider|crawl/i.test(navigator.userAgent)){o={r:"x-"+sm[1],d:day,v:Math.random().toString(36).slice(2,12)+Date.now().toString(36).slice(-4)};send("arrive")}}document.cookie="mp_src=; Max-Age=0; Path=/";'+
  'if(o&&Date.now()-(o.t||(o.t=Date.now()))>14*864e5){localStorage.removeItem(K);o=null}'+
  'if(o&&o.d!==day)send("revient");if(!o)return;window.__suivi=send;'+
  'if(location.pathname!=="/"){var j=function(){send("joue");removeEventListener("pointerdown",j,true);removeEventListener("keydown",j,true)};addEventListener("pointerdown",j,true);addEventListener("keydown",j,true)}'+
@@ -1275,16 +1312,16 @@ function sendAudio(req, res, name) {
 }
 // page lisible des statistiques (22/11) : mêmes chiffres que ?format=json, rendus côté serveur (aucun appel depuis la page)
 const GAME_NAMES = { fleches: "Mots fléchés", rond: "Tourniquet", meles: "Mots mêlés", culture: "Culture générale", poker: "Wordflush", magnetico: "Magnético", motdujour: "Mot du jour" };
-function adminStatsHtml(days, key) {
+function adminStatsHtml(days, key, moi) {
   const sum = (c, re) => Object.keys(c || {}).filter(k => re.test(k)).reduce((a, k) => a + (+c[k] || 0), 0);
   const fmtDay = d => { const m = ["janv.", "févr.", "mars", "avr.", "mai", "juin", "juil.", "août", "sept.", "oct.", "nov.", "déc."]; return Number(d.slice(6, 8)) + " " + m[Number(d.slice(4, 6)) - 1]; };
-  const rows = days.map(d => { const c = d.compteurs || {}; return { jour: d.jour, visites: +c.accueil || 0, lancees: sum(c, /:ouverte/), finies: sum(c, /:finie$/), mjOk: +c["motdujour:trouve"] || 0, mjKo: +c["motdujour:rate"] || 0, erreurs: Array.isArray(d.erreurs) ? d.erreurs.length : (+d.erreurs || 0), c }; });
+  const rows = days.map(d => { const c = d.compteurs || {}; return { jour: d.jour, visites: +c["u:tous"] || +c.accueil || 0, lancees: sum(c, /:ouverte/), finies: sum(c, /:finie$/), mjOk: +c["motdujour:trouve"] || 0, mjKo: +c["motdujour:rate"] || 0, erreurs: Array.isArray(d.erreurs) ? d.erreurs.length : (+d.erreurs || 0), c }; });
   const t = rows[0] || { visites: 0, lancees: 0, finies: 0, mjOk: 0, mjKo: 0, erreurs: 0, c: {}, jour: parisDay() };
   const card = (n, l, col) => `<div class="card"><b style="color:${col}">${n}</b><span>${l}</span></div>`;
   const byDay = Object.fromEntries(rows.map(r => [r.jour, r])), chrono = Array.from({ length: 14 }, (_, i) => { const d = parisDay(new Date(Date.now() - (13 - i) * 86400e3)); return byDay[d] || { jour: d, visites: 0, lancees: 0 }; }), max = Math.max(1, ...chrono.map(r => Math.max(r.visites, r.lancees)));
   const W = 640, H = 220, bw = W / Math.max(1, chrono.length);
   const bars = chrono.map((r, i) => { const x = i * bw, hv = Math.round(r.visites / max * (H - 40)), hl = Math.round(r.lancees / max * (H - 40));
-    return `<rect x="${x + bw * .14}" y="${H - 24 - hv}" width="${bw * .34}" height="${hv}" rx="3" fill="#7b9bff"><title>${fmtDay(r.jour)} : ${r.visites} visites</title></rect><rect x="${x + bw * .52}" y="${H - 24 - hl}" width="${bw * .34}" height="${hl}" rx="3" fill="#ff8a6b"><title>${fmtDay(r.jour)} : ${r.lancees} parties</title></rect><text x="${x + bw / 2}" y="${H - 6}" text-anchor="middle">${escH(fmtDay(r.jour).split(" ")[0])}</text>`; }).join("");
+    return `<rect x="${x + bw * .14}" y="${H - 24 - hv}" width="${bw * .34}" height="${hv}" rx="3" fill="#7b9bff"><title>${fmtDay(r.jour)} : ${r.visites} visiteurs</title></rect><rect x="${x + bw * .52}" y="${H - 24 - hl}" width="${bw * .34}" height="${hl}" rx="3" fill="#ff8a6b"><title>${fmtDay(r.jour)} : ${r.lancees} parties</title></rect><text x="${x + bw / 2}" y="${H - 6}" text-anchor="middle">${escH(fmtDay(r.jour).split(" ")[0])}</text>`; }).join("");
   const games = Object.keys(GAME_NAMES).map(g => { const c = t.c; const op = +c[g + ":ouverte"] || 0, so = +c[g + ":ouverte-solo"] || 0, mu = +c[g + ":ouverte-multi"] || 0, fi = +c[g + ":finie"] || 0; return op + so + mu + fi ? `<tr><td>${GAME_NAMES[g]}</td><td>${op}</td><td>${so}</td><td>${mu}</td><td>${fi}</td></tr>` : ""; }).join("") || `<tr><td colspan="5" class="mut">Aucune partie aujourd'hui</td></tr>`;
   const errs = (rows.length && Array.isArray(days[0].erreurs) ? days[0].erreurs : []).slice(-30).reverse().map(e => `<li><b>${escH(e.t || "")}</b> · ${escH(e.p || "")} · ${escH(e.ua || "")}<br><span>${escH(e.m || "")}</span></li>`).join("") || `<li class="mut">Aucune erreur aujourd'hui</li>`;
   const hist = rows.map(r => `<tr><td>${fmtDay(r.jour)}</td><td>${r.visites}</td><td>${r.lancees}</td><td>${r.finies}</td><td>${r.mjOk}</td><td>${r.erreurs}</td></tr>`).join("");
@@ -1294,12 +1331,22 @@ function adminStatsHtml(days, key) {
   // parcours par lien de suivi (14 jours) : arrivés → ont joué → ont fini → sont revenus
   const CAN = { t: "TikTok", f: "Facebook", i: "Instagram", w: "WhatsApp", y: "YouTube", q: "Affiche" }, JEU = { md: "Mot du jour", fl: "Fléchés", mm: "Mêlés", rd: "Tourniquet", cg: "Culture G", mg: "Magnético", wf: "Wordflush", ac: "Accueil" };
   const sv = {}; rows.forEach(r => Object.keys(r.c || {}).forEach(x => { const m = x.match(/^suivi:([a-z0-9-]+):(arrive|joue|fini|revient)$/); if (!m) return; (sv[m[1]] = sv[m[1]] || { arrive: 0, joue: 0, fini: 0, revient: 0 })[m[2]] += +r.c[x] || 0; }));
-  const svName = r => { const m = r.match(/^([tfiwyq])-([a-z]{2})(?:-(\d))?$/); return m ? `${CAN[m[1]]} · ${JEU[m[2]] || m[2]}${m[3] ? " · n° " + m[3] : ""}` : (RN[r] || r); };
+  const XN = { "x-facebook": "Facebook (sans lien de suivi)", "x-tiktok": "TikTok (sans lien de suivi)", "x-instagram": "Instagram (sans lien de suivi)", "x-whatsapp": "WhatsApp (sans lien)", "x-youtube": "YouTube (sans lien)", "x-recherche": "Recherche Google…", "x-direct": "Direct", "x-autre": "Autre site", "x-lien": "Autre lien", "x-affiche": "Affiche" };
+  const svName = r => { const m = r.match(/^([tfiwyq])-([a-z]{2})(?:-(\d))?$/); return m ? `${CAN[m[1]]} · ${JEU[m[2]] || m[2]}${m[3] ? " · n° " + m[3] : ""}` : (XN[r] || RN[r] || r); };
   const pc = (a, b) => b ? ` <span class="mut">(${Math.round(100 * a / b)} %)</span>` : "";
   // Pop qui guide (Mot du jour) : moitié des visiteurs des liens le voient, l'autre moitié non → qui joue le plus ?
   const pg = { pop: 0, popjoue: 0, sans: 0, sansjoue: 0 }; rows.forEach(r => Object.keys(r.c || {}).forEach(x => { const m = x.match(/^suivi:[a-z0-9-]+:(pop|popjoue|sans|sansjoue)$/); if (m) pg[m[1]] += +r.c[x] || 0; }));
   const pgRows = pg.pop + pg.sans ? `<tr><td>Avec Pop</td><td>${pg.pop}</td><td>${pg.popjoue}${pc(pg.popjoue, pg.pop)}</td></tr><tr><td>Sans Pop</td><td>${pg.sans}</td><td>${pg.sansjoue}${pc(pg.sansjoue, pg.sans)}</td></tr>` : `<tr><td colspan="3" class="mut">Pas encore de visiteur du Mot du jour arrivé par un lien</td></tr>`;
   const suiviRows = Object.keys(sv).sort((a, b) => sv[b].arrive - sv[a].arrive).map(r => { const o = sv[r]; return `<tr><td>${escH(svName(r))}<br><span class="mut">${escH(r)}</span></td><td>${o.arrive}</td><td>${o.joue}${pc(o.joue, o.arrive)}</td><td>${o.fini}${pc(o.fini, o.arrive)}</td><td>${o.revient}${pc(o.revient, o.arrive)}</td></tr>`; }).join("") || `<tr><td colspan="5" class="mut">Personne n'est encore arrivé par un lien de suivi (ex. motipop.fr/tmd1)</td></tr>`;
+  // 25/11 : vrais visiteurs (une personne = une fois par jour), par provenance, sans robots ni propriétaire
+  const SRC = [["facebook", "Facebook"], ["tiktok", "TikTok"], ["instagram", "Instagram"], ["whatsapp", "WhatsApp"], ["youtube", "YouTube"], ["recherche", "Recherche (Google…)"], ["affiche", "Affiche / QR code"], ["lien", "Autre lien Motipop"], ["direct", "Direct (adresse tapée, favori, appli)"], ["autre", "Autre site"]];
+  const per = n => rows.filter(r => r.jour >= parisDay(new Date(Date.now() - (n - 1) * 86400e3)));
+  const tot = (rs, kk) => rs.reduce((a, r) => a + (+r.c[kk] || 0), 0);
+  const joueDe = (rs, src) => rs.reduce((a, r) => a + Object.keys(r.c || {}).filter(x => { const m = x.match(/^suivi:([a-z0-9-]+):joue$/); if (!m) return false; const id = m[1]; return id === "x-" + src || (CANAL[id[0]] === src && /^[tfiwyq]-/.test(id)) || id === src; }).reduce((b, x) => b + (+r.c[x] || 0), 0), 0);
+  const r1 = per(1), r7 = per(7), r14 = rows;
+  const srcRows = SRC.map(([id, nom]) => { const u1 = tot(r1, "u:" + id), u7 = tot(r7, "u:" + id), u14 = tot(r14, "u:" + id), n14 = tot(r14, "n:" + id), j14 = joueDe(r14, id); if (!u14 && !j14) return "";
+    return `<tr><td>${nom}</td><td>${u1}</td><td>${u7}</td><td>${u14}</td><td>${n14}</td><td>${j14}${pc(j14, u14)}</td></tr>`; }).join("") || `<tr><td colspan="6" class="mut">Les vrais visiteurs sont comptés depuis le 25 novembre : les chiffres arrivent avec les prochaines visites.</td></tr>`;
+  const vU = +t.c["u:tous"] || 0, vN = +t.c["n:tous"] || 0, vTel = +t.c["ud:tel"] || 0, vBot = sum(t.c, /^v:robot/), vBotFb = +t.c["v:robot:facebook"] || 0, vMoi = +t.c["v:moi"] || 0, mPar = sum(t.c, /^moi:.*:(ouverte|finie)/);
   const k = encodeURIComponent(key || "");
   return `<!doctype html><html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex"><title>Statistiques — Motipop</title><style>
 body{margin:0;background:#12152e;color:#fff;font:17px/1.4 system-ui,-apple-system,Segoe UI,sans-serif}main{max-width:760px;margin:0 auto;padding:18px 16px 40px}
@@ -1308,15 +1355,19 @@ h1{font-size:1.6rem;margin:0 0 4px}h2{font-size:1.2rem;margin:26px 0 10px}.mut{c
 .box{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.14);border-radius:18px;padding:12px;overflow-x:auto}svg{width:100%;height:auto;display:block}svg text{fill:#c9d1e6;font-size:11px}
 .leg{display:flex;gap:16px;margin:8px 4px 0;font-size:.95rem;color:#d6dcef}.leg i{display:inline-block;width:12px;height:12px;border-radius:3px;margin-right:6px;vertical-align:-1px}
 table{width:100%;border-collapse:collapse;font-size:.98rem}th,td{text-align:left;padding:8px 6px;border-bottom:1px solid rgba(255,255,255,.1)}th{color:#c9d1e6;font-weight:600}td:not(:first-child),th:not(:first-child){text-align:right}
-ul{list-style:none;margin:0;padding:0}li{padding:9px 4px;border-bottom:1px solid rgba(255,255,255,.1)}li span{color:#ffc2b5;font-size:.95rem;word-break:break-word}a{color:#9fb5ff}</style></head><body><main>
+table.tc{font-size:.9rem}table.tc th,table.tc td{padding:7px 4px}table.tc td:first-child{max-width:9em}ul{list-style:none;margin:0;padding:0}li{padding:9px 4px;border-bottom:1px solid rgba(255,255,255,.1)}li span{color:#ffc2b5;font-size:.95rem;word-break:break-word}a{color:#9fb5ff}</style></head><body><main>
 <h1>Statistiques Motipop</h1><div class="mut">Aujourd'hui, ${fmtDay(t.jour)} · <a href="?key=${k}">actualiser</a> · <a href="/admin/champion?key=${k}">champion d'hier</a> · <a href="/admin/sauvegardes?key=${k}">sauvegardes</a></div>
+<p class="mut" style="margin:8px 0 0">${moi ? "Cet appareil est reconnu comme <b>le tien</b> : tes visites et tes parties ne comptent pas dans les chiffres. <a href=\"?key=" + k + "&amp;moi=0\">Ce n'est pas mon appareil</a>" : "Cet appareil compte comme un visiteur. <a href=\"?key=" + k + "\">C'est mon appareil</a>"}</p>
+<div class="cards">${card(vU, "vrais visiteurs aujourd'hui", "#7be0c8")}${card(vN, "dont nouveaux", "#9fe6ff")}${card(vU ? Math.round(100 * vTel / vU) + " %" : "—", "sur téléphone", "#c7a2ff")}${card(vBot, "robots écartés" + (vBotFb ? " (dont " + vBotFb + " aperçu" + (vBotFb > 1 ? "s" : "") + " de lien Facebook)" : ""), "#c9d1e6")}${card(vMoi, "tes pages vues (écartées)" + (mPar ? " · " + mPar + " partie" + (mPar > 1 ? "s" : "") : ""), "#c9d1e6")}</div>
+<h2>D'où viennent les vrais visiteurs</h2><p class="mut" style="margin:-4px 0 10px">Une personne compte une fois par jour, quel que soit le nombre de pages vues. Robots, aperçus de lien (Facebook, WhatsApp…) et tes propres visites sont exclus. « A joué » : a touché un jeu (sur 14 jours). Facebook, Instagram et TikTok sont reconnus même quand le lien s'ouvre dans leur appli.</p>
+<div class="box"><table class="tc"><tr><th>Provenance</th><th>Auj.</th><th>7 j</th><th>14 j</th><th>Nouv.</th><th>A joué</th></tr>${srcRows}</table></div>
 <div class="cards">${card(t.visites, "visites de l'accueil", "#9fb5ff")}${card(t.lancees, "parties lancées", "#ffa58a")}${card(t.finies, "parties finies", "#7be0c8")}${card(+t.c["motdujour:partage"] || 0, "résultats partagés", "#c7a2ff")}${card(+t.c["enigme:reponse"] || 0, "réponses à l'énigme", "#f2deb0")}${card(t.mjOk, "Mot du jour trouvé" + (t.mjKo ? " · " + t.mjKo + " raté" + (t.mjKo > 1 ? "s" : "") : ""), "#ffd27a")}${card(t.erreurs, "erreurs chez les joueurs", t.erreurs ? "#ff8a8a" : "#c9d1e6")}</div>
-<h2>Les 14 derniers jours</h2><div class="box"><svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Visites et parties lancées par jour">${bars}</svg><div class="leg"><span><i style="background:#7b9bff"></i>visites</span><span><i style="background:#ff8a6b"></i>parties lancées</span></div></div>
-<h2>Ce que font les visiteurs des liens (14 jours)</h2><p class="mut" style="margin:-4px 0 10px">Chaque personne est comptée une fois par jour et par étape. « A joué » : a touché le jeu. « A fini » : Mot du jour terminé, énigme répondue ou partie enregistrée. « Revenu » : est revenu un autre jour (14 jours au plus).</p><div class="box"><table><tr><th>Lien</th><th>Arrivés</th><th>A joué</th><th>A fini</th><th>Revenu</th></tr>${suiviRows}</table></div><h2>Pop qui guide · Mot du jour (14 jours)</h2><p class="mut" style="margin:-4px 0 10px">Visiteurs arrivés par un lien, au premier passage : la moitié voit Pop (« touche ici… »), l'autre non. On garde Pop s'il fait jouer plus de monde.</p><div class="box"><table><tr><th>Groupe</th><th>Visiteurs</th><th>Ont écrit un mot</th></tr>${pgRows}</table></div>
-<h2>D'où viennent les visiteurs (14 jours)</h2><div class="box"><table><tr><th>Provenance</th><th>Aujourd'hui</th><th>14 jours</th></tr>${refs}</table></div>
+<h2>Les 14 derniers jours</h2><div class="box"><svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Visites et parties lancées par jour">${bars}</svg><div class="leg"><span><i style="background:#7b9bff"></i>vrais visiteurs (avant le 25/11 : visites de l'accueil)</span><span><i style="background:#ff8a6b"></i>parties lancées</span></div></div>
+<h2>Ce que font les visiteurs, lien par lien (14 jours)</h2><p class="mut" style="margin:-4px 0 10px">Chaque personne est comptée une fois par jour et par étape. « A joué » : a touché le jeu. « A fini » : Mot du jour terminé, énigme répondue ou partie enregistrée. « Revenu » : est revenu un autre jour (14 jours au plus).</p><div class="box"><table><tr><th>Lien</th><th>Arrivés</th><th>A joué</th><th>A fini</th><th>Revenu</th></tr>${suiviRows}</table></div><h2>Pop qui guide · Mot du jour (14 jours)</h2><p class="mut" style="margin:-4px 0 10px">Visiteurs arrivés par un lien, au premier passage : la moitié voit Pop (« touche ici… »), l'autre non. On garde Pop s'il fait jouer plus de monde.</p><div class="box"><table><tr><th>Groupe</th><th>Visiteurs</th><th>Ont écrit un mot</th></tr>${pgRows}</table></div>
+<h2>Liens courts utilisés (14 jours)</h2><div class="box"><table><tr><th>Lien</th><th>Aujourd'hui</th><th>14 jours</th></tr>${refs}</table></div>
 <h2>Parties par jeu aujourd'hui</h2><p class="mut" style="margin:-4px 0 10px">« Page ouverte » : la page du jeu affichée par un lien direct (ex. Mot du jour depuis Facebook). Pour le Mot du jour, « Solo » = joueurs qui ont tapé au moins une lettre (avec ou sans pseudo). Le total « parties lancées » additionne les 3 colonnes.</p><div class="box"><table><tr><th>Jeu</th><th>Page ouverte</th><th>Solo</th><th>À plusieurs</th><th>Finies</th></tr>${games}</table></div>
 <h2>Erreurs du jour</h2><div class="box"><ul>${errs}</ul></div>
-<h2>Jour par jour</h2><div class="box"><table><tr><th>Jour</th><th>Visites</th><th>Lancées</th><th>Finies</th><th>Mot trouvé</th><th>Erreurs</th></tr>${hist}</table></div>
+<h2>Jour par jour</h2><div class="box"><table><tr><th>Jour</th><th>Visiteurs</th><th>Lancées</th><th>Finies</th><th>Mot trouvé</th><th>Erreurs</th></tr>${hist}</table></div>
 <p class="mut">Chiffres anonymes. Données brutes : <a href="?key=${k}&amp;format=json">format JSON</a>.</p></main></body></html>`;
 }
 function championHtml(day, top, played, w, key, back) {
@@ -1352,7 +1403,9 @@ async function adminRoute(req, res, url) {
     if (!adminOk(key)) { res.writeHead(404, { "content-type": "text/plain; charset=utf-8" }); return res.end("Introuvable"); }
     const J = (c, o) => { res.writeHead(c, { "content-type": "application/json; charset=utf-8", "cache-control": "no-store" }); res.end(JSON.stringify(o, null, 1)); };
     if (url.pathname === "/admin/stats") { statFlush(); const days = []; for (let i = 0; i < 14; i++) { const d = parisDay(new Date(Date.now() - i * 86400e3)); let o = null; if (d === STAT.day) o = { c: STAT.c, errs: STAT.errs }; else if (REDIS) { try { o = JSON.parse(await redis(["GET", "stat:" + d]) || "null"); } catch {} } if (o) days.push({ jour: d, compteurs: o.c, erreurs: i === 0 ? o.errs : (o.errs || []).length }); } if (url.searchParams.get("format") === "json") return J(200, { aide: "accueil = visites de l'accueil ; <jeu>:ouverte-solo / -multi = parties lancées ; <jeu>:finie = parties terminées avec points ; erreurs = pages qui ont planté chez un joueur (détail du jour)", jours: days });
-      res.writeHead(200, { "content-type": "text/html; charset=utf-8", "cache-control": "no-store", "referrer-policy": "no-referrer" }); return res.end(adminStatsHtml(days, url.searchParams.get("key"))); }
+      const moiOff = url.searchParams.get("moi") === "0", sec = req.headers["x-forwarded-proto"] === "https" ? "; Secure" : "";
+      res.writeHead(200, { "content-type": "text/html; charset=utf-8", "cache-control": "no-store", "referrer-policy": "no-referrer", "set-cookie": moiOff ? "mp_moi=; Max-Age=0; Path=/" : "mp_moi=1; Max-Age=31536000; Path=/; SameSite=Lax" + sec });
+      return res.end(adminStatsHtml(days, url.searchParams.get("key"), !moiOff)); }
     if (url.pathname === "/admin/champion") {          // image « champion du Mot du jour » d'hier, à télécharger pour les réseaux
       const back = Math.max(1, Math.min(30, +url.searchParams.get("jours") || 1)), yd = parisDay(new Date(Date.now() - back * 864e5));
       let d = null; try { d = await MJ.dayList(yd); } catch {}
@@ -1369,7 +1422,8 @@ async function adminRoute(req, res, url) {
     } catch (e) { console.error("Admin :", e.message); return J(500, { error: e.message }); }
     return J(404, { error: "inconnu" });
   }
-const server = http.createServer((req, res) => {
+const server = http.createServer((req, res) => REQ.run({ moi: cookieOf(req, "mp_moi") === "1" }, () => handle(req, res)));
+function handle(req, res) {
   const url = new URL(req.url, "http://x");
   // en-têtes de sécurité sur toutes les réponses (audit du 21/11) : pas d'affichage du site dans un cadre d'un autre site,
   // pas de devinette du type de fichier, adresse d'origine discrète, pas d'accès caméra/micro/position, HTTPS imposé en ligne
@@ -1478,7 +1532,7 @@ const server = http.createServer((req, res) => {
   }
   res.writeHead(404, { "content-type": "text/html; charset=utf-8", "cache-control": "no-cache" });
   res.end(NOTFOUND_HTML);
-});
+}
 const wss = new WebSocketServer({ server, path: "/ws", maxPayload: MAX_DOC + 4096 });
 // garde-fous (test de charge du 2/11/2026) : connexions par adresse, total, et débit de messages par connexion
 const WS_PER_IP = 24, WS_TOTAL = 4000, MSG_RATE = 25, MSG_BURST = 80;
