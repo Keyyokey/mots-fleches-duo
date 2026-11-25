@@ -174,7 +174,10 @@ body.fl-play #skTop{display:none!important}body.fl-play .wrap{padding-top:14px}b
 .abe-tools .abe-hd{font-size:18px;line-height:1}
 .abe-tools .abe-hd svg,.abe-tools .abe-hd img{width:20px;height:20px}
 /* téléphone : marges réduites, la grille prend toute la largeur */
-@media (max-width:620px){body.g-fleches .wrap{padding-left:6px;padding-right:6px}body.g-fleches .flboard{padding:4px!important;border-radius:14px}}
+@media (max-width:620px){body.g-fleches .wrap{padding-left:6px;padding-right:6px}body.g-fleches .flboard{padding:4px!important;border-radius:14px}
+ /* la définition reste visible en bas de l'écran quand la grille dépasse */
+ body.g-fleches .fl2 .flclue{position:sticky;bottom:calc(6px + env(safe-area-inset-bottom));z-index:8;background:linear-gradient(135deg,rgba(20,28,54,.94),rgba(30,26,64,.94))!important}
+ :root[data-theme="light"] body.g-fleches .fl2 .flclue{background:rgba(255,255,255,.96)!important}}
 </style>
 </head>
 <body class="sk-new booting g-fleches">
@@ -704,6 +707,8 @@ function abeAvail(){const box=$(".flboard"),g=$("#grid"),L=$(".fl2"),M=$("#v-fle
   const top=Math.min(r.top+scrollY,vh*.45);let H=vh-top-padY-(two?16:12);
   // panneau « Définition » sous la grille (une colonne) : on lui garde sa place à l'écran
   const one=!two&&L&&getComputedStyle(L).gridTemplateColumns.trim().split(/\s+/).length<2;if(one){const c=$(".flclue");if(c&&c.offsetParent){const cr=c.getBoundingClientRect();if(cr.top>=r.top)H-=c.offsetHeight+10}}
+  // téléphone en hauteur : la largeur commande (cases plus grandes, définitions lisibles) ; la page défile et le panneau « Définition » reste collé en bas
+  if(coarse&&innerWidth<=620&&innerHeight>innerWidth)H=1e5;
   const gs=getComputedStyle(g);const gap=parseFloat(gs.columnGap)||0,bw=(parseFloat(gs.borderLeftWidth)||0)+(parseFloat(gs.borderRightWidth)||0);
   return{W,H:Math.max(120,H),padY,gap,bw}}
 function fit(){const box=$(".flboard"),g=$("#grid");if(!box||!g||!NC)return;ABE.stats.fit++;
