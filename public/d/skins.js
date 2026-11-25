@@ -6,9 +6,9 @@
 (function (root) {
   var RAR = {
     pc: { nom: "Peu commun", c1: "#22BD92", c2: "#0f6b54", pts: 0 },
-    rare: { nom: "Rare", c1: "#17B9C5", c2: "#0b5f7a", pts: 500 },
-    epi: { nom: "Épique", c1: "#9167F1", c2: "#4b2a9c", pts: 2000 },
-    leg: { nom: "Légendaire", c1: "#F4BE4D", c2: "#b06d12", pts: 5000 },
+    rare: { nom: "Rare", c1: "#17B9C5", c2: "#0b5f7a", pts: 430 },
+    epi: { nom: "Épique", c1: "#9167F1", c2: "#4b2a9c", pts: 1200 },
+    leg: { nom: "Légendaire", c1: "#F4BE4D", c2: "#b06d12", pts: 1825 },
     hiv: { nom: "Hiver", c1: "#9FD8F0", c2: "#3d7fa8", pts: 0, mois: 12 }
   };
   var SERIES = [

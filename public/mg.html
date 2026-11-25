@@ -509,7 +509,7 @@ function endSound(){const s=G.solo?0:mySeat();const best=Math.max(...G.players.m
   if(win){[523,659,784,1046].forEach((f,i)=>tone(f,.3,"triangle",.15,0,i*.12));[784,988,1175,1568].forEach((f,i)=>tone(f,.35,"sine",.1,0,.55+i*.07))}else{[659,587,523,440].forEach((f,i)=>tone(f,.35,"sine",.11,0,i*.16))}}
 function tally(){send({t:"tally",gid:G.gid,game:GAME,results:G.players.map((p,i)=>({name:p.name,score:isOut(i)?0:p.score}))})}
 function scoreSrv(){try{if(!ME||!ME.token)return;const i=G.solo?0:mySeat();const k="fl-sc-mg"+G.gid;if(i===null||LS.get(k))return;LS.set(k,"1");
-  fetch("/api/p/score",{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({name:ME.name,token:ME.token,game:GAME,gid:String(G.gid),pts:G.players[i].score,solo:!!G.solo,level:G.level,started:G.started})}).catch(()=>{})}catch(e){}}
+  fetch("/api/p/score",{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({name:ME.name,token:ME.token,game:GAME,gid:String(G.gid),pts:G.players[i].score,solo:!!G.solo,level:G.level,started:G.started})}).then(r=>r.json()).then(r=>{const b=document.getElementById("endB");if(!b||!r||!r.ok||!(r.add>0)||!r.pts||document.getElementById("mgScoreNote"))return;b.insertAdjacentHTML("beforeend",'<div id="mgScoreNote" class="note" style="margin-top:8px"><b>+'+String(r.add).replace(".",",")+"</b> au score Motipop : <b>"+Math.floor(r.pts.tot)+"</b> / 2 500.</div>")}).catch(()=>{})}catch(e){}}
 function soloTicket(){if(!G||!G.solo||!ME||!ME.token)return;fetch("/api/p/solo",{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({name:ME.name,token:ME.token,game:GAME,op:"put",doc:{gid:G.gid,solo:true,done:false,level:G.level}})}).catch(()=>{})}
 
 /* ---------- commandes ---------- */

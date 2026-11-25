@@ -16,7 +16,7 @@ const api=async(r,b)=>(await fetch(U+'/api/p/'+r,{method:'POST',headers:{'conten
  // compte connecté dans un salon
  const n='Q'+[...String(Date.now()%10000)].map(d=>'ABCDEFGHIJ'[d]).join('');const A=await api('create',{name:n,pin:'1234'});const sl=await api('screate',{name:n,token:A.token,sname:'Esp '+n});
  p=await pg();await p.goto(U+'/');await p.evaluate(m=>localStorage.setItem('fl-me',JSON.stringify(m)),{name:n,token:A.token});await p.goto(U+'/'+sl.salon.code+'/');await p.waitForTimeout(2500);await p.click('#abRank');await p.waitForTimeout(500);
- const k=await p.textContent('#cKpi');ok(/Points au total/.test(k)&&/Jetons/.test(k),'connecté : progression affichée');
+ const k=await p.textContent('#cKpi');ok(/Score Motipop/.test(k)&&/Jetons/.test(k),'connecté : progression affichée');
  await p.click('.rtabs [data-r=cSalon]');await p.waitForTimeout(300);ok(!/dès que tu joues dans un salon/.test(await p.textContent('#cSalon')),'dans un salon : classement du salon affiché');
  const al2=await p.evaluate(()=>{const r=e=>document.querySelector(e).getBoundingClientRect();const l=r('.dleft'),pr=r('.progcard');return Math.abs(l.bottom-pr.bottom)});ok(al2<1,'connecté (courbe affichée) : colonnes toujours alignées');
  for(const w of [320,375,768]){const m=await pg(w);await m.goto(U+'/');await m.waitForTimeout(800);const r=await m.evaluate(()=>{const t=[...document.querySelectorAll('.rtabs button')].map(b=>b.getBoundingClientRect());return{sx:document.documentElement.scrollWidth>innerWidth,row:Math.abs(t[0].top-t[1].top)<2}});ok(!r.sx&&r.row,w+' px : pas de défilement horizontal, onglets côte à côte');await m.close()}

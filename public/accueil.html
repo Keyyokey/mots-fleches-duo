@@ -1191,9 +1191,9 @@ html.cb .mdv .v2{background:linear-gradient(135deg,#f07a2c,#d9601a)!important}ht
 (function (root) {
   var RAR = {
     pc: { nom: "Peu commun", c1: "#22BD92", c2: "#0f6b54", pts: 0 },
-    rare: { nom: "Rare", c1: "#17B9C5", c2: "#0b5f7a", pts: 500 },
-    epi: { nom: "Épique", c1: "#9167F1", c2: "#4b2a9c", pts: 2000 },
-    leg: { nom: "Légendaire", c1: "#F4BE4D", c2: "#b06d12", pts: 5000 },
+    rare: { nom: "Rare", c1: "#17B9C5", c2: "#0b5f7a", pts: 430 },
+    epi: { nom: "Épique", c1: "#9167F1", c2: "#4b2a9c", pts: 1200 },
+    leg: { nom: "Légendaire", c1: "#F4BE4D", c2: "#b06d12", pts: 1825 },
     hiv: { nom: "Hiver", c1: "#9FD8F0", c2: "#3d7fa8", pts: 0, mois: 12 }
   };
   var SERIES = [
@@ -1576,7 +1576,7 @@ function chart(i){const box=$("#chart"),sub=$("#chartSub"),tabs=$("#chartTabs");
   cum.forEach((v,k)=>{g+='<circle cx="'+X(k)+'" cy="'+Y(v)+'" r="'+(k===days-1?4.5:2.6)+'" fill="#A26BFF"><title>'+dt(k)+' : '+v+' pts ('+(daily[k]>=0?"+":"")+daily[k]+')</title></circle>'});
   const last=cum[days-1];g+='<text x="'+(X(days-1)-6)+'" y="'+(Y(last)-8)+'" text-anchor="end" font-size="11" font-weight="800" fill="currentColor">'+last+'</text>';
   box.innerHTML=g;
-  sub.textContent=i==="t"?"Total de tes points sur 14 jours · aujourd'hui "+fmtN(PTS.tot||0):"Points cumulés sur 14 jours · +"+daily[days-1]+" aujourd'hui · total "+fmtN((PTS.g||{})[CHG[i]]||0)}
+  sub.textContent=i==="t"?"Total de tes points sur 14 jours · aujourd'hui "+fmtN(PTS.tot||0):"Points cumulés sur 14 jours · +"+fmtN(daily[days-1])+" aujourd'hui · total "+fmtN((PTS.g||{})[CHG[i]]||0)}
 // onglet « Total » : le solde réel du compte (montre aussi un retour à zéro)
 (function(){const t=$("#chartTabs");if(t&&!t.querySelector('[data-c="t"]')){const b=document.createElement("button");b.dataset.c="t";b.textContent="Total";t.appendChild(b)}})();
 const curTab=()=>{const b=$("#chartTabs .on");const c=b?b.dataset.c:"0";return c==="t"?"t":+c};
@@ -1688,7 +1688,7 @@ function renderKpi(){const box=$("#cKpi");if(!box)return;
   if(!ME||ME.stale){box.innerHTML='<button class="btn primary" id="kLogin" type="button" style="grid-column:1/-1">Créer mon pseudo / me connecter</button>';$("#kLogin").onclick=()=>{const b=document.querySelector(".me-pill");if(b)b.click()};return}
   if(!PTS){box.innerHTML="";return}
   const dkey=new Date(Date.now()+3600e3).toISOString().slice(0,10),today=Object.values((PTS.d||{})[dkey]||{}).reduce((a,b)=>a+(+b||0),0);
-  box.innerHTML='<div class="kpi green" style="grid-column:1/-1"><small>Points au total</small><b>'+fmtN(PTS.tot||0)+'</b></div><div class="kpi"><small>Aujourd\'hui</small><b>'+(today>0?"+":"")+fmtN(today)+'</b></div>'
+  box.innerHTML='<div class="kpi green" style="grid-column:1/-1"><small>Score Motipop · sur 2 500</small><b>'+fmtN(PTS.tot||0)+'</b></div><div class="kpi"><small>Aujourd\'hui</small><b>'+(today>0?"+":"")+fmtN(today)+'</b></div>'
     +(typeof COINS==="number"?'<div class="kpi gold"><small>Jetons</small><b>🪙 '+fmtN(COINS)+'</b></div>':'')}
 renderKpi();
 function renderResume(){$$(".tile").forEach(t=>{const k=t.dataset.key;let on=false;

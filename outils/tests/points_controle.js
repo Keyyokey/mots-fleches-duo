@@ -13,7 +13,7 @@ r=await api('score',{...T,game:'meles',gid:'ab12cd34',pts:60,solo:true,level:'fa
 await W(2200);
 const before=await tot();
 const [r1,r2]=await Promise.all([api('score',{...T,game:'meles',gid:'ab12cd34',pts:60,solo:true,level:'facile'}),api('score',{...T,game:'meles',gid:'ab12cd34',pts:60,solo:true,level:'facile'})]);
-const after=await tot();ok((r1.add>0)!==(r2.add>0)&&after-before===60,'vraie partie solo : points comptés une seule fois malgré 2 envois simultanés (+'+(after-before)+')');
+const after=await tot();const got=r1.add>0?r1.add:r2.add;ok((r1.add>0)!==(r2.add>0)&&Math.abs((after-before)-got)<0.2&&got>0&&got<=60,'vraie partie solo : points comptés une seule fois malgré 2 envois simultanés (+'+(Math.round((after-before)*10)/10)+' au score Motipop pour 60 bruts)');
 r=await api('score',{...T,game:'meles',gid:'ab12cd34',pts:60,solo:true,level:'facile'});ok(r.dup||r.add===0,'renvoi de la même partie : refusé');
 let n=0;for(let i=0;i<45;i++){const r=await api('solo',{...T,game:'rond',op:'put',doc:{gid:'z'+i+'xx',solo:true,done:false}});}
 await W(2200);for(let i=0;i<45;i++){const r=await api('score',{...T,game:'rond',gid:'z'+i+'xx',pts:10,solo:true});if(r.add>0)n++}

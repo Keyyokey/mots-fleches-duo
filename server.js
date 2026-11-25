@@ -338,7 +338,7 @@ const sha = t => crypto.createHash("sha256").update(t).digest("hex");
 const hashPin = (pin, salt) => crypto.scryptSync(String(pin), salt, 32).toString("hex");
 async function getPlayer(name) {
   if (players.has(name)) return players.get(name);
-  if (REDIS) { try { const v = await redis(["GET", "pl:" + name]); if (v) { const p = JSON.parse(v); players.set(name, p); return p; } } catch (e) { console.error("Lecture Redis (pseudo) :", e.message); } }
+  if (REDIS) { try { const v = await redis(["GET", "pl:" + name]); if (v) { const p = JSON.parse(v); players.set(name, p); if (migratePts(p)) savePlayer(name); return p; } } catch (e) { console.error("Lecture Redis (pseudo) :", e.message); } }
   return null;
 }
 // lecture stricte : une panne de stockage est une erreur, pas un historique vide
@@ -346,7 +346,7 @@ async function getPlayerStrict(name) {
   if (players.has(name)) return players.get(name);
   if (!REDIS) return null;
   const v = await redis(["GET", "pl:" + name]); if (!v) return null;
-  const p = JSON.parse(v); if (!players.has(name)) players.set(name, p); return players.get(name);
+  const p = JSON.parse(v); if (!players.has(name)) { players.set(name, p); if (migratePts(p)) savePlayer(name); } return players.get(name);
 }
 let plTimer = null;
 function savePlayer(name) {
@@ -670,15 +670,37 @@ function multiScore(game, gid, name) {
   }
   return null;
 }
-async function addPoints(name, p, game, pts) {
-  p.pts = p.pts || { tot: 0, g: {}, d: {} };
-  p.pts.tot += pts; p.pts.g[game] = (p.pts.g[game] || 0) + pts;
+// ---------- score Motipop (25/11) : un total qui ne dépasse jamais 2 500 ----------
+// Chaque partie rapporte ses points « bruts » (barème des jeux, inchangé), puis le total avance d'autant moins qu'il est proche
+// de 2 500 : facteur (1 − total / 2 500)^1,6. Repères : 1 000 points bruts → ~750 ; 10 000 → ~2 175 ; 100 000 → ~2 488 (jamais 2 500).
+// Cumulé, cela revient à score = 2 500 × (1 − (1 + 0,6 × bruts / 2 500)^(−1/0,6)) : un ancien total se convertit avec la même formule.
+const SCORE_MAX = 2500, SCORE_K = 0.6;
+const scoreOf = raw => SCORE_MAX * (1 - Math.pow(1 + SCORE_K * Math.max(0, raw) / SCORE_MAX, -1 / SCORE_K));
+const rawOf = sc => SCORE_MAX / SCORE_K * (Math.pow(1 - Math.min(SCORE_MAX - 1e-6, Math.max(0, sc)) / SCORE_MAX, -SCORE_K) - 1);
+const r2 = x => Math.round(x * 100) / 100;
+function scoreAdd(tot, pts) { return Math.min(2499.9, r2(scoreOf(rawOf(tot) + pts))); }
+// conversion des anciens totaux (une fois par joueur) : total, soldes du graphique, et répartition par jeu au prorata
+function migratePts(p) {
+  if (!p || !p.pts || p.pts.v === 2) return false;
+  const q = p.pts, old = Number(q.tot) || 0, nw = Math.min(2499.9, r2(scoreOf(old))), k = old > 0 ? nw / old : 1;
+  q.tot = nw; for (const g in q.g || {}) q.g[g] = r2(q.g[g] * k);
+  for (const d in q.d || {}) for (const g in q.d[d]) q.d[d][g] = r2(q.d[d][g] * k);
+  for (const d in q.b || {}) q.b[d] = r2(scoreOf(q.b[d]));
+  q.v = 2; q.brut = Math.round(old); return true;
+}
+async function addPoints(name, p, game, raw) {
+  p.pts = p.pts || { tot: 0, g: {}, d: {}, v: 2 };
+  if (migratePts(p)) rankMem.set(name, p.pts.tot);
+  const before = p.pts.tot, pts = r2(scoreAdd(before, raw) - before);   // ce que la partie ajoute vraiment au total
+  p.pts.brut = Math.round((p.pts.brut || 0) + raw);
+  p.pts.tot = r2(before + pts); p.pts.g[game] = r2((p.pts.g[game] || 0) + pts);
   if (pts > 0) p.pts.ever = 1;                       // a déjà accumulé des points (reste vrai même si le total revient à zéro)
-  const day = DAYKEY(); const d = p.pts.d[day] || {}; d[game] = (d[game] || 0) + pts; p.pts.d[day] = d;
+  const day = DAYKEY(); const d = p.pts.d[day] || {}; d[game] = r2((d[game] || 0) + pts); p.pts.d[day] = d;
   balSnap(p);
   const days = Object.keys(p.pts.d).sort(); if (days.length > 60) days.slice(0, days.length - 60).forEach(k => delete p.pts.d[k]);
   rankMem.set(name, p.pts.tot);
   if (REDIS) redis(["ZADD", "rank", String(p.pts.tot), name]).catch(e => console.error("Classement Redis :", e.message));
+  return pts;
 }
 async function topRank(me) {
   let top = [], mine = null;
@@ -696,7 +718,18 @@ async function topRank(me) {
   const i = all.findIndex(x => x[0] === me); if (i >= 0) mine = { name: me, rank: i + 1, pts: Math.round(all[i][1]) };
   return { top, me: mine };
 }
-for (const [k, p] of players) if (p.pts) rankMem.set(k, p.pts.tot);
+for (const [k, p] of players) if (p.pts) { migratePts(p); rankMem.set(k, p.pts.tot); }
+// classement Redis : conversion unique de tous les totaux à la nouvelle échelle (même formule que migratePts)
+async function migrateRank() {
+  if (!REDIS) return;
+  try {
+    if (await redis(["GET", "rank:v2"])) return;
+    const r = await redis(["ZRANGE", "rank", "0", "-1", "WITHSCORES"]) || [];
+    for (let i = 0; i < r.length; i += 2) { const pl = players.get(r[i]); const v = pl && pl.pts && pl.pts.v === 2 ? pl.pts.tot : r2(scoreOf(Number(r[i + 1]) || 0)); await redis(["ZADD", "rank", String(v), r[i]]); }
+    await redis(["SET", "rank:v2", "1"]); console.log("Classement converti au score Motipop (" + r.length / 2 + " joueurs)");
+  } catch (e) { console.error("Conversion du classement :", e.message); }
+}
+setTimeout(migrateRank, 3000);
 
 // ---------- jetons du Poker Lettres (monnaie virtuelle) ----------
 function isoWeek(d = new Date()) { const t = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate())); const day = t.getUTCDay() || 7; t.setUTCDate(t.getUTCDate() + 4 - day); const y = new Date(Date.UTC(t.getUTCFullYear(), 0, 1)); return t.getUTCFullYear() + "-" + Math.ceil(((t - y) / 864e5 + 1) / 7); }
@@ -1042,8 +1075,8 @@ async function api(req, res, route) {
     const nth = (p.dg.n[game] || 0) + 1; p.dg.n[game] = nth;
     const f = DEGRESSIF(nth); if (rep === 0) pts = Math.round(pts * f);
     p.gids = p.gids.slice(-300).concat(game + gid);
-    if (pts) await addPoints(name, p, game, pts);
-    savePlayer(name); return out(200, { ok: true, add: pts, rep, nth, f: rep ? 1 : f, pts: p.pts });
+    const brut = pts; if (pts) pts = await addPoints(name, p, game, pts);
+    savePlayer(name); return out(200, { ok: true, add: Math.round(pts * 10) / 10, brut, rep, nth, f: rep ? 1 : f, pts: p.pts });
   }
   if (route === "pin") { if (!pinOk) return bad("pin", PIN_DETAIL); p.salt = crypto.randomBytes(12).toString("hex"); p.h = hashPin(b.pin, p.salt); savePlayer(name); return out(200, { ok: true }); }
   if (route === "hist") {
