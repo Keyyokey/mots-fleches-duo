@@ -1,7 +1,8 @@
 const {chromium}=require(process.env.PW||'playwright');
 const SP="/tmp/claude-0/-home-claude/8d6d2643-6576-5f68-8c95-f3700fc6f9e7/scratchpad/";
 (async()=>{const b=await chromium.launch({executablePath:process.env.CHROMIUM||'/opt/pw-browsers/chromium'});const ctx=await b.newContext({viewport:{width:390,height:844},deviceScaleFactor:2});const p=await ctx.newPage();const errs=[];p.on("pageerror",e=>errs.push(e.message));await p.route(/fonts\./,r=>r.abort());
-for(const path of ["/","/fleches?go=solo"]){
+// 25/11 : pendant une partie de mots fléchés, l'en-tête (et son menu) se retire ; on vérifie le menu sur l'accueil et sur les règles
+for(const path of ["/","/regles"]){
 await p.goto("http://localhost:3100"+path);await p.waitForTimeout(1800);
 await p.click('button[aria-label*="enu"], .menubtn, #menuBtn, button.burger').catch(async()=>{await p.locator("header button").last().click()});await p.waitForTimeout(500);
 const n=await p.locator('[data-act="icons"]').count();console.log(path,"bouton Icônes:",n,await p.locator('[data-act="icons"]').first().isVisible().catch(()=>false));

@@ -41,8 +41,8 @@ const playWhenReady = async p => { for (let i = 0; i < 30; i++) { const r = awai
   await sleep(1500); const sc = await Promise.all([0, 1, 3].map(i => st(pg[i]))); ok(sc.every(x => JSON.stringify(x.sc) === JSON.stringify(sc[0].sc)), 'scores identiques sur les 3 écrans ' + JSON.stringify(sc[0].sc));
   // fin
   await pg[0].evaluate(() => window.__t('patch("z","end",1,{ifAbsent:true,extra:{done:true,ended:Date.now()}})')); await sleep(2500);
-  const ends = await Promise.all([0, 1, 3].map(i => pg[i].evaluate(() => ({ on: document.getElementById('endWin').classList.contains('on'), b: document.getElementById('endB').innerText.replace(/\s+/g, ' ').replace(/·?\s*toi/g, '') }))));
-  ok(ends.every(e => e.on), 'fin de partie affichée chez tous'); ok(ends.every(e => e.b === ends[0].b), 'classement final identique partout');
+  const ends = await Promise.all([0, 1, 3].map(i => pg[i].evaluate(() => ({ on: document.getElementById('endWin').classList.contains('on'), b: document.getElementById('endB').innerText.replace(/\s+/g, ' ').replace(/·?\s*toi/g, '').replace(/\s*\+[\d,]+ au score Motipop.*$/, '') }))));
+  ok(ends.every(e => e.on), 'fin de partie affichée chez tous'); ok(ends.every(e => e.b === ends[0].b), 'classement final identique partout' + (ends.every(e => e.b === ends[0].b) ? '' : ' ' + JSON.stringify(ends.map(e => e.b))));
   ok(!errs.length, 'aucune erreur JavaScript ' + JSON.stringify(errs.slice(0, 4)));
   await br.close(); console.log(ko ? ko + ' échec(s)' : 'tout est bon'); process.exit(ko ? 1 : 0);
 })();
