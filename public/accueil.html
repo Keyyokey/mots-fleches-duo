@@ -1623,13 +1623,13 @@ const CGTH_NOTE={"":"Images, culture, calculs, casse-tête et une question « To
 function cgThemeInit(){const cur=LS.get("fl-cfg-theme")||"";$$("#cgTheme button").forEach(b=>{b.classList.toggle("on",b.dataset.v===cur);b.onclick=()=>{$$("#cgTheme button").forEach(x=>x.classList.toggle("on",x===b));LS.set("fl-cfg-theme",b.dataset.v);$("#cgThNote").textContent=CGTH_NOTE[b.dataset.v]||""}});if(!$("#cgTheme .on"))$("#cgTheme button").classList.add("on");$("#cgThNote").textContent=CGTH_NOTE[cur]||CGTH_NOTE[""]}
 // mots fléchés : format téléphone 8 × 8 par défaut sur téléphone, grilles classiques 10 × 10 sur ordinateur ; le choix est retenu
 const FLFMT_NOTE={t:"Grilles de 8 × 8 faites pour le téléphone : grandes cases, définitions lisibles.",c:"Les grilles classiques de 10 colonnes, comme dans les magazines."};
-const flFmt=()=>{const v=LS.get("fl-fmt");return v==="t"||v==="c"?v:(matchMedia("(max-width:700px)").matches?"t":"c")};
+const flFmt=()=>"c";   // 25/11 : format unique (10 colonnes), plus de choix
 function flFmtInit(){const cur=flFmt();$$("#flFmt button").forEach(b=>{b.classList.toggle("on",b.dataset.v===cur);b.onclick=()=>{$$("#flFmt button").forEach(x=>x.classList.toggle("on",x===b));LS.set("fl-fmt",b.dataset.v);$("#flFmtNote").textContent=FLFMT_NOTE[b.dataset.v];fillNums()}});$("#flFmtNote").textContent=FLFMT_NOTE[cur]}
 function openCfg(t,m,opp,quick){const k=t.dataset.key,G=GAMES[k];
   if(m==="solo"&&!ME&&guestN()>=GUEST_MAX){needAccount();return}
   if(m==="multi"&&(!ME||ME.stale)){needMulti();$("#needT").textContent=G.nm+" à plusieurs";$("#need").dataset.k=k;$("#need").classList.add("on");return}
   CFG={k,m,opp,t};{const cm=$("#cfgMode");cm.style.display=m==="resume"||opp?"none":"";cm.querySelectorAll("button").forEach(b=>{b.classList.toggle("on",b.dataset.m===m);b.onclick=()=>{if(b.dataset.m!==CFG.m)openCfg(CFG.t,b.dataset.m)}})}$("#cfgT").textContent=G.nm+" · "+({solo:"Solo",multi:"Multijoueur",resume:"Reprendre la partie"}[m]);
-  const pk=k==="poker",cg=k==="culture";$(".cfgfl").style.display=pk||cg||m==="resume"?"none":"";$(".cfgpk").style.display=pk&&m!=="resume"?"":"none";$(".cfgcg").style.display=cg&&m!=="resume"?"":"none";if(cg)cgThemeInit();$("#flFmtBox").style.display=k==="fleches"&&m!=="resume"?"":"none";if(k==="fleches")flFmtInit();{const lf=document.querySelector(".pklvlf");if(lf)lf.style.display=pk&&m==="solo"?"":"none"}
+  const pk=k==="poker",cg=k==="culture";$(".cfgfl").style.display=pk||cg||m==="resume"?"none":"";$(".cfgpk").style.display=pk&&m!=="resume"?"":"none";$(".cfgcg").style.display=cg&&m!=="resume"?"":"none";if(cg)cgThemeInit();$("#flFmtBox").style.display="none";if(k==="fleches")flFmtInit();{const lf=document.querySelector(".pklvlf");if(lf)lf.style.display=pk&&m==="solo"?"":"none"}
   if(!pk&&!cg){const lv=$("#lvl");lv.innerHTML=G.lv.map(([v,l],i)=>'<button data-v="'+v+'" class="'+(i===(LS.get("fl-cfg-lvl-"+k)|0)?"on":"")+'">'+l+'</button>').join("");
     lv.querySelectorAll("button").forEach((b,i)=>b.onclick=()=>{lv.querySelectorAll("button").forEach(x=>x.classList.toggle("on",x===b));LS.set("fl-cfg-lvl-"+k,i);fillNums()});
     fillNums()}
