@@ -1510,6 +1510,8 @@ function handleHttp(req, res) {
   if (/^\/(?:[A-Za-z0-9]{5}\/)?meles\/?$/.test(url.pathname)) return sendPage(req, res, path.join(__dirname, "public", "mm.html"));
   if (/^\/(?:[A-Za-z0-9]{5}\/)?magnetico\/?$/.test(url.pathname)) return sendPage(req, res, path.join(__dirname, "public", "mg.html"));
   if (/^\/(?:motdujour|mot-du-jour|defi)\/?$/.test(url.pathname)) return sendPage(req, res, path.join(__dirname, "public", "md.html"));
+  // 25/11 : mode direct (Twitch, Facebook Live…) à filmer avec OBS : Mot du jour joué avec le tchat, énigme, QR code
+  if (/^\/direct\/?$/.test(url.pathname)) return sendPage(req, res, path.join(__dirname, "public", "direct.html"));
   // icône du site (onglet du navigateur)
   // icônes Motipop : onglet (SVG) et écran d'accueil du téléphone (PNG)
   if (url.pathname === "/favicon.ico" || url.pathname === "/favicon.svg") { res.writeHead(200, { "content-type": "image/svg+xml", "cache-control": "public, max-age=86400" }); return res.end(FAVICON); }
