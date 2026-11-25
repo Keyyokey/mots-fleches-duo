@@ -5,7 +5,7 @@
 <meta name="description" content="Mots fléchés en solo ou jusqu'à 4 joueurs, en direct : plus de 1 100 grilles en trois niveaux.">
 <link rel="icon" href="/favicon.svg" type="image/svg+xml"><link rel="apple-touch-icon" href="/apple-touch-icon.png">
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="viewport" content="width=device-width,initial-scale=1,interactive-widget=resizes-content">
 <title>Mots fléchés — Motipop</title>
 <link rel="preload" href="/d/f-inter-f11d729bb0.woff2" as="font" type="font/woff2" crossorigin><link rel="preload" href="/d/f-nunito-76388dbfe3.woff2" as="font" type="font/woff2" crossorigin><link rel="stylesheet" href="/d/polices-117650e856.css">
 <link rel="stylesheet" href="/d/jeu-88a196dffd.css">
@@ -176,7 +176,8 @@ body.fl-play #skTop{display:none!important}body.fl-play .wrap{padding-top:14px}b
 /* téléphone : marges réduites, la grille prend toute la largeur */
 @media (max-width:620px){body.g-fleches .wrap{padding-left:6px;padding-right:6px}body.g-fleches .flboard{padding:4px!important;border-radius:14px}
  /* la définition reste visible en bas de l'écran quand la grille dépasse */
- body.g-fleches .fl2 .flclue{position:sticky;bottom:calc(6px + env(safe-area-inset-bottom));z-index:8;background:linear-gradient(135deg,rgba(20,28,54,.94),rgba(30,26,64,.94))!important}
+ body.g-fleches{padding-bottom:var(--kbh,0px)}
+ body.g-fleches .fl2 .flclue{position:sticky;bottom:calc(6px + var(--kbh,0px) + env(safe-area-inset-bottom));z-index:8;background:linear-gradient(135deg,rgba(20,28,54,.94),rgba(30,26,64,.94))!important}
  :root[data-theme="light"] body.g-fleches .fl2 .flclue{background:rgba(255,255,255,.96)!important}}
 </style>
 </head>
@@ -519,8 +520,13 @@ function placeKb(cell){const k=document.getElementById("kb");if(!k||!cell)return
   k.style.left=Math.max(0,r.left-o.left+op.scrollLeft)+"px";k.style.top=(r.top-o.top+op.scrollTop)+"px";k.style.width=Math.max(1,r.width)+"px";k.style.height=Math.max(1,r.height)+"px";requestAnimationFrame(keepCaretVisible)}
 // clavier ouvert : si la case en cours passe sous le clavier, on fait glisser la page juste ce qu'il faut
 function keepCaretVisible(){const vv=window.visualViewport,k=document.getElementById("kb");if(!vv||!k||document.activeElement!==k)return;const c=document.querySelector("#grid .fc.caret")||document.querySelector(".fc.caret");if(!c)return;
-  const r=c.getBoundingClientRect(),top=vv.offsetTop+8,bot=vv.offsetTop+vv.height-12;if(r.bottom>bot)scrollBy(0,r.bottom-bot);else if(r.top<top)scrollBy(0,r.top-top)}
-if(window.visualViewport)visualViewport.addEventListener("resize",()=>setTimeout(keepCaretVisible,60));
+  const cl=document.querySelector(".flclue"),cs=cl&&getComputedStyle(cl).position==="sticky"?cl.getBoundingClientRect().height+10:0;
+  const r=c.getBoundingClientRect(),top=vv.offsetTop+8,bot=vv.offsetTop+vv.height-12-cs;if(r.bottom>bot)scrollBy(0,r.bottom-bot);else if(r.top<top)scrollBy(0,r.top-top)}
+// iPhone (le clavier recouvre la page sans la réduire) : on mesure la hauteur du clavier,
+// on laisse de la place sous la grille et on pose la définition juste au-dessus du clavier
+function kbSpace(){const vv=window.visualViewport;if(!vv)return;const h=Math.max(0,Math.round(innerHeight-vv.height-vv.offsetTop));
+  document.documentElement.style.setProperty("--kbh",(h>80?h:0)+"px")}
+if(window.visualViewport){visualViewport.addEventListener("resize",()=>{kbSpace();setTimeout(keepCaretVisible,60)});visualViewport.addEventListener("scroll",kbSpace)}
 function focusKb(){if(matchMedia("(pointer:coarse)").matches&&document.activeElement!==kb){kbReset();try{kb.focus({preventScroll:true})}catch(e){}}}
 // caractère invisible gardé dans le champ : le clavier Android envoie alors bien « Effacer » ; après « Valider », la frappe en cours
 // est coupée pour que le clavier (composition Gboard) ne renvoie pas l'ancien mot
