@@ -6,7 +6,7 @@ const U=process.env.U||'http://localhost:3999',KEY=process.env.ADMIN_KEY||'test1
 const FB_APP='Mozilla/5.0 (iPhone; CPU iPhone OS 18_1 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/22B83 [FBAN/FBIOS;FBAV/490.0.0.38.105;FBBV/1;FBDV/iPhone15,2;FBMD/iPhone;FBSN/iOS;FBSV/18.1;FBSS/3;FBCR/;FBID/phone;FBLC/fr_FR;FBOP/5]';
 const TT_APP='Mozilla/5.0 (Linux; Android 14; SM-A546B Build/UP1A; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/131.0 Mobile Safari/537.36 trill_370103 BytedanceWebview/d8a21c6';
 const PC='Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0 Safari/537.36';
-const stats=async()=>{const j=await (await fetch(U+'/admin/stats?key='+KEY+'&format=json',{headers:{'user-agent':PC}})).json();return j.jours[0].compteurs};
+const stats=async()=>{const j=await (await fetch(U+'/admin/stats?key='+KEY+'&format=json',{headers:{'user-agent':PC}})).json();return ((j.jours||[])[0]||{}).compteurs||{}};
 const get=async(path,ua,extra={})=>{const r=await fetch(U+path,{headers:{'user-agent':ua,...extra},redirect:'manual'});return {r,ck:(r.headers.getSetCookie?r.headers.getSetCookie():[]).map(c=>c.split(';')[0]).join('; ')}};
 (async()=>{
   const c0=await stats(),d=(c,k)=>(+c[k]||0)-(+c0[k]||0);
