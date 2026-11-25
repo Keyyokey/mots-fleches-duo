@@ -276,13 +276,24 @@ function calcItem(t,r){const I=(a,b)=>a+Math.floor(r()*(b-a+1));let a,b,c,op;
   return{s:[String(ans)],def:"Le nombre qui manquait : "+ans,rar:CALC_RAR[t],traps:tr,word:a+" "+op+" "+b+" = "+c,math:true,eq,gap,tier:t}}
 // où tombent les calculs et quel palier : facile 3 sur 10, normal 4, difficile 5 ; la difficulté monte, le dernier est facile (récompense)
 const CALC_PLAN={facile:[[2,1],[5,2],[9,1]],normal:[[1,1],[4,2],[6,3],[9,1]],difficile:[[1,2],[3,3],[5,3],[7,4],[9,1]]};
-function mixPlan(lvl,idx){const L=window.MG_MOTS[lvl]||[],P=CALC_PLAN[lvl]||[];const diff=i=>{const e=(L[i]||"").split("|");return e[0].split("-").length+(+e[2]||1)};
+function mixPlan(lvl,idx){const L=window.MG_MOTS[lvl]||[],P=CALC_PLAN[lvl]||[];const diff=i=>{const e=(L[i]||"").split("|");return e[0].split("-").length*10+(+e[2]||1)};
   const w=idx.slice(0,NWORDS-P.length).sort((x,y)=>diff(x)-diff(y)),out=[];let j=0;
   for(let k=0;k<NWORDS;k++){const m=P.find(p=>p[0]===k);out.push(m?"m"+m[1]:w[j++])}
   // sans calcul en dernière place, le dernier mot est le plus facile
   return out}
-function pickWords(lvl,seed){const L=window.MG_MOTS[lvl]||[];let pl={};try{pl=JSON.parse(LS.get("fl2-played-mg")||"{}")}catch(e){}const r=rng(seed),out=[];
-  for(let t=0;t<4000&&out.length<NWORDS;t++){const i=Math.floor(r()*L.length);if(out.includes(i)||/\|a$/.test(L[i])||(t<3000&&pl[lvl+i]))continue;out.push(i)}return mixPlan(lvl,out)}
+// 25/11 : vers la fin de la partie, des mots plus longs (3 puis 4 syllabes selon le niveau) ; en solo, un joueur qui a déjà
+// beaucoup joué à ce niveau (6 parties et plus) reçoit plus tôt les mots longs
+function sylTarget(lvl,j,m,prog){if(lvl==="facile")return j>=m-(prog?4:2)?3:2;
+  if(lvl==="normal")return j>=m-(prog?3:1)?4:j>=m-(prog?5:4)?3:2;
+  return j>=m-(prog?2:1)?5:4}
+function mgProgress(lvl,pl){let n=0;for(const k in pl)if(k.indexOf(lvl)===0&&/^\d+$/.test(k.slice(lvl.length)))n++;return Math.floor(n/7)}
+function pickWords(lvl,seed,solo){const L=window.MG_MOTS[lvl]||[];let pl={};try{pl=JSON.parse(LS.get("fl2-played-mg")||"{}")}catch(e){}const r=rng(seed),out=[];
+  const m=NWORDS-(CALC_PLAN[lvl]||[]).length,prog=solo!==false&&mgProgress(lvl,pl)>=6,nsyl=i=>(L[i]||"").split("|")[0].split("-").length;
+  for(let j=0;j<m;j++){const want=sylTarget(lvl,j,m,prog);let got=-1;
+    for(let pass=0;pass<3&&got<0;pass++)for(let t=0;t<3000&&got<0;t++){const i=Math.floor(r()*L.length);if(out.includes(i)||/\|a$/.test(L[i])||(pass<2&&pl[lvl+i]))continue;const d=Math.abs(nsyl(i)-want);if(d===0||(pass===2&&d<=1))got=i}
+    if(got<0)for(let t=0;t<4000&&got<0;t++){const i=Math.floor(r()*L.length);if(!out.includes(i)&&!/\|a$/.test(L[i]))got=i}
+    out.push(got)}
+  return mixPlan(lvl,out)}
 function markPlayed(){try{const pl=JSON.parse(LS.get("fl2-played-mg")||"{}");G.words.forEach(i=>{if(typeof i==="number")pl[G.level+i]=1});const k=Object.keys(pl);if(k.length>3000)k.slice(0,k.length-3000).forEach(x=>delete pl[x]);LS.set("fl2-played-mg",JSON.stringify(pl))}catch(e){}}
 
 /* ---------- joueurs, salon ---------- */
@@ -510,7 +521,7 @@ $("#endHome").onclick=()=>{location.href=HOME};$("#endAgain").onclick=e=>{if(e.t
 
 /* ---------- lancement ---------- */
 function newGame(names,isSolo,level){const seed=Math.floor(Math.random()*2147483646)+1;level=LVLN[level]?level:"facile";
-  return{gid:Math.random().toString(36).slice(2,10),game:GAME,solo:isSolo,level,seed,words:pickWords(level,seed),i:0,started:Date.now(),players:names.map(x=>({name:x,score:0})),found:0,done:false,wait:!isSolo,f:{},p:{},cut:{},out:{}}}
+  return{gid:Math.random().toString(36).slice(2,10),game:GAME,solo:isSolo,level,seed,words:pickWords(level,seed,isSolo),i:0,started:Date.now(),players:names.map(x=>({name:x,score:0})),found:0,done:false,wait:!isSolo,f:{},p:{},cut:{},out:{}}}
 function open(g){G=g;cur=-1;phase="idle";balls.forEach(b=>b.el.remove());balls=[];$("#mgRes").style.display="none";$("#endWin").classList.remove("on");
   if(!G.solo){joinWait()}else soloTicket();render();announce();history.replaceState(null,"",location.pathname)}
 function again(lv){const o=G,LVL=lv||G.level;if(o.solo){open(newGame(o.players.map(p=>p.name),true,LVL));save();return}
