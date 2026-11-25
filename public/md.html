@@ -47,6 +47,9 @@
 .mdend .w{font:800 1.6rem Nunito,Inter,sans-serif;letter-spacing:.12em;background:linear-gradient(90deg,#ff7aa8,#a78bfa);-webkit-background-clip:text;background-clip:text;color:transparent}
 .mdend .def{color:var(--muted);font-size:.92rem}
 .mdend .row{display:flex;gap:8px;flex-wrap:wrap;justify-content:center}
+.mdsh{align-items:center}.mdsh .shl{flex:1 1 100%;text-align:center;font-weight:700;font-size:.92rem}.mdsh .btn{display:inline-flex;align-items:center;gap:6px;min-height:46px;padding:0 16px;font-weight:800}
+@media (pointer:fine){.mdsh .sms{display:none}}
+.mdsh .wa{background:#25d366;border-color:#25d366;color:#06321a}.mdsh .sms{background:linear-gradient(135deg,#00ADB5,#A26BFF);border-color:transparent;color:#fff}
 .mdmini{display:flex;flex-direction:column;gap:3px;margin:4px 0 2px}.mdmini div{display:flex;gap:3px;justify-content:center}.mdmini i{width:16px;height:16px;border-radius:4px;background:#3a4258}.mdmini .m2{background:#14b8a0}.mdmini .m1{background:#f59e0b}
 #mdShare{min-height:52px;padding:0 26px;font-size:1.05rem}
 .mdtabs{display:flex;gap:6px;margin-bottom:8px}
@@ -243,8 +246,8 @@ function draw(){if(!S)return;
   $("#mdKeys").innerHTML=!S.done||S.tries.length?"AZERTYUIOPQSDFGHJKLMWXCVBN".split("").map(L=>'<span class="'+(L in st?"k"+st[L]:"")+'">'+L+"</span>").join(""):"";
   $("#mdBar").style.display=S.done?"none":"";inp.disabled=!!S.done;if(S.done){if(document.activeElement===inp)inp.blur();inp.hidden=true}
   const e=$("#mdEnd");e.classList.toggle("on",!!S.done);if(S.done)fit();
-  if(S.done){const n=S.tries.length;e.innerHTML=(S.ok?'<img class="mdpop" src="/d/pop-victoire-d9b3c764d3.webp" width="120" height="120" alt="Pop saute de joie">':'')+(S.ok?'<h3>Trouvé en '+n+" essai"+(n>1?"s":"")+(S.ms?" · "+fmt(S.ms):"")+" !</h3>":"<h3>Pas cette fois…</h3>")+'<div class="gain">+'+(S.pts||0)+' points aujourd\'hui</div><div class="w">'+esc(S.word)+'</div><div class="def">'+esc(S.def||"")+'</div><div class="mdmini" aria-hidden="true">'+S.tries.map(t=>'<div>'+t.c.map(c=>'<i class="m'+c+'"></i>').join("")+'</div>').join("")+'</div><div class="row"><button class="btn primary" id="mdShare">Partager mon résultat</button></div>'+serie()+'<small class="note">Le mot n\'est jamais montré : rien n\'est gâché.</small><small class="note">Nouveau mot demain à minuit.</small>';
-    $("#mdShare").onclick=share}
+  if(S.done){const n=S.tries.length;e.innerHTML=(S.ok?'<img class="mdpop" src="/d/pop-victoire-d9b3c764d3.webp" width="120" height="120" alt="Pop saute de joie">':'')+(S.ok?'<h3>Trouvé en '+n+" essai"+(n>1?"s":"")+(S.ms?" · "+fmt(S.ms):"")+" !</h3>":"<h3>Pas cette fois…</h3>")+'<div class="gain">+'+(S.pts||0)+' points aujourd\'hui</div><div class="w">'+esc(S.word)+'</div><div class="def">'+esc(S.def||"")+'</div><div class="mdmini" aria-hidden="true">'+S.tries.map(t=>'<div>'+t.c.map(c=>'<i class="m'+c+'"></i>').join("")+'</div>').join("")+'</div><div class="row mdsh"><span class="shl">Défie un proche :</span><button class="btn wa" id="mdWa" type="button">'+WAI+' WhatsApp</button><button class="btn sms" id="mdSms" type="button">'+SMSI+' SMS</button><button class="btn" id="mdShare" type="button" title="Autres façons de partager">Autre…</button></div>'+serie()+'<small class="note">Le mot n\'est jamais montré : rien n\'est gâché.</small><small class="note">Nouveau mot demain à minuit.</small>';
+    $("#mdShare").onclick=()=>share();$("#mdWa").onclick=()=>share("wa");$("#mdSms").onclick=()=>share("sms")}
   list()}
 // 23/11 : Série du jour (jours d'affilée avec le Mot du jour terminé ; cadeau de 10 jetons au 7e jour pour les joueurs avec pseudo)
 function serPrev(d){const x=new Date(Date.UTC(+d.slice(0,4),+d.slice(4,6)-1,+d.slice(6,8))-864e5);return x.toISOString().slice(0,10).replace(/-/g,"")}
@@ -296,11 +299,16 @@ function send(){if(!S||S.done||busy)return;const g=cur();if(g.length<S.len){say(
     {const t=S.tries[S.tries.length-1];if(t)t.c.forEach((c,i)=>SFX.tile(i,c));const end=S.len*.11+.25;if(S.done)(S.ok?SFX.win:SFX.lose)(end)}
     if(S.done){say(S.ok?"Bravo !":"");}else{say("");inp.focus()}}).catch(()=>{busy=false;say("Pas de connexion : réessaie.")})}
 function shake(){const rows=$("#mdGrid").querySelectorAll(".mdrow"),r=rows[S.tries.length];if(r){r.classList.remove("shake");void r.offsetWidth;r.classList.add("shake")}}
-function share(){const sq=S.tries.map(t=>t.c.map(c=>c===2?(document.documentElement.classList.contains("cb")?"🟧":"🟩"):c===1?(document.documentElement.classList.contains("cb")?"🟦":"🟧"):"⬛").join("")).join("\n");
+// 25/11 : partage direct par WhatsApp ou SMS (là où les familles se parlent) ; le lien porte ?ref= pour compter ce qui ramène des joueurs
+const WAI='<svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path fill="currentColor" d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2zm0 18.2a8.2 8.2 0 0 1-4.2-1.1l-.3-.2-3 .8.8-2.9-.2-.3A8.2 8.2 0 1 1 12 20.2zm4.5-6.1c-.2-.1-1.5-.7-1.7-.8s-.4-.1-.6.1-.7.8-.8 1-.3.2-.5.1a6.7 6.7 0 0 1-3.3-2.9c-.3-.4.2-.4.7-1.4.1-.2 0-.3 0-.4l-.8-1.8c-.2-.5-.4-.4-.6-.4h-.5a1 1 0 0 0-.7.3 3 3 0 0 0-.9 2.2 5.2 5.2 0 0 0 1.1 2.8 11.9 11.9 0 0 0 4.6 4c1.7.7 2.3.8 3.2.7a2.7 2.7 0 0 0 1.8-1.3 2.2 2.2 0 0 0 .2-1.3c-.1-.1-.3-.2-.5-.3z"/></svg>',
+  SMSI='<svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" d="M4 5h16v11H9l-5 4z"/></svg>';
+function share(via){const sq=S.tries.map(t=>t.c.map(c=>c===2?(document.documentElement.classList.contains("cb")?"🟧":"🟩"):c===1?(document.documentElement.classList.contains("cb")?"🟦":"🟧"):"⬛").join("")).join("\n");
   // numéro du jour (n° 1 = 20/11/2026), résultat, carrés sans le mot, défi et lien
   const num=Math.round((Date.UTC(+S.day.slice(0,4),+S.day.slice(4,6)-1,+S.day.slice(6,8))-Date.UTC(2026,10,20))/864e5)+1;
-  const txt="Motipop · Mot du jour n° "+num+" · "+(S.ok?S.tries.length+"/6":"X/6")+"\n"+sq+"\n"+(S.ok?"Fais mieux que moi :":"À toi de le trouver :")+"\n"+location.origin+"/motdujour";
+  const txt="Motipop · Mot du jour n° "+num+" · "+(S.ok?S.tries.length+"/6":"X/6")+"\n"+sq+"\n"+(S.ok?"Fais mieux que moi :":"À toi de le trouver :")+"\n"+location.origin+"/motdujour"+(via?"?ref="+via:"");
   try{call({op:"share"}).catch(()=>{})}catch(e){}
+  if(via==="wa"){location.href="https://wa.me/?text="+encodeURIComponent(txt);return}
+  if(via==="sms"){location.href="sms:?&body="+encodeURIComponent(txt);return}
   if(navigator.share)navigator.share({text:txt}).catch(()=>{});else if(navigator.clipboard)navigator.clipboard.writeText(txt).then(()=>say("Résultat copié : colle-le où tu veux !"),()=>say(txt));else say(txt)}
 call({}).then(r=>{S=r;draw();if(!S.done&&matchMedia("(pointer:fine)").matches)inp.focus()}).catch(()=>{$("#mdInfo").textContent="Le mot du jour n'a pas pu être chargé. Vérifie ta connexion."});
 setInterval(()=>{if(document.hidden||!S||busy)return;call({}).then(r=>{if(r&&r.board&&S){S.board=r.board;if(r.mine)S.mine=r.mine;const b=r.board;$("#mdCount").textContent=b.found?b.found+(b.found>1?" joueurs l'ont trouvé":" joueur l'a trouvé")+" aujourd'hui":"Personne ne l'a encore trouvé aujourd'hui";list()}}).catch(()=>{})},30000);
