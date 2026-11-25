@@ -1422,8 +1422,8 @@ async function adminRoute(req, res, url) {
     } catch (e) { console.error("Admin :", e.message); return J(500, { error: e.message }); }
     return J(404, { error: "inconnu" });
   }
-const server = http.createServer((req, res) => REQ.run({ moi: cookieOf(req, "mp_moi") === "1" }, () => handle(req, res)));
-function handle(req, res) {
+const server = http.createServer((req, res) => REQ.run({ moi: cookieOf(req, "mp_moi") === "1" }, () => handleHttp(req, res)));
+function handleHttp(req, res) {
   const url = new URL(req.url, "http://x");
   // en-têtes de sécurité sur toutes les réponses (audit du 21/11) : pas d'affichage du site dans un cadre d'un autre site,
   // pas de devinette du type de fichier, adresse d'origine discrète, pas d'accès caméra/micro/position, HTTPS imposé en ligne
