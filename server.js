@@ -1522,7 +1522,15 @@ function handleHttp(req, res) {
       .then(o => { res.writeHead(200, { "content-type": "application/json", "cache-control": "no-store" }); res.end(JSON.stringify({ ...o, ms: Date.now() - t0, depuisDemarrage: redisDiag, comptesEnMemoire: players.size })); });
   }
   // /healthz répond 503 si le stockage refuse l'accès : UptimeRobot (qui surveille /healthz) envoie alors une alerte par e-mail
-  if (url.pathname === "/healthz" && url.searchParams.get("ws") === "1") { res.writeHead(200, { "content-type": "application/json", "cache-control": "no-store" }); const now = Date.now(); return res.end(JSON.stringify({ connexions: wss.clients.size, refus: wsDiag.refus, erreurs: wsDiag.err, lobby: LOBBY.stats(), sockets: [...wss.clients].map(w => ({ etat: w.readyState, file: w.busy || 0, enCours: w.cur ? w.cur.t + " depuis " + Math.round((now - w.cur.at) / 1000) + " s" : null, recus: (w.log || []).map(x => x.t + " (" + Math.round((now - x.at) / 1000) + " s)") })) })); }
+  if (url.pathname === "/healthz" && url.searchParams.get("wstest") === "1") {   // 26/11 : test de la connexion temps réel depuis un navigateur (rien de personnel affiché)
+    res.writeHead(200, { "content-type": "text/html; charset=utf-8", "cache-control": "no-store" });
+    return res.end('<!doctype html><meta charset=utf-8><title>Test temps réel</title><pre id=o style="white-space:pre-wrap;font:14px monospace"></pre><script>var o=document.getElementById("o"),t0=Date.now();function L(s){o.textContent+=((Date.now()-t0)/1000).toFixed(1)+" s  "+s+"\\n"}'
+      + 'L("connexion à "+location.host+"/ws");var w=new WebSocket("wss://"+location.host+"/ws");var m={};try{m=JSON.parse(localStorage.getItem("fl-me")||"{}")}catch(e){}'
+      + 'w.onopen=function(){L("ouverte");w.send(JSON.stringify({t:"lob",game:"fleches",name:m.name||"",token:m.token||""}));L("envoyé : lob");setTimeout(function(){w.send(JSON.stringify({t:"loblink"}));L("envoyé : loblink")},1500)};'
+      + 'w.onmessage=function(e){var d={};try{d=JSON.parse(e.data)}catch(x){}L("reçu : "+(d.t||"?")+(d.t==="loblink"?" (table "+d.id+")":"")+(d.msg?" — "+d.msg:""))};w.onerror=function(){L("erreur")};w.onclose=function(e){L("fermée, code "+e.code+" "+e.reason)};'
+      + 'setTimeout(function(){fetch("/healthz?ws=1").then(function(r){return r.json()}).then(function(j){L("serveur : instance "+j.instance+", connexions "+j.connexions+", sockets "+JSON.stringify(j.sockets))})},4000)</script>');
+  }
+  if (url.pathname === "/healthz" && url.searchParams.get("ws") === "1") { res.writeHead(200, { "content-type": "application/json", "cache-control": "no-store" }); const now = Date.now(); return res.end(JSON.stringify({ instance: wsDiag.inst, demarrage: wsDiag.boot, connexions: wss.clients.size, refus: wsDiag.refus, erreurs: wsDiag.err, lobby: LOBBY.stats(), sockets: [...wss.clients].map(w => ({ etat: w.readyState, file: w.busy || 0, enCours: w.cur ? w.cur.t + " depuis " + Math.round((now - w.cur.at) / 1000) + " s" : null, recus: (w.log || []).map(x => x.t + " (" + Math.round((now - x.at) / 1000) + " s)") })) })); }
   if (url.pathname === "/healthz" && url.searchParams.get("ip") === "1") { res.writeHead(200, { "content-type": "application/json", "cache-control": "no-store" }); return res.end(JSON.stringify(ipSource(req))); }   // quels en-têtes d'adresse arrivent (sans les valeurs)
   if (url.pathname === "/healthz") { const bad = REDIS && storage.ok === false; res.writeHead(bad ? 503 : 200, { "content-type": "text/plain; charset=utf-8" }); return res.end(bad ? "STOCKAGE KO depuis " + storage.since + " : " + storage.msg : "ok " + salons.size + (REDIS ? " redis" : "")); }
   const am = url.pathname.match(/^\/api\/p\/(guest|create|login|me|pin|logout|rank|mj|en|score|wallet|conv|salons|sjoin|screate|skick|scode|sleave|sdelete|hist|solo|skin)$/);
@@ -1611,7 +1619,7 @@ const wss = new WebSocketServer({ server, path: "/ws", maxPayload: MAX_DOC + 409
 const WS_PER_IP = 24, WS_TOTAL = 4000, MSG_RATE = 25, MSG_BURST = 80;
 const wsByIp = new Map();
 // 26/11 : diagnostic public sans données personnelles (/healthz?ws=1) : connexions, refus, erreurs de traitement, salon d'attente
-const wsDiag = { refus: 0, err: [] };
+const wsDiag = { refus: 0, err: [], inst: crypto.randomUUID().slice(0, 6), boot: new Date().toISOString() };
 wss.on("connection", (ws, req) => {
   ws.pid = crypto.randomUUID(); ws.isAlive = true; ws.ip = clientIp(req);
   const n = (wsByIp.get(ws.ip) || 0) + 1;
