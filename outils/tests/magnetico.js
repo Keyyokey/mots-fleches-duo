@@ -8,7 +8,7 @@ const sleep = ms => new Promise(r => setTimeout(r, ms));
 const play = (p, wrong) => p.evaluate(w => window.__t(`(()=>{const x=word(cur);const want=${w ? 'x.s.slice().reverse()' : 'x.s'};for(const t of want){const b=balls.find(b=>b.on&&!b.entering&&b.t===t&&!placed.includes(b));if(!b)return "pas encore "+t;pick(b)}validate();return "ok"})()`), wrong);
 (async () => {
   const br = await chromium.launch({executablePath:process.env.CHROMIUM||'/opt/pw-browsers/chromium'}); const errs = [];
-  const page = async (me, w = 390) => { const c = await br.newContext({ viewport: { width: w, height: 844 }, hasTouch: w < 500, isMobile: w < 500, deviceScaleFactor: 2 }); const p = await c.newPage(); p.on('pageerror', e => errs.push((me ? me.name : 'solo') + ': ' + e.message)); await p.route(/fonts\./, r => r.abort()); await p.goto(U + '/regles');
+  const page = async (me, w = 390) => { const c = await br.newContext({ viewport: { width: w, height: 844 }, hasTouch: w < 500, isMobile: w < 500, deviceScaleFactor: 2 }); await c.addInitScript(()=>{window.__noBoxPop=1}); const p = await c.newPage(); p.on('pageerror', e => errs.push((me ? me.name : 'solo') + ': ' + e.message)); await p.route(/fonts\./, r => r.abort()); await p.goto(U + '/regles');
     await p.evaluate(m => { if (m) localStorage.setItem('fl-me', JSON.stringify(m)) }, me); return p };
   // ---- solo ----
   const s0 = await page(null); await s0.goto(U + '/magnetico?go=solo&lvl=facile'); await sleep(1500);
@@ -27,7 +27,7 @@ const play = (p, wrong) => p.evaluate(w => window.__t(`(()=>{const x=word(cur);c
   // ---- partie à 3 ----
   const sfx = Math.floor(Math.random() * 900 + 100); const names = ['GA', 'GB', 'GC', 'GD'].map(x => x + sfx);
   const P = []; for (const n of names) { const r = await api('create', { name: n, pin: '2468' }); P.push({ name: n, token: r.token }) }
-  const sl = await api('screate', { ...P[0], sname: 'Magne ' + sfx }); for (const p of P.slice(1)) await api('sjoin', { ...p, sname: 'Magne ' + sfx, scode: sl.salon.acode });
+  const sl = await api('screate', { ...P[0], sname: 'Magne ' + sfx }); for (const p of P.slice(1)) { await api('sjoin', { ...p, sname: 'Magne ' + sfx, scode: sl.salon.acode }); await api('sdecide', { ...P[0], salon: sl.salon.code, member: p.name, ok: true }); }
   const C = sl.salon.code;
   const a = await page(P[0]); await a.goto(U + '/' + C + '/magnetico?go=multi&lvl=facile'); await sleep(2500);
   const b = await page(P[1]); await b.goto(U + '/' + C + '/magnetico'); await sleep(2000);

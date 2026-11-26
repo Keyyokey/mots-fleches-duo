@@ -9,9 +9,9 @@ const sleep = ms => new Promise(r => setTimeout(r, ms));
   const br = await chromium.launch({executablePath:process.env.CHROMIUM||'/opt/pw-browsers/chromium'}); const errs = [];
   const sfx = Math.floor(Math.random() * 900 + 100); const names = ['MA', 'MB', 'MC', 'MD', 'ME'].map(x => x + sfx);
   const P = []; for (const n of names) { const r = await api('create', { name: n, pin: '2468' }); P.push({ name: n, token: r.token }) }
-  const sl = await api('screate', { ...P[0], sname: 'Meles ' + sfx }); for (const p of P.slice(1)) await api('sjoin', { ...p, sname: 'Meles ' + sfx, scode: sl.salon.acode });
+  const sl = await api('screate', { ...P[0], sname: 'Meles ' + sfx }); for (const p of P.slice(1)) { await api('sjoin', { ...p, sname: 'Meles ' + sfx, scode: sl.salon.acode }); await api('sdecide', { ...P[0], salon: sl.salon.code, member: p.name, ok: true }); }
   const C = sl.salon.code;
-  const page = async (me, w = 390) => { const c = await br.newContext({ viewport: { width: w, height: 844 }, hasTouch: w < 500, isMobile: w < 500 }); const p = await c.newPage(); p.on('pageerror', e => errs.push(me.name + ': ' + e.message)); await p.goto(U + '/');
+  const page = async (me, w = 390) => { const c = await br.newContext({ viewport: { width: w, height: 844 }, hasTouch: w < 500, isMobile: w < 500 }); await c.addInitScript(()=>{window.__noBoxPop=1}); const p = await c.newPage(); p.on('pageerror', e => errs.push(me.name + ': ' + e.message)); await p.goto(U + '/');
     await p.evaluate(m => { localStorage.setItem('fl-me', JSON.stringify(m)); ['fleches', 'rond', 'meles', 'culture', 'poker'].forEach(k => localStorage.setItem('fl-tuto-' + k, '1')) }, me); return p };
   const st = p => p.evaluate(() => window.__t('({wait:G.wait,n:G.players.length,names:G.players.map(p=>p.name),scores:G.players.map(p=>p.score),me:mySeat(),done:G.done,out:G.out||null,found:Object.keys(G.found).length,words:G.words.length})'));
   const take = (p, k) => p.evaluate(k => window.__t('(()=>{const w=G.words.filter(x=>!G.found[x.w])[' + k + '];const L=w.w.length;finish([w.r,w.c],[w.r+w.dr*(L-1),w.c+w.dc*(L-1)]);return w.w})()'), k);

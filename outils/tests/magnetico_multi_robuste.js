@@ -9,11 +9,11 @@ const play = p => p.evaluate(() => window.__t(`(()=>{const x=word(cur);for(const
 const playWhenReady = async p => { for (let i = 0; i < 30; i++) { const r = await play(p); if (r === 'ok') return r; await p.evaluate(() => window.__t('placed.forEach((b,k)=>{if(b&&!locked[k]){queue.push(b);placed[k]=null}});slots()')); await sleep(700) } return 'jamais prêt' };
 (async () => {
   const br = await chromium.launch({ executablePath: process.env.CHROMIUM || '/opt/pw-browsers/chromium' }); const errs = [];
-  const page = async (me, w = 390) => { const c = await br.newContext({ viewport: { width: w, height: 844 }, hasTouch: w < 500, isMobile: w < 500, deviceScaleFactor: 2 }); const p = await c.newPage(); p.on('pageerror', e => errs.push(me.name + ': ' + e.message));
+  const page = async (me, w = 390) => { const c = await br.newContext({ viewport: { width: w, height: 844 }, hasTouch: w < 500, isMobile: w < 500, deviceScaleFactor: 2 }); await c.addInitScript(()=>{window.__noBoxPop=1}); const p = await c.newPage(); p.on('pageerror', e => errs.push(me.name + ': ' + e.message));
     await p.goto(U + '/legal'); await p.evaluate(m => { localStorage.setItem('fl-me', JSON.stringify(m)); localStorage.setItem('fl-tuto-magnetico', '1') }, me); return p };
   const sfx = Math.floor(Math.random() * 900 + 100); const names = ['RA', 'RB', 'RC', 'RD'].map(x => x + sfx);
   const P = []; for (const n of names) { const r = await api('create', { name: n, pin: '2468' }); P.push({ name: n, token: r.token }) }
-  const sl = await api('screate', { ...P[0], sname: 'Robuste ' + sfx }); for (const p of P.slice(1)) await api('sjoin', { ...p, sname: 'Robuste ' + sfx, scode: sl.salon.acode });
+  const sl = await api('screate', { ...P[0], sname: 'Robuste ' + sfx }); for (const p of P.slice(1)) { await api('sjoin', { ...p, sname: 'Robuste ' + sfx, scode: sl.salon.acode }); await api('sdecide', { ...P[0], salon: sl.salon.code, member: p.name, ok: true }); }
   const C = sl.salon.code;
   const pg = []; pg[0] = await page(P[0], 1280); await pg[0].goto(U + '/' + C + '/magnetico?go=multi&lvl=normal'); await sleep(2500);
   for (let i = 1; i < 4; i++) { pg[i] = await page(P[i]); await pg[i].goto(U + '/' + C + '/magnetico'); await sleep(1800) }

@@ -9,9 +9,9 @@ const sleep = ms => new Promise(r => setTimeout(r, ms));
   const br = await chromium.launch({executablePath:process.env.CHROMIUM||'/opt/pw-browsers/chromium'}); const errs = [];
   const sfx = Math.floor(Math.random() * 900 + 100); const P = [];
   for (const n of ['JA', 'JB', 'JC'].map(x => x + sfx)) { const r = await api('create', { name: n, pin: '1593' }); P.push({ name: n, token: r.token }) }
-  const sl = await api('screate', { ...P[0], sname: 'Jouer ' + sfx }); for (const p of P.slice(1)) await api('sjoin', { ...p, sname: 'Jouer ' + sfx, scode: sl.salon.acode });
+  const sl = await api('screate', { ...P[0], sname: 'Jouer ' + sfx }); for (const p of P.slice(1)) { await api('sjoin', { ...p, sname: 'Jouer ' + sfx, scode: sl.salon.acode }); await api('sdecide', { ...P[0], salon: sl.salon.code, member: p.name, ok: true }); }
   const C = sl.salon.code;
-  const page = async me => { const c = await br.newContext({ viewport: { width: 390, height: 844 }, hasTouch: true, isMobile: true }); const p = await c.newPage(); p.on('pageerror', e => errs.push(e.message)); await p.goto(U + '/');
+  const page = async me => { const c = await br.newContext({ viewport: { width: 390, height: 844 }, hasTouch: true, isMobile: true }); await c.addInitScript(()=>{window.__noBoxPop=1}); const p = await c.newPage(); p.on('pageerror', e => errs.push(e.message)); await p.goto(U + '/');
     await p.evaluate(m => { localStorage.setItem('fl-me', JSON.stringify(m)); ['fleches', 'rond', 'meles', 'culture', 'poker'].forEach(k => localStorage.setItem('fl-tuto-' + k, '1')) }, me); return p };
   for (const g of ['fleches', 'meles']) {
     const a = await page(P[0]); await a.goto(U + '/' + C + '/' + g + '?go=multi&lvl=facile'); await sleep(2500);

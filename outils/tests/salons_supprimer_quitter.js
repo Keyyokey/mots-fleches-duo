@@ -1,11 +1,11 @@
 const {chromium}=require(process.env.PW||'playwright');const U='http://localhost:3999';
 (async()=>{const b=await chromium.launch({executablePath:process.env.CHROMIUM||'/opt/pw-browsers/chromium'});const errs=[];let ok=0,ko=0;const chk=(c,m)=>{console.log((c?'✅ ':'❌ ')+m);c?ok++:ko++};
-const c=await b.newContext({viewport:{width:1100,height:800}});const p=await c.newPage();p.on('pageerror',e=>errs.push(e.message));
+const c=await b.newContext({viewport:{width:1100,height:800}}); await c.addInitScript(()=>{window.__noBoxPop=1});const p=await c.newPage();p.on('pageerror',e=>errs.push(e.message));
 const mk=async()=>{const nm='S'+Math.random().toString(36).slice(2,7).toUpperCase();const r=await p.request.post(U+'/api/p/create',{data:{name:nm,pin:'1234'}});const j=await r.json();return {nm,tok:j.token}};
 const A=await mk(),B=await mk();const api=(who,route,d)=>p.request.post(U+'/api/p/'+route,{data:Object.assign({name:who.nm,token:who.tok},d)}).then(r=>r.json());
 const s1=await api(A,'screate',{sname:'Salon de '+A.nm}),s2=await api(A,'screate',{sname:'Atelier'});
-const sB=await api(B,'screate',{sname:'Club B'});await api(A,'sjoin',{sname:'Club B',scode:sB.salon.acode});
-await api(B,'sjoin',{sname:'Atelier',scode:s2.salon.acode});
+const sB=await api(B,'screate',{sname:'Club B'});await api(A,'sjoin',{sname:'Club B',scode:sB.salon.acode});await api(B,'sdecide',{salon:sB.salon.code,member:A.nm,ok:true});
+await api(B,'sjoin',{sname:'Atelier',scode:s2.salon.acode});await api(A,'sdecide',{salon:s2.salon.code,member:B.nm,ok:true});
 await c.addInitScript(([n,t])=>localStorage.setItem('fl-me',JSON.stringify({name:n,token:t})),[A.nm,A.tok]);
 await p.goto(U+'/');await p.waitForTimeout(1200);await p.click('.salon-pill');await p.waitForTimeout(900);
 const rows=await p.$$eval('#popSalon .slm',x=>x.map(e=>e.innerText.replace(/\s+/g,' ')));console.log(rows);chk(rows.length===3,'3 salons listés avec une action');
@@ -16,7 +16,7 @@ await p.screenshot({path:'/tmp/sal2.png',clip:{x:450,y:0,width:650,height:400}})
 await p.click('#dlYes');await p.waitForTimeout(900);
 const rows2=await p.$$eval('#popSalon .slm',x=>x.map(e=>e.innerText.replace(/\s+/g,' ')));chk(rows2.length===2&&!rows2.join().includes('Atelier'),'Atelier supprimé : '+rows2.join(' | '));
 const lb=await api(B,'salons',{});chk(!lb.salons.some(x=>x.code===s2.salon.code),'B n\'y a plus accès');
-const jr=await api(B,'sjoin',{sname:'Atelier',scode:s2.salon.acode});chk(!jr.salon,'l\'ancien code ne marche plus ('+jr.msg+')');
+const jr=await api(B,'sjoin',{sname:'Atelier',scode:s2.salon.acode});chk(!jr.salon&&!jr.pending,'l\'ancien code ne marche plus ('+jr.msg+')');
 // quitter « Club B » (A membre)
 await p.click('#popSalon .slx[data-x="'+sB.salon.code+'"]');await p.waitForTimeout(300);chk(await p.isVisible('#lvYes'),'confirmation pour quitter');
 await p.click('#lvYes');await p.waitForTimeout(900);const rows3=await p.$$eval('#popSalon .slm',x=>x.map(e=>e.innerText.replace(/\s+/g,' ')));chk(rows3.length===1,'Club B quitté, reste : '+rows3.join());

@@ -462,7 +462,7 @@ async function salonList(name, p) {
   ms.forEach((m, i) => {
     if (!m || !m.members[name]) { delete p.acc[ids[i]]; changed = true; return; }   // accès retiré
     const own = m.owner === name;
-    list.push({ code: m.id, name: m.name, o: m.members[name].o || 0, role: own ? "owner" : "member", ...(own ? { acode: m.code, members: Object.keys(m.members) } : {}), ...liveInfo(m.id) });
+    list.push({ code: m.id, name: m.name, o: m.members[name].o || 0, role: own ? "owner" : "member", ...(own ? { acode: m.code, members: Object.keys(m.members), pend: Object.keys(m.pend || {}) } : {}), ...liveInfo(m.id) });
   });
   if (changed) savePlayer(name);
   return list.sort((a, b) => b.o - a.o);
@@ -474,7 +474,7 @@ function evict(id, who) {
   broadcastPeers(s);
 }
 async function salonApi(route, name, p, b, ip, out, bad) {
-  const ROUTES = ["salons", "sjoin", "screate", "skick", "scode", "sleave", "sdelete"];
+  const ROUTES = ["salons", "sjoin", "screate", "skick", "scode", "sleave", "sdelete", "sdecide"];
   if (!ROUTES.includes(route)) return undefined;
   try {
     if (route === "salons") return out(200, { salons: await salonList(name, p) });
@@ -504,8 +504,14 @@ async function salonApi(route, name, p, b, ip, out, bad) {
         return out(403, { error: "refus", msg: "Impossible de rejoindre ce salon. Vérifie le nom et le code, ou contacte le responsable." });
       }
       fails.delete("sj:" + name);
-      const had = addMember(m, name, p); if (!had) saveAcc(m); savePlayer(name);
-      return out(200, { already: had, msg: had ? "Tu as déjà accès à ce salon." : "Tu as rejoint le salon.", salon: { code: m.id, name: m.name }, salons: await salonList(name, p) });
+      if (m.members[name]) { addMember(m, name, p); savePlayer(name); return out(200, { already: true, msg: "Tu as déjà accès à ce salon.", salon: { code: m.id, name: m.name }, salons: await salonList(name, p) }); }
+      // 26/11 : le nom et le code ne suffisent plus — le responsable accepte ou refuse depuis sa boîte (un code qui circule ne fait entrer personne)
+      m.pend = m.pend || {};
+      if (m.pend[name]) return out(200, { pending: true, msg: "Demande déjà envoyée. Le responsable te répondra dans ta boîte 📨.", salons: await salonList(name, p) });
+      if (Object.keys(m.pend).length >= 30) return out(429, { error: "trop", msg: "Trop de demandes en attente pour ce salon. Réessaie plus tard." });
+      m.pend[name] = Date.now(); saveAcc(m);
+      await LOBBY.boxAdd(m.owner, { kind: "dem", salon: m.id, sname: m.name, from: name });
+      return out(200, { pending: true, msg: "Demande envoyée au responsable de « " + m.name + " ». Sa réponse arrivera dans ta boîte 📨.", salons: await salonList(name, p) });
     }
     // un membre quitte un salon : il n'en est plus membre (pour revenir : nom + code d'accès, ou lien du responsable)
     if (route === "sleave") {
@@ -519,6 +525,17 @@ async function salonApi(route, name, p, b, ip, out, bad) {
     const id = String(b.salon || "").toUpperCase();
     const m = CODE_RE.test(id) ? await getAcc(id) : null;
     if (!m || m.owner !== name) return out(403, { error: "droits", msg: "Seul le responsable du salon peut faire cela." });
+    // 26/11 : le responsable accepte ou refuse une demande d'entrée ; le demandeur reçoit la réponse dans sa boîte
+    if (route === "sdecide") {
+      const who = normPseudo(b.member); const ok = !!b.ok;
+      await LOBBY.boxDel(name, x => x.kind === "dem" && x.salon === id && x.from === who);
+      if (!m.pend || !m.pend[who]) return out(200, { msg: m.members[who] ? who + " est déjà membre." : "Cette demande a déjà été traitée.", members: Object.keys(m.members), pend: Object.keys(m.pend || {}) });
+      delete m.pend[who];
+      if (ok) { const q = await getPlayer(who); if (q) { addMember(m, who, q); savePlayer(who); } }
+      saveAcc(m);
+      await LOBBY.boxAdd(who, { kind: "rep", salon: id, sname: m.name, ok });
+      return out(200, { msg: ok ? who + " fait maintenant partie du salon." : "Demande de " + who + " refusée.", members: Object.keys(m.members), pend: Object.keys(m.pend) });
+    }
     if (route === "skick") {
       const who = normPseudo(b.member);
       if (who === name) return bad("member", "Le responsable ne peut pas se retirer lui-même.");
@@ -1072,7 +1089,7 @@ async function api(req, res, route) {
     return out(200, { name, token, salons: list, merged: mg || undefined });
   }
   if (!authed()) return out(401, { error: "jeton", msg: "Reconnecte-toi avec ton code secret." });
-  if (["salons", "sjoin", "screate", "skick", "scode", "sleave", "sdelete"].includes(route)) return void await salonApi(route, name, p, b, ip, out, bad);
+  if (["salons", "sjoin", "screate", "skick", "scode", "sleave", "sdelete", "sdecide"].includes(route)) return void await salonApi(route, name, p, b, ip, out, bad);
   if (route === "me") { let list = null; try { list = await salonList(name, p); } catch {} return out(200, { name, salons: list, pts: ptsOut(p), solo: Object.keys(p.solo || {}), coins: ensureWallet(p).coins, skin: p.skin || "" }); }
   // skin du profil : le serveur vérifie que l'habillage existe et qu'il est débloqué (points au total, ou mois de décembre pour l'Hiver)
   if (route === "skin") {
@@ -1535,7 +1552,7 @@ function handleHttp(req, res) {
   if (url.pathname === "/healthz" && url.searchParams.get("ws") === "1") { res.writeHead(200, { "content-type": "application/json", "cache-control": "no-store" }); const now = Date.now(); return res.end(JSON.stringify({ instance: wsDiag.inst, demarrage: wsDiag.boot, connexions: wss.clients.size, refus: wsDiag.refus, erreurs: wsDiag.err, rejets: wsDiag.rej, fermetures: wsDiag.fin, lobby: LOBBY.stats(), sockets: [...wss.clients].map(w => ({ etat: w.readyState, file: w.busy || 0, enCours: w.cur ? w.cur.t + " depuis " + Math.round((now - w.cur.at) / 1000) + " s" : null, recus: (w.log || []).map(x => x.t + " (" + Math.round((now - x.at) / 1000) + " s)") })) })); }
   if (url.pathname === "/healthz" && url.searchParams.get("ip") === "1") { res.writeHead(200, { "content-type": "application/json", "cache-control": "no-store" }); return res.end(JSON.stringify(ipSource(req))); }   // quels en-têtes d'adresse arrivent (sans les valeurs)
   if (url.pathname === "/healthz") { const bad = REDIS && storage.ok === false; res.writeHead(bad ? 503 : 200, { "content-type": "text/plain; charset=utf-8" }); return res.end(bad ? "STOCKAGE KO depuis " + storage.since + " : " + storage.msg : "ok " + salons.size + (REDIS ? " redis" : "")); }
-  const am = url.pathname.match(/^\/api\/p\/(guest|create|login|me|pin|logout|rank|mj|en|score|wallet|conv|salons|sjoin|screate|skick|scode|sleave|sdelete|hist|solo|skin)$/);
+  const am = url.pathname.match(/^\/api\/p\/(guest|create|login|me|pin|logout|rank|mj|en|score|wallet|conv|salons|sjoin|screate|skick|scode|sleave|sdelete|sdecide|hist|solo|skin)$/);
   if (am) return void api(req, res, am[1]).catch(e => { console.error(e); try { res.writeHead(500); res.end("{}"); } catch {} });
   // culture générale : index léger des questions (identifiant → type), puis seulement les questions de la partie
   if (url.pathname === "/d/cg-index.js") { cgIdx = cgIdx || pack(Buffer.from("window.__CGI=" + JSON.stringify(CAT.cgIndex()) + ";window.__CGT=" + JSON.stringify(CAT.THEMES) + ";")); return sendBody(req, res, cgIdx, STATIC.js, "public, max-age=600"); }

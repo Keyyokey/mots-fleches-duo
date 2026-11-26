@@ -15,8 +15,24 @@ module.exports = function makeLobby(D) {
   const invites = new Map();                  // k -> { fromU, to, game, lvl, at } : la boîte d'invitations (10 min, gardée même si l'expéditeur change de page)
   const INV_TTL = 10 * 60e3;
   const GAME_OK = g => g !== "accueil" && !!GAMES[g];
-  function cleanInv() { const now = Date.now(); for (const [k, v] of invites) if (now - v.at > INV_TTL) { invites.delete(k); toUser(v.to, { t: "lobinvx", k }); } }
-  const inboxOf = u => [...invites.entries()].filter(([, v]) => v.to === u).map(([k, v]) => ({ k, from: v.fromU, game: v.game, gname: GAMES[v.game], lvl: v.lvl, at: v.at }));
+  function cleanInv() { const now = Date.now(); let ch = false; for (const [k, v] of invites) if (now - v.at > INV_TTL) { invites.delete(k); ch = true; toUser(v.to, { t: "lobinvx", k }); } if (ch) saveInv(); }
+  // 26/11 : les invitations sont gardées dans Redis (un redémarrage du serveur ne les efface plus)
+  let invT = null;
+  function saveInv() { if (!REDIS || invT) return; invT = setTimeout(() => { invT = null; redis(["SET", "lob:inv", JSON.stringify([...invites.entries()]), "EX", "900"]).catch(() => {}); }, 300); }
+  if (REDIS) redis(["GET", "lob:inv"]).then(v => { if (!v) return; const now = Date.now(); for (const [k, x] of JSON.parse(v)) if (x && now - x.at < INV_TTL && !invites.has(k)) invites.set(k, x); }).catch(() => {});
+  // Boîte des salons (26/11) : demandes d'entrée (pour le responsable) et réponses (pour le demandeur), gardées 30 jours (Redis bx:PSEUDO)
+  const boxes = new Map();                    // pseudo -> [{ k, kind: "dem"|"rep", salon, sname, from, ok, at }]
+  const BOX_TTL = 30 * 864e5, BOX_MAX = 40;
+  async function boxGet(u) {
+    if (boxes.has(u)) return boxes.get(u);
+    let l = []; if (REDIS) { try { const v = await redis(["GET", "bx:" + u]); if (v) l = JSON.parse(v); } catch (e) { return []; } }
+    const now = Date.now(); l = (Array.isArray(l) ? l : []).filter(x => x && now - x.at < BOX_TTL);
+    if (!boxes.has(u)) boxes.set(u, l); return boxes.get(u);
+  }
+  function boxSave(u) { const l = boxes.get(u) || []; if (REDIS) (l.length ? redis(["SET", "bx:" + u, JSON.stringify(l), "EX", String(BOX_TTL / 1000)]) : redis(["DEL", "bx:" + u])).catch(() => {}); }
+  async function boxAdd(u, m) { const l = await boxGet(u); const x = { k: rnd(10, K_CH), at: Date.now(), ...m }; l.unshift(x); l.length = Math.min(l.length, BOX_MAX); boxSave(u); toUser(u, { t: "boxmsg", m: x }); return x; }
+  async function boxDel(u, test) { const l = await boxGet(u); const gone = l.filter(test); if (!gone.length) return; boxes.set(u, l.filter(x => !test(x))); boxSave(u); gone.forEach(x => toUser(u, { t: "lobinvx", k: x.k })); }
+  const inboxOf = u => [...invites.entries()].filter(([, v]) => v.to === u).map(([k, v]) => ({ k, kind: "inv", from: v.fromU, game: v.game, gname: GAMES[v.game], lvl: v.lvl, at: v.at }));
   const TABLE_NAME = { fleches: "Partie de mots fléchés" };
 
   // ---------- tables (salons temporaires) ----------
@@ -65,12 +81,13 @@ module.exports = function makeLobby(D) {
       const game = GAMES[m.game] ? m.game : "fleches"; const nm = normPseudo(m.name); let u = null;
       if (PSEUDO_RE.test(nm)) { try { const p = await getPlayer(nm); if (tokOk(p, m.token)) u = nm; } catch (e) {} }
       ws.lob = { u, game, busy: !!m.busy }; socks.add(ws); send(ws, { t: "lob", me: u }); pushOnline();
-      if (u) { cleanInv(); send(ws, { t: "inbox", list: inboxOf(u) }); }   // invitations reçues encore valables
+      if (u) { cleanInv(); const bx = await boxGet(u); send(ws, { t: "inbox", list: inboxOf(u).concat(bx) }); }   // invitations reçues encore valables
       return true;
     }
     if (!/^lob/.test(m.t)) return false;
     if (!ws.lob) return true;
     const u = ws.lob.u, game = ws.lob.game;
+    if (m.t === "lobboxx") { if (u) { const k = String(m.k || ""); await boxDel(u, x => x.k === k && x.kind === "rep"); } return true; }
     if (m.t === "lobbusy") { ws.lob.busy = !!m.busy; pushOnline(); return true; }
     if (!u) { send(ws, { t: "lobfail", need: "pseudo", msg: "Il te faut un pseudo pour jouer avec d'autres joueurs." }); return true; }
     if (m.t === "lobq") {
@@ -87,15 +104,15 @@ module.exports = function makeLobby(D) {
       if (!PSEUDO_RE.test(to) || to === u || !sockOf(to).length) { send(ws, { t: "lobfail", msg: "Ce joueur n'est plus en ligne." }); return true; }
       if (!GAME_OK(game)) return true;
       const now = Date.now(); cleanInv();
-      for (const [k, v] of invites) if (v.fromU === u && v.to === to) { invites.delete(k); toUser(to, { t: "lobinvx", k }); }   // une seule invitation à la fois pour la même personne
+      for (const [k, v] of invites) if (v.fromU === u && v.to === to) { invites.delete(k); saveInv(); toUser(to, { t: "lobinvx", k }); }   // une seule invitation à la fois pour la même personne
       if ([...invites.values()].filter(v => v.fromU === u).length >= 5) { send(ws, { t: "lobfail", msg: "Attends une réponse avant d'inviter d'autres joueurs." }); return true; }
-      const k = rnd(10, K_CH); invites.set(k, { fromU: u, to, game, lvl, at: now });
+      const k = rnd(10, K_CH); invites.set(k, { fromU: u, to, game, lvl, at: now }); saveInv();
       toUser(to, { t: "lobinv", k, from: u, game, gname: GAMES[game], lvl, at: now });
       send(ws, { t: "lobsent", k, to }); return true;
     }
     if (m.t === "lobans") {
       const v = invites.get(String(m.k || "")); if (!v || v.to !== u) { send(ws, { t: "lobfail", msg: "Cette invitation n'est plus valable." }); return true; }
-      invites.delete(m.k); sockOf(u).forEach(w => w !== ws && send(w, { t: "lobinvx", k: m.k }));
+      invites.delete(m.k); saveInv(); sockOf(u).forEach(w => w !== ws && send(w, { t: "lobinvx", k: m.k }));
       if (!m.ok) { toUser(v.fromU, { t: "lobno", by: u }); return true; }
       // l'expéditeur a pu changer de page : on prend une de ses pages ouvertes qui n'est pas en pleine partie
       const fw = sockOf(v.fromU); const host = fw.find(w => !w.lob.busy);
@@ -143,6 +160,6 @@ module.exports = function makeLobby(D) {
     }
     return [404, { error: "route" }];
   }
-  function stats() { return { presents: socks.size, comptes: [...socks].filter(w => w.lob && w.lob.u).length, file: queue.length, invitations: invites.size, tables: [...accs.values()].filter(a => a.temp).length }; }
-  return { handle, gone, admit, prune, duelApi, duelGet, online, stats, GAMES };
+  function stats() { return { presents: socks.size, comptes: [...socks].filter(w => w.lob && w.lob.u).length, file: queue.length, invitations: invites.size, boites: boxes.size, tables: [...accs.values()].filter(a => a.temp).length }; }
+  return { handle, gone, admit, prune, duelApi, duelGet, online, stats, GAMES, boxAdd, boxDel, boxGet };
 };

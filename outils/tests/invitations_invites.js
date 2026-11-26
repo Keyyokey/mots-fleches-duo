@@ -65,13 +65,13 @@ const sleep = ms => new Promise(r => setTimeout(r, ms));
   ok((await c.evaluate(() => window.__osc)) > oc0, 'en partie : le son d\'invitation est joué');
   await c.screenshot({ path: SHOT + '/inv_pastille.png' });
   await c.click('.mjpill'); await sleep(600);
-  const box = await c.evaluate(() => [...document.querySelectorAll('#mjWin .mjc')].find(e => /Invitations reçues/.test(e.textContent))?.textContent || '');
+  const box = await c.evaluate(() => [...document.querySelectorAll('#mjWin .mjc')].find(e => /Ma boîte/.test(e.textContent))?.textContent || '');
   ok(/Tourniquet/.test(box) && box.includes(A.name), 'boîte : jeu et expéditeur (« ' + box.slice(0, 60) + ' »)');
   const bdg2 = await c.evaluate(() => (document.querySelector('.mjpill .mjbdg') || {}).textContent || '');
   ok(!bdg2, 'boîte ouverte : la pastille disparaît');
   await c.screenshot({ path: SHOT + '/inv_boite.png' });
   await c.click('#mjWin [data-a="in"]'); await sleep(1000);
-  const left = await c.evaluate(() => [...document.querySelectorAll('#mjWin .mjc')].some(e => /Invitations reçues/.test(e.textContent)));
+  const left = await c.evaluate(() => [...document.querySelectorAll('#mjWin .mjc')].some(e => /Ma boîte/.test(e.textContent)));
   ok(!left, '« Non » : l\'invitation quitte la boîte');
 
   // --- 4. l'invité crée son compte : tout passe dans le compte, le nom d'invité ne sert plus

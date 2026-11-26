@@ -17,6 +17,7 @@ u_skjs, u_skcss, u_jeu, u_ico = emit("sk", "js", SK_JS), emit("sk", "css", SK_CS
 H = "[0-9a-f]{10}"
 # icônes dessinées (public/d/icons.js, source unique) : copie à empreinte pour toutes les pages
 u_mj = emit("mj", "js", src("mj.js"))
+u_cpt = emit("compte", "js", src("compte.js"))   # fenêtres Pseudo et Salon (accueil + en-tête des jeux), chargé avant sk.js
 u_inv = emit("invit", "js", src("invit.js"))      # bandeau « X propose une partie » des salons (jeux + accueil)
 u_band = emit("bandeau", "js", src("bandeau.js")) # bandeau des scores lié sur téléphone (jeux à 2-4)   # multijoueur hors salon (bouton « À plusieurs »)
 u_icons = emit("icons", "js", open(os.path.join(PUB, "d", "icons.js"), encoding="utf8").read())
@@ -31,6 +32,8 @@ for name in PAGES:
     # en-tête du site
     s = re.sub(r'<script id="sk-js">.*?</script>', '<script src="' + u_skjs + '"></script>', s, count=1, flags=re.S)
     s = re.sub(r'<script src="/d/sk-' + H + r'\.js"></script>', '<script src="' + u_skjs + '"></script>', s)
+    s = re.sub(r'<script src="/d/compte-' + H + r'\.js"></script>', '', s)
+    s = s.replace('<script src="' + u_skjs + '"></script>', '<script src="' + u_cpt + '"></script><script src="' + u_skjs + '"></script>', 1)
     # habillage
     s = re.sub(r'<style id="sk-css">.*?</style>', '<link rel="stylesheet" href="' + u_skcss + '">', s, count=1, flags=re.S)
     s = re.sub(r'<link rel="stylesheet" href="/d/sk-' + H + r'\.css">', '<link rel="stylesheet" href="' + u_skcss + '">', s)
@@ -52,6 +55,7 @@ for name in PAGES:
 # accueil : boîte d'invitations (même script, sans bouton « À plusieurs »)
 p = os.path.join(PUB, "accueil.html"); s = open(p, encoding="utf8").read()
 s2 = re.sub(r'<script (?:id="mj-js"|src="/d/mj-' + H + r'\.js")></script>', '<script src="' + u_mj + '"></script>', s)
+s2 = re.sub(r'<script (?:id="compte-js"|src="/d/compte-' + H + r'\.js")></script>', '<script src="' + u_cpt + '"></script>', s2)
 s2 = re.sub(r'<script>// ---------- invitations : un joueur du salon.*?</script>', '<script src="' + u_inv + '"></script>', s2, count=1, flags=re.S)
 s2 = re.sub(r'<script src="/d/invit-' + H + r'\.js"></script>', '<script src="' + u_inv + '"></script>', s2)
 s2 = re.sub(r'<script src="/d/ic-' + H + r'\.js"></script>', '<script src="' + u_ico + '"></script>', s2)   # icônes « verre » (même fichier que les jeux)

@@ -30,8 +30,9 @@
     if (m.t === "online") { ON = m; pill(); if (isOpen()) render(); }
     else if (m.t === "lobgo") { stopQ(); go(m); }
     else if (m.t === "lobq") { }
-    else if (m.t === "inbox") { INB = (m.list || []).slice(); inbox(); }
+    else if (m.t === "inbox") { INB = (m.list || []).slice(); inbox(); var sn = seen(), nw = INB.filter(function (x) { return (x.kind === "dem" || x.kind === "rep") && sn.indexOf(x.k) < 0; })[0]; if (nw && !(playing() && !C.home) && !window.__noBoxPop) ask(nw); }   // message de salon non lu : affiché à l'arrivée
     else if (m.t === "lobinv") { INB = INB.filter(function (x) { return x.k !== m.k; }); INB.unshift(m); received(m); }
+    else if (m.t === "boxmsg" && m.m) { INB = INB.filter(function (x) { return x.k !== m.m.k; }); INB.unshift(m.m); received(m.m); }
     else if (m.t === "lobinvx") { INB = INB.filter(function (x) { return x.k !== m.k; }); var a = document.getElementById("mjAsk"); if (a && a.dataset.k === m.k) a.classList.remove("on"); inbox(); }
     else if (m.t === "lobsent") { sent[m.to] = Date.now(); render(); }
     else if (m.t === "lobno") { delete sent[m.by]; say("<b>" + esc(m.by) + "</b> ne peut pas jouer maintenant."); render(); }
@@ -91,7 +92,7 @@
     pill(); if (isOpen()) render();
     var show = INB.length && (!P || P.style.display === "none");   // bouton « Invitations » seul quand il n'y a pas de bouton « À plusieurs » visible
     if (!IB && show) { css(); IB = document.createElement("button"); IB.type = "button"; IB.className = "mjinbox"; IB.onclick = function () { open(); }; document.body.appendChild(IB); }
-    if (IB) { IB.style.display = show ? "" : "none"; var u = unread(); IB.innerHTML = "📨 Invitations" + (u ? '<span class="mjbdg">' + u + "</span>" : " · " + INB.length); }
+    if (IB) { IB.style.display = show ? "" : "none"; var u = unread(); IB.innerHTML = "📨 Boîte" + (u ? '<span class="mjbdg">' + u + "</span>" : " · " + INB.length); }
   }
   function received(m) {
     ding();
@@ -102,11 +103,31 @@
     css(); var a = document.getElementById("mjAsk");
     if (!a) { a = document.createElement("div"); a.id = "mjAsk"; a.setAttribute("role", "dialog"); a.setAttribute("aria-modal", "true"); a.setAttribute("aria-labelledby", "mjAskT"); document.body.appendChild(a); }
     a.dataset.k = m.k;
+    if (m.kind === "dem" || m.kind === "rep") { boxAsk(a, m); return; }
     a.innerHTML = '<div class="glass sheet qbox mjaskb"><h3 id="mjAskT">Proposition de jouer à ' + esc(m.gname) + " par " + esc(m.from) + "</h3>"
       + (LV[m.lvl] && m.game !== "culture" ? '<div class="note">Niveau ' + LV[m.lvl] + "</div>" : "") + '<div class="mjbtns"><button class="btn primary" type="button" data-r="1">Oui</button><button class="btn" type="button" data-r="0">Non</button></div></div>';
     a.querySelectorAll("[data-r]").forEach(function (b) { b.onclick = function () { answer(m.k, b.dataset.r === "1"); a.classList.remove("on"); }; });
     a.classList.add("on"); markSeen(); setTimeout(function () { var y = a.querySelector("[data-r='1']"); if (y) y.focus(); }, 50);
   }
+  // ---------- boîte des salons (26/11) : demande d'entrée (responsable) et réponse (demandeur) ----------
+  function boxTitle(m) { return m.kind === "dem" ? "<b>" + esc(m.from) + "</b> demande à entrer dans « " + esc(m.sname) + " »" : m.ok ? "Tu es accepté dans « " + esc(m.sname) + " » 🎉" : "Ta demande pour « " + esc(m.sname) + " » a été refusée"; }
+  function boxBtns(m) { return m.kind === "dem" ? '<button class="btn primary" type="button" data-bx="ok" data-k="' + esc(m.k) + '">Accepter</button><button class="btn" type="button" data-bx="no" data-k="' + esc(m.k) + '">Refuser</button>'
+      : (m.ok ? '<button class="btn primary" type="button" data-bx="go" data-k="' + esc(m.k) + '">Entrer</button>' : "") + '<button class="btn" type="button" data-bx="x" data-k="' + esc(m.k) + '">OK</button>'; }
+  function boxAsk(a, m) {
+    a.innerHTML = '<div class="glass sheet qbox mjaskb"><h3 id="mjAskT">' + boxTitle(m) + '</h3><div class="mjsay" id="mjAskE"></div><div class="mjbtns">' + boxBtns(m) + "</div></div>";
+    a.classList.add("on"); markSeen(); setTimeout(function () { var y = a.querySelector("[data-bx]"); if (y) y.focus(); }, 50);
+  }
+  function boxAct(k, act, el) {
+    var m = INB.filter(function (x) { return x.k === k; })[0]; if (!m) return;
+    var shut = function () { var a = document.getElementById("mjAsk"); if (a && a.dataset.k === k) a.classList.remove("on"); };
+    if (act === "x" || act === "go") { INB = INB.filter(function (x) { return x.k !== k; }); sendo({ t: "lobboxx", k: k }); inbox(); shut(); if (act === "go") location.href = "/" + m.salon; return; }
+    var u = me(); if (!u) return; if (el) el.disabled = true;
+    fetch("/api/p/sdecide", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ name: u.name, token: u.token, salon: m.salon, member: m.from, ok: act === "ok" }) })
+      .then(function (r) { return r.json().then(function (j) { return { ok: r.ok, j: j }; }); })
+      .then(function (r) { if (!r.ok) throw r.j; INB = INB.filter(function (x) { return x.k !== k; }); inbox(); shut(); banner({ text: esc(r.j.msg || "C'est noté.") }); })
+      .catch(function (e) { if (el) el.disabled = false; var t = (e && e.msg) || "Réessaie dans un instant."; var er = document.getElementById("mjAskE"); if (er && document.getElementById("mjAsk").classList.contains("on")) er.textContent = t; else banner({ text: esc(t) }); });
+  }
+  document.addEventListener("click", function (e) { var b = e.target.closest && e.target.closest("[data-bx]"); if (b) boxAct(b.dataset.k, b.dataset.bx, b); });
   function answer(k, yes) { INB = INB.filter(function (x) { return x.k !== k; }); sendo({ t: "lobans", k: k, ok: !!yes }); inbox(); }
   function ago(t) { var m = Math.max(0, Math.round((Date.now() - t) / 60000)); return m < 1 ? "à l'instant" : "il y a " + m + " min"; }
   function others() { var m = me(); return (ON.list || []).filter(function (o) { return !m || o.name !== m.name; }); }
@@ -121,11 +142,12 @@
   function tip(id, t) { return '<span class="mjtip"><button type="button" aria-label="En savoir plus" aria-expanded="false" data-tip="' + id + '">i</button><span class="tb" id="' + id + '" hidden>' + t + "</span></span>"; }
   function render() {
     if (!W) return; var m = me(), g = esc(C.gname), sh = W.querySelector(".mjin"), o = others();
-    var h = '<h3 id="mjT">👥 Jouer à plusieurs</h3>';   // la croix de fermeture est ajoutée par icones.js à toute fenêtre
+    var h = C.home ? '<h3 id="mjT">📨 Ma boîte</h3>' : '<h3 id="mjT">👥 Jouer à plusieurs</h3>';   // la croix de fermeture est ajoutée par icones.js à toute fenêtre
     if (msg) h += '<div class="mjsay">' + msg + "</div>";
-    if (INB.length) h += '<div class="mjc"><div class="hd"><span class="ic">📨</span>Invitations reçues</div>' + INB.map(function (x) {
+    if (INB.length) h += '<div class="mjc">' + (C.home ? "" : '<div class="hd"><span class="ic">📨</span>Ma boîte</div>') + INB.map(function (x) {
+      if (x.kind === "dem" || x.kind === "rep") return '<div class="mjrow"><span class="mjinf"><span>' + boxTitle(x) + "</span><small>" + ago(x.at) + "</small></span>" + boxBtns(x) + "</div>";
       return '<div class="mjrow"><span class="mjinf"><b>' + esc(x.gname) + "</b><small>" + esc(x.from) + " · " + ago(x.at) + "</small></span>" + '<button class="btn primary" data-a="iy" data-k="' + esc(x.k) + '">Jouer</button><button class="btn" data-a="in" data-k="' + esc(x.k) + '">Non</button></div>'; }).join("") + "</div>";
-    if (C.home) { if (!INB.length) h += '<div class="note">Aucune invitation pour le moment.</div>'; sh.innerHTML = h; return; }
+    if (C.home) { if (!INB.length) h += '<div class="note">Ta boîte est vide.</div>'; sh.innerHTML = h; return; }
     if (m && m.guest) h += '<div class="note">Tu joues en invité : <b>' + esc(m.name) + '</b> · <a href="/?moncompte=1" style="color:inherit">Créer mon compte</a></div>';
     if (!C.nolvl) h += '<div class="mjlv" role="group" aria-label="Niveau">' + Object.keys(LV).map(function (k) { return '<button type="button" data-lv="' + k + '" class="' + (k === lvl ? "on" : "") + '">' + LV[k] + "</button>"; }).join("") + "</div>";
     // partie rapide
