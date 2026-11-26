@@ -209,6 +209,7 @@ function seatsOk(prev, next, user, acc) {
 }
 async function handle(ws, m) {
   if (!m || typeof m !== "object" || Array.isArray(m) || typeof m.t !== "string") return;   // message malformé : ignoré
+  if (m.t !== "join" && /^lob/.test(m.t)) return void (await LOBBY.handle(ws, m));
   if (m.t === "join") {
     if (ws.room) { const old = salons.get(ws.room); if (old) { old.sockets.delete(ws); broadcastPeers(old); if (ws.solo) salons.delete(ws.room); } ws.room = null; }
     // partie solo (poker contre le robot…) : table privée à cette connexion, jamais partagée ni sauvegardée
@@ -222,11 +223,12 @@ async function handle(ws, m) {
     try { p = PSEUDO_RE.test(nm) ? await getPlayer(nm) : null; if (tokOk(p, m.token)) { await migratePlayer(nm, p); acc = await getAcc(code); } }
     catch (e) { return send(ws, { t: "error", code: "unavailable", msg: "Serveur occupé, réessaie dans un instant." }); }
     if (!tokOk(p, m.token)) return send(ws, { t: "error", code: "auth", msg: "Connecte-toi pour ouvrir ce salon." });
+    if (acc && acc.temp && LOBBY.admit(acc, nm, String(m.k || ""))) saveAcc(acc);   // table hors salon ouverte par son lien
     if (!acc || !acc.members[nm]) return send(ws, { t: "error", code: "forbidden", msg: "Impossible de rejoindre ce salon. Vérifie le nom et le code, ou contacte le responsable." });
     acc.members[nm].o = Date.now(); saveAcc(acc);
     await loadSalon(code);
     const s = salon(code); ws.room = code; ws.user = nm; s.sockets.add(ws); s.touched = Date.now();
-    send(ws, { t: "room", id: code, name: acc.name, role: acc.owner === nm ? "owner" : "member", me: nm, ...(acc.owner === nm ? { acode: acc.code } : {}) });
+    send(ws, { t: "room", id: code, name: acc.name, role: acc.owner === nm ? "owner" : "member", me: nm, ...(acc.temp ? { temp: 1, k: acc.k } : acc.owner === nm ? { acode: acc.code } : {}) });
     send(ws, { t: "snap", docs: snapshot(s) });
     return broadcastPeers(s);
   }
@@ -387,7 +389,7 @@ async function getAcc(id) {               // lève une erreur si Redis ne répon
 let accTimer = null;
 function saveAcc(m) {
   accs.set(m.id, m);
-  if (REDIS) redis(["SET", "sa:" + m.id, JSON.stringify(m)]).catch(e => console.error("Écriture Redis (salon) :", e.message));
+  if (REDIS) redis(["SET", "sa:" + m.id, JSON.stringify(m)].concat(m.temp ? ["EX", "172800"] : [])).catch(e => console.error("Écriture Redis (salon) :", e.message));
   clearTimeout(accTimer); accTimer = setTimeout(() => { try { fs.mkdirSync(DATA_DIR, { recursive: true }); fs.writeFileSync(ACC_FILE, JSON.stringify(Object.fromEntries(accs))); } catch {} }, 1500);
 }
 async function idByCode(code) {
@@ -1511,6 +1513,15 @@ function handleHttp(req, res) {
   if (/^\/(?:[A-Za-z0-9]{5}\/)?magnetico\/?$/.test(url.pathname)) return sendPage(req, res, path.join(__dirname, "public", "mg.html"));
   if (/^\/(?:motdujour|mot-du-jour|defi)\/?$/.test(url.pathname)) return sendPage(req, res, path.join(__dirname, "public", "md.html"));
   // 25/11 : mode direct (Twitch, Facebook Live…) à filmer avec OBS : Mot du jour joué avec le tchat, énigme, QR code
+  // 26/11 : défi différé (même grille, scores comparés) : /duel/ID ouvre la grille du défi
+  { const dm = url.pathname.match(/^\/duel\/([a-z2-9]{7})\/?$/); if (dm) { const PG = { fleches: "/fleches", magnetico: "/magnetico", rond: "/rond", meles: "/meles", culture: "/culture" };
+    LOBBY.duelGet(dm[1]).then(o => { res.writeHead(302, { location: o ? PG[o.game] + "?duel=" + o.id : "/", "cache-control": "no-store" }); res.end(); }, () => { res.writeHead(302, { location: "/" }); res.end(); }); return; } }
+  { const dm = url.pathname.match(/^\/api\/duel\/(new|get|res)$/); if (dm) { if (req.method !== "POST") { res.writeHead(405); return res.end("{}"); }
+    let body = ""; req.on("data", d => { body += d; if (body.length > 2000) req.destroy(); });
+    req.on("end", async () => { let b = {}; try { b = JSON.parse(body || "{}"); } catch {} const ip = clientIp(req);
+      if (dm[1] === "new") { const k = "duel:" + ip, f = fails.get(k); if (f && f.until > Date.now()) { res.writeHead(429, { "content-type": "application/json" }); return res.end('{"error":"trop"}'); } fail(k, 30, 3600e3); }
+      let r; try { r = await LOBBY.duelApi(dm[1], b, String(b.id || "")); } catch (e) { console.error("défi :", e.message); r = [500, { error: "erreur" }]; }
+      res.writeHead(r[0], { "content-type": "application/json", "cache-control": "no-store" }); res.end(JSON.stringify(r[1])); }); return; } }
   if (/^\/direct\/?$/.test(url.pathname)) return sendPage(req, res, path.join(__dirname, "public", "direct.html"));
   // icône du site (onglet du navigateur)
   // icônes Motipop : onglet (SVG) et écran d'accueil du téléphone (PNG)
@@ -1536,6 +1547,7 @@ function handleHttp(req, res) {
   res.writeHead(404, { "content-type": "text/html; charset=utf-8", "cache-control": "no-cache" });
   res.end(NOTFOUND_HTML);
 }
+const LOBBY = require("./lobby")({ send, getPlayer, tokOk, normPseudo, PSEUDO_RE, accs, getAcc, saveAcc, redis, REDIS, CAT });
 const wss = new WebSocketServer({ server, path: "/ws", maxPayload: MAX_DOC + 4096 });
 // garde-fous (test de charge du 2/11/2026) : connexions par adresse, total, et débit de messages par connexion
 const WS_PER_IP = 24, WS_TOTAL = 4000, MSG_RATE = 25, MSG_BURST = 80;
@@ -1557,13 +1569,14 @@ wss.on("connection", (ws, req) => {
     ws.q = (ws.q || Promise.resolve()).then(() => handle(ws, m)).catch(e => console.error(e)).finally(() => { ws.busy--; });
   });
   ws.on("close", () => {
-    if (ws.counted) { ws.counted = false; const k = (wsByIp.get(ws.ip) || 1) - 1; if (k > 0) wsByIp.set(ws.ip, k); else wsByIp.delete(ws.ip); } poker.gone(ws); const s = ws.room && salons.get(ws.room); if (s) { s.sockets.delete(ws); broadcastPeers(s); if (ws.solo && !s.sockets.size) salons.delete(ws.room); } });
+    if (ws.counted) { ws.counted = false; const k = (wsByIp.get(ws.ip) || 1) - 1; if (k > 0) wsByIp.set(ws.ip, k); else wsByIp.delete(ws.ip); } poker.gone(ws); LOBBY.gone(ws); const s = ws.room && salons.get(ws.room); if (s) { s.sockets.delete(ws); broadcastPeers(s); if (ws.solo && !s.sockets.size) salons.delete(ws.room); } });
   send(ws, { t: "hello", id: ws.pid });
 });
 setInterval(() => {
   for (const ws of wss.clients) { if (!ws.isAlive) { ws.terminate(); continue; } ws.isAlive = false; ws.ping(); }
   const now = Date.now();
   for (const [code, s] of salons) if (!s.sockets.size && now - s.touched > 30 * 24 * 3600e3) { salons.delete(code); scheduleSave(); }
+  LOBBY.prune(salons);
 }, 30000);
 // ---------- remise à zéro demandée par Juvenal (1/11/2026) : comptes, salons, classement ----------
 // Rien n'est effacé : chaque clé est renommée en arch1:<clé> (récupérable). Ne s'exécute qu'une fois (clé reset:arch1).

@@ -1460,6 +1460,7 @@ const fmtN=n=>Math.round(n||0).toLocaleString("fr-FR");
 const CODE=((location.pathname.match(/^\/([A-Za-z0-9]{5})\/?$/)||[])[1]||"").toUpperCase()||null;
 const RE=/^[A-Z0-9@#_]{2,7}$/;
 let ME=null;try{ME=JSON.parse(LS.get("fl-me")||"null")}catch(e){}if(ME&&!RE.test(ME.name||""))ME=null;
+/* 26/11 : retour à la table (lien d'invitation, partie rapide) après la création du pseudo */try{const bk=sessionStorage.getItem("fl-back");if(bk&&ME&&ME.token&&/^\/[A-Za-z0-9\/?&=._-]*$/.test(bk)){sessionStorage.removeItem("fl-back");location.replace(bk)}}catch(e){}
 function store(){if(ME)LS.set("fl-me",JSON.stringify(ME));else LS.del("fl-me")}
 async function call(route,body){try{const r=await fetch("/api/p/"+route,{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify(body||{})});let j={};try{j=await r.json()}catch(e){}return{status:r.status,...j}}catch(e){return{status:0,msg:"Pas de connexion au serveur. Réessaie dans un instant."}}}
 function clean(v){return String(v||"").normalize("NFD").replace(/[̀-ͯ]/g,"").toUpperCase().replace(/[^A-Z0-9@#_]/g,"").slice(0,7)}
@@ -1599,7 +1600,7 @@ function updPills(){const m=$(".me-pill");setAv(m.querySelector(".av-me"));m.que
   $(".salon-pill span").textContent=CODE?(salonName(CODE)||"Salon "+CODE):"Nom du salon"}
 $(".me-pill").onclick=e=>{e.stopPropagation();if($("#popMe").classList.contains("on"))return closePops();openMe(e.currentTarget)};
 $(".salon-pill").onclick=e=>{e.stopPropagation();if($("#popSalon").classList.contains("on"))return closePops();openSalon(e.currentTarget)};
-function afterLogin(){updPills();loadMe();renderRank();renderSalon();renderPeers();if(ws&&ws.readyState===1)ws.send(JSON.stringify({t:"presence",presence:{name:ME?ME.name:"",page:"accueil"}}))}
+function afterLogin(){try{const bk=sessionStorage.getItem("fl-back");if(bk&&ME&&ME.token&&/^\/[A-Za-z0-9\/?&=._-]*$/.test(bk)){sessionStorage.removeItem("fl-back");location.href=bk;return}}catch(e){}updPills();loadMe();renderRank();renderSalon();renderPeers();if(ws&&ws.readyState===1)ws.send(JSON.stringify({t:"presence",presence:{name:ME?ME.name:"",page:"accueil"}}))}
 
 // ---------- partager ----------
 function share(noNative){const link=location.origin+"/"+(CODE&&ROOM?CODE:"");const own=ROOM&&ROOM.role==="owner";

@@ -16,6 +16,7 @@ SK_JS, SK_CSS, JEU, ICO = src("sk.js"), src("sk.css"), src("jeu.css"), src("icon
 u_skjs, u_skcss, u_jeu, u_ico = emit("sk", "js", SK_JS), emit("sk", "css", SK_CSS), emit("jeu", "css", JEU), emit("ic", "js", ICO)
 H = "[0-9a-f]{10}"
 # icônes dessinées (public/d/icons.js, source unique) : copie à empreinte pour toutes les pages
+u_mj = emit("mj", "js", src("mj.js"))   # multijoueur hors salon (bouton « À plusieurs »)
 u_icons = emit("icons", "js", open(os.path.join(PUB, "d", "icons.js"), encoding="utf8").read())
 for name in [os.path.basename(x) for x in glob.glob(os.path.join(PUB, "*.html"))]:
     p = os.path.join(PUB, name); s = open(p, encoding="utf8").read()
@@ -37,6 +38,8 @@ for name in PAGES:
     # icônes « verre »
     if "<script>" + ICO + "</script>" in s: s = s.replace("<script>" + ICO + "</script>", '<script src="' + u_ico + '"></script>', 1)
     s = re.sub(r'<script src="/d/ic-' + H + r'\.js"></script>', '<script src="' + u_ico + '"></script>', s)
+    # multijoueur hors salon
+    s = re.sub(r'<script (?:id="mj-js"|src="/d/mj-' + H + r'\.js")></script>', '<script src="' + u_mj + '"></script>', s)
     open(p, "w", encoding="utf8").write(s)
     print(f"{name:10s} {n0 // 1024:4d} Ko → {len(s) // 1024:4d} Ko")
 print(u_skjs, u_skcss, u_jeu, u_ico, u_icons)
