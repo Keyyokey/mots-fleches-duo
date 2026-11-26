@@ -42,4 +42,8 @@ for name in PAGES:
     s = re.sub(r'<script (?:id="mj-js"|src="/d/mj-' + H + r'\.js")></script>', '<script src="' + u_mj + '"></script>', s)
     open(p, "w", encoding="utf8").write(s)
     print(f"{name:10s} {n0 // 1024:4d} Ko → {len(s) // 1024:4d} Ko")
+# accueil : boîte d'invitations (même script, sans bouton « À plusieurs »)
+p = os.path.join(PUB, "accueil.html"); s = open(p, encoding="utf8").read()
+s2 = re.sub(r'<script (?:id="mj-js"|src="/d/mj-' + H + r'\.js")></script>', '<script src="' + u_mj + '"></script>', s)
+if s2 != s: open(p, "w", encoding="utf8").write(s2)
 print(u_skjs, u_skcss, u_jeu, u_ico, u_icons)

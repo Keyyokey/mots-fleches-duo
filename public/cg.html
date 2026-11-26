@@ -783,7 +783,7 @@ body.booting #boot{display:flex;position:fixed;inset:0;z-index:50;align-items:ce
 <div class="note" id="leaveRule">En pause, la partie est gardée : « Reprendre » apparaît sur la case du jeu.</div></div></div>
 <div class="overlay" id="mystWin"><div class="glass sheet"><h3>Mot mystère</h3><div class="note">Trouve le mot formé par les cases numérotées : <b>+20 points</b>. Faux : tu passes ton tour.</div><input class="in" id="mystIn" maxlength="14" autocomplete="off" placeholder="TA PROPOSITION" style="text-transform:uppercase;letter-spacing:.12em;text-align:center;font-weight:800"><div style="display:flex;gap:8px"><button class="btn" id="mystX" style="flex:1">Fermer</button><button class="btn primary" id="mystGo" style="flex:2">Proposer (+20)</button></div></div></div>
 <div class="overlay" id="endWin"><div class="glass sheet qbox"><h3 id="endT"></h3><div class="note" id="endB"></div><button class="btn primary" id="endAgain">🎲 Nouvelles questions</button><button class="btn" id="endSame">🔁 Rejouer ces questions</button><button class="btn" id="endDuel">⚔️ Défier un proche sur ces questions</button><button class="btn" id="endHome">🏠 Accueil</button></div></div>
-<script>window.SK_HDR=1;</script><script src="/d/sk-d812b07a92.js"></script>
+<script>window.SK_HDR=1;</script><script src="/d/sk-f95b4f1c0a.js"></script>
 <script src="/d/cg-index.js"></script>
 <script>// ===== Culture générale — moteur branché sur l'écran de l'artefact =====
 // 10 questions, 4 réponses, 20 s par question. Bonne réponse : 10 pts + jusqu'à 5 pts de rapidité.
@@ -796,7 +796,7 @@ const esc=s=>String(s==null?"":s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",
 const Q=new URLSearchParams(location.search);
 const CODE=((location.pathname.match(/^\/([A-Za-z0-9]{5})\//)||[])[1]||"").toUpperCase()||null;
 const HOME=CODE?"/"+CODE:"/";
-let ME=null;try{ME=JSON.parse(LS.get("fl-me")||"null")}catch(e){}if(ME&&!/^[A-Z0-9@#_]{2,7}$/.test(ME.name||""))ME=null;
+let ME=null;try{ME=JSON.parse(LS.get("fl-me")||"null")}catch(e){}if(ME&&!/^(?:[A-Z0-9@#_]{2,7}|INVITE\d{4,5})$/.test(ME.name||""))ME=null;
 const DOC="cg",SOLOKEY="fl2-solo-culture",GAME="culture",NQ=10,TQ=20000,AUTO=15000;
 // la page ne charge qu'un index léger (identifiant → type) ; les 10 questions de la partie sont demandées au serveur
 const IDX=window.__CGI||{},KIND={},BYID={},THEMES=window.__CGT||{};Object.keys(IDX).forEach(k=>IDX[k].forEach(id=>KIND[id]=k));const ALLIDS=Object.keys(KIND);
@@ -982,7 +982,7 @@ function start(){const go=Q.get("go");if(Q.get("duel")&&ALLIDS.length){duelBoot(
   if(!ALLIDS.length){blockedWin("Les questions n'ont pas pu être chargées. Recharge la page.");return}
   if(go==="solo"||(go==="resume"&&!CODE)){soloBoot(go);return}
   if(!CODE){const g=solo();if(g&&!g.done){soloBoot("resume");return}/* 23/11 : adresse publique (ex. depuis Google) : partie solo tout de suite ; une partie gardée reprend sans compter le temps d'absence */soloBoot("solo");return}
-  if(!ME){if(go==="resume"){const g=solo();if(g&&!g.done){open(g);return}}try{sessionStorage.setItem("fl-back",location.pathname+location.search)}catch(e){}location.replace((Q.get("k")||go==="join"?"/":HOME)+"?need=pseudo");return}
+  if(!ME){if(go==="resume"){const g=solo();if(g&&!g.done){open(g);return}}if(Q.get("k")||go==="join"){/* 26/11 : sans compte, on entre à la table comme invité (INVITE + chiffres) */fetch("/api/p/guest",{method:"POST",headers:{"content-type":"application/json"},body:"{}"}).then(r=>r.json()).then(r=>{if(!r||!r.token)throw 0;localStorage.setItem("fl-me",JSON.stringify({name:r.name,token:r.token,guest:1}));location.reload()}).catch(()=>{try{sessionStorage.setItem("fl-back",location.pathname+location.search)}catch(e){}location.replace("/?need=pseudo")});return}location.replace(HOME+"?need=pseudo");return}
   connect();const t0=Date.now();const iv=setInterval(()=>{if(G){clearInterval(iv);return}if(window.__snapped||Object.keys(docs).length||Date.now()-t0>2500){clearInterval(iv);const d=docs[DOC];
     const mine=d&&!d.done&&d.players&&(d.players.some(p=>String(p.name).toUpperCase()===ME.name)||d.players.some(p=>p.name==="Invité"));
     if(go==="multi"&&!mine){let opp=Q.get("opp")||"Invité";if(opp.toUpperCase()===ME.name)opp="Invité";
@@ -1052,7 +1052,7 @@ function botTick(){if(!G||!G.bot||G.done||!curQ()||!G.qStart||ansOf(G.i,1))retur
   const q=curQ(),ok=Math.random()<.6,left=qLeft(),pts=ok?10+Math.round(5*left/tqOf(q)):0;const k=ok?0:1+Math.floor(Math.random()*Math.max(1,(q.a?q.a.length:2)-1));
   G.ans[G.i+"-1"]={k,pts,at:now};G.players[1].score+=pts;render()}
 setInterval(botTick,400);
-window.FLMJ={robot:()=>botStart(),duel:()=>duelStart(),busy:()=>!!(G&&!G.solo&&!G.done),nolvl:1};
+window.FLMJ={playing:()=>!!(G&&!G.done&&!G.wait),robot:()=>botStart(),duel:()=>duelStart(),busy:()=>!!(G&&!G.solo&&!G.done),nolvl:1};
 // accès réservé aux tests automatiques sur la copie locale (jamais sur le site en ligne)
 if(location.hostname==="localhost")window.__t=c=>eval(c);
 start();
@@ -1095,7 +1095,7 @@ window.FLINV=function(docs,opt){opt=opt||{};const M=me(),C=code();if(!M||!C||!do
     show(text,()=>{location.href="/"+C+"/"+path},d.gid);return}};
 })();
 </script>
-<script src="/d/mj-6dd90f911d.js"></script>
+<script src="/d/mj-3511a8d8d7.js"></script>
 <script>/* 26/11 : bouton « À plusieurs » (partie rapide, joueurs en ligne, lien d'invitation, défi différé) */
 if(window.MJ&&window.FLMJ)MJ.init(Object.assign({game:"culture",path:"culture",gname:"culture générale",mount:".gtop"},FLMJ));</script>
 <script src="/d/ic-bb9f2e3c22.js"></script>

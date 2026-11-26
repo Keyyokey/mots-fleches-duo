@@ -35,10 +35,10 @@ const sleep = ms => new Promise(r => setTimeout(r, ms));
 
   // --- invitation directe : A invite B, B accepte → tous deux à la même table, partie lancée
   await a.click('#mjWin [data-a="inv"][data-n="' + P[1].name + '"]'); await sleep(1200);
-  const ban = await b.evaluate(() => { const e = document.querySelector('.mjban'); return e ? e.textContent : '' });
-  ok(/t'invite/.test(ban), 'B reçoit l\'invitation : « ' + ban.slice(0, 60) + ' »');
-  await b.screenshot({ path: SHOT + '/' + pre + 'invitation.png' });
-  await b.click('.mjban .go'); await sleep(9000);
+  const bdg = await b.evaluate(() => (document.querySelector('.mjpill .mjbdg') || {}).textContent || '');
+  ok(bdg === '1', 'B (en partie) reçoit l\'invitation dans sa boîte : pastille ' + bdg);
+  await b.click('.mjpill'); await sleep(500); await b.screenshot({ path: SHOT + '/' + pre + 'invitation.png' });
+  await b.click('#mjWin [data-a="iy"]'); await sleep(9000);
   const ua = a.url(), ub = b.url(); const ca = (ua.match(/\/([A-Z0-9]{5})\/[a-z]+/) || [])[1], cb = (ub.match(/\/([A-Z0-9]{5})\/[a-z]+/) || [])[1];
   ok(ca && ca === cb, 'même table pour A et B (' + ca + ' / ' + cb + ')');
   let sa = await st(a), sb = await st(b);
@@ -73,13 +73,11 @@ const sleep = ms => new Promise(r => setTimeout(r, ms));
   await e.screenshot({ path: SHOT + '/' + pre + 'lien.png' });
   await e.click('#mjWin [data-a="table"]'); await sleep(3000);
   let se = await st(e); ok(se && se.wait && se.names.includes('Invité'), 'E attend à la table : ' + JSON.stringify(se && se.names));
-  const g = await page(null); await g.goto(link); await sleep(1500);
-  ok(/need=pseudo/.test(g.url()), 'l\'invité sans pseudo est envoyé créer son pseudo');
-  const gn = 'HG' + sfx; const r = await api('create', { name: gn, pin: '1357' });
-  await g.evaluate(m => localStorage.setItem('fl-me', JSON.stringify(m)), { name: gn, token: r.token });
-  await g.goto(U + '/'); await sleep(2500);   // l'accueil le renvoie à la table
-  await sleep(8000); const sg = await st(g); se = await st(e);
-  ok(sg && se && sg.grid === se.grid && !se.wait && se.names.includes(gn), 'après son pseudo, l\'invité revient et la partie démarre : ' + JSON.stringify(se && se.names));
+  const g = await page(null); await g.goto(link); await sleep(10000);   // sans compte : il entre comme invité (INVITE + chiffres)
+  const gme = await g.evaluate(() => JSON.parse(localStorage.getItem('fl-me') || 'null'));
+  ok(gme && /^INVITE\d{4,5}$/.test(gme.name), 'sans compte, le lien donne un nom d\'invité : ' + (gme && gme.name));
+  const sg = await st(g); se = await st(e);
+  ok(sg && se && sg.grid === se.grid && !se.wait && se.names.includes(gme && gme.name), 'l\'invité rejoint la table et la partie démarre : ' + JSON.stringify(se && se.names));
   await e.context().close(); await g.context().close();
 
   // --- robot de secours : personne ne vient, la partie se joue contre le robot

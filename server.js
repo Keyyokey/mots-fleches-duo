@@ -331,7 +331,10 @@ async function handle(ws, m) {
 // ---------- pseudos (registre unique, code secret à 4 chiffres) ----------
 // Un pseudo = 2 à 7 caractères A-Z 0-9 @ # _. Le code secret n'est jamais stocké en clair (scrypt + sel).
 // Chaque appareil reçoit un jeton : le code n'est redemandé que sur un nouvel appareil.
-const PSEUDO_RE = /^[A-Z0-9@#_]{2,7}$/;
+// 26/11 : comptes invités « INVITE1450 » (créés tout seuls pour jouer à plusieurs sans s'inscrire ; jamais réattribués)
+const GUEST_RE = /^INVITE\d{4,5}$/;
+const isGuest = n => GUEST_RE.test(String(n || ""));
+const PSEUDO_RE = /^(?:[A-Z0-9@#_]{2,7}|INVITE\d{4,5})$/;
 const PLAYERS_FILE = path.join(DATA_DIR, "players.json");
 const players = new Map();           // pseudo -> { h, salt, toks:[sha256], salons:{CODE:ts}, c }
 let playersLoaded = false;
@@ -700,8 +703,10 @@ async function addPoints(name, p, game, raw) {
   const day = DAYKEY(); const d = p.pts.d[day] || {}; d[game] = r2((d[game] || 0) + pts); p.pts.d[day] = d;
   balSnap(p);
   const days = Object.keys(p.pts.d).sort(); if (days.length > 60) days.slice(0, days.length - 60).forEach(k => delete p.pts.d[k]);
-  rankMem.set(name, p.pts.tot);
-  if (REDIS) redis(["ZADD", "rank", String(p.pts.tot), name]).catch(e => console.error("Classement Redis :", e.message));
+  if (!isGuest(name)) {                             // un invité n'entre pas au classement (ses points le suivront dans son compte)
+    rankMem.set(name, p.pts.tot);
+    if (REDIS) redis(["ZADD", "rank", String(p.pts.tot), name]).catch(e => console.error("Classement Redis :", e.message));
+  }
   return pts;
 }
 async function topRank(me) {
@@ -720,7 +725,7 @@ async function topRank(me) {
   const i = all.findIndex(x => x[0] === me); if (i >= 0) mine = { name: me, rank: i + 1, pts: Math.round(all[i][1]) };
   return { top, me: mine };
 }
-for (const [k, p] of players) if (p.pts) { migratePts(p); rankMem.set(k, p.pts.tot); }
+for (const [k, p] of players) if (p.pts) { migratePts(p); if (!isGuest(k)) rankMem.set(k, p.pts.tot); }
 // classement Redis : conversion unique de tous les totaux à la nouvelle échelle (même formule que migratePts)
 async function migrateRank() {
   if (!REDIS) return;
@@ -813,7 +818,7 @@ const MJ = (() => {
       // 25/11 : les invités apparaissent aussi au classement du jour (« Invité 1 »…), mais ne gagnent pas les 5 jetons
       const guest = id.startsWith("g:");
       const sc = score(st, w), last = st.ts && st.ts.length ? st.ts[st.ts.length - 1] : undefined;
-      list.push({ name: id, guest: guest ? 1 : undefined, pts: sc.pts, ok: st.ok ? 1 : 0, n: t.length, ms: st.ok ? st.ms : last, g: sc.g, y: sc.y, done: st.ok || t.length >= 6 ? 1 : 0 });
+      list.push({ name: id, guest: guest ? 1 : undefined, inv: isGuest(id) ? 1 : undefined, pts: sc.pts, ok: st.ok ? 1 : 0, n: t.length, ms: st.ok ? st.ms : last, g: sc.g, y: sc.y, done: st.ok || t.length >= 6 ? 1 : 0 });
     }
     list.sort(sortDay); list.forEach(x => { if (x.guest) x.name = "Invité " + (++nG); });   // numérotés dans l'ordre du classement, sans rien révéler de l'invité
     return { found, played, list, w };
@@ -931,7 +936,7 @@ async function mjPrize() {
   const yd = parisDay(new Date(Date.now() - 864e5));
   try {
     if (REDIS ? await redis(["EXISTS", "mj:prize:" + yd]) : MJ_PRIZE.has(yd)) return;
-    const d = await MJ.dayList(yd); const top = d.list.find(x => !x.guest); if (!top || top.pts <= 0) return;
+    const d = await MJ.dayList(yd); const top = d.list.find(x => !x.guest && !x.inv); if (!top || top.pts <= 0) return;
     const rec = JSON.stringify({ name: top.name, pts: top.pts, coins: 5 });
     if (REDIS) { const ok = await redis(["SET", "mj:prize:" + yd, rec, "NX", "EX", String(90 * 86400)]); if (!ok) return; } else MJ_PRIZE.set(yd, rec);
     const p = await getPlayer(top.name); if (!p) return;
@@ -960,6 +965,53 @@ async function mjBackfill() {
   } catch (e) { console.error("Mot du jour (reprise) :", e.message); }
 }
 setTimeout(mjBackfill, 15e3);
+// ---------- comptes invités (26/11) ----------
+// Un visiteur sans compte reçoit « INVITE » + 4 chiffres (5 quand il n'en reste plus) pour jouer à plusieurs tout de suite.
+// À l'inscription (ou à la connexion) sur le même appareil, tout ce que l'invité a fait passe dans le compte, puis la fiche
+// de l'invité est archivée : { guest, merged } ; elle reste réservée, donc ce numéro n'est jamais redonné à un autre visiteur.
+async function guestApi(ip, out) {
+  const k = "gip:" + ip, lk = locked(k);
+  if (lk) return out(429, { error: "trop", msg: "Trop d'essais. Réessaie dans " + lk + " min." });
+  fail(k, 40, 3600e3);
+  try {
+    for (let i = 0; i < 60; i++) {
+      const n = "INVITE" + (i < 40 ? 1000 + crypto.randomInt(9000) : 10000 + crypto.randomInt(90000));
+      if (players.has(n)) continue;
+      const np = { guest: 1, toks: [], salons: {}, acc: {}, migS: 1, c: Date.now() }; const token = newToken(np);
+      if (REDIS && (await redis(["SET", "pl:" + n, JSON.stringify(np), "NX"])) !== "OK") continue;
+      if (players.has(n)) continue;
+      players.set(n, np); savePlayer(n); return out(200, { name: n, token, guest: 1 });
+    }
+  } catch (e) { console.error("Compte invité :", e.message); }
+  return out(503, { error: "indispo", msg: "Impossible de te donner un nom d'invité pour le moment. Réessaie." });
+}
+// reprise d'un compte invité : fresh = compte qui vient d'être créé (on reprend tout), sinon on ajoute ce qui peut s'ajouter
+async function mergeGuest(name, p, gName, gTok, fresh) {
+  gName = normPseudo(gName); if (!isGuest(gName) || isGuest(name) || !gTok) return null;
+  let g; try { g = await getPlayerStrict(gName); } catch (e) { return null; }
+  if (!g || !g.guest || g.merged || !tokOk(g, gTok)) return null;
+  const KEEP = new Set(["h", "salt", "toks", "c", "guest", "merged", "migS", "salons", "acc", "skin"]);
+  if (fresh) { for (const [k, v] of Object.entries(g)) if (!KEEP.has(k)) p[k] = JSON.parse(JSON.stringify(v)); }
+  else {
+    // points : on ajoute les points bruts de l'invité au compte (même courbe que pour une partie)
+    if (g.pts && g.pts.tot > 0) { p.pts = p.pts || { tot: 0, g: {}, d: {}, v: 2 }; migratePts(p); const before = p.pts.tot;
+      p.pts.tot = scoreAdd(before, g.pts.brut || rawOf(g.pts.tot)); p.pts.brut = Math.round((p.pts.brut || 0) + (g.pts.brut || 0)); p.pts.ever = 1;
+      for (const [k, v] of Object.entries(g.pts.g || {})) p.pts.g[k] = r2((p.pts.g[k] || 0) + v);
+      for (const [d, o] of Object.entries(g.pts.d || {})) { const t = p.pts.d[d] = p.pts.d[d] || {}; for (const [k, v] of Object.entries(o)) t[k] = r2((t[k] || 0) + v); }
+      balSnap(p); }
+    for (const [game, h] of Object.entries(g.hist || {})) { p.hist = p.hist || {}; const t = p.hist[game] = p.hist[game] || {};
+      for (const [c, e] of Object.entries(h)) { const x = t[c] = t[c] || {}; if (e.s && (!x.s || e.s < x.s)) x.s = e.s; if (e.d && (!x.d || e.d < x.d)) x.d = e.d; } }
+    for (const [game, d] of Object.entries(g.solo || {})) { p.solo = p.solo || {}; if (!p.solo[game]) p.solo[game] = d; }
+    if (typeof g.coins === "number" && g.coins > 70) { ensureWallet(p); p.coins += g.coins - 70; }   // seulement ce que l'invité a gagné en plus des 70 de départ
+  }
+  // salons et tables : la place de l'invité passe au compte
+  for (const id of Object.keys(g.acc || {})) { try { const a = await getAcc(id); if (!a || !a.members[gName]) continue;
+    if (!a.members[name]) a.members[name] = a.members[gName]; delete a.members[gName]; if (a.owner === gName) a.owner = name;
+    if (!a.temp) { p.acc = p.acc || {}; p.acc[id] = p.acc[id] || Date.now(); } saveAcc(a); } catch (e) {} }
+  if (p.pts && p.pts.tot >= 0) { rankMem.set(name, p.pts.tot); if (REDIS) redis(["ZADD", "rank", String(p.pts.tot), name]).catch(() => {}); }
+  players.set(gName, { guest: 1, merged: name, c: g.c, m: Date.now() }); savePlayer(gName);   // archivé, jamais redonné
+  return gName;
+}
 async function api(req, res, route) {
   const out = (code, o) => { res.writeHead(code, { "content-type": "application/json", "cache-control": "no-store" }); res.end(JSON.stringify(o)); };
   if (req.method !== "POST") return out(405, { error: "méthode" });
@@ -972,6 +1024,8 @@ async function api(req, res, route) {
   if (route === "mj") return mjApi(b, out, clientIp(req));
   if (route === "en") return enApi(b, out, clientIp(req));
   const bad = (field, detail) => out(400, { error: "saisie", field, msg: "Vérifie les informations saisies.", detail });
+  if (route === "guest") return guestApi(ip, out);
+  if (route === "create" && /^INVIT/.test(name)) return bad("name", "Ce pseudo est réservé aux invités. Choisis-en un autre.");
   if (!PSEUDO_RE.test(name)) return bad("name", "Pseudo : 2 à 7 caractères, lettres A-Z, chiffres et @ # _ (sans espace).");
   // lecture stricte : si le stockage ne répond pas, on le dit (on ne répond pas « identifiants incorrects »)
   const DOWN = "Le site ne peut pas accéder aux comptes pour le moment. Réessaie plus tard.";
@@ -996,8 +1050,10 @@ async function api(req, res, route) {
       // réservation atomique : si deux créations arrivent en même temps, une seule obtient le pseudo
       if (REDIS) { const r = await redis(["SET", "pl:" + name, JSON.stringify(np), "NX"]); if (r !== "OK") return taken(); }
       if (players.has(name)) return taken();
-      players.set(name, np); savePlayer(name);
-      return out(200, { name, token, salons: [] });
+      players.set(name, np);
+      const mg = await mergeGuest(name, np, b.guest, b.gtoken, true);   // le compte invité de cet appareil est repris dans le nouveau compte
+      savePlayer(name);
+      return out(200, { name, token, salons: [], merged: mg || undefined });
     } catch (e) { console.error("Création de compte :", e.message); return out(503, { error: "indispo", msg: "Le compte n'a pas pu être enregistré (stockage indisponible). Rien n'a été créé : réessaie plus tard." }); }
     finally { creating.delete(name); done(); }
   }
@@ -1005,12 +1061,13 @@ async function api(req, res, route) {
     if (!pinOk) return bad("pin", PIN_DETAIL);
     const lk = locked("pl:" + name) || locked("ip:" + ip); if (lk) return tooMany(lk);
     // même calcul et même message que le pseudo existe ou non : on ne révèle pas lequel est faux
-    const h = hashPin(b.pin, p ? p.salt : DUMMY_SALT);
-    const ok = !!p && h.length === p.h.length && crypto.timingSafeEqual(Buffer.from(h), Buffer.from(p.h));
+    const h = hashPin(b.pin, p && !p.guest ? p.salt : DUMMY_SALT);   // un compte invité n'a pas de code secret
+    const ok = !!p && !p.guest && h.length === p.h.length && crypto.timingSafeEqual(Buffer.from(h), Buffer.from(p.h));
     if (!ok) { fail("pl:" + name, 5, 15 * 60e3); fail("ip:" + ip, 30, 15 * 60e3); return out(401, { error: "ident", msg: "Identifiants incorrects." }); }
-    fails.delete("pl:" + name); const token = newToken(p); savePlayer(name);
+    fails.delete("pl:" + name); const token = newToken(p);
+    const mg = await mergeGuest(name, p, b.guest, b.gtoken, false); savePlayer(name);
     let list = null; try { list = await salonList(name, p); } catch {}
-    return out(200, { name, token, salons: list });
+    return out(200, { name, token, salons: list, merged: mg || undefined });
   }
   if (!authed()) return out(401, { error: "jeton", msg: "Reconnecte-toi avec ton code secret." });
   if (["salons", "sjoin", "screate", "skick", "scode", "sleave", "sdelete"].includes(route)) return void await salonApi(route, name, p, b, ip, out, bad);
@@ -1081,7 +1138,7 @@ async function api(req, res, route) {
     const brut = pts; if (pts) pts = await addPoints(name, p, game, pts);
     savePlayer(name); return out(200, { ok: true, add: Math.round(pts * 10) / 10, brut, rep, nth, f: rep ? 1 : f, pts: p.pts });
   }
-  if (route === "pin") { if (!pinOk) return bad("pin", PIN_DETAIL); p.salt = crypto.randomBytes(12).toString("hex"); p.h = hashPin(b.pin, p.salt); savePlayer(name); return out(200, { ok: true }); }
+  if (route === "pin") { if (p.guest) return out(403, { error: "invite", msg: "Crée ton compte pour choisir un code secret." }); if (!pinOk) return bad("pin", PIN_DETAIL); p.salt = crypto.randomBytes(12).toString("hex"); p.h = hashPin(b.pin, p.salt); savePlayer(name); return out(200, { ok: true }); }
   if (route === "hist") {
     const game = String(b.game || ""); if (!CAT.GAMES.includes(game)) return bad("game", "Jeu inconnu.");
     const refs = Array.isArray(b.items) ? b.items.slice(0, 50) : [{ ref: b.ref, ev: b.ev }];
@@ -1413,7 +1470,7 @@ async function adminRoute(req, res, url) {
       const back = Math.max(1, Math.min(30, +url.searchParams.get("jours") || 1)), yd = parisDay(new Date(Date.now() - back * 864e5));
       let d = null; try { d = await MJ.dayList(yd); } catch {}
       res.writeHead(200, { "content-type": "text/html; charset=utf-8", "cache-control": "no-store", "referrer-policy": "no-referrer" });
-      return res.end(championHtml(yd, d ? d.list.filter(x => x.pts > 0 && !x.guest).slice(0, 3) : [], d ? d.played : 0, d ? d.w : "", url.searchParams.get("key"), back)); }
+      return res.end(championHtml(yd, d ? d.list.filter(x => x.pts > 0 && !x.guest && !x.inv).slice(0, 3) : [], d ? d.played : 0, d ? d.w : "", url.searchParams.get("key"), back)); }
     if (!REDIS) return J(503, { error: "Pas de stockage Redis sur ce serveur" });
     try {
       if (url.pathname === "/admin/sauvegardes" && req.method === "GET") return J(200, { sauvegardes: await listBackups(), aide: "Télécharger : /admin/telecharger?key=…&date=AAAAMMJJ · Sauvegarde immédiate : POST /admin/sauvegarder · Restaurer : POST /admin/restaurer?date=AAAAMMJJ&confirmer=RESTAURER" });
@@ -1467,7 +1524,7 @@ function handleHttp(req, res) {
   // /healthz répond 503 si le stockage refuse l'accès : UptimeRobot (qui surveille /healthz) envoie alors une alerte par e-mail
   if (url.pathname === "/healthz" && url.searchParams.get("ip") === "1") { res.writeHead(200, { "content-type": "application/json", "cache-control": "no-store" }); return res.end(JSON.stringify(ipSource(req))); }   // quels en-têtes d'adresse arrivent (sans les valeurs)
   if (url.pathname === "/healthz") { const bad = REDIS && storage.ok === false; res.writeHead(bad ? 503 : 200, { "content-type": "text/plain; charset=utf-8" }); return res.end(bad ? "STOCKAGE KO depuis " + storage.since + " : " + storage.msg : "ok " + salons.size + (REDIS ? " redis" : "")); }
-  const am = url.pathname.match(/^\/api\/p\/(create|login|me|pin|logout|rank|mj|en|score|wallet|conv|salons|sjoin|screate|skick|scode|sleave|sdelete|hist|solo|skin)$/);
+  const am = url.pathname.match(/^\/api\/p\/(guest|create|login|me|pin|logout|rank|mj|en|score|wallet|conv|salons|sjoin|screate|skick|scode|sleave|sdelete|hist|solo|skin)$/);
   if (am) return void api(req, res, am[1]).catch(e => { console.error(e); try { res.writeHead(500); res.end("{}"); } catch {} });
   // culture générale : index léger des questions (identifiant → type), puis seulement les questions de la partie
   if (url.pathname === "/d/cg-index.js") { cgIdx = cgIdx || pack(Buffer.from("window.__CGI=" + JSON.stringify(CAT.cgIndex()) + ";window.__CGT=" + JSON.stringify(CAT.THEMES) + ";")); return sendBody(req, res, cgIdx, STATIC.js, "public, max-age=600"); }

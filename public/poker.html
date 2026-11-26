@@ -944,7 +944,7 @@ const Q=new URLSearchParams(location.search);const GO=Q.get("go");
 // sans compte : 3 parties, puis compte obligatoire
 const GUEST_MAX=3,guestN=()=>{try{return JSON.parse(LS.get("fl-guest-g")||"[]").length}catch(e){return 0}};
 const guestBlocked=()=>!ME&&guestN()>=GUEST_MAX;
-const SOLO=!HADCODE||!ME||!/^[A-Z0-9@#_]{2,7}$/.test(ME.name||"");
+const SOLO=!HADCODE||!ME||!/^(?:[A-Z0-9@#_]{2,7}|INVITE\d{4,5})$/.test(ME.name||"");
 try{history.replaceState(null,"",HADCODE?"/"+CODE+"/poker":"/poker")}catch(e){}
 const HOMEURL=HADCODE?"/"+CODE:"/";$("#homeLink").href=HOMEURL;
 document.documentElement.dataset.theme=LS.get("fl-theme")||"dark";
@@ -1346,6 +1346,6 @@ if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",
 
 })();
 </script>
-<script>window.SK_HDR=1;</script><script src="/d/sk-d812b07a92.js"></script>
+<script>window.SK_HDR=1;</script><script src="/d/sk-f95b4f1c0a.js"></script>
 </body>
 </html>

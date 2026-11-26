@@ -8,11 +8,15 @@ module.exports = function makeLobby(D) {
   const { send, getPlayer, tokOk, normPseudo, PSEUDO_RE, accs, getAcc, saveAcc, redis, REDIS, CAT } = D;
   const ID_CH = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789", K_CH = "abcdefghijkmnpqrstuvwxyz23456789";
   const rnd = (n, ch) => [...crypto.randomBytes(n)].map(x => ch[x % ch.length]).join("");
-  const GAMES = { fleches: "mots fléchés", magnetico: "Magnético", rond: "Tourniquet", meles: "mots mêlés", culture: "culture générale" };
+  const GAMES = { fleches: "mots fléchés", magnetico: "Magnético", rond: "Tourniquet", meles: "mots mêlés", culture: "culture générale", accueil: "l'accueil" };
   const LVLS = ["facile", "normal", "moyen", "difficile"];   // « moyen » : nom du niveau Normal au Tourniquet
   const socks = new Set();                    // connexions présentes dans le salon d'attente (une page de jeu ouverte)
   const queue = [];                           // partie rapide : { ws, u, game, lvl, at }
-  const invites = new Map();                  // k -> { from:ws, to:u, game, lvl, at }
+  const invites = new Map();                  // k -> { fromU, to, game, lvl, at } : la boîte d'invitations (10 min, gardée même si l'expéditeur change de page)
+  const INV_TTL = 10 * 60e3;
+  const GAME_OK = g => g !== "accueil" && !!GAMES[g];
+  function cleanInv() { const now = Date.now(); for (const [k, v] of invites) if (now - v.at > INV_TTL) { invites.delete(k); toUser(v.to, { t: "lobinvx", k }); } }
+  const inboxOf = u => [...invites.entries()].filter(([, v]) => v.to === u).map(([k, v]) => ({ k, from: v.fromU, game: v.game, gname: GAMES[v.game], lvl: v.lvl, at: v.at }));
   const TABLE_NAME = { fleches: "Partie de mots fléchés" };
 
   // ---------- tables (salons temporaires) ----------
@@ -42,7 +46,7 @@ module.exports = function makeLobby(D) {
   function pushOnline() { if (bt) return; bt = setTimeout(() => { bt = null; const list = online(); const guests = [...socks].filter(w => w.lob && !w.lob.u).length;
     for (const w of socks) send(w, { t: "online", list, guests, me: w.lob && w.lob.u || null }); }, 400); }
   function gone(ws) { if (!socks.has(ws) && !queue.some(q => q.ws === ws)) return; socks.delete(ws); for (let i = queue.length - 1; i >= 0; i--) if (queue[i].ws === ws) queue.splice(i, 1);
-    for (const [k, v] of invites) if (v.from === ws) { invites.delete(k); toUser(v.to, { t: "lobinvx", k }); } pushOnline(); }
+    pushOnline(); }
   const sockOf = u => [...socks].filter(w => w.lob && w.lob.u === u && w.readyState === 1);
   const toUser = (u, o) => sockOf(u).forEach(w => send(w, o));
 
@@ -60,14 +64,17 @@ module.exports = function makeLobby(D) {
     if (m.t === "lob") {
       const game = GAMES[m.game] ? m.game : "fleches"; const nm = normPseudo(m.name); let u = null;
       if (PSEUDO_RE.test(nm)) { try { const p = await getPlayer(nm); if (tokOk(p, m.token)) u = nm; } catch (e) {} }
-      ws.lob = { u, game, busy: !!m.busy }; socks.add(ws); send(ws, { t: "lob", me: u }); pushOnline(); return true;
+      ws.lob = { u, game, busy: !!m.busy }; socks.add(ws); send(ws, { t: "lob", me: u }); pushOnline();
+      if (u) { cleanInv(); send(ws, { t: "inbox", list: inboxOf(u) }); }   // invitations reçues encore valables
+      return true;
     }
     if (!/^lob/.test(m.t)) return false;
     if (!ws.lob) return true;
     const u = ws.lob.u, game = ws.lob.game;
     if (m.t === "lobbusy") { ws.lob.busy = !!m.busy; pushOnline(); return true; }
     if (!u) { send(ws, { t: "lobfail", need: "pseudo", msg: "Il te faut un pseudo pour jouer avec d'autres joueurs." }); return true; }
-    if (m.t === "lobq") {                     // partie rapide : le premier joueur en attente sur ce jeu est pris (même niveau de préférence)
+    if (m.t === "lobq") {
+      if (!GAME_OK(game)) return true;                     // partie rapide : le premier joueur en attente sur ce jeu est pris (même niveau de préférence)
       const lvl = LVLS.includes(m.lvl) ? m.lvl : "facile";
       for (let i = queue.length - 1; i >= 0; i--) if (queue[i].ws === ws || queue[i].ws.readyState !== 1) queue.splice(i, 1);
       const cand = queue.filter(q => q.game === game && q.u !== u); const q = cand.find(x => x.lvl === lvl) || cand[0];
@@ -78,18 +85,23 @@ module.exports = function makeLobby(D) {
     if (m.t === "lobinv") {                   // invitation d'un joueur en ligne
       const to = normPseudo(m.to); const lvl = LVLS.includes(m.lvl) ? m.lvl : "facile";
       if (!PSEUDO_RE.test(to) || to === u || !sockOf(to).length) { send(ws, { t: "lobfail", msg: "Ce joueur n'est plus en ligne." }); return true; }
-      const now = Date.now(); for (const [k, v] of invites) if (now - v.at > 60e3) invites.delete(k);
-      if ([...invites.values()].filter(v => v.from === ws).length >= 3) { send(ws, { t: "lobfail", msg: "Attends une réponse avant d'inviter d'autres joueurs." }); return true; }
-      const k = rnd(10, K_CH); invites.set(k, { from: ws, fromU: u, to, game, lvl, at: now });
-      toUser(to, { t: "lobinv", k, from: u, game, gname: GAMES[game], lvl });
+      if (!GAME_OK(game)) return true;
+      const now = Date.now(); cleanInv();
+      for (const [k, v] of invites) if (v.fromU === u && v.to === to) { invites.delete(k); toUser(to, { t: "lobinvx", k }); }   // une seule invitation à la fois pour la même personne
+      if ([...invites.values()].filter(v => v.fromU === u).length >= 5) { send(ws, { t: "lobfail", msg: "Attends une réponse avant d'inviter d'autres joueurs." }); return true; }
+      const k = rnd(10, K_CH); invites.set(k, { fromU: u, to, game, lvl, at: now });
+      toUser(to, { t: "lobinv", k, from: u, game, gname: GAMES[game], lvl, at: now });
       send(ws, { t: "lobsent", k, to }); return true;
     }
     if (m.t === "lobans") {
       const v = invites.get(String(m.k || "")); if (!v || v.to !== u) { send(ws, { t: "lobfail", msg: "Cette invitation n'est plus valable." }); return true; }
       invites.delete(m.k); sockOf(u).forEach(w => w !== ws && send(w, { t: "lobinvx", k: m.k }));
-      if (!m.ok) { send(v.from, { t: "lobno", by: u }); return true; }
-      if (v.from.readyState !== 1) { send(ws, { t: "lobfail", msg: v.fromU + " n'est plus en ligne." }); return true; }
-      await go(v.game, v.lvl, v.fromU, u, v.from, ws); return true;
+      if (!m.ok) { toUser(v.fromU, { t: "lobno", by: u }); return true; }
+      // l'expéditeur a pu changer de page : on prend une de ses pages ouvertes qui n'est pas en pleine partie
+      const fw = sockOf(v.fromU); const host = fw.find(w => !w.lob.busy);
+      if (!fw.length) { send(ws, { t: "lobfail", msg: v.fromU + " n'est plus en ligne." }); return true; }
+      if (!host) { send(ws, { t: "lobfail", msg: v.fromU + " est en pleine partie. Réessaie dans un moment." }); return true; }
+      await go(v.game, v.lvl, v.fromU, u, host, ws); return true;
     }
     if (m.t === "loblink") {                  // lien d'invitation : une table avec une place, ouverte à qui a le lien
       try { const t = await newTable(game, [u], u); send(ws, { t: "loblink", id: t.id, k: t.k, game }); } catch (e) { send(ws, { t: "lobfail", msg: "Impossible de créer le lien. Réessaie." }); }

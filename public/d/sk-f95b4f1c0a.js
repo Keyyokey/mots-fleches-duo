@@ -7,7 +7,7 @@ const PAGE=/\/poker\/?$/.test(location.pathname)?"poker":/\/rond\/?$/.test(locat
 const D=document,$=id=>D.getElementById(id);
 const LS={get(k){try{return localStorage.getItem(k)}catch(e){return null}},set(k,v){try{localStorage.setItem(k,v)}catch(e){}},del(k){try{localStorage.removeItem(k)}catch(e){}}};
 const esc=s=>String(s==null?"":s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
-const RE=/^[A-Z0-9@#_]{2,7}$/;
+const RE=/^(?:[A-Z0-9@#_]{2,7}|INVITE\d{4,5})$/;
 // le salon est le 1er segment seulement s'il est suivi du jeu (« /meles » et « /poker » ont aussi 5 lettres)
 const code=()=>{const m=location.pathname.match(/^\/([A-Za-z0-9]{5})\/[a-z]/);return m?m[1].toUpperCase():null};
 const homeUrl=()=>{const c=code();return c?"/"+c:"/"};
@@ -48,7 +48,7 @@ function dim(){const on=!!R.querySelector(".pop.on,.mmenu.on");q("#dim").classLi
 // ---------- fenêtres Pseudo et Salon (partagées par l'accueil et l'en-tête des jeux) ----------
 // env : q(sel) · call(route,body) · getME() · setME(o) · esc · toast · place(pop,btn) · show(pop) · hide(pop) · code() · room() · onLogin() · onLogout()
 function makeAcctUI(env){
-  const RE=/^[A-Z0-9@#_]{2,7}$/,ACODE=/^[A-HJ-NP-Z2-9]{6}$/;
+  const RE=/^(?:[A-Z0-9@#_]{2,7}|INVITE\d{4,5})$/,ACODE=/^[A-HJ-NP-Z2-9]{6}$/;
   const esc=env.esc;
   const clean=v=>String(v||"").normalize("NFD").replace(/[̀-ͯ]/g,"").toUpperCase().replace(/[^A-Z0-9@#_]/g,"").slice(0,7);
   const cleanCode=v=>String(v||"").toUpperCase().replace(/[^A-Z0-9]/g,"").slice(0,6);
@@ -72,12 +72,17 @@ function makeAcctUI(env){
 
   // ----- Pseudo -----
   function openMe(btn){const p=env.q("#popMe");const ME=env.getME();
-    if(!ME||ME.stale){const pre=ME?ME.name:"";
-      p.innerHTML='<h4>'+(ME?"Reconnecte-toi":"Accéder à ma page")+'</h4><input class="in" id="meName" maxlength="7" placeholder="PSEUDO" autocomplete="username" value="'+esc(pre)+'"><input class="in pin" id="mePin" type="password" inputmode="numeric" maxlength="4" placeholder="CODE · 4 CHIFFRES" autocomplete="current-password"><div class="err" id="meErr"></div><button class="btn primary" id="meGo">Entrer</button><button class="lnk" id="meNew">Créer mon pseudo</button>';
+    const GU=ME&&ME.guest&&!ME.stale?{guest:ME.name,gtoken:ME.token}:{};   // compte invité de cet appareil : repris dans le compte
+    if(ME&&ME.guest&&!ME.stale&&!openMe.login){openMe.login=0;
+      p.innerHTML='<h4>Tu joues en invité</h4><div class="note">Nom : <b>'+esc(ME.name)+'</b>. Crée ton compte pour garder tes parties et voir tes stats.</div><button class="btn primary" id="guNew">Créer mon compte</button><button class="lnk" id="guLog">J\'ai déjà un compte</button>';
+      p.querySelector("#guLog").onclick=()=>{openMe.login=1;openMe(btn);openMe.login=0};
+      env.hide(env.q("#popSalon"));env.place(p,btn);env.show(p);p.querySelector("#guNew").onclick=()=>{openMe.login=1;openMe(btn);openMe.login=0;const n=p.querySelector("#meNew");if(n)n.click()};return}
+    if(!ME||ME.stale||ME.guest){const pre=ME&&!ME.guest?ME.name:"";
+      p.innerHTML='<h4>'+(ME&&!ME.guest?"Reconnecte-toi":"Accéder à ma page")+'</h4><input class="in" id="meName" maxlength="7" placeholder="PSEUDO" autocomplete="username" value="'+esc(pre)+'"><input class="in pin" id="mePin" type="password" inputmode="numeric" maxlength="4" placeholder="CODE · 4 CHIFFRES" autocomplete="current-password"><div class="err" id="meErr"></div><button class="btn primary" id="meGo">Entrer</button><button class="lnk" id="meNew">Créer mon pseudo</button>';
       const n=p.querySelector("#meName"),c=p.querySelector("#mePin"),er=p.querySelector("#meErr");n.oninput=e=>{e.target.value=clean(e.target.value)};pinIn(c);
       const go=async()=>{if(!RE.test(n.value)){er.innerHTML=CHECK+"<br>Pseudo : 2 à 7 caractères, lettres A-Z, chiffres et @ # _ (sans espace).";n.focus();return}
         if(!/^\d{4}$/.test(c.value)){er.innerHTML=CHECK+"<br>Code secret : exactement 4 chiffres.";c.focus();return}
-        const b=p.querySelector("#meGo");b.disabled=true;const r=await env.call("login",{name:n.value,pin:c.value});b.disabled=false;
+        const b=p.querySelector("#meGo");b.disabled=true;const r=await env.call("login",Object.assign({name:n.value,pin:c.value},GU));b.disabled=false;
         if(r.status===200){env.setME({name:r.name||n.value,token:r.token,salons:r.salons||[]});guestUpload(r.name||n.value,r.token);env.onLogin();openMe(btn)}else{er.innerHTML=say(r);c.value="";c.focus()}};
       p.querySelector("#meGo").onclick=go;c.onkeydown=e=>{if(e.key==="Enter")go()};
       p.querySelector("#meNew").onclick=()=>{
@@ -86,8 +91,8 @@ function makeAcctUI(env){
         p.querySelector("#nwBack").onclick=()=>openMe(btn);
         const go2=async()=>{if(!RE.test(nn.value)){er2.innerHTML=CHECK+"<br>Pseudo : 2 à 7 caractères, lettres A-Z, chiffres et @ # _ (sans espace).";nn.focus();return}
           if(!/^\d{4}$/.test(nc.value)){er2.innerHTML=CHECK+"<br>Code secret : exactement 4 chiffres.";nc.focus();return}
-          const b=p.querySelector("#nwGo");b.disabled=true;const r=await env.call("create",{name:nn.value,pin:nc.value});b.disabled=false;
-          if(r.status===200){env.setME({name:r.name||nn.value,token:r.token,salons:[]});guestUpload(r.name||nn.value,r.token);env.onLogin();openMe(btn);env.toast("👋","Bienvenue <b>"+esc(r.name||nn.value)+"</b> !")}
+          const b=p.querySelector("#nwGo");b.disabled=true;const r=await env.call("create",Object.assign({name:nn.value,pin:nc.value},GU));b.disabled=false;
+          if(r.status===200){env.setME({name:r.name||nn.value,token:r.token,salons:[]});guestUpload(r.name||nn.value,r.token);env.onLogin();openMe(btn);env.toast("👋","Bienvenue <b>"+esc(r.name||nn.value)+"</b> !"+(r.merged?" Tes parties d'invité sont dans ton compte.":""))}
           else{er2.innerHTML=say(r);(r.field==="pin"?nc:nn).focus()}};
         p.querySelector("#nwGo").onclick=go2;nc.onkeydown=e=>{if(e.key==="Enter")go2()};setTimeout(()=>nn.focus(),50)}}
     else{const L=ME.salons||[];
@@ -241,7 +246,7 @@ const UI=makeAcctUI({q,call,esc,toast:(i,h)=>toast(i,h),place,code,homeUrl,getME
 const openMe=UI.openMe,openSalon=UI.openSalon;
 function skinSrc(id){if(!id)return "";const k=String(id).split("/");const S={professeure:"lettres",ecrivain:"lettres",lectrice:"lettres",cruciverbiste:"lettres",stratege:"cartes",reine:"cartes",croupier:"cartes",ombre:"cartes",casquette:"rue",rookie:"rue",voyageuse:"rue",dj:"rue",patineuse:"hiver",montagnard:"hiver",bonhomme:"hiver",leo:"robots",lexi:"robots",chat:"animaux",renard:"animaux",chouette:"animaux"};const se=S[k[0]]||"chasseurs";return "/d/skins/"+se+"-"+k[0]+"-"+(k[1]||"classique")+(se==="chasseurs"?".webp":".jpg")}
 function setAvMe(el){if(!el)return;const src=ME&&ME.skin?skinSrc(ME.skin):"";el.classList.toggle("hasskin",!!src);el.innerHTML="";const t=document.createElement("i");t.textContent=ME?ME.name[0]:"?";el.appendChild(t);if(src){const im=document.createElement("img");im.alt="";im.src=src;im.onerror=()=>{im.remove();el.classList.remove("hasskin")};el.appendChild(im)}}   // 19/11 : le skin choisi apparaît aussi dans l'en-tête des pages de jeu
-function updPills(){const m=q(".me-pill");setAvMe(m.querySelector(".av-me"));setAvMe(q("#mAv"));m.querySelector("b").textContent=ME?ME.name:"Pseudo";m.querySelector(".sub").textContent=ME?"· Ma page":"· Se connecter";
+function updPills(){const m=q(".me-pill");setAvMe(m.querySelector(".av-me"));setAvMe(q("#mAv"));m.querySelector("b").textContent=ME?ME.name:"Pseudo";m.querySelector(".sub").textContent=ME?(ME.guest?"· Créer mon compte":"· Ma page"):"· Se connecter";
   const c=code();q(".salon-pill span").textContent=c?(salonName(c)||"Salon "+c):"Nom du salon"}
 function share(){const c=code();const sl=c?salonOf(c):null;const own=sl&&sl.role==="owner";const link=location.origin+"/"+(sl?c:"");
   const txt=sl?"On fait une partie ? Rejoins mon salon « "+sl.name+" » sur "+link+(own?" — dans « Rejoindre un salon », saisis le nom et le code d'accès "+sl.acode:""):"Viens jouer sur Motipop avec moi : "+link;
@@ -271,7 +276,7 @@ function wireHeader(){
   q("#miniX").onclick=()=>q("#mini").classList.remove("on");
   const b=q("#mBtn"),m=q("#mMenu");
   b.onclick=e=>{e.stopPropagation();const on=!m.classList.contains("on");qa(".pop").forEach(p=>p.classList.remove("on"));m.classList.toggle("on",on);b.setAttribute("aria-expanded",String(on));dim();
-    q("#mMe").textContent=ME?ME.name:"Pseudo";setAvMe(q("#mAv"));q("#mMeSub").textContent=ME?"Ma page":"Se connecter · Ma page";const c=code();q("#mSalon").textContent=c?(salonName(c)||"Salon "+c):"Nom du salon";
+    q("#mMe").textContent=ME?ME.name:"Pseudo";setAvMe(q("#mAv"));q("#mMeSub").textContent=ME?(ME.guest?"Invité · Créer mon compte":"Ma page"):"Se connecter · Ma page";const c=code();q("#mSalon").textContent=c?(salonName(c)||"Salon "+c):"Nom du salon";
     mIcons()};
   m.addEventListener("click",e=>{e.stopPropagation();const a=e.target.closest("[data-act]")?.dataset.act;if(!a)return;
     if(a==="pseudo"){m.classList.remove("on");openMe(b)}else if(a==="salon"){m.classList.remove("on");openSalon(b)}else if(a==="share"){m.classList.remove("on");dim();share()}

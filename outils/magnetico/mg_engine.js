@@ -7,7 +7,7 @@ const esc=s=>String(s==null?"":s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",
 const Q=new URLSearchParams(location.search);
 const CODE=((location.pathname.match(/^\/([A-Za-z0-9]{5})\//)||[])[1]||"").toUpperCase()||null;
 const HOME=CODE?"/"+CODE:"/";
-let ME=null;try{ME=JSON.parse(LS.get("fl-me")||"null")}catch(e){}if(ME&&!/^[A-Z0-9@#_]{2,7}$/.test(ME.name||""))ME=null;
+let ME=null;try{ME=JSON.parse(LS.get("fl-me")||"null")}catch(e){}if(ME&&!/^(?:[A-Z0-9@#_]{2,7}|INVITE\d{4,5})$/.test(ME.name||""))ME=null;
 const DOC="mg",GAME="magnetico",MAXP=4,NWORDS=10,TIME=30,NEXT=10,GAP=1000,R=36,VMAX=1.4,VMIN=0.5,NOISE=0.06;
 const LVLN={facile:"Facile",normal:"Normal",difficile:"Difficile"},TRAPS={facile:0,normal:1,difficile:2};
 const PCOL=["#34d399","#fb7185","#a78bfa","#ff9a3c"],PBG=["rgba(16,185,129,.22)","rgba(244,63,94,.18)","rgba(167,139,250,.2)","rgba(255,154,60,.16)"];
@@ -261,7 +261,7 @@ function duelPaint(){const B=$("#endB");if(!B||!G||!G.duel||!G.done)return;let d
   $("#duelCopy").onclick=e=>{const el=e.currentTarget;const ok=()=>{el.textContent="Copié ✓";setTimeout(()=>el.textContent="Copier le lien",1800)};if(navigator.clipboard)navigator.clipboard.writeText(url).then(ok,()=>prompt("Copie ce lien :",url));else prompt("Copie ce lien :",url)}}
 (function(){const st=document.createElement("style");st.textContent=".duelbox{margin-top:12px;display:flex;flex-direction:column;gap:8px;text-align:left}.duelbox .dt{font-size:1rem}.duelbox table{width:100%;border-collapse:collapse;font-size:.9rem}.duelbox th,.duelbox td{padding:5px 6px;text-align:left;border-bottom:1px solid rgba(255,255,255,.1)}.duelbox th{font-size:.78rem;opacity:.7}.duelbox tr.me td{color:var(--accent);font-weight:800}.duelbox .dbtns{display:flex;gap:6px}.duelbox .dbtns .btn{flex:1;text-decoration:none;text-align:center;min-width:0;color:inherit;display:flex;align-items:center;justify-content:center}";document.head.appendChild(st)})();
 function duelStart(lvl){const g=newGame([ME?ME.name:"Toi"],true,lvl);g.duelNew=1;open(g);toast("⏳","Défi différé : finis la partie, puis envoie-la à un proche.")}
-window.FLMJ={robot:lvl=>botStart(lvl),duel:lvl=>duelStart(lvl),busy:()=>!!(G&&!G.solo&&!G.done)};
+window.FLMJ={playing:()=>!!(G&&!G.done&&!G.wait),robot:lvl=>botStart(lvl),duel:lvl=>duelStart(lvl),busy:()=>!!(G&&!G.solo&&!G.done)};
 /* ---------- boucle d'animation ---------- */
 let lt=performance.now();
 function loop(now){requestAnimationFrame(loop);const dt=Math.min(2,(now-lt)/16.67);lt=now;if(!G||G.wait||G.done)return;
@@ -352,7 +352,7 @@ function live(d){return !!(d&&!d.done&&!d.solo&&d.players&&Date.now()-Math.max(d
 function boot(){const go=Q.get("go"),lvl=Q.get("lvl")||"facile";
   if(Q.get("duel")){duelBoot(Q.get("duel"));return}
   if(go==="solo"||!CODE){open(newGame([ME?ME.name:"Toi"],true,lvl));save();return}
-  if(!ME){try{sessionStorage.setItem("fl-back",location.pathname+location.search)}catch(e){}location.replace((Q.get("k")||go==="join"?"/":HOME)+"?need=pseudo");return}
+  if(!ME){if(Q.get("k")||go==="join"){/* 26/11 : sans compte, on entre à la table comme invité (INVITE + chiffres) */fetch("/api/p/guest",{method:"POST",headers:{"content-type":"application/json"},body:"{}"}).then(r=>r.json()).then(r=>{if(!r||!r.token)throw 0;localStorage.setItem("fl-me",JSON.stringify({name:r.name,token:r.token,guest:1}));location.reload()}).catch(()=>{try{sessionStorage.setItem("fl-back",location.pathname+location.search)}catch(e){}location.replace("/?need=pseudo")});return}location.replace(HOME+"?need=pseudo");return}
   connect();const t0_=Date.now();const iv=setInterval(()=>{if(G){clearInterval(iv);return}if(window.__snapped||Object.keys(docs).length||Date.now()-t0_>2500){clearInterval(iv);const d=docs[DOC];
     if(go==="multi"&&!live(d)){let opp=Q.get("opp")||"Invité";if(opp.toUpperCase()===ME.name)opp="Invité";open(newGame([ME.name,opp],false,lvl));save();return}
     if(d&&d.players&&!d.solo){open(d);return}if(go==="join"||Q.get("k")){tableWait();return}location.replace(HOME)}},100)}

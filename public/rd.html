@@ -107,7 +107,7 @@ body.booting #boot{display:flex;position:fixed;inset:0;z-index:50;align-items:ce
 <div class="note" id="leaveRule">En pause, la partie est gardée : « Reprendre » apparaît sur la case du jeu.</div></div></div>
 <div class="overlay" id="mystWin"><div class="glass sheet"><h3>Mot mystère</h3><div class="note">Trouve le mot formé par les cases numérotées : <b>+20 points</b>. Faux : tu passes ton tour.</div><input class="in" id="mystIn" maxlength="14" autocomplete="off" placeholder="TA PROPOSITION" style="text-transform:uppercase;letter-spacing:.12em;text-align:center;font-weight:800"><div style="display:flex;gap:8px"><button class="btn" id="mystX" style="flex:1">Fermer</button><button class="btn primary" id="mystGo" style="flex:2">Proposer (+20)</button></div></div></div>
 <div class="overlay" id="endWin"><div class="glass sheet qbox"><h3 id="endT"></h3><div class="note" id="endB"></div><div id="endAgain" class="endlv"><small>Nouvelle grille : choisis le niveau</small><div class="lvrow"><button type="button" data-lv="facile">Facile</button><button type="button" data-lv="moyen">Normal</button><button type="button" data-lv="difficile">Difficile</button></div></div><button class="btn" id="endDuel">⚔️ Défier un proche sur cette grille</button><button class="btn" id="endSame">🔁 Rejouer cette grille</button><button class="btn" id="endHome">🏠 Accueil</button></div></div>
-<script>window.SK_HDR=1;</script><script src="/d/sk-d812b07a92.js"></script>
+<script>window.SK_HDR=1;</script><script src="/d/sk-f95b4f1c0a.js"></script>
 <script src="/d/rond-3e96114ea6.js"></script>
 <script>// ===== Le Tourniquet — moteur branché sur l'écran de l'artefact =====
 (function(){
@@ -118,7 +118,7 @@ const esc=s=>String(s==null?"":s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",
 const Q=new URLSearchParams(location.search);
 const CODE=((location.pathname.match(/^\/([A-Za-z0-9]{5})\//)||[])[1]||"").toUpperCase()||null;
 const HOME=CODE?"/"+CODE:"/";
-let ME=null;try{ME=JSON.parse(LS.get("fl-me")||"null")}catch(e){}if(ME&&!/^[A-Z0-9@#_]{2,7}$/.test(ME.name||""))ME=null;
+let ME=null;try{ME=JSON.parse(LS.get("fl-me")||"null")}catch(e){}if(ME&&!/^(?:[A-Z0-9@#_]{2,7}|INVITE\d{4,5})$/.test(ME.name||""))ME=null;
 const DOC="rond",SOLOKEY="fl2-solo-rond";
 const PC=["#34d399","#fb7185","#5ad8ff","#c89bff"];
 const LVLN={facile:"Facile",moyen:"Normal",normal:"Normal",difficile:"Difficile"},DUR={facile:45,moyen:60,normal:60,difficile:90};
@@ -302,7 +302,7 @@ function again(lv){const o=G,LVL=lv||G.level;if(o.bot){botStart(LVL);return}if(o
 function start(){const go=Q.get("go"),lvl=(Q.get("lvl")||"facile").replace(/^normal$/,"moyen"),n=Number(Q.get("n"))||0;if(Q.get("duel")){duelBoot(Q.get("duel"));return}const solo=()=>{try{return JSON.parse(LS.get(SOLOKEY)||"null")}catch(e){return null}};
   if(go==="solo"||(go==="resume"&&!CODE)){soloBoot(go,lvl,n);return}
   if(!CODE){const g=solo();if(g&&!g.done){soloBoot("resume",lvl,n);return}/* 23/11 : adresse publique (ex. depuis Google) : partie solo tout de suite ; une partie gardée reprend sans compter le temps d'absence */soloBoot("solo",lvl,n);return}
-  if(!ME){if(go==="resume"){const g=solo();if(g&&!g.done){open(g);return}}try{sessionStorage.setItem("fl-back",location.pathname+location.search)}catch(e){}location.replace((Q.get("k")||go==="join"?"/":HOME)+"?need=pseudo");return}
+  if(!ME){if(go==="resume"){const g=solo();if(g&&!g.done){open(g);return}}if(Q.get("k")||go==="join"){/* 26/11 : sans compte, on entre à la table comme invité (INVITE + chiffres) */fetch("/api/p/guest",{method:"POST",headers:{"content-type":"application/json"},body:"{}"}).then(r=>r.json()).then(r=>{if(!r||!r.token)throw 0;localStorage.setItem("fl-me",JSON.stringify({name:r.name,token:r.token,guest:1}));location.reload()}).catch(()=>{try{sessionStorage.setItem("fl-back",location.pathname+location.search)}catch(e){}location.replace("/?need=pseudo")});return}location.replace(HOME+"?need=pseudo");return}
   connect();const t0=Date.now();const iv=setInterval(()=>{if(G){clearInterval(iv);return}if(window.__snapped||Object.keys(docs).length||Date.now()-t0>2500){clearInterval(iv);const d=docs[DOC];
     const mine=d&&!d.done&&d.players&&(d.players.some(p=>String(p.name).toUpperCase()===ME.name)||d.players.some(p=>p.name==="Invité"));
     if(go==="multi"&&!(mine&&!n)){let opp=Q.get("opp")||"Invité";if(opp.toUpperCase()===ME.name)opp="Invité";
@@ -390,7 +390,7 @@ function botPlay(){const c=BOT[G.level]||BOT.facile,keys=[];P.cols.forEach((col,
   if(Math.random()>c.ok){const i=Math.floor(Math.random()*W.length),A="ESAINTRULO";let l;do{l=A[Math.floor(Math.random()*A.length)]}while(l===W[i]);W=W.slice(0,i)+l+W.slice(i+1)}
   typ=W;validate(true)}
 setInterval(botTick,300);
-window.FLMJ={robot:lvl=>botStart(lvl),duel:lvl=>duelStart(lvl),busy:()=>!!(G&&!G.solo&&!G.bot&&!G.done)};
+window.FLMJ={playing:()=>!!(G&&!G.done&&!G.wait),robot:lvl=>botStart(lvl),duel:lvl=>duelStart(lvl),busy:()=>!!(G&&!G.solo&&!G.bot&&!G.done)};
 // accès réservé aux tests automatiques sur la copie locale (jamais sur le site en ligne)
 if(location.hostname==="localhost")window.__t=c=>eval(c);
 start();
@@ -433,7 +433,7 @@ window.FLINV=function(docs,opt){opt=opt||{};const M=me(),C=code();if(!M||!C||!do
     show(text,()=>{location.href="/"+C+"/"+path},d.gid);return}};
 })();
 </script>
-<script src="/d/mj-6dd90f911d.js"></script>
+<script src="/d/mj-3511a8d8d7.js"></script>
 <script>/* 26/11 : bouton « À plusieurs » (partie rapide, joueurs en ligne, lien d'invitation, défi différé) */
 if(window.MJ&&window.FLMJ)MJ.init(Object.assign({game:"rond",path:"rond",gname:"Tourniquet",mount:".gtop"},FLMJ));</script>
 <script src="/d/ic-bb9f2e3c22.js"></script>

@@ -175,7 +175,7 @@ body.mdpc #seoTxt{display:none}
 (function(){
 const $=s=>document.querySelector(s),LS={get:k=>{try{return localStorage.getItem(k)}catch(e){return null}},set:(k,v)=>{try{localStorage.setItem(k,v)}catch(e){}}};
 const esc=s=>String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
-let ME=null;try{ME=JSON.parse(LS.get("fl-me")||"null")}catch(e){}if(ME&&!/^[A-Z0-9@#_]{2,7}$/.test(ME.name||""))ME=null;
+let ME=null;try{ME=JSON.parse(LS.get("fl-me")||"null")}catch(e){}if(ME&&!/^(?:[A-Z0-9@#_]{2,7}|INVITE\d{4,5})$/.test(ME.name||""))ME=null;
 let GUEST=LS.get("fl-mj-guest");if(!GUEST||!/^[a-z0-9]{12,24}$/.test(GUEST)){GUEST=(Math.random().toString(36).slice(2)+Math.random().toString(36).slice(2)).replace(/[^a-z0-9]/g,"").slice(0,16);LS.set("fl-mj-guest",GUEST)}
 let S=null,TAB="today",busy=false;
 const call=b=>fetch("/api/p/mj",{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify(Object.assign({guest:GUEST},ME&&ME.token?{name:ME.name,token:ME.token}:{},b))}).then(r=>r.json());
@@ -276,7 +276,8 @@ function list(){const b=S&&S.board;const L=$("#mdList");if(!b){L.innerHTML="";re
   $("#mdPrizeY").textContent=b.prize?"Hier : "+b.prize.name+" · "+b.prize.pts+" pts":"Fais le plus de points !";
   const M=S.mine,E=$("#mdMe");E.hidden=!M;
   // tableau simple à lire (Juvenal, 25/11) : une ligne par chiffre
-  if(M){const tr=(l,v)=>"<tr><th scope=\"row\">"+l+"</th><td>"+v+"</td></tr>";
+  if(M&&ME&&ME.guest){E.innerHTML='<h4>Mes stats</h4><div class="note">Crée ton compte pour voir tes stats (tes parties d\'invité y seront gardées).</div><a class="btn primary" href="/?moncompte=1" style="text-decoration:none;display:inline-flex">Créer mon compte</a>'}
+  else if(M){const tr=(l,v)=>"<tr><th scope=\"row\">"+l+"</th><td>"+v+"</td></tr>";
     E.innerHTML="<h4>Mes stats</h4><table class=\"mdtab\"><tbody>"+tr("Points",M.pts)+tr("Mots trouvés",M.found+" sur "+M.days+" jour"+(M.days>1?"s":""))+tr("Temps moyen pour trouver",M.avgMs!=null?fmtC(M.avgMs):"—")+tr("1re lettre verte en",M.avgG!=null?fmtC(M.avgG):"—")+tr("Essais en moyenne",M.avgN!=null?String(M.avgN).replace(".",","):"—")+tr("Fois 1er du jour",M.wins||0)+"</tbody></table>"}
   $("#mdGuest").hidden=!!(S.ranked)}
 document.querySelectorAll(".mdtabs button").forEach(x=>x.onclick=()=>{TAB=x.dataset.t;document.querySelectorAll(".mdtabs button").forEach(y=>y.classList.toggle("on",y===x));list()});
@@ -323,7 +324,7 @@ const d0=draw;draw=function(){d0.apply(this,arguments);try{upd()}catch(e){}};upd
 if(location.hostname==="localhost")window.__t=c=>eval(c);
 })();
 </script>
-<script>window.SK_HDR=1;</script><script src="/d/sk-d812b07a92.js"></script>
+<script>window.SK_HDR=1;</script><script src="/d/sk-f95b4f1c0a.js"></script>
 <script src="/d/icons-8d7b87098e.js" defer></script>
 <style id="popguide">
 /* Pop qui guide (25/11) : seulement pour un visiteur arrivé par un lien de suivi, une seule fois */
