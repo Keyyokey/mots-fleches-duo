@@ -10,6 +10,7 @@ export PW="${PW:-playwright}"
 FILTRE="${1:-}"
 # pas des tests : faux_upstash.js (outil pour sauvegardes.js), magnetico_bulles_passage_trace.js (trace de mise au point),
 # wordflush_mobile_phases.js (fait des captures d'écran, ne vérifie rien) ;
+MJ_JEUX="fleches magnetico rond meles culture"
 SAUTER="faux_upstash.js magnetico_bulles_passage_trace.js wordflush_mobile_phases.js"
 pkill -9 -f "node server.js" 2>/dev/null; sleep 1
 ADMIN_KEY=test1234567890abcdef PORT=3999 SOLO_MIN_MS=2000 node server.js > /tmp/motipop-3999.log 2>&1 & S1=$!
@@ -22,7 +23,9 @@ for t in outils/tests/*.js; do
   [ -n "$FILTRE" ] && [[ "$n" != *"$FILTRE"* ]] && continue
   if [ "$n" = "sauvegardes.js" ]; then echo "⏭  $n (demande le faux Upstash : node outils/tests/faux_upstash.js)"; continue; fi
   ARG=""; [ "$n" = "meles_repartition.js" ] && ARG="meles_data.js"   # ce test lit le fichier des grilles
-  out=$(timeout 300 node "$t" $ARG 2>&1); code=$?
+  if [ "$n" = "multi_hors_salon.js" ]; then   # multijoueur hors salon : une fois par jeu équipé du bouton « À plusieurs »
+    out=""; code=0; for j in $MJ_JEUX; do o=$(timeout 300 node "$t" "$j" 2>&1) || code=1; out="$out$(echo "$o" | sed "s/$/ [$j]/")"$'\n'; done
+  else out=$(timeout 300 node "$t" $ARG 2>&1); code=$?; fi
   if [ $code -ne 0 ] || echo "$out" | grep -q "^ *❌"; then KO=$((KO+1)); LISTE="$LISTE $n"; echo "❌ $n"; echo "$out" | grep "^ *❌\|Error\|rror:" | head -5 | sed 's/^/     /'
   else OK=$((OK+1)); echo "✅ $n"; fi
 done

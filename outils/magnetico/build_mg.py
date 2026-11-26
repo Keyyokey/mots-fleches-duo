@@ -23,7 +23,8 @@ out = (head + css_main + "\n" + css_fl + "\n" + css_sk + '\n<script src="/d/icon
   + '<body class="sk-new booting g-mg">\n<div id="skTop" class="skph"></div>\n<script>/* 20/11 : partie lancée directement sur téléphone → en-tête masqué dès le départ (évite 3 sauts de mise en page) */try{if(matchMedia("(pointer:coarse)").matches&&innerWidth<=620&&/[?&]go=(solo|resume)\\b/.test(location.search))document.body.classList.add("tj")}catch(e){}</script>\n<div class="blob b1"></div><div class="blob b2"></div><div class="blob b3"></div>\n<div class="wrap">\n'
   + '<div id="boot"><span class="spin"></span><b>Préparation de la partie…</b></div><script>setTimeout(function(){document.body.classList.remove("booting")},10000)</script>\n'
   + body + sk_js + "</script>\n"
-  + '<script src="/d/' + os.path.basename(data) + '" defer></script>\n<script>' + eng + "</script>\n" + inv + "\n" + icons + "\n</body></html>\n")
+  + '<script src="/d/' + os.path.basename(data) + '" defer></script>\n<script>' + eng + "</script>\n"
+  + '<script id="mj-js"></script>\n<script>/* 26/11 : bouton « À plusieurs » (partie rapide, joueurs en ligne, lien d\'invitation, défi différé) */\nif(window.MJ&&window.FLMJ)MJ.init(Object.assign({game:"magnetico",path:"magnetico",gname:"Magnético",mount:".gtop"},FLMJ));</script>\n' + inv + "\n" + icons + "\n</body></html>\n")
 open(os.path.join(ROOT, "public/mg.html"), "w", encoding="utf8").write(out)
 print("public/mg.html", len(out) // 1024, "Ko")
 

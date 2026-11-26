@@ -83,11 +83,11 @@ function markPlayed(){try{const pl=JSON.parse(LS.get("fl2-played-mg")||"{}");G.w
 
 /* ---------- joueurs, salon ---------- */
 function mySeat(){if(!G)return null;if(G.solo)return 0;if(!ME)return null;const i=G.players.findIndex(p=>String(p.name).toUpperCase()===ME.name);return i<0?null:i}
-function np(){return G&&!G.solo?G.players.length:1}
+function np(){return G&&(!G.solo||G.bot)?G.players.length:1}
 function isOut(i){return !!(G&&!G.solo&&G.out&&G.out[i])}
 function active(){return G.players.map((p,i)=>i).filter(i=>!isOut(i))}
 function connect(){if(!CODE)return;ws=new WebSocket((location.protocol==="https:"?"wss://":"ws://")+location.host+"/ws");
-  ws.onopen=()=>{ws.send(JSON.stringify({t:"join",room:CODE,name:ME?ME.name:"",token:ME?ME.token:""}));announce()};
+  ws.onopen=()=>{ws.send(JSON.stringify({t:"join",room:CODE,name:ME?ME.name:"",token:ME?ME.token:"",k:Q.get("k")||""}));announce()};
   ws.onmessage=e=>{let m;try{m=JSON.parse(e.data)}catch(x){return}
     if(m.t==="error"&&(m.code==="auth"||m.code==="forbidden")){ws.onclose=null;ws.close();location.replace(m.code==="auth"?HOME:"/?open=salon");return}
     if(m.t==="room"){window.SK_ROOM=m;window.dispatchEvent(new Event("sk-room"));return}
@@ -98,12 +98,12 @@ function connect(){if(!CODE)return;ws=new WebSocket((location.protocol==="https:
   ws.onclose=()=>setTimeout(connect,1500)}
 function send(o){if(ws&&ws.readyState===1)ws.send(JSON.stringify(o))}
 function req(o){return new Promise((ok,ko)=>{const n=++reqN;o.req=n;acks[n]=m=>m.ok?ok(m):ko(m.code);send(o);setTimeout(()=>{if(acks[n]){delete acks[n];ko("timeout")}},6000)})}
-function save(){if(!G)return;if(G.solo){LS.set("fl2-solo-mg",JSON.stringify(G));return}send({t:"set",id:DOC,data:JSON.parse(JSON.stringify(G)),req:++reqN})}
+function save(){if(!G||G.bot)return;if(G.solo){LS.set("fl2-solo-mg",JSON.stringify(G));return}send({t:"set",id:DOC,data:JSON.parse(JSON.stringify(G)),req:++reqN})}
 // écriture atomique d'un champ de la partie (course : le premier qui écrit garde la place)
 function patch(field,key,value,o){o=o||{};return req({t:"patch",id:DOC,gid:G.gid,field,key:String(key),value,ifAbsent:!!o.ifAbsent,score:o.score,extra:o.extra})}
 function announce(){send({t:"presence",presence:{name:ME?ME.name:"",page:GAME,gid:G?G.gid:null,seat:mySeat()}})}
 function seatsHere(){const s=new Set();const me=mySeat();if(me!==null)s.add(me);peers.forEach(p=>{const pr=p.presence||{};if(pr.gid===G.gid&&pr.seat!=null&&pr.page===GAME)s.add(Number(pr.seat))});return s}
-function waitCheck(){if(!G||G.solo||G.done||!G.wait)return;if(mySeat()===null){joinWait();return}const s=seatsHere();if(G.blocked)return;if(G.players.length>=MAXP&&G.players.every((p,i)=>s.has(i))&&presentSeats()[0]===mySeat())launchNow()}
+function waitCheck(){if(!G||G.solo||G.done||!G.wait)return;if(mySeat()===null){joinWait();return}const s=seatsHere();if(G.blocked)return;if(window.SK_ROOM&&SK_ROOM.temp&&G.players.length>=2&&G.players.every((p,i)=>s.has(i)&&p.name!=="Invité")&&presentSeats()[0]===mySeat()){if(!waitCheck.at)waitCheck.at=Date.now();if(Date.now()-waitCheck.at>1500){waitCheck.at=0;launchNow()}return}if(G.players.length>=MAXP&&G.players.every((p,i)=>s.has(i))&&presentSeats()[0]===mySeat())launchNow()}
 let joinTry="";function joinWait(){if(!ME||!G||!G.wait||G.done||mySeat()!==null||joinTry===G.gid)return;
   const i=G.players.findIndex(p=>p.name==="Invité");if(i>=0)G.players[i].name=ME.name;else if(G.players.length<MAXP)G.players.push({name:ME.name,score:0});else return;
   joinTry=G.gid;save();announce();render()}
@@ -227,6 +227,41 @@ function showRes(ok,l,why){balls.forEach(b=>b.el.style.display="none");ent=null;
   r.style.display="flex";if(G.solo)$("#mgNext").onclick=nextSolo}
 function nextSolo(){if(cur>=G.words.length-1){G.done=true;G.ended=Date.now();save();render();return}G.i=cur+1;save();setupWord(G.i);t0=null}
 
+/* ---------- multijoueur hors salon (26/11) : table rejointe, robot, défi différé ---------- */
+// table hors salon (partie rapide, invitation) : l'adversaire prépare la partie, on l'attend ici (20 s au plus)
+function tableWait(){document.body.classList.remove("booting");$("#endT").textContent="⏳ Ton adversaire prépare la partie…";$("#endB").innerHTML='<span class="spin"></span>';const a=$("#endAgain");if(a)a.style.display="none";const dz=$("#endDuel");if(dz)dz.style.display="none";$("#endWin").classList.add("on");
+  const t0_=Date.now(),iv=setInterval(()=>{const d=docs[DOC];if(d&&d.players&&!d.solo){clearInterval(iv);$("#endWin").classList.remove("on");if(a)a.style.display="";open(d);return}
+    if(Date.now()-t0_>20000){clearInterval(iv);$("#endT").textContent="Ton adversaire n'est pas arrivé";$("#endB").innerHTML="Reviens à l'accueil et relance une partie rapide."}},300)}
+// robot de secours : partie sur cet appareil, Robot Pop trouve certains mots au bout d'un moment (rien n'est envoyé sauf le score final, compté comme en solo)
+const BOT={facile:{p:.6,a:.5,b:.95},normal:{p:.7,a:.4,b:.9},difficile:{p:.8,a:.3,b:.8}};let botW=null;
+function botStart(lvl){const g=newGame([ME?ME.name:"Toi","Robot Pop"],true,lvl);g.bot=1;open(g);toast("🤖","Partie contre <b>Robot Pop</b> : trouve chaque mot avant lui !")}
+function botCheck(){const c=BOT[G.level]||BOT.facile;if(!botW||botW.k!==cur+":"+G.gid)botW={k:cur+":"+G.gid,at:Math.random()<c.p?TIME*(c.a+Math.random()*(c.b-c.a)):null};
+  if(botW.at==null||TIME-leftNow()<botW.at)return;const w=word(cur);G.players[1].score+=Math.round(w.s.length*10*w.rar)+Math.round(10*leftNow()/TIME);
+  phase="timeout";SFX.time();slots();showRes(false,null,"🤖 Robot Pop a trouvé !");render()}
+// défi différé : mêmes mots (graine + liste), chacun joue quand il veut, les scores sont comparés
+const DUELT={facile:"Facile",normal:"Normal",difficile:"Difficile"};
+function api2(u,b){return fetch(u,{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify(Object.assign({name:ME?ME.name:"",token:ME?ME.token:""},b))}).then(r=>r.json()).catch(()=>({}))}
+function duelBoot(id){api2("/api/duel/get",{id}).then(r=>{const o=r&&r.duel;const m=o&&String(o.ref).match(/^(\d{1,10})\|([A-Za-z0-9,]{1,300})$/);
+  if(!o||o.game!==GAME||!m||!LVLN[o.level]){document.body.classList.remove("booting");$("#endT").textContent="Ce défi n'existe plus";$("#endB").innerHTML="Il est peut-être trop ancien (30 jours).";$("#endWin").classList.add("on");return}
+  const g=newGame([ME?ME.name:"Toi"],true,o.level);g.seed=+m[1];g.words=m[2].split(",").map(x=>/^\d+$/.test(x)?+x:x);g.duel=o.id;g.duelBy=o.by;open(g);
+  toast("⚔️","Défi de <b>"+esc(o.by)+"</b> · "+(o.res.length?"meilleur score : <b>"+Math.max(...o.res.map(x=>x.s))+"</b>":"à toi de jouer"))})}
+function duelEnd(){if(!G||!G.solo||G.bot||G.duelSent)return;G.duelSent=1;const sc=Number(G.players[0].score)||0,secs=Math.round(((G.ended||Date.now())-G.started)/1000);
+  if(G.duel)api2("/api/duel/res",{id:G.duel,score:sc,secs}).then(r=>{if(r&&r.duel){G.duelRes=r.duel;duelPaint()}});else if(G.duelNew)duelNew()}
+function duelNew(){const b=$("#endDuel");if(b){b.disabled=true;b.textContent="Préparation du défi…"}const sc=Number(G.players[0].score)||0,secs=Math.round(((G.ended||Date.now())-G.started)/1000);
+  api2("/api/duel/new",{game:GAME,ref:G.seed+"|"+G.words.join(","),level:G.level,score:sc,secs}).then(r=>{if(b){b.disabled=false;b.textContent="⚔️ Défier un proche sur ces mots"}
+    if(!r||!r.id){toast("⚠️","Impossible de créer le défi. Réessaie.");return}G.duel=r.id;G.duelRes={by:ME?ME.name:"Toi",res:[{n:ME?ME.name:"Toi",s:sc,t:secs}]};G.duelMine=1;if(b)b.style.display="none";duelPaint()})}
+const fmtS=t=>Math.floor(t/60)+" min "+String(t%60).padStart(2,"0");
+function duelPaint(){const B=$("#endB");if(!B||!G||!G.duel||!G.done)return;let d=document.getElementById("duelBox");if(!d){d=document.createElement("div");d.id="duelBox";d.className="duelbox";B.appendChild(d)}
+  const url=location.origin+"/duel/"+G.duel,o=G.duelRes||{res:[]},me=ME?ME.name:"Toi";
+  const rows=[...(o.res||[])].sort((a,b)=>b.s-a.s||a.t-b.t).slice(0,8).map((x,i)=>'<tr'+(x.n===me?' class="me"':"")+'><td>'+(i+1)+'</td><td>'+esc(x.n)+'</td><td><b>'+x.s+'</b></td><td>'+fmtS(x.t)+'</td></tr>').join("");
+  const txt=G.duelMine?"J'ai fait "+G.players[0].score+" points à Magnético ("+DUELT[G.level]+"). Tu fais mieux sur les mêmes mots ? ":"Moi aussi j'ai relevé ce défi Magnético. À ton tour : ";
+  const t=encodeURIComponent(txt+url),sms=/iPhone|iPad|iPod|Mac/.test(navigator.userAgent)?"sms:&body="+t:"sms:?body="+t;
+  d.innerHTML='<b class="dt">⚔️ '+(G.duelMine?"Ton défi est prêt":"Défi de "+esc(G.duelBy||o.by||""))+'</b>'+(rows?'<table><tr><th>#</th><th>Joueur</th><th>Points</th><th>Temps</th></tr>'+rows+"</table>":"")
+    +'<div class="dbtns"><a class="btn" target="_blank" rel="noopener" href="https://wa.me/?text='+t+'">WhatsApp</a>'+(matchMedia("(pointer:fine)").matches?"":'<a class="btn" href="'+sms+'">SMS</a>')+'<button class="btn" type="button" id="duelCopy">Copier le lien</button></div>';
+  $("#duelCopy").onclick=e=>{const el=e.currentTarget;const ok=()=>{el.textContent="Copié ✓";setTimeout(()=>el.textContent="Copier le lien",1800)};if(navigator.clipboard)navigator.clipboard.writeText(url).then(ok,()=>prompt("Copie ce lien :",url));else prompt("Copie ce lien :",url)}}
+(function(){const st=document.createElement("style");st.textContent=".duelbox{margin-top:12px;display:flex;flex-direction:column;gap:8px;text-align:left}.duelbox .dt{font-size:1rem}.duelbox table{width:100%;border-collapse:collapse;font-size:.9rem}.duelbox th,.duelbox td{padding:5px 6px;text-align:left;border-bottom:1px solid rgba(255,255,255,.1)}.duelbox th{font-size:.78rem;opacity:.7}.duelbox tr.me td{color:var(--accent);font-weight:800}.duelbox .dbtns{display:flex;gap:6px}.duelbox .dbtns .btn{flex:1;text-decoration:none;text-align:center;min-width:0;color:inherit;display:flex;align-items:center;justify-content:center}";document.head.appendChild(st)})();
+function duelStart(lvl){const g=newGame([ME?ME.name:"Toi"],true,lvl);g.duelNew=1;open(g);toast("⏳","Défi différé : finis la partie, puis envoie-la à un proche.")}
+window.FLMJ={robot:lvl=>botStart(lvl),duel:lvl=>duelStart(lvl),busy:()=>!!(G&&!G.solo&&!G.done)};
 /* ---------- boucle d'animation ---------- */
 let lt=performance.now();
 function loop(now){requestAnimationFrame(loop);const dt=Math.min(2,(now-lt)/16.67);lt=now;if(!G||G.wait||G.done)return;
@@ -248,13 +283,13 @@ function loop(now){requestAnimationFrame(loop);const dt=Math.min(2,(now-lt)/16.6
 function soloFrame(now,dt){if(cur!==G.i){setupWord(G.i,now);t0=null}
   if(phase==="play"||phase==="ko"){if(!ent&&queue.length&&now-(wStart+(balls.length-queue.length)*GAP)>=0)startEntry(queue.shift(),now);
     if(!ent&&!queue.length&&t0==null)t0=now;updEntry(dt);step(dt,now);draw(now);if(phase==="ko"&&now>koT){phase="play";boxState("");field.classList.remove("flash")}
-    bar(leftNow());if(t0!=null&&phase==="play"&&leftNow()<=0)finishSolo("Temps écoulé")}}
+    bar(leftNow());if(t0!=null&&phase==="play"&&leftNow()<=0)finishSolo("Temps écoulé");else if(G.bot&&t0!=null&&phase==="play")botCheck()}}
 function endMulti(){if(G.done)return;if(endMulti.g===G.gid&&Date.now()-endMulti.t<4000)return;endMulti.g=G.gid;endMulti.t=Date.now();
   patch("z","end",1,{ifAbsent:true,extra:{done:true,ended:Date.now()}}).catch(()=>{})}
 
 /* ---------- affichage ---------- */
 let shownEnd=null;
-function rankBar(){const box=$("#mgRank");if(G.solo||np()<2)return;const w=(box.clientWidth-18)/4;
+function rankBar(){const box=$("#mgRank");if((G.solo&&!G.bot)||np()<2)return;const w=(box.clientWidth-18)/4;
   let els=box._els;if(!els||els.gid!==G.gid||els.n!==G.players.length){box.querySelectorAll(".mgpc").forEach(e=>e.remove());els=G.players.map((p,i)=>{const e=document.createElement("div");e.className="mgpc";e.style.borderColor=PCOL[i];e.style.background=PBG[i];e.innerHTML='<span class="mgn" style="color:'+PCOL[i]+'"></span><span class="mgs"></span><span class="mgt"></span>';box.appendChild(e);return e});els.gid=G.gid;els.n=G.players.length;box._els=els;box._rk=null}
   const me=mySeat(),order=G.players.map((p,i)=>i).sort((a,b)=>(isOut(a)-isOut(b))||((G.players[b].score||0)-(G.players[a].score||0))||a-b);let jumped=false;const prev=box._rk||{};
   order.forEach((i,r)=>{const e=els[i],p=G.players[i];if(prev[i]!=null&&r<prev[i]){e.classList.remove("leap");void e.offsetWidth;e.classList.add("leap");jumped=true}
@@ -264,15 +299,15 @@ function rankBar(){const box=$("#mgRank");if(G.solo||np()<2)return;const w=(box.
   box._rk=prev;$("#mgStar").style.left=(w/2-9)+"px";if(jumped&&!G.wait)SFX.over()}
 let rivals={};
 function render(){document.body.classList.remove("booting");if(!G)return;const s=mySeat();
-  $(".gname").innerHTML='<span style="background:linear-gradient(90deg,#a78bfa,#22d3ee);-webkit-background-clip:text;background-clip:text;color:transparent">Magnético</span> '+(G.solo?"Solo":np()>2?np()+" joueurs":"Duo")+' <span class="hpill">'+LVLN[G.level]+"</span>";
-  $(".mg2").classList.toggle("multi",!G.solo&&np()>=2);$(".mg2").classList.toggle("waiting",!!G.wait&&!G.solo);$("#mgScore").textContent=G.players[s===null?0:s]?G.players[s===null?0:s].score||0:0;rankBar();
+  $(".gname").innerHTML='<span style="background:linear-gradient(90deg,#a78bfa,#22d3ee);-webkit-background-clip:text;background-clip:text;color:transparent">Magnético</span> '+(G.bot?"contre le robot":G.solo?"Solo":np()>2?np()+" joueurs":"Duo")+' <span class="hpill">'+LVLN[G.level]+"</span>";
+  $(".mg2").classList.toggle("multi",(!G.solo||G.bot)&&np()>=2);$(".mg2").classList.toggle("waiting",!!G.wait&&!G.solo);$("#mgScore").textContent=G.players[s===null?0:s]?G.players[s===null?0:s].score||0:0;rankBar();
   if(!G.solo&&cur>=0&&G.f){Object.keys(G.f).forEach(k=>{if(!rivals[G.gid+k]){rivals[G.gid+k]=1;const [w,i]=k.split("_").map(Number);if(w===cur&&i!==s)SFX.rival()}})}
   let sp=$("#mgSpec");const spec=!G.solo&&!G.done&&s===null&&(!G.wait||G.players.length>=MAXP);if(spec&&!sp){sp=document.createElement("div");sp.id="mgSpec";sp.className="glass mgspec";$(".mg2").prepend(sp)}if(sp){sp.style.display=spec?"":"none";if(spec)sp.innerHTML="<b>"+(G.wait?"Partie complète":"Partie déjà lancée")+" · tu regardes.</b> Reste sur la page : tu joueras la prochaine partie s'il reste une place."}
-  if(G.done&&shownEnd!==G.gid){shownEnd=G.gid;markPlayed();scoreSrv();if(!G.solo)tally();const r=G.players.map((p,i)=>({p,i})).sort((a,b)=>(isOut(a.i)-isOut(b.i))||(b.p.score-a.p.score));
+  if(G.done&&shownEnd!==G.gid){shownEnd=G.gid;markPlayed();scoreSrv();if(!G.solo)tally();if(G.duel||G.duelNew)setTimeout(duelEnd,50);const r=G.players.map((p,i)=>({p,i})).sort((a,b)=>(isOut(a.i)-isOut(b.i))||(b.p.score-a.p.score));
     balls.forEach(b=>b.el.style.display="none");$("#mgRes").style.display="none";
-    $("#endT").textContent=G.solo?"Partie terminée : "+(G.players[0].score||0)+" points":"🏆 "+(r[0].i===s?"Tu gagnes !":r[0].p.name+" gagne !");
-    $("#endB").innerHTML=(G.solo?"<div class='note'>"+(G.found||0)+" mots trouvés sur "+G.words.length+"</div>":r.map(({p,i},k)=>'<div class="endrow"><b class="rk">'+(k+1)+'</b><span class="pi" style="background:'+PCOL[i]+';color:#0b1d2a">'+esc(p.name[0])+"</span><b>"+esc(p.name)+(isOut(i)?" (sorti)":"")+'</b><span class="sv">'+(isOut(i)?0:(Number(p.score)||0))+"</span></div>").join(""));
-    endSound();$("#endWin").classList.add("on")}
+    $("#endT").textContent=G.bot?"🏆 "+(r[0].i===0?"Tu bats le robot !":"Robot Pop gagne !"):G.solo?"Partie terminée : "+(G.players[0].score||0)+" points":"🏆 "+(r[0].i===s?"Tu gagnes !":r[0].p.name+" gagne !");
+    $("#endB").innerHTML=(G.solo&&!G.bot?"<div class='note'>"+(G.found||0)+" mots trouvés sur "+G.words.length+"</div>":r.map(({p,i},k)=>'<div class="endrow"><b class="rk">'+(k+1)+'</b><span class="pi" style="background:'+PCOL[i]+';color:#0b1d2a">'+esc(p.name[0])+"</span><b>"+esc(p.name)+(isOut(i)?" (sorti)":"")+'</b><span class="sv">'+(isOut(i)?0:(Number(p.score)||0))+"</span></div>").join(""));
+    const dz=$("#endDuel");if(dz)dz.style.display=G.solo&&!G.bot&&!G.duel&&!G.duelNew?"":"none";endSound();$("#endWin").classList.add("on");duelPaint()}
   tick()}
 let cdShown="";
 function tick(){if(!G)return;const now=Date.now();if(!G.solo&&!G.done){waitCheck();lostCheck()}
@@ -301,25 +336,26 @@ function soloTicket(){if(!G||!G.solo||!ME||!ME.token)return;fetch("/api/p/solo",
 /* ---------- commandes ---------- */
 $("#mgOk").onclick=validate;$("#mgPass").onclick=passWord;
 $("#mgClear").onclick=()=>{if(phase!=="play")return;let n=0;placed=placed.map((b,k)=>{if(b&&!locked[k]){queue.push(b);n++;return null}return b});if(n)SFX.back();slots()};
-$(".homebtn").onclick=()=>{if(!G||G.done||mySeat()===null){location.href=HOME;return}$("#lvQuit").textContent=G.solo?"Annuler la partie":"Quitter la partie";$("#leaveRule").textContent=G.solo?"La partie solo n'est pas gardée.":"Si tu quittes (ou après 1 minute sans connexion), la partie continue sans toi et tu repars avec 0 point.";$("#leave").classList.add("on")};
+$(".homebtn").onclick=()=>{if(!G||G.done||G.bot||mySeat()===null){location.href=HOME;return}$("#lvQuit").textContent=G.solo?"Annuler la partie":"Quitter la partie";$("#leaveRule").textContent=G.solo?"La partie solo n'est pas gardée.":"Si tu quittes (ou après 1 minute sans connexion), la partie continue sans toi et tu repars avec 0 point.";$("#leave").classList.add("on")};
 $("#lvQuit").onclick=()=>{const solo=!!(G&&G.solo);quitGame();setTimeout(()=>location.href=solo?"/":HOME,350)};$("#lvStay").onclick=()=>$("#leave").classList.remove("on");
-$("#endHome").onclick=()=>{location.href=HOME};$("#endAgain").onclick=e=>{if(e.target.closest("[data-lv]"))return;$("#endWin").classList.remove("on");again()};document.querySelectorAll("#endAgain [data-lv]").forEach(b=>b.onclick=e=>{e.stopPropagation();$("#endWin").classList.remove("on");again(b.dataset.lv)});new MutationObserver(()=>{if($("#endWin").classList.contains("on")&&G)document.querySelectorAll("#endAgain [data-lv]").forEach(b=>b.classList.toggle("on",b.dataset.lv===G.level))}).observe($("#endWin"),{attributes:true,attributeFilter:["class"]});
+$("#endHome").onclick=()=>{location.href=HOME};$("#endDuel").onclick=()=>{if(G&&G.solo&&G.done&&!G.bot)duelNew()};$("#endAgain").onclick=e=>{if(e.target.closest("[data-lv]"))return;$("#endWin").classList.remove("on");again()};document.querySelectorAll("#endAgain [data-lv]").forEach(b=>b.onclick=e=>{e.stopPropagation();$("#endWin").classList.remove("on");again(b.dataset.lv)});new MutationObserver(()=>{if($("#endWin").classList.contains("on")&&G)document.querySelectorAll("#endAgain [data-lv]").forEach(b=>b.classList.toggle("on",b.dataset.lv===G.level))}).observe($("#endWin"),{attributes:true,attributeFilter:["class"]});
 
 /* ---------- lancement ---------- */
 function newGame(names,isSolo,level){const seed=Math.floor(Math.random()*2147483646)+1;level=LVLN[level]?level:"facile";
   return{gid:Math.random().toString(36).slice(2,10),game:GAME,solo:isSolo,level,seed,words:pickWords(level,seed,isSolo),i:0,started:Date.now(),players:names.map(x=>({name:x,score:0})),found:0,done:false,wait:!isSolo,f:{},p:{},cut:{},out:{}}}
 function open(g){G=g;cur=-1;phase="idle";balls.forEach(b=>b.el.remove());balls=[];$("#mgRes").style.display="none";$("#endWin").classList.remove("on");
   if(!G.solo){joinWait()}else soloTicket();render();announce();history.replaceState(null,"",location.pathname)}
-function again(lv){const o=G,LVL=lv||G.level;if(o.solo){open(newGame(o.players.map(p=>p.name),true,LVL));save();return}
+function again(lv){const o=G,LVL=lv||G.level;if(o.bot){botStart(LVL);return}if(o.solo){open(newGame(o.players.map(p=>p.name),true,LVL));save();return}
   const ng=newGame(o.players.filter((p,i)=>!isOut(i)).map(p=>p.name),false,LVL);ng.prev=o.gid;open(ng);save()}
 // une partie du salon encore active n'est jamais écrasée par « Jouer » : on la rejoint ou on la regarde
 function live(d){return !!(d&&!d.done&&!d.solo&&d.players&&Date.now()-Math.max(d.go||0,d.started||0)<15*60e3)}
 function boot(){const go=Q.get("go"),lvl=Q.get("lvl")||"facile";
+  if(Q.get("duel")){duelBoot(Q.get("duel"));return}
   if(go==="solo"||!CODE){open(newGame([ME?ME.name:"Toi"],true,lvl));save();return}
-  if(!ME){location.replace(HOME+"?need=pseudo");return}
+  if(!ME){try{sessionStorage.setItem("fl-back",location.pathname+location.search)}catch(e){}location.replace((Q.get("k")||go==="join"?"/":HOME)+"?need=pseudo");return}
   connect();const t0_=Date.now();const iv=setInterval(()=>{if(G){clearInterval(iv);return}if(window.__snapped||Object.keys(docs).length||Date.now()-t0_>2500){clearInterval(iv);const d=docs[DOC];
     if(go==="multi"&&!live(d)){let opp=Q.get("opp")||"Invité";if(opp.toUpperCase()===ME.name)opp="Invité";open(newGame([ME.name,opp],false,lvl));save();return}
-    if(d&&d.players&&!d.solo){open(d);return}location.replace(HOME)}},100)}
+    if(d&&d.players&&!d.solo){open(d);return}if(go==="join"||Q.get("k")){tableWait();return}location.replace(HOME)}},100)}
 function start(){if(window.MG_MOTS)return boot();const t=setInterval(()=>{if(window.MG_MOTS){clearInterval(t);boot()}},50)}
 // accès réservé aux tests automatiques sur la copie locale (jamais sur le site en ligne)
 window.__mgOn=()=>({R,balls:balls.filter(b=>b.on&&!b.entering)});

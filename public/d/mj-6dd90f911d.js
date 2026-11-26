@@ -75,7 +75,7 @@
     if (!W) return; var m = me(), g = esc(C.gname), sh = W.querySelector(".sheet"), o = others();
     var h = '<h3 id="mjT">👥 Jouer à plusieurs<button class="mjx" data-a="close" aria-label="Fermer">✕</button></h3>';
     if (msg) h += '<div class="mjsay">' + msg + "</div>";
-    h += '<div class="mjlv" role="group" aria-label="Niveau">' + Object.keys(LV).map(function (k) { return '<button type="button" data-lv="' + k + '" class="' + (k === lvl ? "on" : "") + '">' + LV[k] + "</button>"; }).join("") + "</div>";
+    if (!C.nolvl) h += '<div class="mjlv" role="group" aria-label="Niveau">' + Object.keys(LV).map(function (k) { return '<button type="button" data-lv="' + k + '" class="' + (k === lvl ? "on" : "") + '">' + LV[k] + "</button>"; }).join("") + "</div>";
     // partie rapide
     h += '<div class="mjc"><div class="hd"><span class="ic">⚡</span>Partie rapide' + tip("mjT1", "Le site te trouve un adversaire qui attend sur ce jeu. Si personne ne vient, tu peux jouer contre le robot.") + "</div>";
     if (!m) h += needMe() + (C.robot ? '<button class="btn" data-a="robot">🤖 Jouer contre le robot</button>' : "");

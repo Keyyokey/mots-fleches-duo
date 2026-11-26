@@ -106,7 +106,7 @@ body.booting #boot{display:flex;position:fixed;inset:0;z-index:50;align-items:ce
 <button class="btn primary" id="lvPause">Mettre en pause</button><button class="btn" id="lvQuit">Annuler la partie</button><button class="btn" id="lvStay" style="background:transparent">Continuer à jouer</button>
 <div class="note" id="leaveRule">En pause, la partie est gardée : « Reprendre » apparaît sur la case du jeu.</div></div></div>
 <div class="overlay" id="mystWin"><div class="glass sheet"><h3>Mot mystère</h3><div class="note">Trouve le mot formé par les cases numérotées : <b>+20 points</b>. Faux : tu passes ton tour.</div><input class="in" id="mystIn" maxlength="14" autocomplete="off" placeholder="TA PROPOSITION" style="text-transform:uppercase;letter-spacing:.12em;text-align:center;font-weight:800"><div style="display:flex;gap:8px"><button class="btn" id="mystX" style="flex:1">Fermer</button><button class="btn primary" id="mystGo" style="flex:2">Proposer (+20)</button></div></div></div>
-<div class="overlay" id="endWin"><div class="glass sheet qbox"><h3 id="endT"></h3><div class="note" id="endB"></div><div id="endAgain" class="endlv"><small>Nouvelle grille : choisis le niveau</small><div class="lvrow"><button type="button" data-lv="facile">Facile</button><button type="button" data-lv="moyen">Normal</button><button type="button" data-lv="difficile">Difficile</button></div></div><button class="btn" id="endSame">🔁 Rejouer cette grille</button><button class="btn" id="endHome">🏠 Accueil</button></div></div>
+<div class="overlay" id="endWin"><div class="glass sheet qbox"><h3 id="endT"></h3><div class="note" id="endB"></div><div id="endAgain" class="endlv"><small>Nouvelle grille : choisis le niveau</small><div class="lvrow"><button type="button" data-lv="facile">Facile</button><button type="button" data-lv="moyen">Normal</button><button type="button" data-lv="difficile">Difficile</button></div></div><button class="btn" id="endDuel">⚔️ Défier un proche sur cette grille</button><button class="btn" id="endSame">🔁 Rejouer cette grille</button><button class="btn" id="endHome">🏠 Accueil</button></div></div>
 <script>window.SK_HDR=1;</script><script src="/d/sk-d812b07a92.js"></script>
 <script src="/d/rond-3e96114ea6.js"></script>
 <script>// ===== Le Tourniquet — moteur branché sur l'écran de l'artefact =====
@@ -173,7 +173,7 @@ function fitRq(q){const over=()=>q.scrollWidth>q.clientWidth+1||q.scrollHeight>q
 function slots(){const s=$("#rSlots");s.innerHTML="";for(let i=0;i<6;i++){const e=document.createElement("span");e.textContent=typ[i]||"";if(i===typ.length&&sel)e.className="on";s.appendChild(e)}}
 
 // ---------- joueurs, places, salon ----------
-function mySeat(){if(!G)return null;if(G.solo)return 0;if(!ME)return null;const i=G.players.findIndex(p=>String(p.name).toUpperCase()===ME.name);return i<0?null:i}
+function mySeat(){if(!G)return null;if(G.solo||G.bot)return 0;if(!ME)return null;const i=G.players.findIndex(p=>String(p.name).toUpperCase()===ME.name);return i<0?null:i}
 function frozen(){return !!G&&!G.solo&&!G.done&&(G.wait||(G.go&&Date.now()<G.go)||away().length>0)}
 function canPlay(){if(!G||G.done)return false;if(G.solo)return true;if(frozen())return false;return mySeat()===G.turn}
 function away(){return G&&G.away?Object.keys(G.away):[]}
@@ -184,7 +184,7 @@ function maxTours(){return fillRatio()>=.8?1:2}
 function nextTurn(){G.tour=1;G.champs=0;G.turn=(G.turn+1)%G.players.length;G.turnStart=Date.now()}
 function endTour(why){const p=G.players[G.turn];if((G.tour||1)<maxTours()){G.tour=(G.tour||1)+1;G.champs=0;G.turnStart=Date.now();G.msg=(why?why+" ":"")+p.name+" enchaîne son 2e tour."}else{nextTurn();G.msg=(why?why+" ":"")+"Au tour de "+G.players[G.turn].name+"."}}
 function connect(){if(!CODE)return;ws=new WebSocket((location.protocol==="https:"?"wss://":"ws://")+location.host+"/ws");
-  ws.onopen=()=>{ws.send(JSON.stringify({t:"join",room:CODE,name:ME?ME.name:"",token:ME?ME.token:""}));announce(true)};
+  ws.onopen=()=>{ws.send(JSON.stringify({t:"join",room:CODE,name:ME?ME.name:"",token:ME?ME.token:"",k:Q.get("k")||""}));announce(true)};
   ws.onmessage=e=>{let m;try{m=JSON.parse(e.data)}catch(x){return}
     if(m.t==="error"&&(m.code==="auth"||m.code==="forbidden")){ws.onclose=null;ws.close();location.replace(m.code==="auth"?HOME:"/?open=salon");return}
     if(m.t==="drawn"&&drawCb[m.req]){drawCb[m.req](m);delete drawCb[m.req];return}
@@ -193,12 +193,12 @@ function connect(){if(!CODE)return;ws=new WebSocket((location.protocol==="https:
     else if(m.t==="peers"){peers=m.peers||[];if(G&&!G.solo){waitCheck();render()}}};
   ws.onclose=()=>setTimeout(connect,1500)}
 function send(o){if(ws&&ws.readyState===1)ws.send(JSON.stringify(o))}
-function save(){if(!G)return;if(G.solo){G.saved=Date.now();soloPut();LS.set(SOLOKEY,JSON.stringify(G));if(G.done)LS.del("fl-paused-rond");else LS.set("fl-paused-rond","1");return}send({t:"set",id:DOC,data:JSON.parse(JSON.stringify(G)),req:++reqN})}
-let lastAnn="";function announce(force){const p={name:ME?ME.name:"",page:"rond",gid:G?G.gid:null,seat:mySeat(),sel:canPlay()?sel:null,typ:canPlay()?typ:""};const j=JSON.stringify(p);if(!force&&j===lastAnn)return;lastAnn=j;send({t:"presence",presence:p})}
+function save(){if(!G||G.bot)return;if(G.solo){G.saved=Date.now();soloPut();LS.set(SOLOKEY,JSON.stringify(G));if(G.done)LS.del("fl-paused-rond");else LS.set("fl-paused-rond","1");return}send({t:"set",id:DOC,data:JSON.parse(JSON.stringify(G)),req:++reqN})}
+let lastAnn="";function announce(force){if(G&&G.bot)return;const p={name:ME?ME.name:"",page:"rond",gid:G?G.gid:null,seat:mySeat(),sel:canPlay()?sel:null,typ:canPlay()?typ:""};const j=JSON.stringify(p);if(!force&&j===lastAnn)return;lastAnn=j;send({t:"presence",presence:p})}
 function onSnap(){const d=docs[DOC];if(!G||G.solo)return;
   if(d&&d.gid===G.gid){const keep=canPlay();const re=d.pid!==G.pid;G=d;if(re){sel=null;typ="";P=ROND.find(x=>x.id===G.pid)||P}if(G.blocked)blockedWin(G.blocked);if(!keep||!canPlay()){if(!canPlay()){sel=null;typ=""}}render()}
   else if(d&&d.prev===G.gid){G=d;sel=null;typ="";P=ROND.find(x=>x.id===G.pid)||ROND[0];render();toast("🔁","Nouvelle grille pour le salon")}}
-function seatsHere(){const s=new Set();const me=mySeat();if(me!==null)s.add(me);peers.forEach(p=>{const pr=p.presence||{};if(pr.gid===G.gid&&pr.seat!=null&&pr.page==="rond")s.add(Number(pr.seat))});return s}
+function seatsHere(){const s=new Set();if(G&&G.bot){G.players.forEach((p,i)=>s.add(i));return s}const me=mySeat();if(me!==null)s.add(me);peers.forEach(p=>{const pr=p.presence||{};if(pr.gid===G.gid&&pr.seat!=null&&pr.page==="rond")s.add(Number(pr.seat))});return s}
 function waitCheck(){if(!G||G.solo||G.done||!G.wait||mySeat()===null)return;const s=seatsHere();if(G.blocked)return;if(G.players.every((p,i)=>s.has(i)))askLaunch()}
 function claimGuest(){if(!G||G.solo||!ME||mySeat()!==null)return;const i=G.players.findIndex(p=>p.name==="Invité");if(i<0)return;G.players[i].name=ME.name;save();announce(true)}
 function pauseGame(){if(!G||G.done)return;if(G.solo){save();return}const s=mySeat();if(s===null)return;G.away=G.away||{};if(!away().length)G.pauseRem=Math.max(0,G.turnStart+dur()*1000-Date.now());G.away[s]=Date.now();save()}
@@ -212,7 +212,7 @@ function awayCheck(force){if(!G||G.solo||G.done||!G.away)return;const now=Date.n
   G.forfeit=true;G.done=true;G.ended=now;delete G.away;if(!force){save();render()}}
 
 // ---------- jeu ----------
-function validate(){if(!canPlay())return;if(!sel){toast("👆","Choisis d'abord une définition.");return}if(typ.length!==6){toast("✍️","Il faut 6 lettres.");return}histMark("s");
+function validate(bot){if(bot!==true&&!canPlay())return;if(!sel){toast("👆","Choisis d'abord une définition.");return}if(typ.length!==6){toast("✍️","Il faut 6 lettres.");return}histMark("s");
   const [c,r]=sel.split("-").map(Number);const W=norm(P.cols[c][r].w);const me=G.solo?0:G.turn;const p=G.players[me];
   if(typ===W){G.found[sel]=me;p.score+=10;const ric=ricochets();ric.forEach(k=>{G.found[k]=me;p.score+=10});
     G.msg="Bravo "+p.name+" ! +10 points."+(ric.length?" Ricochet : "+ric.length+" cercle"+(ric.length>1?"s":"")+" complété"+(ric.length>1?"s":"")+" (+"+10*ric.length+") !":"");
@@ -221,8 +221,8 @@ function validate(){if(!canPlay())return;if(!sel){toast("👆","Choisis d'abord 
     else if(!G.solo){G.champs=(G.champs||0)+1;if(!G.f80&&fillRatio()>=.8){G.f80=true;sfx.bell();toast("🔔","<b>Grille à 80 %</b> · plus qu'un tour chacun")}if(G.champs>=3)endTour("3 mots trouvés.")}}
   else{sfx.bad();G.msg="Raté"+(G.solo?" : ce n'est pas « "+typ+" ».":" pour "+p.name+".");typ="";if(!G.solo){sel=null;nextTurn();G.msg+=" Au tour de "+G.players[G.turn].name+"."}}
   save();render();announce();kbFlush()}
-function finish(msg){G.done=true;G.ended=Date.now();G.msg=msg;if(!G.solo)send({t:"tally",gid:G.gid,game:"rond",results:G.players.map(p=>({name:p.name,score:p.score}))});
-  try{if(ME&&ME.token){const i=G.solo?0:mySeat();const k="fl-sc-rond"+G.gid;if(i!==null&&!LS.get(k)){LS.set(k,"1");fetch("/api/p/score",{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({name:ME.name,token:ME.token,game:"rond",gid:String(G.gid),pts:G.players[i].score,solo:!!G.solo,level:G.level,ref:String(REFOF(G)),started:G.started})}).then(r=>r.json()).then(repNote).catch(()=>{})}}}catch(e){}}
+function finish(msg){G.done=true;G.ended=Date.now();G.msg=msg;if(G.duel||G.duelNew)duelEnd();if(!G.solo&&!G.bot)send({t:"tally",gid:G.gid,game:"rond",results:G.players.map(p=>({name:p.name,score:p.score}))});
+  try{if(ME&&ME.token){const i=G.solo?0:mySeat();const k="fl-sc-rond"+G.gid;if(i!==null&&!LS.get(k)){LS.set(k,"1");fetch("/api/p/score",{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({name:ME.name,token:ME.token,game:"rond",gid:String(G.gid),pts:G.players[i].score,solo:!!(G.solo||G.bot),level:G.level,ref:String(REFOF(G)),started:G.started})}).then(r=>r.json()).then(repNote).catch(()=>{})}}}catch(e){}}
 function pass(){if(!canPlay()||G.solo)return;const p=G.players[G.turn];sel=null;typ="";nextTurn();G.msg=p.name+" passe. Au tour de "+G.players[G.turn].name+".";save();render();kbFlush()}
 function reveal(){if(!canPlay()||!sel)return;histMark("s");const [c,r]=sel.split("-").map(Number);const W=norm(P.cols[c][r].w);G.found[sel]=-5;G.msg="« "+W+" » révélé (sans points).";sel=null;typ="";if(!G.solo){nextTurn();G.msg+=" Au tour de "+G.players[G.turn].name+"."}
   if(Object.keys(G.found).length>=total())finish("Grille terminée.");save();render()}
@@ -240,7 +240,7 @@ function render(){document.body.classList.remove("booting");if(!G||!P)return;doc
   $("#rMsg").textContent=G.msg||"";$("#rPass").style.display=G.solo?"none":"";
   draw();slots();if(G.done&&shownEnd!==G.gid){shownEnd=G.gid;showEnd()}tick()}
 function showEnd(){const r=G.players.map((p,i)=>({p,i})).sort((a,b)=>b.p.score-a.p.score);$("#endT").textContent=G.forfeit?"Partie arrêtée":"🎉 Grille terminée !";
-  $("#endB").innerHTML=(G.msg?esc(G.msg)+"<br><br>":"")+r.map(({p,i})=>'<div class="endrow"><span class="pi" style="background:'+PC[i]+'">'+esc(p.name[0])+'</span><b>'+esc(p.name)+'</b><span class="sv">'+(Number(p.score)||0)+'</span></div>').join("")+(G.solo?'<div class="note" style="margin-top:8px">Temps : '+fmt(((G.ended||Date.now())-G.started)/1000)+'</div>':"");endOpen()}
+  $("#endB").innerHTML=(G.msg?esc(G.msg)+"<br><br>":"")+r.map(({p,i})=>'<div class="endrow"><span class="pi" style="background:'+PC[i]+'">'+esc(p.name[0])+'</span><b>'+esc(p.name)+'</b><span class="sv">'+(Number(p.score)||0)+'</span></div>').join("")+(G.solo?'<div class="note" style="margin-top:8px">Temps : '+fmt(((G.ended||Date.now())-G.started)/1000)+'</div>':"");endOpen();duelPaint()}
 let warned=null,cdShown="";
 function tick(){if(!G)return;const now=Date.now();
   if(G.solo){$("#rC1").textContent=fmt(((G.done?G.ended:now)-G.started)/1000);$("#rC1").classList.remove("low");$("#rTl").parentNode.style.display="none";ov();return}
@@ -281,13 +281,13 @@ function endSound(){if(!G||!G.done||endSound.gid===G.gid)return;endSound.gid=G.g
   const best=Math.max(...G.players.map(p=>p.score||0));const win=me===null||G.solo||(G.players[me]&&(G.players[me].score||0)>=best);
   if(win){[523,659,784,1046].forEach((f,i)=>tone(f,i*.12,.3,"triangle",.16));[784,988,1175,1568].forEach((f,i)=>tone(f,.55+i*.07,.35,"sine",.12))}
   else{[659,587,523,440].forEach((f,i)=>tone(f,i*.16,.35,"sine",.12));tone(330,.7,.6,"triangle",.08)}}
-function endOpen(blocked){if(!blocked)endSound();const s=$("#endSame");if(s)s.style.display=!blocked&&G&&G.solo&&G.done&&!G.forfeit?"":"none";const a=$("#endAgain");if(a&&!blocked)a.style.display="";$("#endWin").classList.add("on")}
+function endOpen(blocked){if(!blocked)endSound();const s=$("#endSame");if(s)s.style.display=!blocked&&G&&G.solo&&G.done&&!G.forfeit?"":"none";const dz=$("#endDuel");if(dz)dz.style.display=!blocked&&G&&G.solo&&G.done&&!G.forfeit&&!G.duel&&!G.duelNew?"":"none";const a=$("#endAgain");if(a&&!blocked)a.style.display="";$("#endWin").classList.add("on")}
 $("#endSame").onclick=()=>{$("#endWin").classList.remove("on");sameAgain()};
 function sameAgain(){const o=G;if(!o||!o.solo)return again();const def=ROND.find(x=>x.id===o.pid);if(!def)return again();open(newGame(def,o.players.map(p=>p.name),true,o.level));save()}
 // points d'une grille rejouée : 10 la 2e fois, 3 ensuite (décompte fait par le serveur)
 function repNote(r){const b=$("#endB");if(!r||!b||document.getElementById("repNote"))return;const t=(r.rep||r.f<1)?(r.rep?"Grille déjà terminée"+(r.rep===1?" une fois : <b>+10 points</b> seulement.":" plusieurs fois : <b>+3 points</b> seulement."):r.nth+"e partie de la journée à ce jeu : points à <b>"+Math.round(r.f*100)+" %</b> (+"+r.add+"). Le barème est dégressif : il repart à 100 % demain."):"";const sc=r.ok&&r.pts&&typeof r.pts.tot==="number"&&r.add>0?"<b>+"+String(r.add).replace(".",",")+"</b> au score Motipop : <b>"+Math.floor(r.pts.tot)+"</b> / 2 500.":"";if(!t&&!sc)return;b.insertAdjacentHTML("beforeend",'<div id="repNote" class="note" style="margin-top:8px">'+[sc,t].filter(Boolean).join("<br>")+"</div>")}
 
-$(".homebtn").onclick=()=>{if(!G||G.done){location.href=HOME;return}$("#lvQuit").textContent=G.solo?"Annuler la partie":"Quitter la partie";$("#leaveRule").textContent=G.solo?"En pause, la partie est gardée : « Reprendre » apparaît sur la case du jeu. « Annuler » l'efface pour de bon.":"En multijoueur, la pause dure 5 minutes maximum et le chrono s'arrête : au-delà, le joueur resté gagne et reçoit la moitié de ses points (arrondie au supérieur). Si vous quittez tous les deux, personne ne marque de points.";$("#leave").classList.add("on")};
+$(".homebtn").onclick=()=>{if(!G||G.done||G.bot){location.href=G&&G.bot?"/":HOME;return}$("#lvQuit").textContent=G.solo?"Annuler la partie":"Quitter la partie";$("#leaveRule").textContent=G.solo?"En pause, la partie est gardée : « Reprendre » apparaît sur la case du jeu. « Annuler » l'efface pour de bon.":"En multijoueur, la pause dure 5 minutes maximum et le chrono s'arrête : au-delà, le joueur resté gagne et reçoit la moitié de ses points (arrondie au supérieur). Si vous quittez tous les deux, personne ne marque de points.";$("#leave").classList.add("on")};
 const leave=fn=>{const solo=!!(G&&G.solo);let pr=null;try{pr=fn()}catch(e){}const go=()=>location.href=solo?"/":HOME;Promise.race([Promise.resolve(pr),new Promise(r=>setTimeout(r,2000))]).then(()=>setTimeout(go,150),go)};
 $("#lvPause").onclick=()=>leave(pauseGame);$("#lvQuit").onclick=()=>leave(quitGame);$("#lvStay").onclick=()=>$("#leave").classList.remove("on");
 
@@ -296,18 +296,18 @@ function choose(level,n,ps){const list=ROND.filter(d=>d.lvl===level);if(n&&list[
 function newGame(p,names,isSolo,level){const first=isSolo?0:Math.floor(Math.random()*names.length);return{gid:Math.random().toString(36).slice(2,10),game:"rond",pid:p.id,solo:isSolo,level,started:Date.now(),players:names.map(n=>({name:n,score:0})),turn:first,turnStart:Date.now(),tour:1,champs:0,found:{},done:false,wait:!isSolo,msg:isSolo?"À toi de jouer !":"🎲 Tirage au sort : "+names[first]+" commence !"}}
 function open(g){G=g;sel=null;typ="";P=ROND.find(x=>x.id===G.pid);if(!P){location.replace(HOME);return}try{const pl=JSON.parse(LS.get("fl2-played-rond")||"{}");pl[P.id]=1;LS.set("fl2-played-rond",JSON.stringify(pl))}catch(e){}
   if(!G.solo){claimGuest();const s=mySeat();if(G.away&&s!==null&&G.away[s]>0)resumeGame()}render();announce(true);history.replaceState(null,"",location.pathname)}
-function again(lv){const o=G,LVL=lv||G.level;if(o.solo){open(newGame(choose(LVL),o.players.map(p=>p.name),true,LVL));save();return}
+function again(lv){const o=G,LVL=lv||G.level;if(o.bot){botStart(LVL);return}if(o.solo){open(newGame(choose(LVL),o.players.map(p=>p.name),true,LVL));save();return}
   const opp=o.players.map(p=>p.name).find(n=>String(n).toUpperCase()!==ME.name)||"Invité";
   drawReq(LVL,0,opp).then(r=>{if(!r.ok)return blockedWin(r.msg);const ng=newGame(ROND.find(x=>x.id===r.ref),o.players.map(p=>p.name),false,LVL);ng.prev=o.gid;open(ng);save()})}
-function start(){const go=Q.get("go"),lvl=Q.get("lvl")||"facile",n=Number(Q.get("n"))||0;const solo=()=>{try{return JSON.parse(LS.get(SOLOKEY)||"null")}catch(e){return null}};
+function start(){const go=Q.get("go"),lvl=(Q.get("lvl")||"facile").replace(/^normal$/,"moyen"),n=Number(Q.get("n"))||0;if(Q.get("duel")){duelBoot(Q.get("duel"));return}const solo=()=>{try{return JSON.parse(LS.get(SOLOKEY)||"null")}catch(e){return null}};
   if(go==="solo"||(go==="resume"&&!CODE)){soloBoot(go,lvl,n);return}
   if(!CODE){const g=solo();if(g&&!g.done){soloBoot("resume",lvl,n);return}/* 23/11 : adresse publique (ex. depuis Google) : partie solo tout de suite ; une partie gardée reprend sans compter le temps d'absence */soloBoot("solo",lvl,n);return}
-  if(!ME){if(go==="resume"){const g=solo();if(g&&!g.done){open(g);return}}location.replace(HOME+"?need=pseudo");return}
+  if(!ME){if(go==="resume"){const g=solo();if(g&&!g.done){open(g);return}}try{sessionStorage.setItem("fl-back",location.pathname+location.search)}catch(e){}location.replace((Q.get("k")||go==="join"?"/":HOME)+"?need=pseudo");return}
   connect();const t0=Date.now();const iv=setInterval(()=>{if(G){clearInterval(iv);return}if(window.__snapped||Object.keys(docs).length||Date.now()-t0>2500){clearInterval(iv);const d=docs[DOC];
     const mine=d&&!d.done&&d.players&&(d.players.some(p=>String(p.name).toUpperCase()===ME.name)||d.players.some(p=>p.name==="Invité"));
     if(go==="multi"&&!(mine&&!n)){let opp=Q.get("opp")||"Invité";if(opp.toUpperCase()===ME.name)opp="Invité";
       drawReq(lvl,n,opp).then(r=>{if(!r.ok)return blockedWin(r.msg);const p=ROND.find(x=>x.id===r.ref);if(!p)return blockedWin("Impossible de vérifier les parties disponibles. Réessaie.");const g=newGame(p,[ME.name,opp],false,lvl);if(r.manual)g.manual=true;open(g);save()});return}
-    if(d&&d.players&&!d.solo){open(d);return}const g=solo();if(g&&!g.done){open(g);return}location.replace(HOME)}},100)}
+    if(d&&d.players&&!d.solo){open(d);return}if(go==="join"||Q.get("k")){tableWait();return}const g=solo();if(g&&!g.done){open(g);return}location.replace(HOME)}},100)}
 const GAME="rond",REFOF=g=>g.pid;
 // ---------- tirage par le serveur (multijoueur) et historique du compte ----------
 // En multijoueur, le serveur tire le contenu parmi ceux qu'aucun participant n'a déjà commencés ou terminés,
@@ -355,6 +355,42 @@ function soloBoot(go,lvl,n){let loc=null;try{loc=JSON.parse(LS.get(SOLOKEY)||"nu
       b.onclick=e=>{e.stopPropagation();open(false);if(src)src.click();else 0};m.appendChild(b)})}
   more.onclick=e=>{e.stopPropagation();open(!m.classList.contains("on"))};
   document.addEventListener("click",e=>{if(!m.contains(e.target)&&e.target!==more)open(false)})})();
+// ---------- multijoueur hors salon (26/11) : table rejointe, défi différé, robot ----------
+function tableWait(){document.body.classList.remove("booting");$("#endT").textContent="⏳ Ton adversaire prépare la partie…";$("#endB").innerHTML='<span class="spin"></span>';const a=$("#endAgain");if(a)a.style.display="none";["#endSame","#endDuel"].forEach(x=>{const e=$(x);if(e)e.style.display="none"});$("#endWin").classList.add("on");
+  const t0=Date.now(),iv=setInterval(()=>{const d=docs[DOC];if(!G&&d&&d.players&&!d.solo){open(d)}if(G){clearInterval(iv);$("#endWin").classList.remove("on");return}if(Date.now()-t0>20000){clearInterval(iv);blockedWin("Ton adversaire n'est pas arrivé. Reviens à l'accueil et relance une partie rapide.")}},300)}
+const DUELT={facile:"Facile",normal:"Normal",moyen:"Normal",difficile:"Difficile"};
+function api2(u,b){return fetch(u,{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify(Object.assign({name:ME?ME.name:"",token:ME?ME.token:""},b))}).then(r=>r.json()).catch(()=>({}))}
+function duelBoot(id){api2("/api/duel/get",{id}).then(r=>{const o=r&&r.duel;const p=o&&o.game===GAME&&ROND.find(x=>x.id===o.ref);if(!p){blockedWin("Ce défi n'existe plus. Il est peut-être trop ancien (30 jours).");return}
+  const g=newGame(p,[ME?ME.name:"Toi"],true,o.level);g.duel=o.id;g.duelBy=o.by;open(g);save();toast("⚔️","Défi de <b>"+esc(o.by)+"</b> · "+(o.res.length?"meilleur score : <b>"+Math.max(...o.res.map(x=>x.s))+"</b>":"à toi de jouer"))})}
+function duelEnd(){if(!G||!G.solo||G.forfeit||G.duelSent)return;G.duelSent=1;const sc=Number(G.players[0].score)||0,secs=Math.round(((G.ended||Date.now())-G.started)/1000);
+  if(G.duel)api2("/api/duel/res",{id:G.duel,score:sc,secs}).then(r=>{if(r&&r.duel){G.duelRes=r.duel;save();duelPaint()}});else if(G.duelNew)duelNew()}
+function duelNew(){const b=$("#endDuel");if(b){b.disabled=true;b.textContent="Préparation du défi…"}const sc=Number(G.players[0].score)||0,secs=Math.round(((G.ended||Date.now())-G.started)/1000);
+  api2("/api/duel/new",{game:GAME,ref:G.pid,level:G.level,score:sc,secs}).then(r=>{if(b){b.disabled=false;b.textContent="⚔️ Défier un proche sur cette grille"}
+    if(!r||!r.id){toast("⚠️","Impossible de créer le défi. Réessaie.");return}G.duel=r.id;G.duelRes={by:ME?ME.name:"Toi",res:[{n:ME?ME.name:"Toi",s:sc,t:secs}]};G.duelMine=1;save();if(b)b.style.display="none";duelPaint()})}
+const fmtS=t=>Math.floor(t/60)+" min "+String(t%60).padStart(2,"0");
+function duelPaint(){const B=$("#endB");if(!B||!G||!G.duel||!G.done)return;let d=document.getElementById("duelBox");if(!d){d=document.createElement("div");d.id="duelBox";d.className="duelbox";B.appendChild(d)}
+  const url=location.origin+"/duel/"+G.duel,o=G.duelRes||{res:[]},me=ME?ME.name:"Toi";
+  const rows=[...(o.res||[])].sort((a,b)=>b.s-a.s||a.t-b.t).slice(0,8).map((x,i)=>'<tr'+(x.n===me?' class="me"':"")+'><td>'+(i+1)+'</td><td>'+esc(x.n)+'</td><td><b>'+x.s+'</b></td><td>'+fmtS(x.t)+'</td></tr>').join("");
+  const txt=G.duelMine?"J'ai fait "+G.players[0].score+" points sur ce Tourniquet ("+DUELT[G.level]+"). Tu fais mieux ? ":"Moi aussi j'ai relevé ce défi de Tourniquet. À ton tour : ";
+  const t=encodeURIComponent(txt+url),sms=/iPhone|iPad|iPod|Mac/.test(navigator.userAgent)?"sms:&body="+t:"sms:?body="+t;
+  d.innerHTML='<b class="dt">⚔️ '+(G.duelMine?"Ton défi est prêt":"Défi de "+esc(G.duelBy||o.by||""))+'</b>'+(rows?'<table><tr><th>#</th><th>Joueur</th><th>Points</th><th>Temps</th></tr>'+rows+"</table>":"")
+    +'<div class="dbtns"><a class="btn" target="_blank" rel="noopener" href="https://wa.me/?text='+t+'">WhatsApp</a>'+(matchMedia("(pointer:fine)").matches?"":'<a class="btn" href="'+sms+'">SMS</a>')+'<button class="btn" type="button" id="duelCopy">Copier le lien</button></div>';
+  $("#duelCopy").onclick=e=>{const el=e.currentTarget;const ok=()=>{el.textContent="Copié ✓";setTimeout(()=>el.textContent="Copier le lien",1800)};if(navigator.clipboard)navigator.clipboard.writeText(url).then(ok,()=>prompt("Copie ce lien :",url));else prompt("Copie ce lien :",url)}}
+(function(){const st=document.createElement("style");st.textContent=".duelbox{margin-top:12px;display:flex;flex-direction:column;gap:8px;text-align:left}.duelbox .dt{font-size:1rem}.duelbox table{width:100%;border-collapse:collapse;font-size:.9rem}.duelbox th,.duelbox td{padding:5px 6px;text-align:left;border-bottom:1px solid rgba(255,255,255,.1)}.duelbox th{font-size:.78rem;opacity:.7}.duelbox tr.me td{color:var(--accent);font-weight:800}.duelbox .dbtns{display:flex;gap:6px}.duelbox .dbtns .btn{flex:1;text-decoration:none;text-align:center;min-width:0;color:inherit;display:flex;align-items:center;justify-content:center}";document.head.appendChild(st)})();
+$("#endDuel").onclick=()=>{if(G&&G.solo&&G.done)duelNew()};
+function duelStart(lvl){lvl=lvl==="normal"?"moyen":lvl;const g=newGame(choose(lvl),[ME?ME.name:"Toi"],true,lvl);g.duelNew=1;g.msg="⏳ Défi différé : termine la grille, puis envoie-la à un proche.";open(g);save()}
+// robot de secours : partie à deux sur cet appareil, le robot joue son tour tout seul
+const BOT={facile:{ok:.8,t:[6,11]},normal:{ok:.72,t:[7,13]},difficile:{ok:.64,t:[8,15]}};
+function botStart(lvl){lvl=lvl==="normal"?"moyen":lvl;const g=newGame(choose(lvl),[ME?ME.name:"Toi","Robot Pop"],false,lvl);g.bot=1;g.wait=false;g.go=Date.now()+5600;g.started=g.go;g.turnStart=g.go;g.msg="🤖 Partie contre le robot ! "+g.players[g.turn].name+" commence.";open(g);render()}
+let botAt=0;
+function botTick(){if(!G||!G.bot||G.done||frozen()||G.turn!==1){botAt=0;return}const now=Date.now(),c=BOT[G.level]||BOT.facile;
+  if(!botAt){botAt=now+1000*(c.t[0]+Math.random()*(c.t[1]-c.t[0]));return}if(now<botAt)return;botAt=0;botPlay()}
+function botPlay(){const c=BOT[G.level]||BOT.facile,keys=[];P.cols.forEach((col,ci)=>col.forEach((w,r)=>{const k=ci+"-"+r;if(G.found[k]===undefined)keys.push(k)}));if(!keys.length)return;
+  sel=keys[Math.floor(Math.random()*keys.length)];const [ci,r]=sel.split("-").map(Number);let W=norm(P.cols[ci][r].w);
+  if(Math.random()>c.ok){const i=Math.floor(Math.random()*W.length),A="ESAINTRULO";let l;do{l=A[Math.floor(Math.random()*A.length)]}while(l===W[i]);W=W.slice(0,i)+l+W.slice(i+1)}
+  typ=W;validate(true)}
+setInterval(botTick,300);
+window.FLMJ={robot:lvl=>botStart(lvl),duel:lvl=>duelStart(lvl),busy:()=>!!(G&&!G.solo&&!G.bot&&!G.done)};
 // accès réservé aux tests automatiques sur la copie locale (jamais sur le site en ligne)
 if(location.hostname==="localhost")window.__t=c=>eval(c);
 start();
@@ -397,6 +433,9 @@ window.FLINV=function(docs,opt){opt=opt||{};const M=me(),C=code();if(!M||!C||!do
     show(text,()=>{location.href="/"+C+"/"+path},d.gid);return}};
 })();
 </script>
+<script src="/d/mj-6dd90f911d.js"></script>
+<script>/* 26/11 : bouton « À plusieurs » (partie rapide, joueurs en ligne, lien d'invitation, défi différé) */
+if(window.MJ&&window.FLMJ)MJ.init(Object.assign({game:"rond",path:"rond",gname:"Tourniquet",mount:".gtop"},FLMJ));</script>
 <script src="/d/ic-bb9f2e3c22.js"></script>
 <script>(function(){/* bandeau des scores lié (téléphone) : les deux joueurs dans une seule barre, le joueur actif éclairé, l'écart au centre */
 var mq=window.matchMedia("(max-width:620px)");

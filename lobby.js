@@ -9,7 +9,7 @@ module.exports = function makeLobby(D) {
   const ID_CH = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789", K_CH = "abcdefghijkmnpqrstuvwxyz23456789";
   const rnd = (n, ch) => [...crypto.randomBytes(n)].map(x => ch[x % ch.length]).join("");
   const GAMES = { fleches: "mots fléchés", magnetico: "Magnético", rond: "Tourniquet", meles: "mots mêlés", culture: "culture générale" };
-  const LVLS = ["facile", "normal", "difficile"];
+  const LVLS = ["facile", "normal", "moyen", "difficile"];   // « moyen » : nom du niveau Normal au Tourniquet
   const socks = new Set();                    // connexions présentes dans le salon d'attente (une page de jeu ouverte)
   const queue = [];                           // partie rapide : { ws, u, game, lvl, at }
   const invites = new Map();                  // k -> { from:ws, to:u, game, lvl, at }
@@ -114,7 +114,8 @@ module.exports = function makeLobby(D) {
   async function duelApi(route, b, id) {
     if (route === "new") {
       const game = GAMES[b.game] ? b.game : null; const level = LVLS.includes(b.level) ? b.level : null; const ref = String(b.ref || "");
-      if (!game || !level || !CAT.cid(game, ref)) return [400, { error: "partie" }];
+      const refOk = game === "magnetico" ? /^\d{1,10}\|[A-Za-z0-9,]{1,300}$/.test(ref) : game === "culture" ? ref.length < 600 && ref.split(",").length <= 15 && ref.split(",").every(x => CAT.CGBY[x]) : !!CAT.cid(game, ref);   // culture : liste des questions   // Magnético : graine + liste des mots
+      if (!game || !level || !refOk) return [400, { error: "partie" }];
       const n = (await who(b)) || "Un ami"; let nid; for (let i = 0; i < 10; i++) { nid = rnd(7, K_CH); if (!(await duelGet(nid).catch(() => null))) break; }
       const o = { id: nid, game, ref, level, by: n, c: Date.now(), res: [] }; if (b.score != null) o.res.push(cleanRes(b, n)); duelSave(o);
       return [200, { ok: true, id: nid }];
