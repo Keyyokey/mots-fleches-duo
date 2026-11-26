@@ -939,7 +939,7 @@ const CH="ABCDEFGHJKMNPQRSTUVWXYZ23456789";
 let CODE=((location.pathname.match(/^\/([A-Za-z0-9]{5})\/poker/)||[])[1]||"").toUpperCase();
 const HADCODE=!!CODE;
 if(!CODE){const a=new Uint32Array(5);crypto.getRandomValues(a);CODE=[...a].map(x=>CH[x%CH.length]).join("");}
-const Q=new URLSearchParams(location.search);const GO=Q.get("go");
+const Q=new URLSearchParams(location.search);const GO=Q.get("go")||(Q.get("k")?"join":null);const TK=Q.get("k")||"";   // 26/11 : table hors salon (lien d'invitation : ?k=clé)
 // hors salon (ou visiteur sans compte) : table privée contre le robot, sans entrer dans un salon
 // sans compte : 3 parties, puis compte obligatoire
 const GUEST_MAX=3,guestN=()=>{try{return JSON.parse(LS.get("fl-guest-g")||"[]").length}catch(e){return 0}};
@@ -957,16 +957,16 @@ function toast(ic,html){let t=$("#toast");if(!t){t=document.createElement("div")
   t.innerHTML="<span class='ti'>"+ic+"</span><span>"+html+"</span>";t.classList.remove("on");void t.offsetWidth;t.classList.add("on");clearTimeout(t._h);t._h=setTimeout(()=>t.classList.remove("on"),4200)}
 
 // ---------- connexion ----------
-let RES0=0,ws=null,ST=null,PREV=null,sat=false,ROOMNAME="";
+let RES0=0,ws=null,ST=null,PREV=null,sat=false,ROOMNAME="",TEMP=false,AUTOGO=false;
 function send(o){if(ws&&ws.readyState===1)ws.send(JSON.stringify(o))}
 function pk(o){send({t:"pk",name:ME?ME.name:"",token:ME?ME.token:"",...o})}
 function connect(){ws=new WebSocket((location.protocol==="https:"?"wss://":"ws://")+location.host+"/ws");
-  ws.onopen=()=>{send(SOLO?{t:"join",solo:true}:{t:"join",room:CODE,name:ME?ME.name:"",token:ME?ME.token:""});send({t:"presence",presence:{name:ME?ME.name:"",page:"poker"}});pk({a:"watch"});
+  ws.onopen=()=>{send(SOLO?{t:"join",solo:true}:{t:"join",room:CODE,name:ME?ME.name:"",token:ME?ME.token:"",k:TK});send({t:"presence",presence:{name:ME?ME.name:"",page:"poker"}});pk({a:"watch"});
     if(GO&&!sat&&guestBlocked()){location.replace("/?need=compte");return}
     if(GO&&!sat){sat=true;pk({a:"sit",solo:GO==="solo",fmt:Q.get("fmt")||"10",mise:Q.get("mise")||"20",dec:Q.get("dec")||"30",lvl:Q.get("lvl")||LVL()})}};
   ws.onmessage=e=>{let m;try{m=JSON.parse(e.data)}catch(x){return}
     if(m.t==="error"&&(m.code==="auth"||m.code==="forbidden")){ws.onclose=null;ws.close();location.replace(m.code==="auth"?"/"+CODE:"/?open=salon");return}
-    if(m.t==="room"){ROOMNAME=m.name||"";if(ST)render()}
+    if(m.t==="room"){ROOMNAME=m.name||"";TEMP=!!m.temp;if(ST)render()}
     if(m.t==="pkst"){PREV=ST;ST=m.st;if(!ME&&ST&&ST.started&&!(PREV&&PREV.started)){try{const g=JSON.parse(LS.get("fl-guest-g")||"[]");g.push("pk"+Date.now());LS.set("fl-guest-g",JSON.stringify(g))}catch(e){}}render()}
     else if(m.t==="pkerr"){toast("⚠️",esc(m.msg));if(m.need)setTimeout(openConv,600)}
     else if(m.t==="pkchk")showCheck(m);
@@ -981,6 +981,8 @@ let skew=0;
 function render(){const st=ST;document.body.dataset.ph=st&&st.started?st.phase:"";const lob=$("#pkLobby");if(st&&PREV&&st.hand!==PREV.hand&&$("#pkIn")){LOCKED="";$("#pkIn").value="";$("#pkBest").disabled=false;$("#pkBest").textContent="Verrouiller ce mot";typed();window.__autoSent=false}if(st&&PREV&&PREV.phase!=="abattage"&&st.phase==="abattage")RES0=Date.now();
   if(!st){lob.innerHTML='<h3>Wordflush</h3><p class="note">Assieds-toi. La partie démarre à deux (ou contre le robot).</p><div class="pkrow"><button class="btn primary" id="lbSolo">👤 Jouer contre Léo</button>'+lvlSeg()+''+(SOLO?'':'<button class="btn" id="lbSit">👥 M\'asseoir à la table</button>')+'</div>';lob.hidden=false;bindLobby();renderDeck(null);return}
   skew=st.now-Date.now();
+  // table hors salon (partie rapide, invitation) : la partie démarre seule dès que les deux joueurs sont assis
+  if(TEMP&&GO==="multi"&&!AUTOGO&&!st.started&&st.phase!=="fin"&&st.me>=0&&st.seats.length>=2){AUTOGO=true;setTimeout(()=>pk({a:"start"}),800)}
   const me=st.me>=0?st.seats[st.me]:null;
   $("#pkMode").textContent=st.maxHands?"Coup "+Math.max(1,st.hand)+"/"+st.maxHands:"Coup "+Math.max(1,st.hand)+" · jusqu'au dernier";
   // salle d'attente / fin
@@ -1181,7 +1183,7 @@ $("#pkCvPill").onclick=openConv;$("#cvClose").onclick=()=>$("#cvWin").classList.
 $("#homeBtn").onclick=()=>{const me=ST&&ST.me>=0?ST.seats[ST.me]:null;if(ST&&ST.started&&me&&!me.gone){$("#leave").classList.add("on")}else location.href=HOMEURL};
 $("#lvQuit").onclick=()=>{pk({a:"leave"});setTimeout(()=>location.href=HOMEURL,200)};
 $("#lvStay").onclick=()=>$("#leave").classList.remove("on");
-typed();loadWallet();connect();render();
+typed();loadWallet();if(TK&&HADCODE&&!ME){/* lien d'invitation sans compte : un nom d'invité est créé pour cet appareil */fetch("/api/p/guest",{method:"POST",headers:{"content-type":"application/json"},body:"{}"}).then(r=>r.json()).then(r=>{if(!r||!r.token)throw 0;LS.set("fl-me",JSON.stringify({name:r.name,token:r.token,guest:1}));location.replace("/"+CODE+"/poker?k="+encodeURIComponent(TK))}).catch(()=>location.replace("/?need=pseudo"))}else connect();render();
 
 // ---------- le croupier : il distribue les lettres une à une (2 par joueur, tour de table), « brûle » une carte puis retourne les lettres communes ----------
 const DEAL={hide:new Set(),down:new Set(),run:0};
@@ -1252,6 +1254,8 @@ function announce(t,sub,small){const f=document.querySelector(".pkfelt");if(!f)r
 
 </script>
 <script src="/d/ic-c7eae1cc03.js"></script>
+<script src="/d/mj-489230a420.js"></script>
+<script>/* 26/11 : bouton « À plusieurs » (partie rapide, joueurs en ligne, lien) ; robot de secours = Léo */if(window.MJ)MJ.init({game:"poker",path:"poker",gname:"Wordflush",mount:".gtop",nolvl:1,robot:()=>{location.href="/poker?go=solo&lvl="+LVL()},busy:()=>!!(ST&&ST.started&&!SOLO),playing:()=>!!(ST&&ST.started)});</script>
 <script>window.SK_HDR=1;</script><script src="/d/compte-9df4a4e0ff.js"></script><script src="/d/sk-c4e3f6ac86.js"></script>
 </body>
 </html>

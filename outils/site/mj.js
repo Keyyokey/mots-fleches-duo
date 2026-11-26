@@ -39,7 +39,7 @@
     else if (m.t === "loblink") { linkReady(m); }
     else if (m.t === "lobfail") { stopQ(); if (m.need === "pseudo") { render(); return; } say(esc(m.msg || "Réessaie dans un instant.")); render(); }
   }
-  var PATH = { fleches: "fleches", magnetico: "magnetico", rond: "rond", meles: "meles", culture: "culture" };
+  var PATH = { fleches: "fleches", magnetico: "magnetico", rond: "rond", meles: "meles", culture: "culture", poker: "poker" };
   function go(m) {
     var base = "/" + m.id + "/" + (PATH[m.game] || C.path);
     try { sessionStorage.setItem("fl-table", JSON.stringify({ id: m.id, opp: m.opp, at: Date.now() })); } catch (e) {}
@@ -105,7 +105,7 @@
     a.dataset.k = m.k;
     if (m.kind === "dem" || m.kind === "rep") { boxAsk(a, m); return; }
     a.innerHTML = '<div class="glass sheet qbox mjaskb"><h3 id="mjAskT">Proposition de jouer à ' + esc(m.gname) + " par " + esc(m.from) + "</h3>"
-      + (LV[m.lvl] && m.game !== "culture" ? '<div class="note">Niveau ' + LV[m.lvl] + "</div>" : "") + '<div class="mjbtns"><button class="btn primary" type="button" data-r="1">Oui</button><button class="btn" type="button" data-r="0">Non</button></div></div>';
+      + (LV[m.lvl] && m.game !== "culture" && m.game !== "poker" ? '<div class="note">Niveau ' + LV[m.lvl] + "</div>" : "") + '<div class="mjbtns"><button class="btn primary" type="button" data-r="1">Oui</button><button class="btn" type="button" data-r="0">Non</button></div></div>';
     a.querySelectorAll("[data-r]").forEach(function (b) { b.onclick = function () { answer(m.k, b.dataset.r === "1"); a.classList.remove("on"); }; });
     a.classList.add("on"); markSeen(); setTimeout(function () { var y = a.querySelector("[data-r='1']"); if (y) y.focus(); }, 50);
   }
