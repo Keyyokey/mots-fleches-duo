@@ -98,7 +98,9 @@ function scheduleSave(code) {
   }, 1500);
 }
 
-function send(ws, o) { if (ws.readyState === 1) ws.send(JSON.stringify(o)); }
+function send(ws, o) {
+  if (o && (o.t === "error" || (o.t === "ack" && o.ok === false) || o.t === "lobfail") && typeof wsDiag !== "undefined") { wsDiag.rej.unshift({ t: new Date().toISOString().slice(11, 19), quoi: o.t + ":" + (o.code || o.need || o.msg || "").slice(0, 40), salon: ws.room ? (ws.room.length === 5 ? "table/salon" : "solo") : "-" }); wsDiag.rej.length = Math.min(wsDiag.rej.length, 30); }
+  if (ws.readyState === 1) ws.send(JSON.stringify(o)); }
 function snapshot(s) { return Object.entries(s.docs).map(([id, data]) => ({ id, data })); }
 function peers(s) { return [...s.sockets].map(w => ({ id: w.pid, presence: w.presence || {} })); }
 function broadcastPeers(s) { const list = peers(s); for (const w of s.sockets) send(w, { t: "peers", peers: list }); }
@@ -227,7 +229,7 @@ async function handle(ws, m) {
     if (!acc || !acc.members[nm]) return send(ws, { t: "error", code: "forbidden", msg: "Impossible de rejoindre ce salon. Vérifie le nom et le code, ou contacte le responsable." });
     acc.members[nm].o = Date.now(); saveAcc(acc);
     await loadSalon(code);
-    const s = salon(code); ws.room = code; ws.user = nm; s.sockets.add(ws); s.touched = Date.now();
+    const s = salon(code); ws.room = code; ws.user = nm; ws.joinAt = Date.now(); s.sockets.add(ws); s.touched = Date.now();
     send(ws, { t: "room", id: code, name: acc.name, role: acc.owner === nm ? "owner" : "member", me: nm, ...(acc.temp ? { temp: 1, k: acc.k } : acc.owner === nm ? { acode: acc.code } : {}) });
     send(ws, { t: "snap", docs: snapshot(s) });
     return broadcastPeers(s);
@@ -1530,7 +1532,7 @@ function handleHttp(req, res) {
       + 'w.onmessage=function(e){var d={};try{d=JSON.parse(e.data)}catch(x){}L("reçu : "+(d.t||"?")+(d.t==="loblink"?" (table "+d.id+")":"")+(d.msg?" — "+d.msg:""))};w.onerror=function(){L("erreur")};w.onclose=function(e){L("fermée, code "+e.code+" "+e.reason)};'
       + 'setTimeout(function(){fetch("/healthz?ws=1").then(function(r){return r.json()}).then(function(j){L("serveur : instance "+j.instance+", connexions "+j.connexions+", sockets "+JSON.stringify(j.sockets))})},4000)</script>');
   }
-  if (url.pathname === "/healthz" && url.searchParams.get("ws") === "1") { res.writeHead(200, { "content-type": "application/json", "cache-control": "no-store" }); const now = Date.now(); return res.end(JSON.stringify({ instance: wsDiag.inst, demarrage: wsDiag.boot, connexions: wss.clients.size, refus: wsDiag.refus, erreurs: wsDiag.err, lobby: LOBBY.stats(), sockets: [...wss.clients].map(w => ({ etat: w.readyState, file: w.busy || 0, enCours: w.cur ? w.cur.t + " depuis " + Math.round((now - w.cur.at) / 1000) + " s" : null, recus: (w.log || []).map(x => x.t + " (" + Math.round((now - x.at) / 1000) + " s)") })) })); }
+  if (url.pathname === "/healthz" && url.searchParams.get("ws") === "1") { res.writeHead(200, { "content-type": "application/json", "cache-control": "no-store" }); const now = Date.now(); return res.end(JSON.stringify({ instance: wsDiag.inst, demarrage: wsDiag.boot, connexions: wss.clients.size, refus: wsDiag.refus, erreurs: wsDiag.err, rejets: wsDiag.rej, fermetures: wsDiag.fin, lobby: LOBBY.stats(), sockets: [...wss.clients].map(w => ({ etat: w.readyState, file: w.busy || 0, enCours: w.cur ? w.cur.t + " depuis " + Math.round((now - w.cur.at) / 1000) + " s" : null, recus: (w.log || []).map(x => x.t + " (" + Math.round((now - x.at) / 1000) + " s)") })) })); }
   if (url.pathname === "/healthz" && url.searchParams.get("ip") === "1") { res.writeHead(200, { "content-type": "application/json", "cache-control": "no-store" }); return res.end(JSON.stringify(ipSource(req))); }   // quels en-têtes d'adresse arrivent (sans les valeurs)
   if (url.pathname === "/healthz") { const bad = REDIS && storage.ok === false; res.writeHead(bad ? 503 : 200, { "content-type": "text/plain; charset=utf-8" }); return res.end(bad ? "STOCKAGE KO depuis " + storage.since + " : " + storage.msg : "ok " + salons.size + (REDIS ? " redis" : "")); }
   const am = url.pathname.match(/^\/api\/p\/(guest|create|login|me|pin|logout|rank|mj|en|score|wallet|conv|salons|sjoin|screate|skick|scode|sleave|sdelete|hist|solo|skin)$/);
@@ -1619,7 +1621,7 @@ const wss = new WebSocketServer({ server, path: "/ws", maxPayload: MAX_DOC + 409
 const WS_PER_IP = 24, WS_TOTAL = 4000, MSG_RATE = 25, MSG_BURST = 80;
 const wsByIp = new Map();
 // 26/11 : diagnostic public sans données personnelles (/healthz?ws=1) : connexions, refus, erreurs de traitement, salon d'attente
-const wsDiag = { refus: 0, err: [], inst: crypto.randomUUID().slice(0, 6), boot: new Date().toISOString() };
+const wsDiag = { refus: 0, err: [], rej: [], fin: [], inst: crypto.randomUUID().slice(0, 6), boot: new Date().toISOString() };
 wss.on("connection", (ws, req) => {
   ws.pid = crypto.randomUUID(); ws.isAlive = true; ws.ip = clientIp(req);
   const n = (wsByIp.get(ws.ip) || 0) + 1;
@@ -1636,7 +1638,7 @@ wss.on("connection", (ws, req) => {
     ws.busy = (ws.busy || 0) + 1; (ws.log = ws.log || []).push({ t: String(m && m.t).slice(0, 12), at: now }); if (ws.log.length > 12) ws.log.shift();
     ws.q = (ws.q || Promise.resolve()).then(() => { ws.cur = { t: String(m && m.t).slice(0, 12), at: Date.now() }; return handle(ws, m); }).catch(e => { console.error(e); wsDiag.err.unshift({ t: new Date().toISOString(), m: String(m && m.t), e: String(e && e.message || e).slice(0, 160) }); wsDiag.err.length = Math.min(wsDiag.err.length, 15); }).finally(() => { ws.busy--; ws.cur = null; });
   });
-  ws.on("close", () => {
+  ws.on("close", (code) => { if (ws.room && !ws.solo) { wsDiag.fin.unshift({ t: new Date().toISOString().slice(11, 19), code, duree: Math.round((Date.now() - (ws.joinAt || Date.now())) / 1000) + " s", derniers: (ws.log || []).slice(-5).map(x => x.t) }); wsDiag.fin.length = Math.min(wsDiag.fin.length, 30); }
     if (ws.counted) { ws.counted = false; const k = (wsByIp.get(ws.ip) || 1) - 1; if (k > 0) wsByIp.set(ws.ip, k); else wsByIp.delete(ws.ip); } poker.gone(ws); LOBBY.gone(ws); const s = ws.room && salons.get(ws.room); if (s) { s.sockets.delete(ws); broadcastPeers(s); if (ws.solo && !s.sockets.size) salons.delete(ws.room); } });
   send(ws, { t: "hello", id: ws.pid });
 });
