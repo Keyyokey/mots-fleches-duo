@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex">
+<title>Motipop en direct · série</title><link rel="icon" href="/favicon.svg"><link rel="stylesheet" href="/d/polices-117650e856.css">
+<style>
+/* Série du direct (26/11) : écran à filmer avec OBS (1920x1080). Le jeu tourne à gauche (vraie page du site), 10 parties fixes à enchaîner ;
+   à droite : logo, QR code, partie en cours, tchat Twitch en lecture seule. */
+*{box-sizing:border-box}html,body{margin:0;height:100%}
+body{font-family:Nunito,Inter,system-ui,sans-serif;color:#eef2f7;background:radial-gradient(1200px 700px at 15% 10%,rgba(0,173,181,.28),transparent 60%),radial-gradient(1000px 700px at 90% 95%,rgba(162,107,255,.3),transparent 60%),linear-gradient(160deg,#12152e,#1d1838 60%,#2a1d46);overflow:hidden}
+.stage{position:absolute;left:0;top:0;width:1920px;height:1080px;transform-origin:0 0;display:grid;grid-template-columns:1fr 520px;gap:28px;padding:28px 32px}
+.glass{background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.16);border-radius:28px;backdrop-filter:blur(14px);box-shadow:0 20px 50px rgba(0,0,0,.35)}
+.game{overflow:hidden;padding:0;position:relative}.game iframe{width:100%;height:100%;border:0;display:block;border-radius:28px}
+.right{display:flex;flex-direction:column;gap:22px;min-height:0}
+.brand{padding:22px 26px;display:grid;grid-template-columns:1fr 170px;gap:6px 18px;align-items:center}.brand .logo svg{width:100%;height:auto;max-height:84px}
+.brand .url{font:900 40px Nunito,sans-serif;letter-spacing:.01em}.brand .url b{color:#ffd88a}.brand .qr{grid-row:1/4;grid-column:2}.brand .qr svg{width:170px;height:170px;border-radius:14px;display:block}
+.brand p{margin:0;font:700 20px/1.25 Nunito,sans-serif;color:#cfd6ea}
+.now{padding:22px 26px;display:flex;flex-direction:column;gap:14px}
+.now .g{font:900 30px Nunito,sans-serif}.now .g small{display:block;font-size:20px;color:#ffd88a;font-weight:800;margin-top:2px}
+.dots{display:grid;grid-template-columns:repeat(10,1fr);gap:8px}.dots button{height:44px;border-radius:12px;border:1px solid rgba(255,255,255,.2);background:rgba(255,255,255,.06);color:#fff;font:800 20px Nunito,sans-serif;cursor:pointer}
+.dots button.on{background:linear-gradient(135deg,#00ADB5,#A26BFF);border-color:transparent}.dots button.done{opacity:.55}
+.nav{display:flex;gap:10px}.nav button{flex:1;height:54px;border-radius:14px;border:0;font:800 22px Nunito,sans-serif;color:#fff;background:linear-gradient(135deg,#00ADB5,#A26BFF);cursor:pointer}.nav .gh{flex:0 0 auto;padding:0 18px;background:rgba(255,255,255,.12)}
+.chat{padding:20px 24px;flex:1;min-height:0;display:flex;flex-direction:column;gap:10px}.chat h3{margin:0;font:900 26px Nunito,sans-serif}.chat h3 small{font-size:18px;color:#cfd6ea;font-weight:700;margin-left:6px}
+.chat ul{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:8px;overflow:hidden;flex:1;justify-content:flex-end}
+.chat li{font:700 22px/1.3 Nunito,sans-serif;padding:8px 12px;border-radius:12px;background:rgba(255,255,255,.06);animation:in .35s ease}.chat li b{color:#9fe6ff;margin-right:8px}
+@keyframes in{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+.live{display:flex;align-items:center;gap:8px;font:700 16px Inter,sans-serif;color:#7cf0a9}.live i{width:10px;height:10px;border-radius:50%;background:#3ddc97}.live.off{color:#aab}.live.off i{background:#667}
+.cfg{position:fixed;right:12px;bottom:12px;z-index:20;display:flex;gap:8px;align-items:center;padding:8px 10px;border-radius:14px;background:rgba(0,0,0,.6);font:600 14px Inter,sans-serif}
+.cfg input,.cfg select{padding:6px 8px;border-radius:8px;border:1px solid #555;background:#111;color:#fff}.cfg input{width:150px}.cfg button{padding:6px 10px;border-radius:8px;border:0;background:#334;color:#fff;cursor:pointer}.cfg a{color:#9fe6ff}
+body.clean .cfg{display:none}
+</style></head><body>
+<div class="stage" id="stage">
+  <section class="glass game"><iframe id="fr" title="Partie en cours" allow="autoplay"></iframe></section>
+  <div class="right">
+    <section class="glass brand"><div class="logo">__LOGO__</div><div class="qr">__QR__</div><div class="url">motipop<b>.fr</b></div><p>Jouez avec nous, gratuit,<br>sans rien télécharger</p></section>
+    <section class="glass now">
+      <div class="g" id="gname">…<small id="glvl"></small></div>
+      <div class="dots" id="dots"></div>
+      <div class="nav"><button class="gh" id="prev" type="button" title="Partie précédente">←</button><button id="next" type="button">Partie suivante →</button><button class="gh" id="again" type="button" title="Recommencer cette partie">↻</button></div>
+    </section>
+    <section class="glass chat"><h3>Le tchat <small>propose vos mots !</small></h3><ul id="msgs"><li style="opacity:.7">En attente du tchat…</li></ul><div class="live off" id="live"><i></i><span>Tchat non connecté</span></div></section>
+  </div>
+</div>
+<div class="cfg" id="cfg">Jeu : <a href="/direct">Mot mystère</a> · <select id="jeu"><option value="fleches">Mots fléchés (difficile)</option><option value="magnetico">Magnético</option></select><select id="lvl" title="Niveau de Magnético"><option value="facile">Facile</option><option value="normal">Normal</option><option value="difficile">Difficile</option></select> | Twitch : <input id="ch" placeholder="nom de ta chaîne"><button id="chGo" type="button">Connecter</button><button id="clean" type="button" title="Cacher cette barre (touche Échap pour la remettre)">Masquer</button></div>
+<script>
+(()=>{const $=s=>document.querySelector(s),LS={get:k=>{try{return localStorage.getItem(k)}catch(e){return null}},set:(k,v)=>{try{localStorage.setItem(k,v)}catch(e){}}};
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const fit=()=>{const s=Math.min(innerWidth/1920,innerHeight/1080);$("#stage").style.transform="scale("+s+")"};addEventListener("resize",fit);fit();
+// ---------- la série : 10 parties fixes par jeu (toujours les mêmes, pour pouvoir les préparer) ----------
+const Q=new URLSearchParams(location.search);
+const JEUX={fleches:{name:"Mots fléchés",lvl:()=>"difficile",url:(n)=>"/fleches?go=solo&lvl=difficile&n="+n},
+  magnetico:{name:"Magnético",lvl:()=>LS.get("fl-serie-mglvl")||"normal",url:(n,l)=>"/magnetico?go=solo&lvl="+l+"&serie="+n}};
+const LVN={facile:"Facile",normal:"Normal",difficile:"Difficile"};
+let J=JEUX[Q.get("jeu")]?Q.get("jeu"):"fleches";$("#jeu").value=J;$("#lvl").value=JEUX.magnetico.lvl();$("#lvl").hidden=J!=="magnetico";
+const key=()=>"fl-serie-"+J+(J==="magnetico"?"-"+JEUX.magnetico.lvl():"");
+let N=Math.max(1,Math.min(10,+(LS.get(key())||1)));
+const doneSet=()=>{try{return JSON.parse(LS.get(key()+"-faites")||"[]")}catch(e){return[]}};
+function show(){const j=JEUX[J],l=j.lvl();$("#gname").firstChild.textContent=j.name+" · partie "+N+"/10";$("#glvl").textContent="Niveau "+LVN[l];
+  const d=doneSet();$("#dots").innerHTML=Array.from({length:10},(_,i)=>'<button type="button" data-n="'+(i+1)+'" class="'+(i+1===N?"on":"")+(d.includes(i+1)?" done":"")+'">'+(i+1)+"</button>").join("");
+  $("#next").textContent=N<10?"Partie suivante →":"Série terminée ✓";$("#prev").disabled=N<=1}
+function load(){LS.set(key(),String(N));show();
+  // la page du jeu ne doit pas reprendre une partie solo gardée : on lui demande toujours la partie n° N
+  $("#fr").src=JEUX[J].url(N,JEUX[J].lvl())}
+$("#dots").onclick=e=>{const b=e.target.closest("[data-n]");if(b){N=+b.dataset.n;load()}};
+$("#next").onclick=()=>{const d=doneSet();if(!d.includes(N)){d.push(N);LS.set(key()+"-faites",JSON.stringify(d))}if(N<10){N++;load()}else show()};
+$("#prev").onclick=()=>{if(N>1){N--;load()}};$("#again").onclick=()=>load();
+$("#jeu").onchange=e=>{location.href="/direct/serie?jeu="+e.target.value};
+$("#lvl").onchange=e=>{LS.set("fl-serie-mglvl",e.target.value);N=Math.max(1,Math.min(10,+(LS.get(key())||1)));load()};
+load();
+// ---------- tchat Twitch en lecture seule (connexion anonyme) ----------
+const msgs=[];function chat(user,text){msgs.push({user,text:String(text).slice(0,80)});if(msgs.length>9)msgs.shift();
+  $("#msgs").innerHTML=msgs.map(m=>"<li><b>"+esc(m.user)+"</b>"+esc(m.text)+"</li>").join("")}
+window.__chat=chat;   // pour essayer sans Twitch : __chat("pseudo","SALADE")
+let ws=null;function connect(ch){ch=String(ch||"").trim().toLowerCase().replace(/^#/,"");if(!/^[a-z0-9_]{3,25}$/.test(ch))return;LS.set("fl-live-ch",ch);
+  try{if(ws)ws.close()}catch(e){}ws=new WebSocket("wss://irc-ws.chat.twitch.tv:443");
+  ws.onopen=()=>{ws.send("CAP REQ :twitch.tv/tags");ws.send("PASS SCHMOOPIIE");ws.send("NICK justinfan"+(10000+Math.floor(Math.random()*80000)));ws.send("JOIN #"+ch)};
+  ws.onmessage=e=>String(e.data).split("\r\n").forEach(l=>{if(!l)return;if(l.startsWith("PING")){ws.send("PONG :tmi.twitch.tv");return}
+    if(/ 366 /.test(l)){$("#live").classList.remove("off");$("#live span").textContent="Tchat Twitch connecté : "+ch}
+    const m=l.match(/^(?:@([^ ]*) )?:([^!]+)![^ ]* PRIVMSG #[^ ]+ :(.*)$/);if(!m)return;const dn=(m[1]||"").match(/display-name=([^;]*)/);chat(dn&&dn[1]?dn[1]:m[2],m[3])});
+  ws.onclose=()=>{$("#live").classList.add("off");$("#live span").textContent="Tchat déconnecté";setTimeout(()=>{if(LS.get("fl-live-ch")===ch&&(!ws||ws.readyState>1))connect(ch)},5000)}}
+$("#ch").value=LS.get("fl-live-ch")||"";$("#chGo").onclick=()=>connect($("#ch").value);if($("#ch").value)connect($("#ch").value);
+$("#clean").onclick=()=>document.body.classList.add("clean");addEventListener("keydown",e=>{if(e.key==="Escape")document.body.classList.remove("clean")});
+})();
+</script></body></html>

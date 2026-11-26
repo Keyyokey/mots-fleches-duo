@@ -857,7 +857,11 @@ const MJ = (() => {
     try { const r = REDIS ? await redis(["GET", "mj:prize:" + yd]) : MJ_PRIZE.get(yd); if (r) prize = Object.assign({ day: yd }, typeof r === "string" ? JSON.parse(r) : r); } catch {}
     return { found: d.found, played: d.played, len: d.w.length, max: MAXPTS(d.w), today: d.list.slice(0, 15), total, prize };
   }
-  return { strip, wordOf, colors, load, persist, view, board, score, dayList, MAXPTS, dict, defOf: w => defs[w] || "", size: () => words.length, resetTot: () => { totCache = null; } };
+  // 26/11 : série du direct (Twitch) : 10 mots par jour, pris HORS de la liste des mots du jour (le direct ne dévoile jamais un futur mot du jour)
+  const daily = new Set(words); let livePool = Object.keys(allDefs).filter(w => w.length >= 6 && w.length <= 7 && !daily.has(w) && mjNice(w, allDefs[w])).sort();
+  { let sd = 20261126; const r2 = () => (sd = (sd * 1103515245 + 12345) % 2147483648) / 2147483648; for (let i = livePool.length - 1; i > 0; i--) { const j = Math.floor(r2() * (i + 1)); [livePool[i], livePool[j]] = [livePool[j], livePool[i]]; } }
+  const liveWord = (day, n) => livePool.length ? livePool[((dayNo(day) * 10 + n) % livePool.length + livePool.length) % livePool.length] : "MOTIPOP";
+  return { strip, wordOf, colors, load, persist, view, board, score, dayList, MAXPTS, dict, liveWord, liveDef: w => allDefs[w] || "", livePool: () => livePool.length, defOf: w => defs[w] || "", size: () => words.length, resetTot: () => { totCache = null; } };
 })();
 const MJ_TOTAL = new Map(), MJ_PRIZE = new Map();   // sans Redis (tests locaux) : points cumulés par pseudo, gagnants du jour
 // fin de journée d'un joueur : ses moyennes (mots trouvés, essais, temps pour trouver, temps pour la 1re lettre bien placée)
@@ -915,6 +919,17 @@ async function enApi(b, out, ip) {
 }
 async function mjApi(b, out, ip) {
   if (b.op === "share") { statAdd("motdujour:partage"); return out(200, { ok: true }); }
+  // série du direct : rien n'est gardé (l'animateur joue pour le tchat), le mot reste sur le serveur jusqu'à la révélation
+  if (b.op === "live" || b.op === "livec" || b.op === "liver") {
+    const n = Math.max(1, Math.min(10, Number(b.n) || 1)), lw = MJ.liveWord(parisDay(), n);
+    if (b.op === "live") return out(200, { n, len: lw.length, first: lw[0] });
+    if (b.op === "liver") return out(200, { n, word: lw, def: MJ.liveDef(lw) });
+    const g = MJ.strip(b.g);
+    if (g.length !== lw.length) return out(200, { refus: "Le mot fait " + lw.length + " lettres." });
+    if (g[0] !== lw[0]) return out(200, { refus: "Le mot commence par " + lw[0] + "." });
+    if (!MJ.dict.has(g)) return out(200, { refus: "« " + g + " » n'est pas dans le dictionnaire." });
+    return out(200, { g, c: MJ.colors(g, lw), ok: g === lw });
+  }
   const day = parisDay(), w = MJ.wordOf(day);
   // qui joue : un pseudo connecté (classé) ou un invité (identifiant tiré au hasard par son navigateur)
   let id = null, name = normPseudo(b.name), pl = null;
@@ -1608,6 +1623,7 @@ function handleHttp(req, res) {
       let r; try { r = await LOBBY.duelApi(dm[1], b, String(b.id || "")); } catch (e) { console.error("défi :", e.message); r = [500, { error: "erreur" }]; }
       res.writeHead(r[0], { "content-type": "application/json", "cache-control": "no-store" }); res.end(JSON.stringify(r[1])); }); return; } }
   if (/^\/direct\/?$/.test(url.pathname)) return sendPage(req, res, path.join(__dirname, "public", "direct.html"));
+  if (/^\/direct\/serie\/?$/.test(url.pathname)) return sendPage(req, res, path.join(__dirname, "public", "direct-serie.html"));
   // icône du site (onglet du navigateur)
   // icônes Motipop : onglet (SVG) et écran d'accueil du téléphone (PNG)
   if (url.pathname === "/favicon.ico" || url.pathname === "/favicon.svg") { res.writeHead(200, { "content-type": "image/svg+xml", "cache-control": "public, max-age=86400" }); return res.end(FAVICON); }

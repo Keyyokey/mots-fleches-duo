@@ -10,3 +10,6 @@ m = q.get_matrix(); n = len(m); d = "".join(f"M{x},{y}h1v1h-1z" for y, r in enum
 qr = f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 {n} {n}" shape-rendering="crispEdges" role="img" aria-label="QR code vers motipop.fr"><rect width="{n}" height="{n}" fill="#fff"/><path d="{d}" fill="#12152e"/></svg>'
 out = src.replace("__LOGO__", logo).replace("__QR__", qr)
 open(os.path.join(ROOT, "public", "direct.html"), "w", encoding="utf8").write(out); print("public/direct.html", len(out) // 1024, "Ko")
+# 26/11 : série du direct (Mots fléchés difficile, Magnético : 10 parties fixes) → public/direct-serie.html (/direct/serie)
+s2 = open(os.path.join(D, "serie_src.html"), encoding="utf8").read().replace("__LOGO__", logo).replace("__QR__", qr)
+open(os.path.join(ROOT, "public", "direct-serie.html"), "w", encoding="utf8").write(s2); print("public/direct-serie.html", len(s2) // 1024, "Ko")

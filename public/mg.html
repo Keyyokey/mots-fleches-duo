@@ -556,6 +556,8 @@ function again(lv){const o=G,LVL=lv||G.level;if(o.bot){botStart(LVL);return}if(o
 function live(d){return !!(d&&!d.done&&!d.solo&&d.players&&Date.now()-Math.max(d.go||0,d.started||0)<15*60e3)}
 function boot(){const go=Q.get("go"),lvl=Q.get("lvl")||"facile";
   if(Q.get("duel")){duelBoot(Q.get("duel"));return}
+  // 26/11 : série du direct (/direct/serie) : ?serie=1…10 donne toujours les mêmes mots (graine fixe, sans tenir compte des mots déjà joués)
+  if(go==="solo"&&/^(10|[1-9])$/.test(Q.get("serie")||"")){const g=newGame([ME?ME.name:"Toi"],true,lvl);g.seed=7770000+(+Q.get("serie"))*101;g.words=pickWords(g.level,g.seed,false);g.serie=+Q.get("serie");open(g);save();return}
   if(go==="solo"||!CODE){open(newGame([ME?ME.name:"Toi"],true,lvl));save();return}
   if(!ME){if(Q.get("k")||go==="join"){/* 26/11 : sans compte, on entre à la table comme invité (INVITE + chiffres) */fetch("/api/p/guest",{method:"POST",headers:{"content-type":"application/json"},body:"{}"}).then(r=>r.json()).then(r=>{if(!r||!r.token)throw 0;localStorage.setItem("fl-me",JSON.stringify({name:r.name,token:r.token,guest:1}));location.reload()}).catch(()=>{try{sessionStorage.setItem("fl-back",location.pathname+location.search)}catch(e){}location.replace("/?need=pseudo")});return}location.replace(HOME+"?need=pseudo");return}
   connect();const t0_=Date.now();const iv=setInterval(()=>{if(G){clearInterval(iv);return}if(window.__snapped||Date.now()-t0_>12000){clearInterval(iv);const d=docs[DOC];

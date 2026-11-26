@@ -34,6 +34,7 @@ h2{margin:0;font:900 44px/1.1 Nunito,sans-serif}h2 small{display:block;font-size
 .live.off i{background:#8a93a8;box-shadow:none;animation:none}
 .ban{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%) scale(.8);opacity:0;pointer-events:none;padding:40px 70px;border-radius:36px;background:linear-gradient(135deg,rgba(20,184,166,.95),rgba(162,107,255,.95));text-align:center;box-shadow:0 30px 80px rgba(0,0,0,.5);transition:all .35s cubic-bezier(.2,1.4,.4,1);z-index:9}
 .ban.on{opacity:1;transform:translate(-50%,-50%) scale(1)}.ban b{display:block;font:900 84px Nunito,system-ui,sans-serif}.ban span{font:800 40px Nunito,system-ui,sans-serif}
+.nn{display:inline-block;margin-left:10px;padding:2px 14px;border-radius:999px;background:rgba(255,216,138,.16);color:#ffd88a;font-size:30px;vertical-align:middle}.manual .ghost{background:rgba(255,255,255,.12)}.cfg a{color:#9fe6ff}
 .cfg{position:fixed;right:12px;bottom:12px;z-index:20;display:flex;gap:8px;align-items:center;padding:8px 10px;border-radius:14px;background:rgba(0,0,0,.6);font:600 14px Inter,sans-serif}
 .cfg input{width:150px;padding:6px 8px;border-radius:8px;border:1px solid #555;background:#111;color:#fff}.cfg button{padding:6px 10px;border-radius:8px;border:0;background:#334;color:#fff;cursor:pointer}
 body.clean .cfg{display:none}
@@ -41,10 +42,10 @@ body.clean .cfg{display:none}
 <div class="stage" id="stage">
   <div class="left">
     <section class="glass mj">
-      <h2>Le Mot du jour <small id="mjSub">avec le tchat</small></h2>
+      <h2>Mot mystère <span class="nn" id="nn">1/10</span> <small id="mjSub">avec le tchat</small></h2>
       <div class="grid" id="grid"></div>
       <div class="who" id="who"></div>
-      <div class="manual"><input id="man" maxlength="9" autocomplete="off" placeholder="Taper un mot…"><button id="manGo" type="button">Jouer</button></div>
+      <div class="manual"><input id="man" maxlength="9" autocomplete="off" placeholder="Taper un mot…"><button id="manGo" type="button">Jouer</button><button id="rev" type="button" class="ghost">Révéler</button><button id="next" type="button">Mot suivant →</button></div>
     </section>
     <section class="glass props">
       <h2>Vos propositions <small>Écrivez un mot dans le tchat !</small></h2>
@@ -129,35 +130,46 @@ body.clean .cfg{display:none}
   </div>
 </div>
 <div class="ban" id="ban"><b id="banT"></b><span id="banS"></span></div>
-<div class="cfg" id="cfg">Twitch : <input id="ch" placeholder="nom de ta chaîne"><button id="chGo" type="button">Connecter</button> Salon : <input id="sal" placeholder="code du salon" style="width:110px"><button id="clean" type="button" title="Cacher cette barre (touche Échap pour la remettre)">Masquer</button></div>
+<div class="cfg" id="cfg">Jeu : <b>Mot mystère</b> · <a href="/direct/serie?jeu=magnetico">Magnético</a> · <a href="/direct/serie?jeu=fleches">Mots fléchés</a> | Twitch : <input id="ch" placeholder="nom de ta chaîne"><button id="chGo" type="button">Connecter</button> Salon : <input id="sal" placeholder="code du salon" style="width:110px"><button id="clean" type="button" title="Cacher cette barre (touche Échap pour la remettre)">Masquer</button></div>
 <script>
 (()=>{const $=s=>document.querySelector(s),LS={get:k=>{try{return localStorage.getItem(k)}catch(e){return null}},set:(k,v)=>{try{localStorage.setItem(k,v)}catch(e){}}};
 const esc=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
 const norm=s=>String(s||"").normalize("NFD").replace(/[̀-ͯ]/g,"").toUpperCase();
 // mise à l'échelle : la scène fait 1920x1080, la fenêtre peut être plus petite
 const fit=()=>{const s=Math.min(innerWidth/1920,innerHeight/1080);$("#stage").style.transform="scale("+s+")"};addEventListener("resize",fit);fit();
-// ---------- Mot du jour : une partie « invitée » propre au direct ----------
+// ---------- Mot mystère du direct : série de 10 mots par jour (jamais le Mot du jour du site, pour ne pas le dévoiler) ----------
 let G=LS.get("fl-live-g");if(!G||!/^[a-z0-9]{12,24}$/.test(G)){G="live"+Math.random().toString(36).slice(2,14).replace(/[^a-z0-9]/g,"0");LS.set("fl-live-g",G)}
 const call=b=>fetch("/api/p/mj",{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify(Object.assign({guest:G},b))}).then(r=>r.json());
-let S=null,busy=false;const P=new Map();   // propositions : mot -> {n, by (1er pseudo), users:Set}
+const DAY=new Date().toLocaleDateString("fr-CA",{timeZone:"Europe/Paris"});
+let N=Math.max(1,Math.min(10,+(LS.get("fl-live-n-"+DAY)||1))),S=null,busy=false;const P=new Map();   // propositions : mot -> {n, by (1er pseudo), users:Set}
+const keyS=()=>"fl-live-s-"+DAY+"-"+N;
+function saveS(){LS.set(keyS(),JSON.stringify(S))}
+function loadN(){P.clear();$("#who").textContent="";$("#nn").textContent=N+"/10";$("#next").textContent=N<10?"Mot suivant →":"Fin de la série";
+  let old=null;try{old=JSON.parse(LS.get(keyS())||"null")}catch(e){}if(old&&old.len){S=old;draw();return}
+  call({op:"live",n:N}).then(r=>{S={len:r.len,first:r.first,tries:[],done:false,ok:false};saveS();draw()}).catch(()=>{$("#rule").textContent="Le site ne répond pas"})}
 function draw(anim){if(!S)return;const g=$("#grid"),L=S.len;g.innerHTML="";
   for(let r=0;r<6;r++){const t=S.tries[r],row=document.createElement("div");row.className="row";row.style.gridTemplateColumns="repeat("+L+",92px)";
     for(let i=0;i<L;i++){const c=document.createElement("div");c.className="cell";
       if(t){c.textContent=t.g[i];c.classList.add("c"+t.c[i]);if(anim&&r===S.tries.length-1){c.classList.add("flip");c.style.animationDelay=i*90+"ms"}}
       else if(r===S.tries.length&&!S.done&&i===0){c.textContent=S.first;c.classList.add("first")}
       row.appendChild(c)}g.appendChild(row)}
-  $("#rule").textContent=S.done?(S.ok?"Trouvé ! Bravo à tous.":"Raté… le mot était "+(S.word||"?")+"."):"Un mot de "+L+" lettres qui commence par "+S.first+" · "+(6-S.tries.length)+" essai"+(6-S.tries.length>1?"s":"")+" restant"+(6-S.tries.length>1?"s":"");
-  $("#mjSub").textContent=S.done?(S.ok?"trouvé par le tchat !":"pas cette fois"):"avec le tchat";props()}
+  $("#rule").textContent=S.done?(S.ok?"Trouvé ! Bravo à tous.":"Raté… le mot était "+(S.word||"?")+"."+(S.def?" ("+S.def+")":"")):"Un mot de "+L+" lettres qui commence par "+S.first+" · "+(6-S.tries.length)+" essai"+(6-S.tries.length>1?"s":"")+" restant"+(6-S.tries.length>1?"s":"");
+  $("#mjSub").textContent=S.done?(S.ok?"trouvé par le tchat !":"pas cette fois"):"avec le tchat";$("#rev").hidden=S.done;props()}
 function props(){const L=[...P.entries()].sort((a,b)=>b[1].n-a[1].n||a[1].t-b[1].t).slice(0,7);
   $("#props").innerHTML=L.map(([w,p])=>'<li data-w="'+w+'" class="'+(p.bad?"bad":"")+'">'+w+' <span class="by">'+esc(p.by)+'</span><span class="n">'+p.n+' vote'+(p.n>1?"s":"")+'</span></li>').join("")||'<li style="cursor:default;font-size:24px;letter-spacing:0;opacity:.7">En attente des premières idées…</li>'}
 $("#props").onclick=e=>{const li=e.target.closest("li[data-w]");if(li)play(li.dataset.w)};
-async function play(w){w=norm(w).replace(/[^A-Z]/g,"");if(!S||S.done||busy||w.length!==S.len||w[0]!==S.first)return;busy=true;
-  try{const r=await call({op:"essai",g:w});if(r.refus){const p=P.get(w);if(p)p.bad=1;props();$("#who").textContent="« "+w+" » n'est pas dans le dictionnaire";return}
-    S=Object.assign(S,r);const p=P.get(w);$("#who").textContent=p?"Idée de "+p.by+(p.n>1?" (et "+(p.n-1)+" autre"+(p.n>2?"s":"")+")":""):"";P.delete(w);draw(true);
+async function reveal(){if(!S||S.word)return;try{const r=await call({op:"liver",n:N});S.word=r.word;S.def=r.def;S.done=true;saveS();draw()}catch(e){}}
+async function play(w){w=norm(w).replace(/[^A-Z]/g,"");if(!S||S.done||busy||w.length!==S.len||w[0]!==S.first||S.tries.some(t=>t.g===w))return;busy=true;
+  try{const r=await call({op:"livec",n:N,g:w});if(r.refus){const p=P.get(w);if(p)p.bad=1;props();$("#who").textContent="« "+w+" » n'est pas dans le dictionnaire";return}
+    S.tries.push({g:r.g,c:r.c});if(r.ok){S.ok=true;S.done=true;S.word=r.g}const p=P.get(w);$("#who").textContent=p?"Idée de "+p.by+(p.n>1?" (et "+(p.n-1)+" autre"+(p.n>2?"s":"")+")":""):"";P.delete(w);
+    if(!S.ok&&S.tries.length>=6)await reveal();saveS();draw(true);
     if(S.ok)setTimeout(()=>ban("Trouvé !",p?"Bravo "+p.by+" : "+w:w),700);else if(S.done)setTimeout(()=>ban("Raté…","Le mot était "+(S.word||"?")),700)}
   catch(e){$("#who").textContent="Connexion au site impossible, réessaie"}finally{busy=false}}
 $("#manGo").onclick=()=>{play($("#man").value);$("#man").value=""};$("#man").onkeydown=e=>{if(e.key==="Enter")$("#manGo").click()};
-call({op:"etat"}).then(r=>{S=r;draw()}).catch(()=>{$("#rule").textContent="Le site ne répond pas"});
+$("#rev").onclick=()=>reveal().then(()=>{if(S&&S.word)ban("Le mot était",S.word)});
+$("#next").onclick=()=>{if(N>=10){ban("Série terminée","10 mots joués · merci le tchat !");return}N++;LS.set("fl-live-n-"+DAY,String(N));loadN()};
+window.__live={go:n=>{N=n;LS.set("fl-live-n-"+DAY,String(N));loadN()}};
+loadN();
 // ---------- énigme : celle d'hier, dont la solution est connue ----------
 let EN=null;fetch("/api/p/en",{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({guest:G})}).then(r=>r.json()).then(r=>{EN=r&&r.hier;$("#enQ").textContent=EN?EN.q:"Pas d'énigme ce soir"}).catch(()=>{});
 const enOk=t=>{if(!EN||!EN.s)return false;const a=norm(EN.s).replace(/^(LE|LA|LES|L'|UN|UNE)\s*/,"").replace(/[^A-Z ]/g,"").trim();return a&&norm(t).replace(/[^A-Z ]/g," ").includes(a)};
