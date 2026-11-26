@@ -924,7 +924,7 @@ body[data-ph=""] #pkPrep,body:not([data-ph]) #pkPrep{display:none}
 </main>
 
 </div>
-<div class="overlay" id="leave"><div class="glass sheet qbox"><div class="ico-big">🚪</div><h3>Quitter la table ?</h3><div class="note">Tu te couches pour ce coup et tu quittes la partie. Tes jetons restants retournent dans ton porte-monnaie.</div>
+<div class="overlay" id="leave"><div class="glass sheet qbox"><div class="ico-big">🚪</div><h3>Quitter la table ?</h3><div class="note">Tu te couches et tu quittes. Tes jetons restants reviennent dans ton porte-monnaie.</div>
 <button class="btn primary" id="lvStay">Continuer à jouer</button><button class="btn" id="lvQuit">Quitter la table</button></div></div>
 <div class="overlay" id="cvWin"><div class="glass sheet"><h3>🪙 Points → jetons</h3><div id="cvBox"></div><button class="btn" id="cvClose">Fermer</button></div></div>
 <script>
@@ -979,7 +979,7 @@ function card(ch,cls,key){return '<div class="card-l'+(cls?" "+cls:"")+'"'+(key?
 function fmt(ms){const s=Math.max(0,Math.ceil(ms/1000));return Math.floor(s/60)+":"+String(s%60).padStart(2,"0")}
 let skew=0;
 function render(){const st=ST;document.body.dataset.ph=st&&st.started?st.phase:"";const lob=$("#pkLobby");if(st&&PREV&&st.hand!==PREV.hand&&$("#pkIn")){LOCKED="";$("#pkIn").value="";$("#pkBest").disabled=false;$("#pkBest").textContent="Verrouiller ce mot";typed();window.__autoSent=false}if(st&&PREV&&PREV.phase!=="abattage"&&st.phase==="abattage")RES0=Date.now();
-  if(!st){lob.innerHTML='<h3>Wordflush</h3><p class="note">Assieds-toi à la table de ce salon. La partie démarre quand vous êtes au moins deux (ou contre le robot en solo).</p><div class="pkrow"><button class="btn primary" id="lbSolo">👤 Jouer contre Léo</button>'+lvlSeg()+''+(SOLO?'':'<button class="btn" id="lbSit">👥 M\'asseoir à la table</button>')+'</div>';lob.hidden=false;bindLobby();renderDeck(null);return}
+  if(!st){lob.innerHTML='<h3>Wordflush</h3><p class="note">Assieds-toi. La partie démarre à deux (ou contre le robot).</p><div class="pkrow"><button class="btn primary" id="lbSolo">👤 Jouer contre Léo</button>'+lvlSeg()+''+(SOLO?'':'<button class="btn" id="lbSit">👥 M\'asseoir à la table</button>')+'</div>';lob.hidden=false;bindLobby();renderDeck(null);return}
   skew=st.now-Date.now();
   const me=st.me>=0?st.seats[st.me]:null;
   $("#pkMode").textContent=st.maxHands?"Coup "+Math.max(1,st.hand)+"/"+st.maxHands:"Coup "+Math.max(1,st.hand)+" · jusqu'au dernier";
@@ -1346,6 +1346,6 @@ if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",
 
 })();
 </script>
-<script>window.SK_HDR=1;</script><script src="/d/sk-f95b4f1c0a.js"></script>
+<script>window.SK_HDR=1;</script><script src="/d/sk-a3e70af092.js"></script>
 </body>
 </html>

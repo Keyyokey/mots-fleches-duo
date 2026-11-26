@@ -126,7 +126,7 @@
     if (m && m.guest) h += '<div class="note">Tu joues en invité : <b>' + esc(m.name) + '</b> · <a href="/?moncompte=1" style="color:inherit">Créer mon compte</a></div>';
     if (!C.nolvl) h += '<div class="mjlv" role="group" aria-label="Niveau">' + Object.keys(LV).map(function (k) { return '<button type="button" data-lv="' + k + '" class="' + (k === lvl ? "on" : "") + '">' + LV[k] + "</button>"; }).join("") + "</div>";
     // partie rapide
-    h += '<div class="mjc"><div class="hd"><span class="ic">⚡</span>Partie rapide' + tip("mjT1", "Le site te trouve un adversaire qui attend sur ce jeu. Si personne ne vient, tu peux jouer contre le robot.") + "</div>";
+    h += '<div class="mjc"><div class="hd"><span class="ic">⚡</span>Partie rapide' + tip("mjT1", "Un adversaire qui attend sur ce jeu. Personne ? Joue contre le robot.") + "</div>";
     if (!m) h += needMe() + (C.robot ? '<button class="btn" data-a="robot">🤖 Jouer contre le robot</button>' : "");
     else if (qAt) { var s = Math.floor((Date.now() - qAt) / 1000);
       h += '<div class="mjwait"><span class="spin"></span><span>Recherche d\'un adversaire… <b>' + Math.floor(s / 60) + ":" + String(s % 60).padStart(2, "0") + "</b></span></div>";
@@ -135,7 +135,7 @@
     else h += '<button class="btn primary" data-a="quick">Trouver un adversaire</button>';
     h += "</div>";
     // joueurs en ligne
-    h += '<div class="mjc"><div class="hd"><span class="ic">🟢</span>En ligne sur Motipop' + tip("mjT2", "Les joueurs qui ont une page de jeu ouverte. Touche « Inviter » : il reçoit ta proposition et choisit d'accepter.") + "</div>";
+    h += '<div class="mjc"><div class="hd"><span class="ic">🟢</span>En ligne sur Motipop' + tip("mjT2", "Joueurs connectés. « Inviter » : il reçoit ta proposition.") + "</div>";
     if (!o.length) h += '<div class="note">Personne d\'autre pour l\'instant' + (ON.guests > 1 ? " (" + (ON.guests - (m ? 0 : 1)) + " visiteur" + (ON.guests > 2 ? "s" : "") + " sans pseudo)" : "") + ".</div>";
     else h += "<div>" + o.map(function (p) { var st = p.busy ? "en partie" : p.wait ? "cherche un adversaire" : "sur " + (p.game === C.game ? "ce jeu" : esc(gameName(p.game)));
       var w = sent[p.name] && Date.now() - sent[p.name] < 60e3;
@@ -144,13 +144,13 @@
     if (!m && o.length) h += needMe();
     h += "</div>";
     // lien d'invitation
-    h += '<div class="mjc"><div class="hd"><span class="ic">🔗</span>Inviter un proche' + tip("mjT3", "Envoie un lien par SMS ou WhatsApp. Ton proche l'ouvre et vous jouez ensemble, sans salon ni code. Lien valable 2 jours.") + "</div>";
+    h += '<div class="mjc"><div class="hd"><span class="ic">🔗</span>Inviter un proche' + tip("mjT3", "Un lien par SMS ou WhatsApp : vous jouez ensemble, sans salon. Valable 2 jours.") + "</div>";
     if (!m) h += needMe();
     else if (link) h += '<div class="mjlink">' + esc(link.url) + "</div>" + shareBtns(link.url, "On fait une partie de " + C.gname + " ensemble ? ") + '<button class="btn primary" data-a="table">Aller à la table et attendre</button>';
     else h += '<button class="btn" data-a="link">Créer le lien</button>';
     h += "</div>";
     // défi différé
-    if (C.duel) h += '<div class="mjc"><div class="hd"><span class="ic">⏳</span>Défi différé' + tip("mjT4", "Joue une grille seul, puis envoie-la. Ton proche joue la même grille quand il veut : vous comparez vos scores.") + '</div><button class="btn" data-a="duel">Jouer une grille et défier</button></div>';
+    if (C.duel) h += '<div class="mjc"><div class="hd"><span class="ic">⏳</span>Défi différé' + tip("mjT4", "Joue seul, envoie ta partie : ton proche joue la même, vous comparez.") + '</div><button class="btn" data-a="duel">Jouer une grille et défier</button></div>';
     sh.innerHTML = h;
   }
   var GN = { accueil: "l'accueil", fleches: "les mots fléchés", magnetico: "Magnético", rond: "le Tourniquet", meles: "les mots mêlés", culture: "la culture générale" };

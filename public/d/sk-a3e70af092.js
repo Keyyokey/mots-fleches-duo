@@ -86,7 +86,7 @@ function makeAcctUI(env){
         if(r.status===200){env.setME({name:r.name||n.value,token:r.token,salons:r.salons||[]});guestUpload(r.name||n.value,r.token);env.onLogin();openMe(btn)}else{er.innerHTML=say(r);c.value="";c.focus()}};
       p.querySelector("#meGo").onclick=go;c.onkeydown=e=>{if(e.key==="Enter")go()};
       p.querySelector("#meNew").onclick=()=>{
-        p.innerHTML='<h4>Créer mon pseudo</h4><input class="in" id="nwName" maxlength="7" placeholder="PSEUDO (2 À 7)" autocomplete="username"><input class="in pin" id="nwPin" type="password" inputmode="numeric" maxlength="4" placeholder="CODE · 4 CHIFFRES" autocomplete="new-password"><div class="note">Ton pseudo s\'affiche dans les parties et te suit sur tous tes appareils. Il ne pourra pas être changé.</div><div class="err" id="nwErr"></div><button class="btn primary" id="nwGo">Créer</button><button class="lnk" id="nwBack">J\'ai déjà un pseudo</button>';
+        p.innerHTML='<h4>Créer mon pseudo</h4><input class="in" id="nwName" maxlength="7" placeholder="PSEUDO (2 À 7)" autocomplete="username"><input class="in pin" id="nwPin" type="password" inputmode="numeric" maxlength="4" placeholder="CODE · 4 CHIFFRES" autocomplete="new-password"><div class="note">Ton pseudo te suit sur tous tes appareils. Il ne change plus ensuite.</div><div class="err" id="nwErr"></div><button class="btn primary" id="nwGo">Créer</button><button class="lnk" id="nwBack">J\'ai déjà un pseudo</button>';
         const nn=p.querySelector("#nwName"),nc=p.querySelector("#nwPin"),er2=p.querySelector("#nwErr");nn.oninput=e=>{e.target.value=clean(e.target.value)};pinIn(nc);
         p.querySelector("#nwBack").onclick=()=>openMe(btn);
         const go2=async()=>{if(!RE.test(nn.value)){er2.innerHTML=CHECK+"<br>Pseudo : 2 à 7 caractères, lettres A-Z, chiffres et @ # _ (sans espace).";nn.focus();return}
@@ -124,7 +124,7 @@ function makeAcctUI(env){
       const mg=p.querySelector("#slMng");if(mg)mg.onclick=()=>manage(p,btn,here);return}
     const cur=L.find(x=>x.code===env.code()&&x.role==="owner");
     p.innerHTML='<h4>Mes salons</h4>'+(flash?'<div class="note" style="color:var(--accent);font-weight:700">'+esc(flash)+'</div>':"")
-      +(L.length?'<div class="list" style="max-height:min(46vh,320px);overflow:auto">'+rowsMng(L)+'</div>':'<div class="note">Tu n\'as accès à aucun salon pour le moment. Rejoins un salon avec son nom et son code d\'accès.</div>')
+      +(L.length?'<div class="list" style="max-height:min(46vh,320px);overflow:auto">'+rowsMng(L)+'</div>':'<div class="note">Aucun salon pour l\'instant. Rejoins-en un avec son nom et son code.</div>')
       +'<div style="display:flex;gap:8px"><button class="btn primary" id="slJoin" style="flex:1">Rejoindre un salon</button><button class="btn" id="slNew" style="flex:1">Créer un salon</button></div>'
       +(cur?'<button class="lnk" id="slMng">Gérer ce salon</button>':"");
     p.querySelectorAll(".slo").forEach(b=>b.onclick=()=>openRoom(b.dataset.c));
@@ -152,13 +152,13 @@ function makeAcctUI(env){
       else{er.innerHTML=say(r);if(r.field==="scode")C.focus();else if(r.field==="sname")N.focus()}};
     p.querySelector("#jnGo").onclick=go;C.onkeydown=e=>{if(e.key==="Enter")go()};setTimeout(()=>N.focus(),50)}
   function createForm(p,btn){const ME=env.getME();
-    p.innerHTML='<h4>Créer un salon</h4><input class="in" id="nsName" maxlength="40" placeholder="NOM DU SALON" style="letter-spacing:.04em"><div class="note">Un code d\'accès est créé automatiquement. Tu en es le responsable : donne le nom et le code à tes amis.</div><div class="err" id="nsErr"></div><button class="btn primary" id="nsGo">Créer le salon</button><button class="lnk" id="nsBack">Retour</button>';
+    p.innerHTML='<h4>Créer un salon</h4><input class="in" id="nsName" maxlength="40" placeholder="NOM DU SALON" style="letter-spacing:.04em"><div class="note">Un code d\'accès est créé. Donne le nom et le code à tes amis.</div><div class="err" id="nsErr"></div><button class="btn primary" id="nsGo">Créer le salon</button><button class="lnk" id="nsBack">Retour</button>';
     const N=p.querySelector("#nsName"),er=p.querySelector("#nsErr");p.querySelector("#nsBack").onclick=()=>drawList(p,btn);
     const go=async()=>{const n=N.value.trim();if(!n){er.innerHTML=CHECK+"<br>Nom du salon : 1 à 40 caractères.";N.focus();return}
       const b=p.querySelector("#nsGo");b.disabled=true;const r=await env.call("screate",{name:ME.name,token:ME.token,sname:n});b.disabled=false;
       if(r.status!==200){er.innerHTML=say(r);return}
       LIST=r.salons||LIST;ME.salons=LIST;env.setME(ME);const s=r.salon;
-      p.innerHTML='<h4>Salon créé ✓</h4><div class="note">Nom : <b>'+esc(s.name)+'</b></div><div class="note">Code d\'accès : <b style="letter-spacing:.2em;font-size:1.15em">'+esc(s.acode)+'</b></div><div class="note">Pour rejoindre, tes amis saisissent ce nom et ce code dans « Rejoindre un salon ».</div><button class="btn primary" id="nsOpen">Ouvrir le salon</button>';
+      p.innerHTML='<h4>Salon créé ✓</h4><div class="note">Nom : <b>'+esc(s.name)+'</b></div><div class="note">Code d\'accès : <b style="letter-spacing:.2em;font-size:1.15em">'+esc(s.acode)+'</b></div><div class="note">Tes amis entrent ce nom et ce code dans « Rejoindre un salon ».</div><button class="btn primary" id="nsOpen">Ouvrir le salon</button>';
       p.querySelector("#nsOpen").onclick=()=>openRoom(s.code)};
     p.querySelector("#nsGo").onclick=go;N.onkeydown=e=>{if(e.key==="Enter")go()};setTimeout(()=>N.focus(),50)}
   function manage(p,btn,s,flash){const ME=env.getME();
@@ -297,7 +297,9 @@ const GNAME={fleches:"Mots fléchés",rond:"Le Tourniquet",meles:"Mots mêlés"}
 function leaveOrHome(){const st=window.__skState?window.__skState():null;
   if(!st||!st.open||st.done){location.href=homeUrl();return}
   q("#leaveTxt").textContent=GNAME[PAGE]+" : veux-tu mettre la partie en pause pour la reprendre plus tard, ou la quitter ?";
-  q("#leaveRule").textContent=st.solo?"En pause, la partie est gardée : « Reprendre » apparaît sur la case du jeu. « Quitter » l'efface.":"En multijoueur, la pause dure 5 minutes maximum et le chrono s'arrête : au-delà, le joueur resté sur la grille gagne et reçoit la moitié de ses points (arrondie au supérieur). Si vous quittez tous les deux, personne ne marque de points.";
+// 26/11 : règles de pause en petit tableau
+window.LRT=window.LRT||(rows=>'<table class="lrt">'+rows.map(r=>"<tr><th>"+r[0]+"</th><td>"+r[1]+"</td></tr>").join("")+"</table>");(function(){if(document.getElementById("lrt-css"))return;const x=document.createElement("style");x.id="lrt-css";x.textContent='.lrt{width:100%;border-collapse:collapse;margin-top:4px;font-size:.88rem;text-align:left}.lrt th{font-weight:700;padding:5px 8px 5px 0;white-space:nowrap;vertical-align:top}.lrt td{padding:5px 0;opacity:.9}.lrt tr+tr th,.lrt tr+tr td{border-top:1px solid rgba(127,127,127,.2)}';document.head.appendChild(x)})();
+  q("#leaveRule").innerHTML=st.solo?LRT([["⏸️ Pause", "partie gardée"], ["▶️ Reprendre", "sur la case du jeu"], ["🗑️ Quitter", "efface la partie"]]):LRT([["⏸️ Pause", "5 min max, chrono arrêté"], ["⌛ Au-delà", "celui qui reste gagne ½ de ses points"], ["🚪 Partis tous les deux", "0 point"]]);
   q("#leave").classList.add("on")}
 
 // ---------- titre de la page de jeu ----------
