@@ -11,16 +11,17 @@ module.exports = function (root) {
     const ctx = { window: {} }; vm.createContext(ctx); vm.runInContext(fs.readFileSync(path.join(D, f), "utf8"), ctx);
     return ctx.window[key] || [];
   };
-  const GRIDS = load("grilles-", "__GRIDS"), ROND = load("rond-", "__ROND"), CG = load("culture-", "__CG");
+  const GRIDS = load("grilles-", "__GRIDS"), ROND = load("rond-", "__ROND"), CG = load("culture-", "__CG"), SUDO = load("sudoku-", "__SUDOKU");
   // mots mêlés : grilles générées à partir d'un numéro et d'un niveau (graine fixe → même contenu à chaque fois)
   const mctx = { norm: s => String(s || "").toUpperCase().normalize("NFD").replace(/[̀-ͯ]/g, "").replace(/[^A-Z]/g, "") };
   vm.createContext(mctx); vm.runInContext(fs.readFileSync(path.join(root, "meles_data.js"), "utf8") + "\nthis.melesDef=melesDef;this.makeMeles=makeMeles;this.NMELES=NMELES;", mctx);
 
-  const LVL = { fleches: { facile: "facile", normal: "moyen", moyen: "moyen", difficile: "difficile" }, rond: { facile: "facile", moyen: "moyen", normal: "moyen", difficile: "difficile" }, meles: { facile: "facile", moyen: "moyen", normal: "moyen", difficile: "difficile" }, culture: { all: "all" } };
-  const canon = { fleches: {}, rond: {}, meles: {}, culture: {} };          // référence → identifiant canonique
-  const lists = { fleches: {}, rond: {}, meles: {}, culture: { all: [] } };          // niveau → [références] (ordre du catalogue)
+  const LVL = { sudoku: { facile: "facile", moyen: "moyen", normal: "moyen", intermediaire: "moyen", difficile: "difficile" }, fleches: { facile: "facile", normal: "moyen", moyen: "moyen", difficile: "difficile" }, rond: { facile: "facile", moyen: "moyen", normal: "moyen", difficile: "difficile" }, meles: { facile: "facile", moyen: "moyen", normal: "moyen", difficile: "difficile" }, culture: { all: "all" } };
+  const canon = { fleches: {}, rond: {}, meles: {}, culture: {}, sudoku: {} };          // référence → identifiant canonique
+  const lists = { fleches: {}, rond: {}, meles: {}, culture: { all: [] }, sudoku: {} };          // niveau → [références] (ordre du catalogue)
   // mots fléchés : deux formats rangés à part — grilles classiques 10 colonnes (« facile ») et format téléphone 8 × 8 (« facile:t »)
   GRIDS.forEach(g => { if (!g.lvl) return; canon.fleches[g.id] = "fleches:" + g.id; const k = g.fmt === "t" ? g.lvl + ":t" : g.lvl; (lists.fleches[k] = lists.fleches[k] || []).push(g.id); });
+  SUDO.forEach(g => { canon.sudoku[g.id] = "sudoku:" + g.id; (lists.sudoku[g.lvl] = lists.sudoku[g.lvl] || []).push(g.id); });   // 26/11 : Sudoku (200 grilles)
   const seen = new Map();
   ROND.forEach(r => { const sig = JSON.stringify(r.cols); if (!seen.has(sig)) seen.set(sig, "rond:" + r.id); canon.rond[r.id] = seen.get(sig); (lists.rond[r.lvl] = lists.rond[r.lvl] || []).push(r.id); });
   for (const lv of ["facile", "moyen", "difficile"]) { lists.meles[lv] = []; for (let k = 1; k <= mctx.NMELES; k++) { const ref = lv + ":n" + k; canon.meles[ref] = "meles:" + ref; lists.meles[lv].push(ref); } }
@@ -54,9 +55,9 @@ module.exports = function (root) {
   const cgIndex = () => { const o = {}; CG.forEach(q => (o[KINDOF[q.id]] = o[KINDOF[q.id]] || []).push(q.id)); return o; };
   // revérification au lancement : une question déjà vue par un participant est remplacée si une question neuve existe
   function setOk(qs, hists, th) { if (!Array.isArray(qs) || qs.length !== NQ || new Set(qs).size !== NQ || !qs.every(id => canon.culture[id])) return false; let adm = admissible("culture", "all", hists); if (theme(th)) { const T = new Set(THEMES[th]); if (!qs.every(id => T.has(id))) return false; adm = adm.filter(id => T.has(id)); } return adm.length < NQ ? qs.filter(id => adm.includes(id)).length >= adm.length : qs.every(id => adm.includes(id)); }
-  const GAMES = ["fleches", "rond", "meles", "culture"];
+  const GAMES = ["fleches", "rond", "meles", "culture", "sudoku"];
   // référence du contenu d'une partie (document du salon)
-  const refOf = (game, d) => game === "fleches" ? d.grid : game === "rond" ? d.pid : game === "culture" ? (d.qs || []).join(",") : (d.level + ":" + d.mid);
+  const refOf = (game, d) => game === "fleches" ? d.grid : game === "rond" || game === "sudoku" ? d.pid : game === "culture" ? (d.qs || []).join(",") : (d.level + ":" + d.mid);
   const level = (game, l) => (LVL[game] || {})[l] || null;
   // liste d'un niveau dans le format choisi (mots fléchés seulement : « t » = format téléphone)
   const lkey = (game, lvl, fmt) => game === "fleches" && fmt === "t" ? lvl + ":t" : lvl;
@@ -74,9 +75,10 @@ module.exports = function (root) {
   function applyTo(game, d, ref) {
     if (game === "fleches") { const g = GRIDS.find(x => x.id === ref); d.grid = ref; d.filled = {}; d.letters = {}; if (d.level === "facile") (g.paper || []).forEach(k => d.filled[k] = -1); d.mystery = null; }
     else if (game === "rond") { d.pid = ref; d.found = {}; }
+    else if (game === "sudoku") { d.pid = ref; d.cells = {}; }
     else if (game === "culture") { d.qs = ref; d.i = 0; d.ans = {}; d.adv = {}; }
     else { const [lv, mid] = ref.split(":"); const def = mctx.melesDef(mid, lv); const m = mctx.makeMeles(def.theme, lv, def.seed); Object.assign(d, m, { mid: "n" + def.k, found: {} }); }
     d.players.forEach(p => p.score = 0);
   }
-  return { lkey, fmtOf, GAMES, CGBY, cgIndex, THEMES, theme, QUOTA, drawSet, setOk, NQ, refOf, level, cid, admissible, pick, byNumber, applyTo, lists, counts: { fleches: GRIDS.length, rond: ROND.length } };
+  return { lkey, fmtOf, GAMES, CGBY, cgIndex, THEMES, theme, QUOTA, drawSet, setOk, NQ, refOf, level, cid, admissible, pick, byNumber, applyTo, lists, counts: { fleches: GRIDS.length, rond: ROND.length, sudoku: SUDO.length } };
 };

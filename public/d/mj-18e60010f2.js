@@ -39,7 +39,7 @@
     else if (m.t === "loblink") { linkReady(m); }
     else if (m.t === "lobfail") { stopQ(); if (m.need === "pseudo") { render(); return; } say(esc(m.msg || "Réessaie dans un instant.")); render(); }
   }
-  var PATH = { fleches: "fleches", magnetico: "magnetico", rond: "rond", meles: "meles", culture: "culture", poker: "poker" };
+  var PATH = { fleches: "fleches", magnetico: "magnetico", rond: "rond", meles: "meles", culture: "culture", poker: "poker", sudoku: "sudoku" };
   function go(m) {
     var base = "/" + m.id + "/" + (PATH[m.game] || C.path);
     try { sessionStorage.setItem("fl-table", JSON.stringify({ id: m.id, opp: m.opp, at: Date.now() })); } catch (e) {}

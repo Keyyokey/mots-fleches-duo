@@ -134,7 +134,7 @@ async function handleDraw(ws, s, m) {
   return reply({ ok: true, ref: CAT.pick(adm) });
 }
 async function handleLaunch(ws, s, m) {
-  const id = String(m.id || ""); const game = { fl: "fleches", rond: "rond", meles: "meles", cg: "culture", mg: "magnetico" }[id];
+  const id = String(m.id || ""); const game = { fl: "fleches", rond: "rond", meles: "meles", cg: "culture", mg: "magnetico", sd: "sudoku" }[id];
   if (!game) return;
   if (game === "magnetico") return locked1(ws.room, async () => {
     // Magnético : pas de catalogue à vérifier, seulement les joueurs (2 à 4 vrais comptes présents dans le salon)
@@ -184,7 +184,7 @@ function launchOk(id, prev, next) {
     if (!prev.wait && JSON.stringify(prev.words) !== JSON.stringify(next.words)) return false;
     return true;
   }
-  const game = { fl: "fleches", rond: "rond", meles: "meles", cg: "culture" }[id]; if (!game || !next || next.solo || !Array.isArray(next.players)) return true;
+  const game = { fl: "fleches", rond: "rond", meles: "meles", cg: "culture", sd: "sudoku" }[id]; if (!game || !next || next.solo || !Array.isArray(next.players)) return true;
   const same = prev && prev.gid === next.gid;
   if (!same) return !!next.wait || !!next.done;                                     // une nouvelle partie commence toujours en attente
   if (prev.wait && !next.wait && !next.done) return false;                          // lancement réservé au serveur
@@ -683,7 +683,7 @@ function soloTicket(p, game, gid) {
   p.tk[k] = now;
 }
 // multijoueur : le score retenu est celui de la partie gardée par le serveur, pas celui annoncé par le navigateur
-const DOCID = { fleches: "fl", rond: "rond", meles: "meles", culture: "cg", magnetico: "mg" };
+const DOCID = { fleches: "fl", rond: "rond", meles: "meles", culture: "cg", magnetico: "mg", sudoku: "sd" };
 function multiScore(game, gid, name) {
   const id = DOCID[game]; if (!id) return null;
   for (const s of salons.values()) {
@@ -1162,7 +1162,7 @@ async function api(req, res, route) {
   if (route === "score") {
     // points d'une partie terminée, envoyés par le joueur lui-même (une seule fois par partie)
     const game = String(b.game || ""), gid = String(b.gid || "");
-    if (!/^(fleches|rond|meles|poker|mot|culture|magnetico)$/.test(game) || !/^[A-Za-z0-9_-]{3,40}$/.test(gid)) return out(400, { error: "partie" });
+    if (!/^(fleches|rond|meles|poker|mot|culture|magnetico|sudoku)$/.test(game) || !/^[A-Za-z0-9_-]{3,40}$/.test(gid)) return out(400, { error: "partie" });
     p.gids = Array.isArray(p.gids) ? p.gids : [];
     if (p.gids.includes(game + gid)) return out(200, { ok: true, dup: true, pts: p.pts });
     statAdd(game + ":finie");
@@ -1355,7 +1355,7 @@ function sendPage(req, res, file) {
         const sec = req.headers["x-forwarded-proto"] === "https" ? "; Secure" : "";
         ck.push("mp_j=" + day + "; Max-Age=172800; Path=/; SameSite=Lax" + sec, "mp_n=1; Max-Age=31536000; Path=/; SameSite=Lax" + sec, "mp_src=" + src + "; Path=/; SameSite=Lax" + sec);
         res.setHeader("Set-Cookie", ck); } } }
-    if (req.method === "GET" && !BOT_RE.test(req.headers["user-agent"] || "") && cookieOf(req, "mp_moi") !== "1") { const f = path.basename(file), g = { "fl.html": "fleches", "rd.html": "rond", "mm.html": "meles", "mg.html": "magnetico", "md.html": "motdujour", "cg.html": "culture", "poker.html": "poker" }[f]; const q = String(req.url || ""); const rf = (q.match(/[?&]ref=([a-z0-9-]{2,20})(?:&|$)/) || [])[1]; if (rf) statAdd("ref:" + rf); if (f === "accueil.html") statAdd("accueil"); else if (g) statAdd(g + ":" + (/[?&]go=multi/.test(q) ? "ouverte-multi" : /[?&]go=/.test(q) ? "ouverte-solo" : "ouverte")); } } catch {}
+    if (req.method === "GET" && !BOT_RE.test(req.headers["user-agent"] || "") && cookieOf(req, "mp_moi") !== "1") { const f = path.basename(file), g = { "fl.html": "fleches", "sd.html": "sudoku", "ml.html": "motlibre", "rd.html": "rond", "mm.html": "meles", "mg.html": "magnetico", "md.html": "motdujour", "cg.html": "culture", "poker.html": "poker" }[f]; const q = String(req.url || ""); const rf = (q.match(/[?&]ref=([a-z0-9-]{2,20})(?:&|$)/) || [])[1]; if (rf) statAdd("ref:" + rf); if (f === "accueil.html") statAdd("accueil"); else if (g) statAdd(g + ":" + (/[?&]go=multi/.test(q) ? "ouverte-multi" : /[?&]go=/.test(q) ? "ouverte-solo" : "ouverte")); } } catch {}
   sendBody(req, res, p, "text/html; charset=utf-8", "no-cache");
 }
 // données lourdes (grilles…) : nom de fichier versionné → mises en cache un an par le navigateur
@@ -1638,11 +1638,12 @@ function handleHttp(req, res) {
   if (/^\/(?:[A-Za-z0-9]{5}\/)?rond\/?$/.test(url.pathname)) return sendPage(req, res, path.join(__dirname, "public", "rd.html"));
   if (/^\/(?:[A-Za-z0-9]{5}\/)?meles\/?$/.test(url.pathname)) return sendPage(req, res, path.join(__dirname, "public", "mm.html"));
   if (/^\/(?:[A-Za-z0-9]{5}\/)?magnetico\/?$/.test(url.pathname)) return sendPage(req, res, path.join(__dirname, "public", "mg.html"));
+  if (/^\/(?:[A-Za-z0-9]{5}\/)?sudoku\/?$/.test(url.pathname)) return sendPage(req, res, path.join(__dirname, "public", "sd.html"));
   if (/^\/(?:motdujour|mot-du-jour|defi)\/?$/.test(url.pathname)) return sendPage(req, res, path.join(__dirname, "public", "md.html"));
   if (/^\/(?:motlibre|mot-libre)\/?$/.test(url.pathname)) return sendPage(req, res, path.join(__dirname, "public", "ml.html"));
   // 25/11 : mode direct (Twitch, Facebook Live…) à filmer avec OBS : Mot du jour joué avec le tchat, énigme, QR code
   // 26/11 : défi différé (même grille, scores comparés) : /duel/ID ouvre la grille du défi
-  { const dm = url.pathname.match(/^\/duel\/([a-z2-9]{7})\/?$/); if (dm) { const PG = { fleches: "/fleches", magnetico: "/magnetico", rond: "/rond", meles: "/meles", culture: "/culture" };
+  { const dm = url.pathname.match(/^\/duel\/([a-z2-9]{7})\/?$/); if (dm) { const PG = { fleches: "/fleches", magnetico: "/magnetico", rond: "/rond", meles: "/meles", culture: "/culture", sudoku: "/sudoku" };
     LOBBY.duelGet(dm[1]).then(o => { res.writeHead(302, { location: o ? PG[o.game] + "?duel=" + o.id : "/", "cache-control": "no-store" }); res.end(); }, () => { res.writeHead(302, { location: "/" }); res.end(); }); return; } }
   { const dm = url.pathname.match(/^\/api\/duel\/(new|get|res)$/); if (dm) { if (req.method !== "POST") { res.writeHead(405); return res.end("{}"); }
     let body = ""; req.on("data", d => { body += d; if (body.length > 2000) req.destroy(); });

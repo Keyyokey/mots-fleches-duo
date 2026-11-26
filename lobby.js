@@ -8,7 +8,7 @@ module.exports = function makeLobby(D) {
   const { send, getPlayer, tokOk, normPseudo, PSEUDO_RE, accs, getAcc, saveAcc, redis, REDIS, CAT } = D;
   const ID_CH = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789", K_CH = "abcdefghijkmnpqrstuvwxyz23456789";
   const rnd = (n, ch) => [...crypto.randomBytes(n)].map(x => ch[x % ch.length]).join("");
-  const GAMES = { fleches: "mots fléchés", magnetico: "Magnético", rond: "Tourniquet", meles: "mots mêlés", culture: "culture générale", poker: "Wordflush", accueil: "l'accueil" };
+  const GAMES = { fleches: "mots fléchés", magnetico: "Magnético", rond: "Tourniquet", meles: "mots mêlés", culture: "culture générale", poker: "Wordflush", sudoku: "Sudoku", accueil: "l'accueil" };
   const LVLS = ["facile", "normal", "moyen", "difficile"];   // « moyen » : nom du niveau Normal au Tourniquet
   const socks = new Set();                    // connexions présentes dans le salon d'attente (une page de jeu ouverte)
   const queue = [];                           // partie rapide : { ws, u, game, lvl, at }
@@ -33,7 +33,7 @@ module.exports = function makeLobby(D) {
   async function boxAdd(u, m) { const l = await boxGet(u); const x = { k: rnd(10, K_CH), at: Date.now(), ...m }; l.unshift(x); l.length = Math.min(l.length, BOX_MAX); boxSave(u); toUser(u, { t: "boxmsg", m: x }); return x; }
   async function boxDel(u, test) { const l = await boxGet(u); const gone = l.filter(test); if (!gone.length) return; boxes.set(u, l.filter(x => !test(x))); boxSave(u); gone.forEach(x => toUser(u, { t: "lobinvx", k: x.k })); }
   const inboxOf = u => [...invites.entries()].filter(([, v]) => v.to === u).map(([k, v]) => ({ k, kind: "inv", from: v.fromU, game: v.game, gname: GAMES[v.game], lvl: v.lvl, at: v.at }));
-  const TABLE_NAME = { fleches: "Partie de mots fléchés", poker: "Partie de Wordflush" };
+  const TABLE_NAME = { fleches: "Partie de mots fléchés", poker: "Partie de Wordflush", sudoku: "Partie de Sudoku" };
 
   // ---------- tables (salons temporaires) ----------
   async function newTable(game, members, owner) {

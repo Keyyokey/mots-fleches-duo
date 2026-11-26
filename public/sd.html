@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<script>try{document.documentElement.dataset.theme=localStorage.getItem("fl-theme")||"dark";if(localStorage.getItem("fl-deco")==="off")document.documentElement.classList.add("nodeco")}catch(e){}</script>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Sudoku gratuit en ligne, seul ou à plusieurs — Motipop</title>
+<meta name="description" content="Sudoku gratuit : 200 grilles en 3 niveaux (Facile, Intermédiaire, Difficile), en solo ou jusqu'à 4 joueurs chacun son tour. Sur téléphone et ordinateur.">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml"><link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="preload" href="/d/f-inter-f11d729bb0.woff2" as="font" type="font/woff2" crossorigin><link rel="preload" href="/d/f-nunito-76388dbfe3.woff2" as="font" type="font/woff2" crossorigin><link rel="stylesheet" href="/d/polices-117650e856.css">
+<link rel="stylesheet" href="/d/jeu-88a196dffd.css">
+<link rel="stylesheet" href="/d/sk-b4a77edec2.css">
+<style>
+/* Sudoku (26/11/2026) : couleur signature ambre ; grille carrée qui remplit la place, pavé numérique sous la grille (téléphone) ou à côté */
+.sdl{display:grid;grid-template-columns:minmax(0,1fr) 330px;gap:16px;align-items:start;max-width:1040px;margin:0 auto}
+.sdb{padding:12px;position:relative}
+.sdg{--n:min(64px,calc((100vw - 64px)/9));display:grid;grid-template-columns:repeat(9,1fr);width:calc(var(--n)*9);height:calc(var(--n)*9);margin:0 auto;border:2px solid var(--sdline);border-radius:12px;overflow:hidden;background:var(--cell);user-select:none;-webkit-user-select:none;touch-action:manipulation}
+:root{--sdline:rgba(255,255,255,.55);--sdthin:rgba(255,255,255,.12);--sdgiven:#eef2f7;--sdmine:#ffc857}
+[data-theme=light]{--sdline:rgba(20,30,50,.6);--sdthin:rgba(20,30,50,.15);--sdgiven:#14202b;--sdmine:#b26b00}
+.sdc{position:relative;display:grid;place-items:center;border-right:1px solid var(--sdthin);border-bottom:1px solid var(--sdthin);font:800 calc(var(--n)*.56) Nunito,Inter,sans-serif;color:var(--sdmine);cursor:pointer}
+.sdc:nth-child(9n){border-right:0}.sdc:nth-child(n+73){border-bottom:0}
+.sdc:nth-child(9n+3),.sdc:nth-child(9n+6){border-right:2px solid var(--sdline)}
+.sdc:nth-child(n+19):nth-child(-n+27),.sdc:nth-child(n+46):nth-child(-n+54){border-bottom:2px solid var(--sdline)}
+.sdc.g{color:var(--sdgiven)}
+.sdc.zone{background:rgba(255,200,87,.07)}.sdc.same{background:rgba(255,200,87,.2)}.sdc.sel{background:rgba(255,200,87,.38);box-shadow:inset 0 0 0 2px var(--gold,#ffc857)}
+.sdc.bad{color:#ff5d73}.sdc.bad::after{content:"";position:absolute;inset:3px;border-radius:6px;border:2px solid rgba(255,93,115,.6)}
+html.cb .sdc.bad{color:#2b7fff}html.cb .sdc.bad::after{border-color:rgba(43,127,255,.7);border-style:dashed}
+.sdc.live{outline:2px dashed var(--pc,#5ad8ff);outline-offset:-3px}
+.sdc .nt{position:absolute;inset:2px;display:grid;grid-template-columns:repeat(3,1fr);font:700 calc(var(--n)*.22) Inter,sans-serif;color:var(--muted);line-height:1}
+.sdc .nt i{display:grid;place-items:center;font-style:normal}
+.sdc.pop{animation:sdpop .35s ease}@keyframes sdpop{50%{transform:scale(1.18)}}
+.sdside{display:flex;flex-direction:column;gap:12px}
+.sdside .card{padding:12px 14px}
+.sdsc{display:flex;flex-direction:column;gap:6px}
+.sdp{display:flex;align-items:center;gap:8px;padding:8px 10px;border-radius:12px;border:1px solid var(--stroke);background:var(--glass)}
+.sdp .pi{width:28px;height:28px;border-radius:50%;display:grid;place-items:center;font:800 .9rem Nunito,sans-serif;color:#041b1d;flex:none}
+.sdp b{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.sdp .rclk{font:800 .85rem Inter,sans-serif;opacity:.85}.sdp .sv{font:900 1.15rem Nunito,sans-serif;min-width:2ch;text-align:right}
+.sdp.turn{border-color:var(--gold,#ffc857);box-shadow:0 0 0 2px rgba(255,200,87,.25)}.sdp.idle{opacity:.6}
+.sdpad{display:grid;grid-template-columns:repeat(9,1fr);gap:6px}
+.sdpad button{min-height:52px;border-radius:12px;border:1px solid var(--stroke);background:var(--glass2,rgba(255,255,255,.12));color:var(--ink);font:900 1.35rem Nunito,sans-serif;cursor:pointer;position:relative}
+.sdpad button.on{background:linear-gradient(135deg,#ffb020,#ff7a3d);color:#1b1000;border-color:transparent}
+.sdpad button.full{opacity:.3}
+.sdact{display:flex;gap:6px;margin-top:8px}.sdact .btn{flex:1;min-height:46px}.sdact .btn.on{background:rgba(255,200,87,.25);border-color:var(--gold)}
+.sdmsg{min-height:1.3em;font:700 .9rem Inter,sans-serif;margin-top:6px}
+.sdrule{font-size:.82rem;color:var(--muted)}
+.tline2{height:6px;border-radius:3px;background:rgba(255,255,255,.08);overflow:hidden;margin-top:8px}.tline2 i{display:block;height:100%}
+.endrow{display:flex;align-items:center;gap:10px;padding:8px 12px;border-radius:12px;background:rgba(0,0,0,.2);margin-top:6px;text-align:left}[data-theme=light] .endrow{background:rgba(255,255,255,.7)}
+.endrow b{flex:1}.endrow .pi{width:28px;height:28px;border-radius:50%;display:grid;place-items:center;font-weight:800;color:#041b1d}.endrow .sv{font-weight:800;font-size:1.2rem}
+.endlv{display:flex;flex-direction:column;align-items:center;gap:6px;margin:4px 0 8px}.endlv small{font:700 .78rem Nunito,Inter,sans-serif;opacity:.8}
+.lvrow{display:flex;gap:6px}.lvrow button{padding:8px 12px;border-radius:12px;border:1px solid var(--stroke);background:var(--glass);color:var(--ink);font:700 .85rem Inter,sans-serif;cursor:pointer}.lvrow button.on{background:linear-gradient(135deg,#ffb020,#ff7a3d);color:#1b1000;border-color:transparent}
+#boot{display:none}body.booting #boot{display:flex;position:fixed;inset:0;z-index:50;align-items:center;justify-content:center;gap:12px;font:700 1rem Nunito,Inter,sans-serif;color:var(--ink)}#boot .spin{width:22px;height:22px}
+body.booting .view{visibility:hidden}
+.gtop .gname{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0;flex:1}
+@media (max-width:620px){.gtop .hpill{font-size:.72rem;padding:4px 9px;margin-left:4px}.gtop{gap:8px}}
+@media (max-width:820px){.sdl{grid-template-columns:1fr}.sdb{padding:8px}.sdg{--n:min(52px,calc((100vw - 40px)/9))}.sdside{gap:8px}.sdpad button{min-height:48px}}
+@media (max-width:620px){.sdsc{flex-direction:row;flex-wrap:wrap}.sdp{flex:1 1 45%;padding:6px 8px}.sdside .sdrulec{order:5}}
+</style>
+</head>
+<body class="sk-new booting">
+<div id="skTop" class="skph"></div>
+<div class="blob b1"></div><div class="blob b2"></div><div class="blob b3"></div>
+<div class="wrap">
+<div id="boot"><span class="spin"></span><b>Préparation de la partie…</b></div><script>setTimeout(function(){document.body.classList.remove("booting")},10000)</script>
+<main class="view on">
+  <div class="gtop"><button class="homebtn" title="Retour à l'accueil" aria-label="Retour à l'accueil"><svg viewBox="0 0 24 24"><path d="M3 11.2 12 4l9 7.2" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/><path d="M5.5 10v9.2h4.8v-5.6h3.4v5.6h4.8V10" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linejoin="round"/></svg></button><b class="gname">Sudoku <span class="hpill">—</span></b></div>
+  <h1 class="sr-only" style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)">Sudoku gratuit en ligne</h1>
+  <div class="sdl">
+    <div class="glass sdb"><div class="sdg" id="grid" role="grid" aria-label="Grille de Sudoku"></div>
+      <div class="fover" id="waitBox" style="display:none"><div class="fobox"><span class="spin"></span><b id="waitTxt">En attente…</b><span class="note" id="waitNote">Jusqu'à 4 joueurs. N'importe quel joueur présent peut lancer.</span><button class="btn primary" id="launchBtn" type="button">Lancer la partie</button></div></div>
+      <div class="fover" id="pauseBox" style="display:none"><div class="fobox" style="border-color:var(--gold)"><span style="font-size:1.6rem">⏸️</span><span id="pauseTxt"></span></div></div>
+      <div class="count" id="count"><b id="countN">5</b></div></div>
+    <div class="sdside">
+      <div class="glass card"><div class="sdsc" id="scores"></div><div class="tline2" id="tl"><i id="tlb" style="width:100%"></i></div></div>
+      <div class="glass card">
+        <div class="sdpad" id="pad" aria-label="Chiffres"></div>
+        <div class="sdact"><button class="btn" id="bErase" type="button" title="Effacer la case">⌫</button><button class="btn" id="bNotes" type="button" title="Notes (petits chiffres)">✏️ Notes</button><button class="btn" id="bPass" type="button" title="Passer mon tour">⏭</button><button class="btn primary" id="bOk" type="button">Valider</button></div>
+        <div class="sdmsg" id="msg" role="status" aria-live="polite"></div>
+      </div>
+      <div class="glass card sdrulec"><div class="sdrule" id="rule"></div></div>
+    </div>
+  </div>
+</main>
+</div>
+<div class="overlay" id="leave"><div class="glass sheet qbox"><h3>Ta grille n'est pas terminée</h3><button class="btn primary" id="lvPause">Mettre en pause</button><button class="btn" id="lvQuit">Annuler la partie</button><button class="btn" id="lvStay" style="background:transparent">Continuer à jouer</button></div></div>
+<div class="overlay" id="endWin"><div class="glass sheet qbox"><h3 id="endT"></h3><div class="note" id="endB"></div><div id="endAgain" class="endlv"><small>Nouvelle grille : choisis le niveau</small><div class="lvrow"><button type="button" data-lv="facile">Facile</button><button type="button" data-lv="moyen">Intermédiaire</button><button type="button" data-lv="difficile">Difficile</button></div></div><button class="btn" id="endHome">🏠 Accueil</button></div></div>
+<script>window.SK_HDR=1;</script><script src="/d/compte-9df4a4e0ff.js"></script><script src="/d/sk-c4e3f6ac86.js"></script>
+<script src="/d/sudoku-ad7cd6c63b.js"></script>
+<script>// ===== Sudoku — solo et multijoueur (2 à 4, chacun son tour, comme les mots fléchés) =====
+(function(){
+"use strict";
+const $=s=>document.querySelector(s),$$=s=>[...document.querySelectorAll(s)];
+const LS={get(k){try{return localStorage.getItem(k)}catch(e){return null}},set(k,v){try{localStorage.setItem(k,v)}catch(e){}},del(k){try{localStorage.removeItem(k)}catch(e){}}};
+const esc=s=>String(s==null?"":s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const Q=new URLSearchParams(location.search);
+const CODE=((location.pathname.match(/^\/([A-Za-z0-9]{5})\//)||[])[1]||"").toUpperCase()||null;
+const HOME=CODE?"/"+CODE:"/";
+let ME=null;try{ME=JSON.parse(LS.get("fl-me")||"null")}catch(e){}if(ME&&!/^(?:[A-Z0-9@#_]{2,7}|INVITE\d{4,5})$/.test(ME.name||""))ME=null;
+const DOC="sd",SOLOKEY="fl2-solo-sudoku",GAME="sudoku",REFOF=g=>g.pid;
+const PC=["#34d399","#fb7185","#5ad8ff","#c89bff"];
+const LVLN={facile:"Facile",moyen:"Intermédiaire",normal:"Intermédiaire",difficile:"Difficile"},DUR={facile:40,moyen:50,normal:50,difficile:60};
+const SUDO=window.__SUDOKU||[];
+const UNITS=[];for(let r=0;r<9;r++)UNITS.push([...Array(9)].map((_,c)=>r*9+c));for(let c=0;c<9;c++)UNITS.push([...Array(9)].map((_,r)=>r*9+c));for(let b=0;b<9;b++){const br=Math.floor(b/3)*3,bc=b%3*3;UNITS.push([...Array(9)].map((_,k)=>(br+Math.floor(k/3))*9+bc+k%3))}
+const unitsOf=i=>UNITS.filter(u=>u.includes(i));
+let G=null,P=null,ws=null,docs={},peers=[],reqN=0,sel=null,dig=0,notesOn=false,NOTES={};
+
+// ---------- sons ----------
+let AC=null;function tone(f,d,t,type,v){if(LS.get("fl-sound")==="off")return;try{AC=AC||new (window.AudioContext||window.webkitAudioContext)();const n=AC.currentTime+(d||0),o=AC.createOscillator(),g=AC.createGain();o.type=type||"sine";o.frequency.setValueAtTime(f,n);g.gain.setValueAtTime(0,n);g.gain.linearRampToValueAtTime(v||.12,n+.01);g.gain.exponentialRampToValueAtTime(.0001,n+(t||.25));o.connect(g).connect(AC.destination);o.start(n);o.stop(n+(t||.25)+.05)}catch(e){}}
+const sfx={ok:()=>{tone(660,0,.15);tone(880,.1,.2)},unit:()=>[660,880,1100,1320].forEach((f,i)=>tone(f,i*.08,.2)),bad:()=>tone(200,0,.25,"square",.06),warn:()=>tone(440,0,.18,"triangle",.1),bell:()=>[[880,0],[1320,0],[880,.32]].forEach(([f,d])=>tone(f,d,1.3,"sine",.14)),key:()=>tone(1180,0,.05,"triangle",.06)};
+(m=>Object.keys(m).forEach(k=>{const f=sfx[k];sfx[k]=function(){return(window.MotipopSons&&window.MotipopSons.play(m[k]))||f.apply(this,arguments)}}))({ok:"mot",bad:"faux",warn:"tictac",bell:"ding"});
+function toast(ic,html){let t=$("#toast");if(!t){t=document.createElement("div");t.id="toast";document.body.appendChild(t)}t.innerHTML="<span class='ti'>"+ic+"</span><span>"+html+"</span>";t.classList.remove("on");void t.offsetWidth;t.classList.add("on");clearTimeout(t._h);t._h=setTimeout(()=>t.classList.remove("on"),4200)}
+const fmt=s=>{s=Math.max(0,Math.ceil(s));return Math.floor(s/60)+":"+String(s%60).padStart(2,"0")};
+
+// ---------- état de la grille ----------
+// valeur d'une case : donnée (P.p), trouvée (G.cells : multijoueur, toujours juste) ou saisie (G.v : solo, peut être fausse)
+const given=i=>P.p[i]!==".";
+const sol=i=>+P.s[i];
+function val(i){if(given(i))return +P.p[i];if(G.cells&&G.cells[i]!==undefined)return sol(i);if(G.solo&&G.v&&G.v[i])return G.v[i];return 0}
+function filledCount(){let n=0;for(let i=0;i<81;i++)if(val(i))n++;return n}
+function fillRatio(){let n=0;for(let i=0;i<81;i++)if(given(i)||(G.cells&&G.cells[i]!==undefined))n++;return n/81}
+function conflict(i){const v=val(i);if(!v)return false;return unitsOf(i).some(u=>u.some(j=>j!==i&&val(j)===v))}
+function unitDone(u){return u.every(j=>val(j)&&(given(j)||(G.cells&&G.cells[j]!==undefined)||(G.solo&&G.v[j]===sol(j))))}
+
+// ---------- joueurs, places, salon (mêmes règles que les mots fléchés et le Tourniquet) ----------
+function mySeat(){if(!G)return null;if(G.solo||G.bot)return 0;if(!ME)return null;const i=G.players.findIndex(p=>String(p.name).toUpperCase()===ME.name);return i<0?null:i}
+function away(){return G&&G.away?Object.keys(G.away):[]}
+function frozen(){return !!G&&!G.solo&&!G.done&&(G.wait||(G.go&&Date.now()<G.go)||away().length>0)}
+function canPlay(){if(!G||G.done)return false;if(G.solo)return true;if(frozen())return false;return mySeat()===G.turn}
+function dur(){return DUR[G.level]||50}
+// fin de tour : à 80 % de grille remplie, chacun n'a plus droit qu'à un dernier tour (G.last = tours restants)
+function nextTurn(){G.turn=(G.turn+1)%G.players.length;G.turnStart=Date.now();if(G.f80){G.last=(G.last||G.players.length)-1;if(G.last<=0){finish("Dernier tour joué : la partie est finie.");return true}}return false}
+function connect(){if(!CODE)return;ws=new WebSocket((location.protocol==="https:"?"wss://":"ws://")+location.host+"/ws");
+  ws.onopen=()=>{ws.send(JSON.stringify({t:"join",room:CODE,name:ME?ME.name:"",token:ME?ME.token:"",k:Q.get("k")||""}));announce(true)};
+  ws.onmessage=e=>{let m;try{m=JSON.parse(e.data)}catch(x){return}
+    if(m.t==="error"&&(m.code==="auth"||m.code==="forbidden")){ws.onclose=null;ws.close();location.replace(m.code==="auth"?HOME:"/?open=salon");return}
+    if(m.t==="drawn"&&drawCb[m.req]){drawCb[m.req](m);delete drawCb[m.req];return}
+    if(m.t==="room"){window.SK_ROOM=m;window.dispatchEvent(new Event("sk-room"));return}
+    if(m.t==="snap"){window.__snapped=1;docs={};(m.docs||[]).forEach(d=>docs[d.id]=d.data);if(window.FLINV)setTimeout(()=>FLINV(docs,{gid:G&&G.gid}),0);LS.set("fl-salon-"+CODE,JSON.stringify({docs}));onSnap()}
+    else if(m.t==="peers"){peers=m.peers||[];if(G&&!G.solo){waitCheck();render()}}};
+  ws.onclose=()=>setTimeout(connect,1500)}
+function send(o){if(ws&&ws.readyState===1)ws.send(JSON.stringify(o))}
+function save(){if(!G||G.bot)return;if(G.solo){G.saved=Date.now();G.notes=NOTES;soloPut();LS.set(SOLOKEY,JSON.stringify(G));if(G.done)LS.del("fl-paused-sudoku");else LS.set("fl-paused-sudoku","1");return}send({t:"set",id:DOC,data:JSON.parse(JSON.stringify(G)),req:++reqN})}
+let lastAnn="";function announce(force){if(G&&G.bot)return;const p={name:ME?ME.name:"",page:"sudoku",gid:G?G.gid:null,seat:mySeat(),sel:canPlay()?sel:null,dig:canPlay()?dig:0};const j=JSON.stringify(p);if(!force&&j===lastAnn)return;lastAnn=j;send({t:"presence",presence:p})}
+function onSnap(){const d=docs[DOC];if(!G||G.solo)return;
+  if(d&&d.gid===G.gid){const re=d.pid!==G.pid;G=d;if(re){P=SUDO.find(x=>x.id===G.pid)||P;sel=null;dig=0}if(G.blocked)blockedWin(G.blocked);if(!canPlay()){dig=0}render()}
+  else if(d&&d.prev===G.gid){G=d;sel=null;dig=0;P=SUDO.find(x=>x.id===G.pid)||P;render();toast("🔁","Nouvelle grille pour le salon")}}
+function seatsHere(){const s=new Set();if(G&&G.bot){G.players.forEach((p,i)=>s.add(i));return s}const me=mySeat();if(me!==null)s.add(me);peers.forEach(p=>{const pr=p.presence||{};if(pr.gid===G.gid&&pr.seat!=null&&pr.page==="sudoku")s.add(Number(pr.seat))});return s}
+// salle d'attente (comme les mots fléchés) : table hors salon = départ dès 2 joueurs ; salon = 4 présents ou bouton « Lancer la partie »
+function presentSeats(){const s=seatsHere();return G.players.map((p,i)=>i).filter(i=>s.has(i)&&G.players[i].name!=="Invité")}
+function waitCheck(){if(!G||G.solo||G.done||!G.wait||G.blocked)return;if(mySeat()===null){joinWait();return}const s=seatsHere();
+  const all=G.players.length>=2&&G.players.every((p,i)=>s.has(i)&&p.name!=="Invité");
+  if(window.SK_ROOM&&SK_ROOM.temp&&all&&presentSeats()[0]===mySeat()){if(!waitCheck.at)waitCheck.at=Date.now();if(Date.now()-waitCheck.at>1500){waitCheck.at=0;launchNow()}return}
+  if(G.players.length>=4&&all&&presentSeats()[0]===mySeat())launchNow()}
+function launchNow(){if(!G||!G.wait||G.done||mySeat()===null)return;const keep=presentSeats().map(i=>G.players[i]);if(keep.length<2){toast("⏳","Il faut au moins 2 joueurs présents pour lancer.");return}
+  if(keep.length!==G.players.length)G.players=keep.map(p=>({name:p.name,score:0}));G.turn=Math.floor(Math.random()*G.players.length);G.turnStart=Date.now();
+  G.msg="🎲 Tirage au sort : "+G.players[G.turn].name+" commence !";save();setTimeout(askLaunch,350)}
+// salle d'attente : un joueur du salon qui ouvre la page rejoint la partie (4 au plus)
+let joinTry="";function joinWait(){if(!G||G.solo||G.done||!G.wait||!ME||G.blocked||mySeat()!==null||joinTry===G.gid)return;const i=G.players.findIndex(p=>p.name==="Invité");if(i>=0)G.players[i].name=ME.name;else if(G.players.length<4)G.players.push({name:ME.name,score:0});else return;joinTry=G.gid;save();announce(true);render()}
+function pauseGame(){if(!G||G.done)return;if(G.solo){save();return}const s=mySeat();if(s===null)return;G.away=G.away||{};if(!away().length)G.pauseRem=Math.max(0,G.turnStart+dur()*1000-Date.now());G.away[s]=Date.now();save()}
+function resumeGame(){if(!G||G.solo||!G.away)return;const s=mySeat();if(s===null||G.away[s]===undefined)return;delete G.away[s];if(!away().length){G.turnStart=Date.now()-(dur()*1000-(G.pauseRem||dur()*1000));delete G.away;delete G.pauseRem}save()}
+function soloDrop(){clearTimeout(soloPut.t);if(!ME||!ME.token)return Promise.resolve();return fetch("/api/p/solo",{method:"POST",keepalive:true,headers:{"content-type":"application/json"},body:JSON.stringify({name:ME.name,token:ME.token,game:GAME,op:"put",doc:null})}).catch(()=>{})}
+function quitGame(){if(!G)return;if(G.solo){LS.del(SOLOKEY);LS.del("fl-paused-sudoku");G=null;return soloDrop()}const s=mySeat();if(s===null||G.done)return;G.away=G.away||{};if(!away().length)G.pauseRem=Math.max(0,G.turnStart+dur()*1000-Date.now());G.away[s]=0;G.quitBy=G.players[s].name;awayCheck(true);save()}
+function awayCheck(force){if(!G||G.solo||G.done||!G.away)return;const now=Date.now();if(!Object.keys(G.away).some(k=>G.away[k]===0||now-G.away[k]>=300000))return;
+  const stay=G.players.map((p,i)=>i).filter(i=>G.away[i]===undefined);
+  if(!stay.length){G.players.forEach(p=>p.score=0);G.msg="Tous les joueurs ont quitté la partie : pas de points."}
+  else{G.players.forEach((p,i)=>{p.score=stay.includes(i)?Math.ceil(p.score/2):0});G.msg=stay.map(i=>G.players[i].name).join(" et ")+" gagne : "+(G.quitBy?G.quitBy+" a quitté la partie":"l'adversaire n'est pas revenu à temps")+". Points divisés par deux."}
+  G.forfeit=true;G.done=true;G.ended=now;delete G.away;if(!force){save();render()}}
+
+// ---------- jeu ----------
+function pick(i){if(!G||G.done)return;if(!G.solo&&!canPlay()){toast("⏳","Attends ton tour.");return}if(given(i)||(G.cells&&G.cells[i]!==undefined)){sel=i;dig=0;render();return}sel=i;dig=G.solo?(G.v[i]||0):0;render();announce()}
+function press(d){if(!G||G.done||sel===null)return;if(!G.solo&&!canPlay())return;if(given(sel)||(G.cells&&G.cells[sel]!==undefined))return;sfx.key();
+  if(G.solo){if(notesOn&&d){const n=NOTES[sel]||[];NOTES[sel]=n.includes(d)?n.filter(x=>x!==d):n.concat(d).sort();render();save();return}
+    G.v[sel]=d||0;if(!d)delete G.v[sel];else{delete NOTES[sel];if(d!==sol(sel)){G.err=(G.err||0)+1}else{const u=unitsOf(sel).filter(unitDone);if(u.length)sfx.unit();unitsOf(sel).forEach(u2=>u2.forEach(j=>{if(NOTES[j])NOTES[j]=NOTES[j].filter(x=>x!==d)}))}}
+    histMark("s");if(filledCount()===81)checkSolo();save();render();return}
+  if(notesOn&&d){const n=NOTES[sel]||[];NOTES[sel]=n.includes(d)?n.filter(x=>x!==d):n.concat(d).sort();render();return}
+  dig=d;render();announce()}
+function checkSolo(){let bad=0;for(let i=0;i<81;i++)if(!given(i)&&G.v[i]!==sol(i))bad++;
+  if(bad){$("#msg").textContent=bad+" case"+(bad>1?"s":"")+" à corriger (en rouge).";G.showBad=1;sfx.bad();return}
+  const pts=Math.max(10,40-5*(G.hints||0));G.players[0].score=pts;finish("Grille résolue en "+fmt(((Date.now())-G.started)/1000)+" !")}
+// multijoueur : une seule validation par tour, puis la main passe au joueur suivant
+function validate(bot){if(bot!==true&&!canPlay())return;if(G.solo){if(filledCount()===81)checkSolo();else $("#msg").textContent="Remplis toute la grille : elle se vérifie toute seule.";return}
+  if(sel===null||!dig){toast("👆","Choisis une case puis un chiffre.");return}histMark("s");
+  const me=G.turn,p=G.players[me],i=sel;
+  if(dig===sol(i)){G.cells[i]=me;let gain=5;const u=unitsOf(i).filter(unitDone);gain+=3*u.length;p.score+=gain;
+    G.msg="Bravo "+p.name+" ! +"+gain+(u.length?" ("+u.length+" ligne"+(u.length>1?"s":"")+"/bloc complété"+(u.length>1?"s":"")+")":"");u.length?sfx.unit():sfx.ok();G.lastCell=i;
+    if(filledCount()===81){p.score+=10;sel=null;dig=0;finish(p.name+" termine la grille : +10 points de bonus !");save();render();announce();return}
+    if(!G.f80&&fillRatio()>=.8){G.f80=true;G.last=G.players.length+1;sfx.bell();toast("🔔","<b>Grille à 80 %</b> · plus qu'un tour chacun")}}
+  else{sfx.bad();G.msg="Raté pour "+p.name+" : ce n'est pas un "+dig+".";G.lastBad=i}
+  sel=null;dig=0;if(!nextTurn())G.msg+=" Au tour de "+G.players[G.turn].name+".";save();render();announce()}
+function pass(){if(!canPlay()||G.solo)return;const p=G.players[G.turn];sel=null;dig=0;const end=nextTurn();if(!end)G.msg=p.name+" passe. Au tour de "+G.players[G.turn].name+".";save();render()}
+function hint(){if(!G||!G.solo||G.done)return;let i=sel;if(i===null||given(i)||G.v[i]===sol(i)){const e=[];for(let k=0;k<81;k++)if(!given(k)&&G.v[k]!==sol(k))e.push(k);if(!e.length)return;i=e[Math.floor(Math.random()*e.length)]}
+  G.v[i]=sol(i);delete NOTES[i];G.hints=(G.hints||0)+1;sel=i;toast("💡","Case révélée (−5 points)");if(filledCount()===81)checkSolo();save();render()}
+function finish(msg){G.done=true;G.ended=Date.now();G.msg=msg;histMark("d");if(!G.solo&&!G.bot)send({t:"tally",gid:G.gid,game:GAME,results:G.players.map(p=>({name:p.name,score:p.score}))});
+  try{if(ME&&ME.token){const i=G.solo?0:mySeat();const k="fl-sc-sudoku"+G.gid;if(i!==null&&!LS.get(k)){LS.set(k,"1");fetch("/api/p/score",{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({name:ME.name,token:ME.token,game:GAME,gid:String(G.gid),pts:G.players[i].score,solo:!!(G.solo||G.bot),level:G.level,ref:String(REFOF(G)),started:G.started})}).then(r=>r.json()).then(repNote).catch(()=>{})}}}catch(e){}}
+function repNote(r){const b=$("#endB");if(!r||!b||document.getElementById("repNote"))return;const sc=r.ok&&r.pts&&typeof r.pts.tot==="number"&&r.add>0?"<b>+"+String(r.add).replace(".",",")+"</b> au score Motipop : <b>"+Math.floor(r.pts.tot)+"</b> / 2 500.":"";const t=r.rep?"Grille déjà terminée : points réduits.":r.f<1?r.nth+"e partie du jour à ce jeu : points à "+Math.round(r.f*100)+" %.":"";if(!t&&!sc)return;b.insertAdjacentHTML("beforeend",'<div id="repNote" class="note" style="margin-top:8px">'+[sc,t].filter(Boolean).join("<br>")+"</div>")}
+
+// ---------- affichage ----------
+let shownEnd=null;
+function cells(){const g=$("#grid");if(g.children.length!==81){g.innerHTML="";for(let i=0;i<81;i++){const c=document.createElement("div");c.className="sdc";c.setAttribute("role","gridcell");c.onclick=()=>pick(i);g.appendChild(c)}}
+  const sv=sel!==null?val(sel)||(sel===sel&&dig)||0:0;const zone=new Set(sel!==null?unitsOf(sel).flat():[]);
+  const live={};peers.forEach(p=>{const pr=p.presence||{};if(!G||G.solo||pr.gid!==G.gid||pr.seat==null||Number(pr.seat)===mySeat()||pr.sel==null)return;live[pr.sel]={s:Number(pr.seat),d:pr.dig}});
+  [...g.children].forEach((c,i)=>{let v=val(i),cls="sdc";if(given(i))cls+=" g";
+    if(!v&&i===sel&&dig&&!G.solo)v=dig;
+    if(!v&&live[i]&&live[i].d)v=live[i].d;
+    if(zone.has(i))cls+=" zone";if(sv&&v===sv&&i!==sel)cls+=" same";if(i===sel)cls+=" sel";
+    if(G.solo&&G.v[i]&&(G.showBad?G.v[i]!==sol(i):conflict(i)))cls+=" bad";
+    if(live[i])cls+=" live";c.className=cls;c.style.setProperty("--pc",live[i]?PC[live[i].s]:"");
+    if(!G.solo&&G.cells[i]!==undefined)c.style.color=PC[G.cells[i]];else c.style.color="";
+    if(v){c.textContent=v}else if(NOTES[i]&&NOTES[i].length){c.innerHTML='<span class="nt">'+[1,2,3,4,5,6,7,8,9].map(n=>"<i>"+(NOTES[i].includes(n)?n:"")+"</i>").join("")+"</span>"}else c.textContent="";
+    c.setAttribute("aria-label","Ligne "+(Math.floor(i/9)+1)+", colonne "+(i%9+1)+(v?" : "+v:" : vide"))})}
+function pad(){const p=$("#pad");if(!p.children.length){p.innerHTML=[1,2,3,4,5,6,7,8,9].map(n=>'<button type="button" data-d="'+n+'">'+n+"</button>").join("");p.onclick=e=>{const b=e.target.closest("[data-d]");if(b)press(+b.dataset.d)}}
+  const cnt={};for(let i=0;i<81;i++){const v=G.solo?val(i):(given(i)||G.cells[i]!==undefined?sol(i):0);if(v)cnt[v]=(cnt[v]||0)+1}
+  [...p.children].forEach(b=>{const n=+b.dataset.d;b.classList.toggle("on",!G.solo&&dig===n);b.classList.toggle("full",(cnt[n]||0)>=9)})}
+function render(){document.body.classList.remove("booting");if(!G||!P)return;const s=mySeat();
+  const n=(String(P.id).match(/(\d+)/)||[])[1];$(".gname").innerHTML='<span style="color:#ffb020">Sudoku</span> '+(G.solo?"Solo":"à plusieurs")+' <span class="hpill">Grille '+(n?Number(n):"")+" • "+LVLN[G.level]+"</span>";
+  $("#scores").innerHTML=G.players.map((p,i)=>{const on=!G.done&&!G.solo&&!frozen()&&G.turn===i;return '<div class="sdp'+(on?" turn":"")+(!G.solo&&!G.done&&!frozen()&&!on?" idle":"")+'"><span class="pi" style="background:'+PC[i]+'">'+esc((p.name||"?")[0].toUpperCase())+"</span><b>"+esc(p.name)+(i===s&&!G.solo?" ·toi":"")+'</b><span class="rclk" data-c="'+i+'"></span><span class="sv">'+(G.solo?"":p.score)+"</span></div>"}).join("");
+  const fr=Math.round(fillRatio()*100);
+  $("#rule").innerHTML=G.solo?"Remplis chaque ligne, colonne et carré de 3 × 3 avec les chiffres de 1 à 9. ✏️ Notes : petits chiffres. Grille vérifiée quand elle est pleine."+(G.err?" · "+G.err+" erreur"+(G.err>1?"s":""):"")
+    :"⏱️ "+fmt(dur())+" par tour · une case par tour · juste : +5 (+3 par ligne, colonne ou carré complété) · grille à "+fr+" %"+(G.f80?" · <b>dernier tour"+(G.last>1?" : encore "+(G.last-1)+" après celui-ci":"")+"</b>":" (à 80 % : un dernier tour chacun)")+(G.wait?" · en attente des joueurs":"");
+  $("#bOk").disabled=!canPlay();$("#bOk").textContent=G.solo?"Vérifier":canPlay()?"Valider":G.done?"Terminé":frozen()?"En attente…":"Pas ton tour";
+  $("#bPass").style.display=G.solo?"none":"";$("#bErase").title=G.solo?"Effacer la case":"Effacer mon choix";$("#bNotes").classList.toggle("on",notesOn);
+  if(G.solo){let hb=$("#bHint");if(!hb){hb=document.createElement("button");hb.className="btn";hb.id="bHint";hb.type="button";hb.title="Révéler une case (−5 points)";hb.textContent="💡";hb.onclick=hint;$("#bPass").after(hb)}hb.style.display=G.done?"none":""}
+  if(!G.solo)$("#msg").textContent=G.msg||"";
+  cells();pad();if(G.done&&shownEnd!==G.gid){shownEnd=G.gid;showEnd()}tick()}
+function showEnd(){const r=G.players.map((p,i)=>({p,i})).sort((a,b)=>b.p.score-a.p.score);$("#endT").textContent=G.forfeit?"Partie arrêtée":"🎉 Grille terminée !";
+  $("#endB").innerHTML=(G.msg?esc(G.msg)+"<br><br>":"")+(G.solo?'<div class="note">Points de la grille : <b>'+G.players[0].score+"</b>"+(G.hints?" ("+G.hints+" case"+(G.hints>1?"s":"")+" révélée"+(G.hints>1?"s":"")+")":"")+"</div>":r.map(({p,i})=>'<div class="endrow"><span class="pi" style="background:'+PC[i]+'">'+esc(p.name[0])+'</span><b>'+esc(p.name)+'</b><span class="sv">'+(Number(p.score)||0)+'</span></div>').join(""));
+  endOpen()}
+let warned=null,cdShown="";
+function tick(){if(!G)return;const now=Date.now(),tl=$("#tl");
+  if(G.solo){const c=$('.rclk[data-c="0"]');if(c)c.textContent=fmt(((G.done?G.ended:now)-G.started)/1000);tl.style.display="none";ov();return}tl.style.display="";
+  if(!G.done){waitCheck();awayCheck()}
+  const D=dur()*1000;let rem=D;if(G.done)rem=0;else if(away().length)rem=G.pauseRem||D;else if(!frozen())rem=Math.max(0,G.turnStart+D-now);
+  $$(".rclk").forEach(c=>{const i=+c.dataset.c,act=i===G.turn&&!G.done;c.textContent=fmt((act?rem:D)/1000)});
+  const r=rem/D;$("#tlb").style.width=(r*100)+"%";$("#tlb").style.background="hsl("+Math.round(130*r)+" 90% 42%)";
+  if(!G.done&&!frozen()&&rem<=10000&&rem>0&&warned!==G.turnStart&&mySeat()===G.turn){warned=G.turnStart;sfx.warn()}
+  if(!G.done&&!frozen()&&rem<=0&&(mySeat()===G.turn||(G.bot&&G.turn===1))){const p=G.players[G.turn];sel=null;dig=0;const end=nextTurn();if(!end)G.msg="Temps écoulé pour "+p.name+" ! Au tour de "+G.players[G.turn].name+".";sfx.bad();save();render();return}
+  ov()}
+function ov(){const now=Date.now(),wb=$("#waitBox"),pb=$("#pauseBox"),cd=$("#count");
+  if(!G||G.solo||G.done){wb.style.display="none";pb.style.display="none";cd.classList.remove("on");return}
+  if(G.wait){wb.style.display="";const pres=presentSeats();$("#waitTxt").textContent="Salle d'attente · "+pres.length+" / 4 : "+pres.map(i=>G.players[i].name).join(", ");const b=$("#launchBtn");b.style.display=mySeat()===null?"none":"";b.disabled=pres.length<2;b.textContent=pres.length<2?"En attente d'un 2e joueur…":"Lancer la partie · "+pres.length+" joueurs"}else wb.style.display="none";
+  if(G.go&&now<G.go+1200){cd.classList.add("on");const left=Math.ceil((G.go-now)/1000);const k=left>0?String(Math.min(5,left)):"go";if(cdShown!==k){cdShown=k;const n=$("#countN");n.className=k==="go"?"go":"";void n.offsetWidth;n.textContent=k==="go"?"Le jeu est lancé":k;tone(k==="go"?880:520,0,.15)}}else cd.classList.remove("on");
+  const a=away().filter(k=>Number(k)!==mySeat());if(a.length&&G.away){pb.style.display="";const t=Math.min(...Object.values(G.away).filter(v=>v>0));$("#pauseTxt").innerHTML="<b>"+esc(a.map(k=>G.players[k].name).join(" et "))+" a mis la partie en pause.</b> Chrono arrêté. Sans retour dans <b>"+fmt(300-(now-t)/1000)+"</b>, tu gagnes la partie avec la moitié de tes points."}else pb.style.display="none"}
+let lastFz=null;setInterval(()=>{if(!G)return;const fz=frozen()+"|"+G.turn+"|"+G.done;if(fz!==lastFz){lastFz=fz;render()}else tick()},250);
+
+// ---------- saisie : clic, pavé, clavier (chiffres, flèches, Entrée, Retour arrière, N pour les notes) ----------
+$("#launchBtn").onclick=launchNow;$("#bErase").onclick=()=>press(0);$("#bNotes").onclick=()=>{notesOn=!notesOn;render()};$("#bOk").onclick=()=>validate();$("#bPass").onclick=pass;
+addEventListener("keydown",e=>{if(!G||e.target.tagName==="INPUT"||$(".overlay.on"))return;const k=e.key;
+  if(/^[1-9]$/.test(k)){press(+k);e.preventDefault()}else if(k==="Backspace"||k==="Delete"||k==="0"){press(0);e.preventDefault()}else if(k==="Enter"){validate();e.preventDefault()}
+  else if(k==="n"||k==="N"){notesOn=!notesOn;render()}
+  else if(k.startsWith("Arrow")){const i=sel===null?40:sel,r=Math.floor(i/9),c=i%9;const n={ArrowUp:[r+8,c],ArrowDown:[r+1,c],ArrowLeft:[r,c+8],ArrowRight:[r,c+1]}[k];sel=(n[0]%9)*9+n[1]%9;dig=G.solo?(G.v[sel]||0):0;render();announce();e.preventDefault()}});
+$("#endHome").onclick=()=>{location.href=HOME};document.querySelectorAll("#endAgain [data-lv]").forEach(b=>b.onclick=e=>{e.stopPropagation();$("#endWin").classList.remove("on");again(b.dataset.lv)});
+new MutationObserver(()=>{if($("#endWin").classList.contains("on")&&G)document.querySelectorAll("#endAgain [data-lv]").forEach(b=>b.classList.toggle("on",b.dataset.lv===G.level))}).observe($("#endWin"),{attributes:true,attributeFilter:["class"]});
+function endOpen(blocked){if(!blocked&&G&&!G.forfeit){const me=G.solo?0:mySeat(),best=Math.max(...G.players.map(p=>p.score||0));const win=me===null||G.solo||(G.players[me]&&(G.players[me].score||0)>=best);(win?[523,659,784,1046]:[659,587,523,440]).forEach((f,i)=>tone(f,i*.13,.35,win?"triangle":"sine",.14))}const a=$("#endAgain");if(a&&!blocked)a.style.display="";$("#endWin").classList.add("on")}
+$(".homebtn").onclick=()=>{if(!G||G.done||G.bot){location.href=G&&G.bot?"/":HOME;return}$("#lvQuit").textContent=G.solo?"Annuler la partie":"Quitter la partie (0 point)";$("#lvPause").textContent=G.solo?"Mettre en pause":"Pause (5 min max)";$("#leave").classList.add("on")};
+const leave=fn=>{const solo=!!(G&&G.solo);let pr=null;try{pr=fn()}catch(e){}const go=()=>location.href=solo?"/":HOME;Promise.race([Promise.resolve(pr),new Promise(r=>setTimeout(r,2000))]).then(()=>setTimeout(go,150),go)};
+$("#lvPause").onclick=()=>leave(pauseGame);$("#lvQuit").onclick=()=>leave(quitGame);$("#lvStay").onclick=()=>$("#leave").classList.remove("on");
+
+// ---------- lancement ----------
+function choose(level,n,ps){const list=SUDO.filter(d=>d.lvl===level);if(n&&list[n-1])return list[n-1];let pl={};try{pl=JSON.parse(LS.get("fl2-played-sudoku")||"{}")}catch(e){}const fr=list.filter(d=>!pl[d.id]&&!(ps&&ps.has("sudoku:"+d.id)));const L=fr.length?fr:list;return L[Math.floor(Math.random()*L.length)]}
+function newGame(p,names,isSolo,level){const first=isSolo?0:Math.floor(Math.random()*names.length);return{gid:Math.random().toString(36).slice(2,10),game:GAME,pid:p.id,solo:isSolo,level,started:Date.now(),players:names.map(n=>({name:n,score:0})),turn:first,turnStart:Date.now(),cells:{},v:{},done:false,wait:!isSolo,msg:isSolo?"À toi de jouer !":"🎲 Tirage au sort : "+names[first]+" commence !"}}
+function open(g){G=g;sel=null;dig=0;P=SUDO.find(x=>x.id===G.pid);if(!P){location.replace(HOME);return}G.cells=G.cells||{};G.v=G.v||{};NOTES=G.solo&&G.notes?G.notes:{};
+  try{const pl=JSON.parse(LS.get("fl2-played-sudoku")||"{}");pl[P.id]=1;LS.set("fl2-played-sudoku",JSON.stringify(pl))}catch(e){}
+  if(!G.solo){joinWait();const s=mySeat();if(G.away&&s!==null&&G.away[s]>0)resumeGame()}render();announce(true);history.replaceState(null,"",location.pathname)}
+function again(lv){const o=G,LVL=lv||G.level;if(o.bot){botStart(LVL);return}if(o.solo){open(newGame(choose(LVL),o.players.map(p=>p.name),true,LVL));save();return}
+  drawReq(LVL,0,o.players.map(p=>p.name).find(n=>String(n).toUpperCase()!==ME.name)||"Invité").then(r=>{if(!r.ok)return blockedWin(r.msg);const ng=newGame(SUDO.find(x=>x.id===r.ref),o.players.map(p=>p.name),false,LVL);ng.prev=o.gid;open(ng);save()})}
+function start(){const go=Q.get("go"),lvl=({normal:"moyen",intermediaire:"moyen"})[Q.get("lvl")]||Q.get("lvl")||"facile",n=Number(Q.get("n"))||0;const solo=()=>{try{return JSON.parse(LS.get(SOLOKEY)||"null")}catch(e){return null}};
+  if(go==="solo"||(go==="resume"&&!CODE)){soloBoot(go,lvl,n);return}
+  if(!CODE){const g=solo();if(g&&!g.done){soloBoot("resume",lvl,n);return}soloBoot("solo",lvl,n);return}
+  if(!ME){if(Q.get("k")||go==="join"){fetch("/api/p/guest",{method:"POST",headers:{"content-type":"application/json"},body:"{}"}).then(r=>r.json()).then(r=>{if(!r||!r.token)throw 0;localStorage.setItem("fl-me",JSON.stringify({name:r.name,token:r.token,guest:1}));location.reload()}).catch(()=>{try{sessionStorage.setItem("fl-back",location.pathname+location.search)}catch(e){}location.replace("/?need=pseudo")});return}location.replace(HOME+"?need=pseudo");return}
+  connect();const t0=Date.now();const iv=setInterval(()=>{if(G){clearInterval(iv);return}if(window.__snapped||Date.now()-t0>12000){clearInterval(iv);const d=docs[DOC];
+    const live=d&&!d.done&&!d.solo&&d.players&&Date.now()-Math.max(d.turnStart||0,d.go||0,d.started||0)<15*60e3;
+    if(go==="multi"&&!live){let opp=Q.get("opp")||"Invité";if(opp.toUpperCase()===ME.name)opp="Invité";
+      drawReq(lvl,n,opp).then(r=>{if(!r.ok)return blockedWin(r.msg);const p=SUDO.find(x=>x.id===r.ref);if(!p)return blockedWin("Impossible de vérifier les parties disponibles. Réessaie.");const g=newGame(p,[ME.name,opp],false,lvl);open(g);save()});return}
+    if(d&&d.players&&!d.solo){open(d);return}if(go==="join"||Q.get("k")){tableWait();return}const g=solo();if(g&&!g.done){open(g);return}location.replace(HOME)}},100)}
+let drawN=0;const drawCb={};
+function drawReq(level,n,opp){return new Promise(res=>{const req=++drawN;drawCb[req]=res;send({t:"draw",req,game:GAME,level,n:n||0,opp:opp&&opp!=="Invité"?opp:""});setTimeout(()=>{if(drawCb[req]){delete drawCb[req];res({ok:false,msg:"Impossible de vérifier les parties disponibles. Réessaie."})}},8000)})}
+function blockedWin(msg){document.body.classList.remove("booting");$("#endT").textContent=msg;$("#endB").innerHTML="";const a=$("#endAgain");if(a)a.style.display="none";endOpen(true)}
+let lastLaunch=0;function askLaunch(){if(Date.now()-lastLaunch<1500)return;lastLaunch=Date.now();send({t:"launch",id:DOC,gid:G.gid})}
+function histMark(ev){try{if(!G||G.bot)return;if(!ME||!ME.token){guestRecord(ev);return}if(!G.solo&&mySeat()===null)return;const ref=REFOF(G);if(!ref)return;const k="fl-h"+ev+"-"+GAME+"-"+G.gid;if(LS.get(k))return;LS.set(k,"1");
+  const q=JSON.parse(LS.get("fl-hq")||"[]");q.push({u:ME.name,game:GAME,ref,ev});LS.set("fl-hq",JSON.stringify(q.slice(-300)));histFlush()}catch(e){}}
+let hFlying=false;function histFlush(){if(hFlying||!ME||!ME.token)return;let q=[];try{q=JSON.parse(LS.get("fl-hq")||"[]")}catch(e){}const mine=q.filter(x=>x.u===ME.name);if(!mine.length)return;hFlying=true;const by={};mine.forEach(x=>(by[x.game]=by[x.game]||[]).push({ref:x.ref,ev:x.ev}));
+  Promise.all(Object.entries(by).map(([game,items])=>fetch("/api/p/hist",{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({name:ME.name,token:ME.token,game,items})}).then(r=>{if(!r.ok)throw 0})))
+    .then(()=>{let q2=[];try{q2=JSON.parse(LS.get("fl-hq")||"[]")}catch(e){}const sent=new Set(mine.map(x=>JSON.stringify(x)));LS.set("fl-hq",JSON.stringify(q2.filter(x=>!sent.has(JSON.stringify(x)))))}).catch(()=>{}).finally(()=>{hFlying=false})}
+setTimeout(histFlush,1500);
+const GUEST_MAX=3;
+function guestCount(){try{return JSON.parse(LS.get("fl-guest-g")||"[]").length}catch(e){return 0}}
+function guestRecord(ev){try{if(!G||!G.solo)return;const ref=REFOF(G);const h=JSON.parse(LS.get("fl-guest-h")||"[]");if(!h.some(x=>x.game===GAME&&x.ref===ref&&x.ev===ev))h.push({game:GAME,ref,ev});LS.set("fl-guest-h",JSON.stringify(h.slice(-300)));
+  if(ev==="s"){const g=JSON.parse(LS.get("fl-guest-g")||"[]");if(!g.includes(G.gid)){g.push(G.gid);LS.set("fl-guest-g",JSON.stringify(g))}}}catch(e){}}
+function soloPut(){if(!G||!G.solo||!ME||!ME.token)return;clearTimeout(soloPut.t);const doc=G.done?null:JSON.parse(JSON.stringify(G));soloPut.t=setTimeout(()=>{fetch("/api/p/solo",{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({name:ME.name,token:ME.token,game:GAME,op:"put",doc})}).catch(()=>{})},G.done?0:1500)}
+function soloGet(){if(!ME||!ME.token)return Promise.resolve(null);return Promise.race([fetch("/api/p/solo",{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({name:ME.name,token:ME.token,game:GAME})}).then(r=>r.ok?r.json():null).catch(()=>null),new Promise(r=>setTimeout(()=>r(null),1500))])}
+function soloBoot(go,lvl,n){let loc=null;try{loc=JSON.parse(LS.get(SOLOKEY)||"null")}catch(e){}
+  const old=g=>g&&g.solo&&!g.done&&(go==="resume"||(!n&&g.level===lvl));
+  const thaw=g=>{const t=g.pauseAt||g.saved;if(g.started&&t&&Date.now()>t)g.started+=Date.now()-t;delete g.pauseAt;return g};
+  if(go==="resume"&&old(loc)){open(thaw(loc));save();return}
+  soloGet().then(r=>{const sv=r&&r.doc;let best=old(loc)?loc:null;if(old(sv)&&(!best||(sv.saved||0)>(best.saved||0)))best=sv;
+    if(best){open(thaw(best));save();return}if(go==="resume"){location.replace(HOME);return}
+    if(!ME&&guestCount()>=GUEST_MAX){location.replace("/?need=compte");return}
+    open(newGame(choose(lvl,n,new Set((r&&r.played)||[])),[ME?ME.name:"Toi"],true,lvl));save()})}
+// ---------- multijoueur hors salon : table rejointe, robot de secours ----------
+const mjReady=f=>{(function w(){window.MJ?f():setTimeout(w,30)})()};
+function tableWait(){mjReady(()=>MJ.tableWait(()=>{const d=docs[DOC];if(!G&&d&&d.players&&!d.solo)open(d);return !!G},blockedWin))}
+const BOT={facile:{ok:.85,t:[5,10]},moyen:{ok:.75,t:[7,13]},difficile:{ok:.65,t:[9,16]}};
+function botStart(lvl){lvl=lvl==="normal"?"moyen":lvl;const g=newGame(choose(lvl),[ME?ME.name:"Toi","Robot Pop"],false,lvl);g.bot=1;g.wait=false;g.go=Date.now()+5600;g.started=g.go;g.turnStart=g.go;g.msg="🤖 Partie contre le robot ! "+g.players[g.turn].name+" commence.";open(g);render()}
+let botAt=0;
+function botTick(){if(!G||!G.bot||G.done||frozen()||G.turn!==1){botAt=0;return}const now=Date.now(),c=BOT[G.level]||BOT.facile;if(!botAt){botAt=now+1000*(c.t[0]+Math.random()*(c.t[1]-c.t[0]));return}if(now<botAt)return;botAt=0;
+  const e=[];for(let i=0;i<81;i++)if(!val(i))e.push(i);if(!e.length)return;sel=e[Math.floor(Math.random()*e.length)];dig=Math.random()<c.ok?sol(sel):(sol(sel)%9)+1;validate(true)}
+setInterval(botTick,300);
+window.FLMJ={playing:()=>!!(G&&!G.done&&!G.wait),robot:lvl=>botStart(lvl),busy:()=>!!(G&&!G.solo&&!G.bot&&!G.done)};
+if(location.hostname==="localhost")window.__t=c=>eval(c);
+start();
+})();
+</script>
+<script src="/d/invit-9148ad9ec3.js"></script>
+<script src="/d/mj-18e60010f2.js"></script>
+<script>/* bouton « À plusieurs » (partie rapide, joueurs en ligne, lien d'invitation) */
+if(window.MJ&&window.FLMJ)MJ.init(Object.assign({game:"sudoku",path:"sudoku",gname:"Sudoku",mount:".gtop"},FLMJ));</script>
+<script src="/d/ic-c7eae1cc03.js"></script>
+</body>
+</html>

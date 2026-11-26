@@ -4,7 +4,7 @@
 import os, re, glob, hashlib
 D = os.path.dirname(os.path.abspath(__file__)); ROOT = os.path.abspath(os.path.join(D, "..", ".."))
 PUB = os.path.join(ROOT, "public")
-PAGES = ["fl.html", "mm.html", "rd.html", "cg.html", "mg.html", "md.html", "ml.html", "poker.html", "regles.html", "legal.html"]
+PAGES = ["fl.html", "mm.html", "rd.html", "cg.html", "mg.html", "md.html", "ml.html", "sd.html", "poker.html", "regles.html", "legal.html"]
 def src(n): return open(os.path.join(D, n), encoding="utf8").read()
 def emit(prefix, ext, body):
     h = hashlib.sha1(body.encode()).hexdigest()[:10]
@@ -21,9 +21,11 @@ u_cpt = emit("compte", "js", src("compte.js"))   # fenêtres Pseudo et Salon (ac
 u_inv = emit("invit", "js", src("invit.js"))      # bandeau « X propose une partie » des salons (jeux + accueil)
 u_band = emit("bandeau", "js", src("bandeau.js")) # bandeau des scores lié sur téléphone (jeux à 2-4)   # multijoueur hors salon (bouton « À plusieurs »)
 u_icons = emit("icons", "js", open(os.path.join(PUB, "d", "icons.js"), encoding="utf8").read())
+u_sudo = "/d/" + os.path.basename(glob.glob(os.path.join(PUB, "d", "sudoku-" + "[0-9a-f]" * 10 + ".js"))[0])   # grilles de Sudoku (outils/sudoku/gen_sudoku.py)
 for name in [os.path.basename(x) for x in glob.glob(os.path.join(PUB, "*.html"))]:
     p = os.path.join(PUB, name); s = open(p, encoding="utf8").read()
     t = re.sub(r'/d/icons(?:-' + H + r')?\.js', u_icons, s)
+    t = re.sub(r'/d/sudoku-' + H + r'\.js', u_sudo, t)
     if t != s: open(p, "w", encoding="utf8").write(t)
 for name in PAGES:
     p = os.path.join(PUB, name)
