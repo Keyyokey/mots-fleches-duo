@@ -344,7 +344,7 @@ function boot(){const go=Q.get("go"),lvl=Q.get("lvl")||"facile";
   if(Q.get("duel")){duelBoot(Q.get("duel"));return}
   if(go==="solo"||!CODE){open(newGame([ME?ME.name:"Toi"],true,lvl));save();return}
   if(!ME){if(Q.get("k")||go==="join"){/* 26/11 : sans compte, on entre à la table comme invité (INVITE + chiffres) */fetch("/api/p/guest",{method:"POST",headers:{"content-type":"application/json"},body:"{}"}).then(r=>r.json()).then(r=>{if(!r||!r.token)throw 0;localStorage.setItem("fl-me",JSON.stringify({name:r.name,token:r.token,guest:1}));location.reload()}).catch(()=>{try{sessionStorage.setItem("fl-back",location.pathname+location.search)}catch(e){}location.replace("/?need=pseudo")});return}location.replace(HOME+"?need=pseudo");return}
-  connect();const t0_=Date.now();const iv=setInterval(()=>{if(G){clearInterval(iv);return}if(window.__snapped||Object.keys(docs).length||Date.now()-t0_>2500){clearInterval(iv);const d=docs[DOC];
+  connect();const t0_=Date.now();const iv=setInterval(()=>{if(G){clearInterval(iv);return}if(window.__snapped||Date.now()-t0_>12000){clearInterval(iv);const d=docs[DOC];
     if(go==="multi"&&!live(d)){let opp=Q.get("opp")||"Invité";if(opp.toUpperCase()===ME.name)opp="Invité";open(newGame([ME.name,opp],false,lvl));save();return}
     if(d&&d.players&&!d.solo){open(d);return}if(go==="join"||Q.get("k")){tableWait();return}location.replace(HOME)}},100)}
 function start(){if(window.MG_MOTS)return boot();const t=setInterval(()=>{if(window.MG_MOTS){clearInterval(t);boot()}},50)}

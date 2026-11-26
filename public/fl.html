@@ -543,7 +543,7 @@ function start(){const go=Q.get("go"),lvl=Q.get("lvl")||"facile",n=Number(Q.get(
     let g=null;try{g=JSON.parse(LS.get(SOLOKEY)||"null")}catch(e){}if(g&&!g.done){open(g);return}
     location.replace(HOME)};
   let waited=false;const prev=onSnap;connect();
-  const t0=Date.now();const iv=setInterval(()=>{if(G){clearInterval(iv);return}if(window.__snapped||Object.keys(docs).length||Date.now()-t0>2500){clearInterval(iv);ready()}},100)}
+  const t0=Date.now();const iv=setInterval(()=>{if(G){clearInterval(iv);return}if(window.__snapped||Date.now()-t0>12000){clearInterval(iv);ready()}},100)}
 const GAME="fleches",REFOF=g=>g.grid;
 // ---------- tirage par le serveur (multijoueur) et historique du compte ----------
 // En multijoueur, le serveur tire le contenu parmi ceux qu'aucun participant n'a déjà commencés ou terminés,
