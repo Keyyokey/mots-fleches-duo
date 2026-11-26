@@ -296,10 +296,9 @@ function wireHeader(){
 const GNAME={fleches:"Mots fléchés",rond:"Le Tourniquet",meles:"Mots mêlés"};
 function leaveOrHome(){const st=window.__skState?window.__skState():null;
   if(!st||!st.open||st.done){location.href=homeUrl();return}
-  q("#leaveTxt").textContent=GNAME[PAGE]+" : veux-tu mettre la partie en pause pour la reprendre plus tard, ou la quitter ?";
-// 26/11 : règles de pause en petit tableau
-window.LRT=window.LRT||(rows=>'<table class="lrt">'+rows.map(r=>"<tr><th>"+r[0]+"</th><td>"+r[1]+"</td></tr>").join("")+"</table>");(function(){if(document.getElementById("lrt-css"))return;const x=document.createElement("style");x.id="lrt-css";x.textContent='.lrt{width:100%;border-collapse:collapse;margin-top:4px;font-size:.88rem;text-align:left}.lrt th{font-weight:700;padding:5px 8px 5px 0;white-space:nowrap;vertical-align:top}.lrt td{padding:5px 0;opacity:.9}.lrt tr+tr th,.lrt tr+tr td{border-top:1px solid rgba(127,127,127,.2)}';document.head.appendChild(x)})();
-  q("#leaveRule").innerHTML=st.solo?LRT([["⏸️ Pause", "partie gardée"], ["▶️ Reprendre", "sur la case du jeu"], ["🗑️ Quitter", "efface la partie"]]):LRT([["⏸️ Pause", "5 min max, chrono arrêté"], ["⌛ Au-delà", "celui qui reste gagne ½ de ses points"], ["🚪 Partis tous les deux", "0 point"]]);
+  
+
+  
   q("#leave").classList.add("on")}
 
 // ---------- titre de la page de jeu ----------

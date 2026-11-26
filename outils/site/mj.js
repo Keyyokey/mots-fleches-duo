@@ -4,7 +4,7 @@
 (function () {
   "use strict";
   var LV = { facile: "Facile", normal: "Normal", difficile: "Difficile" };
-  var C = null, ws = null, ON = { list: [], guests: 0 }, lvl = "facile", qAt = 0, qTimer = null, sent = {}, inv = {};
+  var C = null, ws = null, ON = { list: [], guests: 0 }, lvl = "facile", qAt = 0, qTimer = null, sent = {};
   var $ = function (s, r) { return (r || document).querySelector(s); };
   var esc = function (s) { return String(s == null ? "" : s).replace(/[&<>"]/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]; }); };
   function me() { try { var m = JSON.parse(localStorage.getItem("fl-me") || "null"); return m && m.name && m.token && !m.stale ? { name: String(m.name).toUpperCase(), token: m.token, guest: !!m.guest } : null; } catch (e) { return null; } }
@@ -47,24 +47,25 @@
     if (document.getElementById("mj-css")) return; var st = document.createElement("style"); st.id = "mj-css";
     st.textContent = ".mjpill{display:inline-flex;align-items:center;gap:6px;margin-left:auto;padding:7px 12px;border-radius:999px;border:1px solid var(--stroke,rgba(255,255,255,.2));background:var(--glass2,rgba(255,255,255,.14));color:inherit;font:800 .88rem Nunito,Inter,sans-serif;cursor:pointer;white-space:nowrap;backdrop-filter:blur(10px)}"
       + ".mjpill .dot{width:8px;height:8px;border-radius:50%;background:#3ddc97;box-shadow:0 0 0 3px rgba(61,220,151,.25)}.mjpill .dot.off{background:#8892a0;box-shadow:none}"
-      + "#mjWin .sheet{max-height:calc(100vh - 32px);overflow:auto;text-align:left;gap:10px}#mjWin .mjin{display:flex;flex-direction:column;gap:10px}#mjWin h3{margin:0;padding-right:34px;display:flex;align-items:center;gap:8px}#mjWin h3 .mjx{margin-left:auto;background:none;border:0;color:inherit;font-size:1.3rem;cursor:pointer;min-height:auto;padding:4px 8px}"
+      + "#mjWin .sheet{max-height:calc(100vh - 32px);overflow:auto;text-align:left;gap:10px}#mjWin .mjin{display:flex;flex-direction:column;gap:10px}#mjWin h3{margin:0;padding-right:34px;display:flex;align-items:center;gap:8px}"
       + ".mjlv{display:flex;gap:6px}.mjlv button{flex:1;padding:8px 4px;border-radius:12px;border:1px solid var(--stroke,rgba(255,255,255,.2));background:transparent;color:inherit;font:700 .88rem Nunito,Inter,sans-serif;cursor:pointer}.mjlv button.on{background:linear-gradient(135deg,var(--accent,#00ADB5),var(--violet,#A26BFF));color:#fff;border-color:transparent}"
       + ".mjc{border:1px solid var(--stroke,rgba(255,255,255,.18));border-radius:16px;padding:12px;display:flex;flex-direction:column;gap:8px;background:rgba(255,255,255,.04)}.mjc .hd{display:flex;align-items:center;gap:8px;font-weight:800}.mjc .hd .ic{font-size:1.15rem}"
       + ".mjtip{position:relative;margin-left:auto}.mjtip>button{width:24px;height:24px;min-height:24px;padding:0;border-radius:50%;border:1px solid var(--stroke,rgba(255,255,255,.3));background:transparent;color:inherit;font:800 .78rem Inter,sans-serif;cursor:pointer}"
       + ".mjtip .tb{position:absolute;right:0;top:30px;z-index:5;width:min(250px,70vw);padding:10px 12px;border-radius:12px;background:rgba(20,28,48,.96);color:#eef2f7;font:500 .84rem/1.4 Inter,sans-serif;box-shadow:0 10px 30px rgba(0,0,0,.35)}.mjtip .tb[hidden]{display:none}"
       + ".mjrow{display:flex;align-items:center;gap:8px;padding:6px 0;border-top:1px solid rgba(255,255,255,.08)}.mjrow:first-child{border-top:0}.mjrow b{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis}.mjrow .st{font-size:.8rem;opacity:.75}.mjrow .btn{flex:0 0 auto;width:auto;min-height:34px;padding:6px 12px}"
       + ".mjwait{display:flex;align-items:center;gap:10px}.mjwait .spin{flex:0 0 auto}.mjlink{word-break:break-all;font:600 .85rem Inter,sans-serif;padding:8px 10px;border-radius:10px;background:rgba(255,255,255,.08);user-select:all}"
-      + ".mjinf{flex:1;min-width:0;display:flex;flex-direction:column;line-height:1.25}.mjinf small{font-size:.8rem;opacity:.8}.mjrow .btn:disabled{opacity:.45}.mjbtns{display:flex;gap:6px;flex-wrap:wrap}.mjbtns .btn{flex:1 1 30%;min-width:0}.mjsay{font-size:.88rem;color:var(--gold,#ffc857)}"
+      + ".mjinf{flex:1;min-width:0;display:flex;flex-direction:column;line-height:1.25}.mjinf small{font-size:.8rem;opacity:.8}.mjrow .btn:disabled{opacity:.45}.mjbtns a.btn{text-decoration:none;text-align:center;color:inherit;display:flex;align-items:center;justify-content:center}.mjbtns{display:flex;gap:6px;flex-wrap:wrap}.mjbtns .btn{flex:1 1 30%;min-width:0}.mjsay{font-size:.88rem;color:var(--gold,#ffc857)}"
       + "[data-theme=light] .mjtip .tb{background:#fff;color:#1b2433;border:1px solid rgba(15,25,40,.12)}[data-theme=light] .mjc{background:rgba(255,255,255,.45)}[data-theme=light] .mjrow{border-top-color:rgba(15,25,40,.08)}[data-theme=light] .mjlink{background:rgba(15,25,40,.06)}"
       + ".mjban{position:fixed;left:50%;bottom:22px;transform:translateX(-50%);z-index:95;display:flex;align-items:center;gap:10px;flex-wrap:wrap;justify-content:center;max-width:min(560px,calc(100vw - 24px));padding:12px 14px;border-radius:18px;background:rgba(20,28,48,.8);border:1px solid rgba(255,255,255,.22);backdrop-filter:blur(22px) saturate(160%);-webkit-backdrop-filter:blur(22px) saturate(160%);box-shadow:0 18px 50px rgba(0,0,0,.4);color:#eef2f7}"
-      + ".mjban .it{flex:1 1 220px;font:600 .95rem Inter,Nunito,sans-serif;line-height:1.35}.mjban .it b{color:#5eead4}.mjban button{font:800 .9rem Nunito,Inter,sans-serif;padding:9px 14px;border-radius:12px;border:1px solid rgba(255,255,255,.22);background:rgba(255,255,255,.12);color:inherit;cursor:pointer}.mjban button.go{background:linear-gradient(135deg,#00ADB5,#A26BFF);border-color:transparent;color:#fff}"
+      + ".mjban .it{flex:1 1 220px;font:600 .95rem Inter,Nunito,sans-serif;line-height:1.35}.mjban .it b{color:#5eead4}"
       + "[data-theme=light] .mjban{background:rgba(255,255,255,.9);color:#1b2433;border-color:rgba(15,25,40,.12)}[data-theme=light] .mjban .it b{color:#0f766e}"
       + ".mjbdg{display:inline-grid;place-items:center;min-width:18px;height:18px;padding:0 5px;margin-left:6px;border-radius:9px;background:#ff5d7a;color:#fff;font:800 .72rem Inter,sans-serif}"
       + ".mjinbox{position:fixed;left:14px;bottom:16px;z-index:85;display:inline-flex;align-items:center;padding:9px 14px;border-radius:999px;border:1px solid rgba(255,255,255,.22);background:rgba(20,28,48,.72);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);color:#eef2f7;font:800 .9rem Nunito,Inter,sans-serif;cursor:pointer;box-shadow:0 10px 30px rgba(0,0,0,.35)}"
       + "[data-theme=light] .mjinbox{background:rgba(255,255,255,.85);color:#1b2433;border-color:rgba(15,25,40,.12)}"
       + "#mjAsk{position:fixed;inset:0;z-index:130;display:none;place-items:center;padding:16px;background:rgba(5,10,20,.45);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px)}#mjAsk.on{display:grid;animation:mjf .25s}"
-      + "#mjAsk .mjaskb{width:min(400px,100%);padding:22px;display:flex;flex-direction:column;gap:12px;text-align:center}#mjAsk h3{margin:0;font-size:1.15rem;line-height:1.35}#mjAsk .ico-big{font-size:2.2rem}#mjAsk .mjbtns .btn{flex:1;min-height:48px;font-size:1rem}"
+      + "#mjAsk .mjaskb{width:min(400px,100%);padding:22px;display:flex;flex-direction:column;gap:12px;text-align:center}#mjAsk h3{margin:0;font-size:1.15rem;line-height:1.35}#mjAsk .mjbtns .btn{flex:1;min-height:48px;font-size:1rem}"
       + "@keyframes mjf{from{opacity:0}to{opacity:1}}"
+      + ".duelbox{margin-top:12px;display:flex;flex-direction:column;gap:8px;text-align:left}.duelbox .dt{font-size:1rem}.duelbox table{width:100%;border-collapse:collapse;font-size:.9rem}.duelbox th,.duelbox td{padding:5px 6px;text-align:left;border-bottom:1px solid rgba(127,127,127,.25)}.duelbox th{font-size:.78rem;opacity:.7}.duelbox tr.me td{color:var(--accent,#00ADB5);font-weight:800}"
       + "@media(max-width:420px){.mjpill .lb{display:none}}";
     document.head.appendChild(st);
   }
@@ -99,7 +100,7 @@
     css(); var a = document.getElementById("mjAsk");
     if (!a) { a = document.createElement("div"); a.id = "mjAsk"; a.setAttribute("role", "dialog"); a.setAttribute("aria-modal", "true"); a.setAttribute("aria-labelledby", "mjAskT"); document.body.appendChild(a); }
     a.dataset.k = m.k;
-    a.innerHTML = '<div class="glass sheet qbox mjaskb"><div class="ico-big">🎲</div><h3 id="mjAskT">Proposition de jouer à ' + esc(m.gname) + " par " + esc(m.from) + "</h3>"
+    a.innerHTML = '<div class="glass sheet qbox mjaskb"><h3 id="mjAskT">Proposition de jouer à ' + esc(m.gname) + " par " + esc(m.from) + "</h3>"
       + (LV[m.lvl] && m.game !== "culture" ? '<div class="note">Niveau ' + LV[m.lvl] + "</div>" : "") + '<div class="mjbtns"><button class="btn primary" type="button" data-r="1">Oui</button><button class="btn" type="button" data-r="0">Non</button></div></div>';
     a.querySelectorAll("[data-r]").forEach(function (b) { b.onclick = function () { answer(m.k, b.dataset.r === "1"); a.classList.remove("on"); }; });
     a.classList.add("on"); markSeen(); setTimeout(function () { var y = a.querySelector("[data-r='1']"); if (y) y.focus(); }, 50);
@@ -158,9 +159,9 @@
   function needMe() { return '<div class="note">Il te faut un pseudo (gratuit, 1 minute).</div><button class="btn primary" data-a="me">Créer mon pseudo</button>'; }
   function shareBtns(url, txt) { var t = encodeURIComponent(txt + url);
     var sms = /iPhone|iPad|iPod|Mac/.test(navigator.userAgent) ? "sms:&body=" + t : "sms:?body=" + t;
-    return '<div class="mjbtns"><a class="btn" style="text-decoration:none;text-align:center;color:inherit;display:flex;align-items:center;justify-content:center" target="_blank" rel="noopener" href="https://wa.me/?text=' + t + '">WhatsApp</a>'
-      + (matchMedia("(pointer:fine)").matches ? "" : '<a class="btn" style="text-decoration:none;text-align:center;color:inherit;display:flex;align-items:center;justify-content:center" href="' + sms + '">SMS</a>')
-      + '<button class="btn" data-a="copy" data-u="' + esc(url) + '">Copier</button></div>'; }
+    return '<div class="mjbtns"><a class="btn" target="_blank" rel="noopener" href="https://wa.me/?text=' + t + '">WhatsApp</a>'
+      + (matchMedia("(pointer:fine)").matches ? "" : '<a class="btn" href="' + sms + '">SMS</a>')
+      + '<button class="btn" type="button" data-a="copy" data-u="' + esc(url) + '">Copier</button></div>'; }
   function linkReady(m) { link = { id: m.id, url: location.origin + "/" + m.id + "/" + C.path + "?k=" + m.k }; if (!isOpen()) open(); else render(); }
   function startQ() { qAt = Date.now(); sendo({ t: "lobq", lvl: lvl }); clearInterval(qTimer); qTimer = setInterval(function () { if (isOpen()) render(); }, 1000); render(); }
   function stopQ() { if (!qAt) return; qAt = 0; clearInterval(qTimer); sendo({ t: "lobx" }); }
@@ -169,6 +170,7 @@
     if (t && W && W.contains(t)) { var b = document.getElementById(t.dataset.tip); var o = b.hidden; W.querySelectorAll(".mjtip .tb").forEach(function (x) { x.hidden = true; }); b.hidden = !o; t.setAttribute("aria-expanded", String(o)); return; }
     if (W && W.contains(e.target) && !e.target.closest(".mjtip")) W.querySelectorAll(".mjtip .tb").forEach(function (x) { x.hidden = true; });
     var l = e.target.closest && e.target.closest("#mjWin [data-lv]"); if (l) { lvl = l.dataset.lv; try { localStorage.setItem("fl-mj-lvl", lvl); } catch (x) {} render(); return; }
+    var cp = e.target.closest && e.target.closest("#duelBox [data-a='copy']"); if (cp) { copy(cp.dataset.u, cp); return; }
     var a = e.target.closest && e.target.closest("#mjWin [data-a]"); if (!a) return; var k = a.dataset.a; msg = "";
     if (k === "close") { close(); return; }
     if (k === "iy" || k === "in") { answer(a.dataset.k, k === "iy"); return; }
@@ -186,14 +188,10 @@
     if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(u).then(done, function () { prompt("Copie ce lien :", u); });
     else prompt("Copie ce lien :", u); }
   // ---------- invitation reçue ----------
+  // message court (refus, erreur) quand la fenêtre est fermée
   function banner(m) {
     css(); var d = document.createElement("div"); d.className = "mjban"; d.setAttribute("role", "status");
-    if (m.k) { d.id = "mjInv-" + m.k; d.innerHTML = '<span class="it"><b>' + esc(m.from) + "</b> t'invite à une partie de " + esc(m.gname) + " (" + (LV[m.lvl] || "") + "). Tu viens ?</span>"
-        + '<button type="button" class="go">Jouer</button><button type="button" class="no">Non merci</button>';
-      d.querySelector(".go").onclick = function () { d.remove(); sendo({ t: "lobans", k: m.k, ok: true }); };
-      d.querySelector(".no").onclick = function () { d.remove(); sendo({ t: "lobans", k: m.k, ok: false }); };
-      ding(); setTimeout(function () { if (d.isConnected) { d.remove(); sendo({ t: "lobans", k: m.k, ok: false }); } }, 55000); }
-    else { d.innerHTML = '<span class="it">' + m.text + "</span>"; setTimeout(function () { d.remove(); }, 6000); }
+    d.innerHTML = '<span class="it">' + m.text + "</span>"; setTimeout(function () { d.remove(); }, 6000);
     var old = document.querySelector(".mjban"); if (old) old.remove(); document.body.appendChild(d);
   }
   var AC = null; function ding() { try { if (localStorage.getItem("fl-sound") === "off") return; } catch (e) {}
@@ -203,11 +201,33 @@
   function tableShare(e) { var r = window.SK_ROOM; if (!r || !r.temp) return; var b = e.target.closest && e.target.closest('[data-open="share"],[data-open="salon"]'); if (!b) return;
     e.preventDefault(); e.stopPropagation(); link = { id: r.id, url: location.origin + "/" + r.id + "/" + C.path + "?k=" + r.k }; open(); }
   document.addEventListener("click", tableShare, true);
+  // ---------- commun aux 5 jeux (26/11) : appels au serveur, attente d'une table, encadré du défi différé ----------
+  function api(u, b) { var m = me(); return fetch(u, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify(Object.assign({ name: m ? m.name : "", token: m ? m.token : "" }, b || {})) }).then(function (r) { return r.json(); }).catch(function () { return {}; }); }
+  // ready() ouvre la partie dès qu'elle existe et répond true ; fail() au bout de 20 s
+  function tableWait(ready, fail) {
+    document.body.classList.remove("booting"); var w = $("#endWin");
+    $("#endT").textContent = "⏳ Ton adversaire prépare la partie…"; $("#endB").innerHTML = '<span class="spin"></span>';
+    ["#endAgain", "#endSame", "#endDuel"].forEach(function (x) { var e = $(x); if (e) e.style.display = "none"; }); w.classList.add("on");
+    var t0 = Date.now(), iv = setInterval(function () {
+      if (ready()) { clearInterval(iv); w.classList.remove("on"); var a = $("#endAgain"); if (a) a.style.display = ""; return; }
+      if (Date.now() - t0 > 20000) { clearInterval(iv); fail("Ton adversaire n'est pas arrivé. Reviens à l'accueil et relance une partie rapide."); } }, 300);
+  }
+  var fmtS = function (t) { return Math.floor(t / 60) + " min " + String(t % 60).padStart(2, "0"); };
+  // o : { id, res:[{n,s,t}], mine, by, txt } — tableau des scores et boutons de partage, ajoutés sous la fin de partie
+  function duelPaint(o) {
+    css(); var B = $("#endB"); if (!B || !o || !o.id) return; var d = document.getElementById("duelBox");
+    if (!d) { d = document.createElement("div"); d.id = "duelBox"; d.className = "duelbox"; B.appendChild(d); }
+    var url = location.origin + "/duel/" + o.id, m = me(), mn = m ? m.name : "Toi";
+    var rows = (o.res || []).slice().sort(function (a, b) { return b.s - a.s || a.t - b.t; }).slice(0, 8).map(function (x, i) {
+      return "<tr" + (x.n === mn ? ' class="me"' : "") + "><td>" + (i + 1) + "</td><td>" + esc(x.n) + "</td><td><b>" + x.s + "</b></td><td>" + fmtS(x.t) + "</td></tr>"; }).join("");
+    d.innerHTML = '<b class="dt">⚔️ ' + (o.mine ? "Ton défi est prêt" : "Défi de " + esc(o.by || "")) + "</b>" + (rows ? "<table><tr><th>#</th><th>Joueur</th><th>Points</th><th>Temps</th></tr>" + rows + "</table>" : "")
+      + shareBtns(url, o.txt || "");
+  }
   // ---------- API ----------
   window.MJ = {
     init: function (cfg) { C = cfg; try { lvl = localStorage.getItem("fl-mj-lvl") || "facile"; } catch (e) {} css();
       if (cfg.mount) { var host = typeof cfg.mount === "string" ? $(cfg.mount) : cfg.mount; if (host) { P = document.createElement("button"); P.type = "button"; P.className = "mjpill"; P.onclick = open; host.appendChild(P); pill(); } }
       inbox(); connect(); setInterval(function () { var b = busy(); if (b !== MJ._b) { MJ._b = b; sendo({ t: "lobbusy", busy: b }); pill(); } }, 2000); },
-    open: open, close: close, share: function (url, txt) { css(); return shareBtns(url, txt || ""); }, _b: false
+    open: open, close: close, api: api, tableWait: tableWait, duelPaint: duelPaint, _b: false
   };
 })();

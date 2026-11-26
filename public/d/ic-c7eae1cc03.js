@@ -76,7 +76,9 @@ function glass(root){
     // « 🔁 Rejouer » : l'icône garde un petit espace avec le texte (géré en CSS)
     if(n.parentNode)n.parentNode.replaceChild(f,n)})}
 // croix de fermeture : ferme la fenêtre et laisse voir la page floutée derrière
-function cross(ov){const sh=ov.querySelector(".sheet");if(!sh||sh.querySelector(":scope>.xbtn"))return;const b=document.createElement("button");b.className="xbtn";b.type="button";b.setAttribute("aria-label","Fermer");b.title="Fermer";
+// 26/11 : pas de croix quand la fenêtre a déjà un bouton qui la ferme (Fermer, Annuler, Continuer à jouer) : un seul moyen par action
+const CLOSE_RE=/^(Fermer|Annuler|Continuer à jouer)$/;
+function cross(ov){const sh=ov.querySelector(".sheet");if(!sh||sh.querySelector(":scope>.xbtn"))return;if([...sh.querySelectorAll("button")].some(b=>CLOSE_RE.test(b.textContent.trim())))return;const b=document.createElement("button");b.className="xbtn";b.type="button";b.setAttribute("aria-label","Fermer");b.title="Fermer";
   b.innerHTML='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6.5 6.5l11 11M17.5 6.5l-11 11" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></svg>';
   b.onclick=e=>{e.stopPropagation();const stay=ov.querySelector("#lvStay");if(stay){stay.click();return}ov.classList.remove("on");document.dispatchEvent(new CustomEvent("fl-closed",{detail:ov.id}))};sh.prepend(b)}
 function scan(){document.querySelectorAll(ZONES).forEach(z=>glass(z));document.querySelectorAll(".overlay").forEach(cross)}

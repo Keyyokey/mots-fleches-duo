@@ -13,7 +13,7 @@ css_main = "<style>" + site("jeu.css") + "</style>"
 css_fl = between("<style>/* mots fléchés : compléments", "</style>")
 css_sk = '<style id="sk-css">' + site("sk.css") + "</style>"
 sk_js = '<script>window.SK_HDR=1;</script><script id="sk-js">' + site("sk.js")
-inv = between("<script>// ---------- invitations", "</script>")
+inv = '<script src="/d/invit-0000000000.js"></script>'   # script commun (outils/site/invit.js), mis à jour par partage.py
 icons = "<script>" + site("icones.js") + "</script>"
 data = sorted(glob.glob(os.path.join(ROOT, "public/d/magnetico-*.js")))[-1]
 body = open(os.path.join(D, "mg_body.html"), encoding="utf8").read()

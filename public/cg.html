@@ -747,7 +747,7 @@ body.booting #boot{display:flex;position:fixed;inset:0;z-index:50;align-items:ce
 .scores2.linked .sc.turn::after{display:none}
 }
 .scores2:not(.linked) .vsb{display:none}@media (max-width:620px){.scores2.linked{flex-wrap:wrap!important}.scores2.linked .sc{flex-basis:50%!important;max-width:50%}.scores2.linked .mmclock{flex:1 1 100%;order:3;margin-top:8px;text-align:center}}@media (max-width:620px){.scores2.linked .sc{grid-template-columns:auto minmax(0,1fr) auto!important;grid-template-areas:"pi b sv" "pi x sv"!important;padding:5px 22px 5px 8px!important;column-gap:6px!important;row-gap:0!important}.scores2.linked .sc2{grid-template-columns:auto minmax(0,1fr) auto!important;grid-template-areas:"sv b pi" "sv x pi"!important;padding:5px 8px 5px 22px!important}.scores2.linked .sc .pi{width:28px!important;height:28px!important;font-size:.8rem!important}.scores2.linked .sc b{font-size:.78rem!important;align-self:end}.scores2.linked .sc .sv{font-size:1.2rem!important}.scores2.linked .sc .rclk,.scores2.linked .sc .cgst{grid-row:auto!important;grid-column:auto!important;grid-area:x!important;justify-self:start!important;align-self:start;font-size:.64rem!important;padding:0 5px!important;margin:1px 0 0!important;line-height:1.5}.scores2.linked .sc2 .rclk,.scores2.linked .sc2 .cgst{justify-self:end!important}.scores2.linked .sc1 .rclk+.cgst{display:none!important}.scores2.linked .vsb{width:30px!important;height:30px!important;font-size:.7rem!important;border-width:1.5px!important}.scores2.linked{border-radius:14px!important}.scores2.linked .sc{border-radius:13px 0 0 13px!important}.scores2.linked .sc2{border-radius:0 13px 13px 0!important}.scores2.linked .mmclock{margin-top:4px!important;padding:4px!important;font-size:.85rem}}@media (max-width:620px){.scores2.linked{background:linear-gradient(135deg,rgba(255,255,255,.10),rgba(255,255,255,.04))!important;-webkit-backdrop-filter:blur(14px) saturate(140%);backdrop-filter:blur(14px) saturate(140%);border:1px solid rgba(255,255,255,.18)!important;box-shadow:inset 0 1px 0 rgba(255,255,255,.22),0 6px 20px rgba(0,0,0,.25)!important}.scores2.linked .sc.turn,.scores2.linked .sc.lead{background:linear-gradient(135deg,rgba(23,185,197,.30),rgba(145,103,241,.20))!important;box-shadow:inset 0 0 0 1px rgba(255,255,255,.14)!important}.scores2.linked .vsb{background:linear-gradient(145deg,rgba(255,255,255,.28),rgba(255,255,255,.08))!important;-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);border:1px solid rgba(255,255,255,.45)!important;box-shadow:0 4px 12px rgba(0,0,0,.3),inset 0 1px 0 rgba(255,255,255,.4)!important}.scores2.linked .mmclock{background:rgba(255,255,255,.06)!important;border:1px solid rgba(255,255,255,.12)!important;border-radius:10px}}</style>
-<script src="/d/icons-8d7b87098e.js" defer></script><style id="tj-cg">@media (max-width:620px){body.tj #skTop{display:none!important}body.tj .wrap{padding-top:8px}}</style><style>.lrt{width:100%;border-collapse:collapse;margin-top:4px;font-size:.88rem;text-align:left}.lrt th{font-weight:700;padding:5px 8px 5px 0;white-space:nowrap;vertical-align:top}.lrt td{padding:5px 0;opacity:.9}.lrt tr+tr th,.lrt tr+tr td{border-top:1px solid rgba(127,127,127,.2)}</style><script>/* 26/11 : règles en petit tableau */window.LRT=rows=>'<table class="lrt">'+rows.map(r=>"<tr><th>"+r[0]+"</th><td>"+r[1]+"</td></tr>").join("")+"</table>";</script></head>
+<script src="/d/icons-8d7b87098e.js" defer></script><style id="tj-cg">@media (max-width:620px){body.tj #skTop{display:none!important}body.tj .wrap{padding-top:8px}}</style></head>
 <body class="sk-new booting g-culture">
 <div id="skTop" class="skph"></div><script>/* 20/11 : partie lancée directement sur téléphone → en-tête masqué dès le départ (évite 3 sauts de mise en page) */try{if(matchMedia("(pointer:coarse)").matches&&innerWidth<=620&&/[?&]go=(solo|resume)\b/.test(location.search))document.body.classList.add("tj")}catch(e){}</script>
 <div class="blob b1"></div><div class="blob b2"></div><div class="blob b3"></div>
@@ -778,12 +778,10 @@ body.booting #boot{display:flex;position:fixed;inset:0;z-index:50;align-items:ce
   </div>
 </main>
 </div>
-<div class="overlay" id="leave"><div class="glass sheet qbox"><div class="ico-big">⏸️</div><h3>Ta grille n'est pas terminée</h3><div class="note" id="leaveTxt">Que veux-tu faire ?</div>
-<button class="btn primary" id="lvPause">Mettre en pause</button><button class="btn" id="lvQuit">Annuler la partie</button><button class="btn" id="lvStay" style="background:transparent">Continuer à jouer</button>
-<div class="note" id="leaveRule">En pause, la partie est gardée : « Reprendre » apparaît sur la case du jeu.</div></div></div>
-<div class="overlay" id="mystWin"><div class="glass sheet"><h3>Mot mystère</h3><div class="note">Trouve le mot formé par les cases numérotées : <b>+20 points</b>. Faux : tu passes ton tour.</div><input class="in" id="mystIn" maxlength="14" autocomplete="off" placeholder="TA PROPOSITION" style="text-transform:uppercase;letter-spacing:.12em;text-align:center;font-weight:800"><div style="display:flex;gap:8px"><button class="btn" id="mystX" style="flex:1">Fermer</button><button class="btn primary" id="mystGo" style="flex:2">Proposer (+20)</button></div></div></div>
+<div class="overlay" id="leave"><div class="glass sheet qbox"><h3>Ta grille n'est pas terminée</h3><button class="btn primary" id="lvPause">Mettre en pause</button><button class="btn" id="lvQuit">Annuler la partie</button><button class="btn" id="lvStay" style="background:transparent">Continuer à jouer</button>
+</div></div>
 <div class="overlay" id="endWin"><div class="glass sheet qbox"><h3 id="endT"></h3><div class="note" id="endB"></div><button class="btn primary" id="endAgain">🎲 Nouvelles questions</button><button class="btn" id="endSame">🔁 Rejouer ces questions</button><button class="btn" id="endDuel">⚔️ Défier un proche sur ces questions</button><button class="btn" id="endHome">🏠 Accueil</button></div></div>
-<script>window.SK_HDR=1;</script><script src="/d/sk-a3e70af092.js"></script>
+<script>window.SK_HDR=1;</script><script src="/d/sk-59ec88a86d.js"></script>
 <script src="/d/cg-index.js"></script>
 <script>// ===== Culture générale — moteur branché sur l'écran de l'artefact =====
 // 10 questions, 4 réponses, 20 s par question. Bonne réponse : 10 pts + jusqu'à 5 pts de rapidité.
@@ -959,7 +957,7 @@ function sameAgain(){const o=G;if(!o||!o.solo)return again();open(newGame(o.play
 // points d'une grille rejouée : 10 la 2e fois, 3 ensuite (décompte fait par le serveur)
 function repNote(r){const b=$("#endB");if(!r||!b||document.getElementById("repNote"))return;const t=(r.rep||r.f<1)?(r.rep?"Série de questions déjà jouée"+(r.rep===1?" une fois : <b>+10 points</b> seulement.":" plusieurs fois : <b>+3 points</b> seulement."):r.nth+"e partie de la journée à ce jeu : points à <b>"+Math.round(r.f*100)+" %</b> (+"+r.add+"). Le barème est dégressif : il repart à 100 % demain."):"";const sc=r.ok&&r.pts&&typeof r.pts.tot==="number"&&r.add>0?"<b>+"+String(r.add).replace(".",",")+"</b> au score Motipop : <b>"+Math.floor(r.pts.tot)+"</b> / 2 500.":"";if(!t&&!sc)return;b.insertAdjacentHTML("beforeend",'<div id="repNote" class="note" style="margin-top:8px">'+[sc,t].filter(Boolean).join("<br>")+"</div>")}
 
-$(".homebtn").onclick=()=>{if(!G||G.done||G.bot){location.href=G&&G.bot?"/":HOME;return}$("#lvQuit").textContent=G.solo?"Annuler la partie":"Quitter la partie";$("#leaveRule").innerHTML=G.solo?LRT([["⏸️ Pause", "partie gardée"], ["▶️ Reprendre", "sur la case du jeu"], ["🗑️ Annuler", "efface la partie"]]):LRT([["⏸️ Pause", "5 min max, chrono arrêté"], ["⌛ Au-delà", "celui qui reste gagne ½ de ses points"], ["🚪 Partis tous les deux", "0 point"]]);$("#leave").classList.add("on")};
+$(".homebtn").onclick=()=>{if(!G||G.done||G.bot){location.href=G&&G.bot?"/":HOME;return}$("#lvQuit").textContent=G.solo?"Annuler la partie":"Quitter la partie (0 point)";$("#lvPause").textContent=G.solo?"Mettre en pause":"Pause (5 min max)";$("#leave").classList.add("on")};
 const leave=fn=>{const solo=!!(G&&G.solo);let pr=null;try{pr=fn()}catch(e){}const go=()=>location.href=solo?"/":HOME;Promise.race([Promise.resolve(pr),new Promise(r=>setTimeout(r,2000))]).then(()=>setTimeout(go,150),go)};
 $("#lvPause").onclick=()=>leave(pauseGame);$("#lvQuit").onclick=()=>leave(quitGame);$("#lvStay").onclick=()=>$("#leave").classList.remove("on");
 
@@ -1021,9 +1019,10 @@ function soloBoot(go){let loc=null;try{loc=JSON.parse(LS.get(SOLOKEY)||"null")}c
     if(!ME&&guestCount()>=GUEST_MAX){location.replace("/?need=compte");return}
     NEWSOLO("all",0,(r&&r.played)||[])})}
 // ---------- multijoueur hors salon (26/11) : table rejointe, défi différé, robot ----------
-function tableWait(){document.body.classList.remove("booting");$("#endT").textContent="⏳ Ton adversaire prépare la partie…";$("#endB").innerHTML='<span class="spin"></span>';const a=$("#endAgain");if(a)a.style.display="none";["#endSame","#endDuel"].forEach(x=>{const e=$(x);if(e)e.style.display="none"});$("#endWin").classList.add("on");
-  const t0=Date.now(),iv=setInterval(()=>{const d=docs[DOC];if(!G&&d&&d.players&&!d.solo){open(d)}if(G){clearInterval(iv);$("#endWin").classList.remove("on");return}if(Date.now()-t0>20000){clearInterval(iv);blockedWin("Ton adversaire n'est pas arrivé. Reviens à l'accueil et relance une partie rapide.")}},300)}
-function api2(u,b){return fetch(u,{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify(Object.assign({name:ME?ME.name:"",token:ME?ME.token:""},b))}).then(r=>r.json()).catch(()=>({}))}
+function tableWait(){mjReady(()=>MJ.tableWait(()=>{const d=docs[DOC];if(!G&&d&&d.players&&!d.solo)open(d);return !!G},blockedWin))}
+// le code commun (MJ, outils/site/mj.js) arrive juste après la page
+const mjReady=f=>{(function w(){window.MJ?f():setTimeout(w,30)})()};
+const api2=(u,b)=>new Promise(ok=>mjReady(()=>MJ.api(u,b).then(ok)));
 function duelBoot(id){api2("/api/duel/get",{id}).then(r=>{const o=r&&r.duel;const qs=o&&o.game===GAME?String(o.ref).split(","):[];if(!qs.length||!qs.every(x=>KIND[x])){blockedWin("Ce défi n'existe plus. Il est peut-être trop ancien (30 jours).");return}
   const g=newGame([ME?ME.name:"Toi"],true,qs,"");g.duel=o.id;g.duelBy=o.by;open(g);save();toast("⚔️","Défi de <b>"+esc(o.by)+"</b> · "+(o.res.length?"meilleur score : <b>"+Math.max(...o.res.map(x=>x.s))+"</b>":"à toi de jouer"))})}
 function duelEnd(){if(!G||!G.solo||G.bot||G.forfeit||G.duelSent)return;G.duelSent=1;const sc=Number(G.players[0].score)||0,secs=Math.round(((G.ended||Date.now())-G.started)/1000);
@@ -1031,16 +1030,7 @@ function duelEnd(){if(!G||!G.solo||G.bot||G.forfeit||G.duelSent)return;G.duelSen
 function duelNew(){const b=$("#endDuel");if(b){b.disabled=true;b.textContent="Préparation du défi…"}const sc=Number(G.players[0].score)||0,secs=Math.round(((G.ended||Date.now())-G.started)/1000);
   api2("/api/duel/new",{game:GAME,ref:G.qs.join(","),level:"facile",score:sc,secs}).then(r=>{if(b){b.disabled=false;b.textContent="⚔️ Défier un proche sur ces questions"}
     if(!r||!r.id){toast("⚠️","Impossible de créer le défi. Réessaie.");return}G.duel=r.id;G.duelRes={by:ME?ME.name:"Toi",res:[{n:ME?ME.name:"Toi",s:sc,t:secs}]};G.duelMine=1;save();if(b)b.style.display="none";duelPaint()})}
-const fmtS=t=>Math.floor(t/60)+" min "+String(t%60).padStart(2,"0");
-function duelPaint(){const B=$("#endB");if(!B||!G||!G.duel||!G.done)return;let d=document.getElementById("duelBox");if(!d){d=document.createElement("div");d.id="duelBox";d.className="duelbox";B.appendChild(d)}
-  const url=location.origin+"/duel/"+G.duel,o=G.duelRes||{res:[]},me=ME?ME.name:"Toi";
-  const rows=[...(o.res||[])].sort((a,b)=>b.s-a.s||a.t-b.t).slice(0,8).map((x,i)=>'<tr'+(x.n===me?' class="me"':"")+'><td>'+(i+1)+'</td><td>'+esc(x.n)+'</td><td><b>'+x.s+'</b></td><td>'+fmtS(x.t)+'</td></tr>').join("");
-  const txt=G.duelMine?"J'ai fait "+G.players[0].score+" points à ce quiz de culture générale. Tu fais mieux sur les mêmes questions ? ":"Moi aussi j'ai relevé ce défi de culture générale. À ton tour : ";
-  const t=encodeURIComponent(txt+url),sms=/iPhone|iPad|iPod|Mac/.test(navigator.userAgent)?"sms:&body="+t:"sms:?body="+t;
-  d.innerHTML='<b class="dt">⚔️ '+(G.duelMine?"Ton défi est prêt":"Défi de "+esc(G.duelBy||o.by||""))+'</b>'+(rows?'<table><tr><th>#</th><th>Joueur</th><th>Points</th><th>Temps</th></tr>'+rows+"</table>":"")
-    +'<div class="dbtns"><a class="btn" target="_blank" rel="noopener" href="https://wa.me/?text='+t+'">WhatsApp</a>'+(matchMedia("(pointer:fine)").matches?"":'<a class="btn" href="'+sms+'">SMS</a>')+'<button class="btn" type="button" id="duelCopy">Copier le lien</button></div>';
-  $("#duelCopy").onclick=e=>{const el=e.currentTarget;const ok=()=>{el.textContent="Copié ✓";setTimeout(()=>el.textContent="Copier le lien",1800)};if(navigator.clipboard)navigator.clipboard.writeText(url).then(ok,()=>prompt("Copie ce lien :",url));else prompt("Copie ce lien :",url)}}
-(function(){const st=document.createElement("style");st.textContent=".duelbox{margin-top:12px;display:flex;flex-direction:column;gap:8px;text-align:left}.duelbox .dt{font-size:1rem}.duelbox table{width:100%;border-collapse:collapse;font-size:.9rem}.duelbox th,.duelbox td{padding:5px 6px;text-align:left;border-bottom:1px solid rgba(255,255,255,.1)}.duelbox th{font-size:.78rem;opacity:.7}.duelbox tr.me td{color:var(--accent);font-weight:800}.duelbox .dbtns{display:flex;gap:6px}.duelbox .dbtns .btn{flex:1;text-decoration:none;text-align:center;min-width:0;color:inherit;display:flex;align-items:center;justify-content:center}";document.head.appendChild(st)})();
+function duelPaint(){if(!G||!G.duel||!G.done||!window.MJ)return;const o=G.duelRes||{res:[]},txt=G.duelMine?"J'ai fait "+G.players[0].score+" points à ce quiz de culture générale. Tu fais mieux sur les mêmes questions ? ":"Moi aussi j'ai relevé ce défi de culture générale. À ton tour : ";MJ.duelPaint({id:G.duel,res:o.res,mine:G.duelMine,by:G.duelBy||o.by,txt})}
 $("#endDuel").onclick=()=>{if(G&&G.solo&&G.done)duelNew()};
 function freshQs(){const seen=new Set(Object.keys(localSeen()));return pickQs(seen,THEME_URL)}
 function duelStart(){const g=newGame([ME?ME.name:"Toi"],true,freshQs(),THEME_URL);g.duelNew=1;open(g);save();toast("⏳","Défi différé : réponds aux 10 questions, puis envoie-les à un proche.")}
@@ -1058,57 +1048,11 @@ if(location.hostname==="localhost")window.__t=c=>eval(c);
 start();
 })();
 </script>
-<script>// ---------- invitations : un joueur du salon propose une partie → bandeau « Rejoindre la partie » chez les autres membres ----------
-(function(){
-const GAMES={fl:["fleches","mots fléchés"],rond:["rond","Tourniquet"],meles:["meles","mots mêlés"],cg:["culture","culture générale"],mg:["magnetico","Magnético"]};
-const LV={facile:"Facile",normal:"Normal",moyen:"Normal",difficile:"Difficile"};
-const SS={get(k){try{return sessionStorage.getItem(k)}catch(e){return null}},set(k,v){try{sessionStorage.setItem(k,v)}catch(e){}}};
-const me=()=>{try{const m=JSON.parse(localStorage.getItem("fl-me")||"null");return m&&m.name?String(m.name).toUpperCase():null}catch(e){return null}};
-const code=()=>((location.pathname.match(/^\/([A-Za-z0-9]{5})(?:\/|$)/)||[])[1]||"").toUpperCase();
-function seen(gid,add){let s=[];try{s=JSON.parse(SS.get("fl-inv")||"[]")}catch(e){}if(add){if(!s.includes(gid))s.push(gid);SS.set("fl-inv",JSON.stringify(s.slice(-60)))}return s.includes(gid)}
-let AC=null;function ding(){try{if(localStorage.getItem("fl-sound")==="off")return}catch(e){}try{AC=AC||new (window.AudioContext||window.webkitAudioContext)();[[740,0],[1108,.11],[1480,.24]].forEach(([f,d])=>{const n=AC.currentTime+d,o=AC.createOscillator(),g=AC.createGain();o.frequency.value=f;g.gain.setValueAtTime(0,n);g.gain.linearRampToValueAtTime(.14,n+.01);g.gain.exponentialRampToValueAtTime(.0001,n+.25);o.connect(g).connect(AC.destination);o.start(n);o.stop(n+.3)})}catch(e){}}
-function css(){if(document.getElementById("inv-css"))return;const st=document.createElement("style");st.id="inv-css";st.textContent=
-  ".invbanner{position:fixed;left:50%;bottom:22px;transform:translateX(-50%);z-index:90;display:flex;align-items:center;gap:10px;flex-wrap:wrap;justify-content:center;max-width:min(560px,calc(100vw - 24px));padding:12px 14px;border-radius:18px;"
-  +"background:rgba(20,28,48,.72);border:1px solid rgba(255,255,255,.22);backdrop-filter:blur(22px) saturate(160%);-webkit-backdrop-filter:blur(22px) saturate(160%);box-shadow:0 18px 50px rgba(0,0,0,.4),inset 0 1px 0 rgba(255,255,255,.2);color:#eef2f7;animation:invIn .45s cubic-bezier(.2,1.4,.4,1)}"
-  +".invbanner .it{flex:1 1 220px;font:600 .95rem Inter,Nunito,sans-serif;line-height:1.35}.invbanner .it b{color:#5eead4}"
-  +".invbanner button{font:800 .9rem Nunito,Inter,sans-serif;padding:9px 14px;border-radius:12px;border:1px solid rgba(255,255,255,.22);background:rgba(255,255,255,.12);color:inherit;cursor:pointer}"
-  +".invbanner button.go{background:linear-gradient(135deg,#00ADB5,#A26BFF);border-color:transparent;color:#fff;box-shadow:0 6px 18px rgba(0,173,181,.35)}"
-  +".invbanner.out{opacity:0;transform:translate(-50%,20px);transition:.5s}[data-theme=light] .invbanner{background:rgba(255,255,255,.82);color:#1b2433;border-color:rgba(15,25,40,.12)}[data-theme=light] .invbanner .it b{color:#0f766e}"
-  +"@keyframes invIn{from{opacity:0;transform:translate(-50%,30px) scale(.96)}to{opacity:1;transform:translate(-50%,0) scale(1)}}";document.head.appendChild(st)}
-function show(text,go,gid){css();const old=document.getElementById("invBanner");if(old)old.remove();const d=document.createElement("div");d.id="invBanner";d.className="invbanner";d.setAttribute("role","status");
-  d.innerHTML='<span class="it"></span><button type="button" class="go">Rejoindre la partie</button><button type="button" class="no">Plus tard</button>';d.querySelector(".it").innerHTML=text;
-  d.querySelector(".go").onclick=()=>{seen(gid,true);d.remove();go()};d.querySelector(".no").onclick=()=>{seen(gid,true);d.remove()};
-  document.body.appendChild(d);ding();if(navigator.vibrate)try{navigator.vibrate([40,60,40])}catch(e){}
-  setTimeout(()=>{if(d.isConnected)d.classList.add("out")},25000);setTimeout(()=>{if(d.isConnected){d.remove();seen(gid,true)}},25600)}
-const esc=s=>String(s==null?"":s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
-// docs : documents du salon reçus en direct ; opt.gid : partie ouverte sur cette page (pas d'invitation pour elle)
-window.FLINV=function(docs,opt){opt=opt||{};const M=me(),C=code();if(!M||!C||!docs)return;const now=Date.now();
-  for(const id in GAMES){const d=docs[id];if(!d||!Array.isArray(d.players)||d.solo||d.done||!d.gid||d.gid===opt.gid)continue;
-    const fresh=d.wait||(d.started&&now-d.started<180000);if(!fresh||seen(d.gid))continue;
-    const names=d.players.map(p=>String(p.name||"").toUpperCase());const host=d.players[0]&&d.players[0].name;const mine=names.indexOf(M);
-    if(mine===0)continue;                                             // c'est moi qui propose
-    const lv=LV[d.level]?" ("+LV[d.level]+")":"";const [path,nm]=GAMES[id];let text=null;
-    if(new RegExp("/"+path+"/?$").test(location.pathname))continue;   // déjà sur la page de ce jeu : la partie s'y rejoint toute seule (le bandeau cachait la grille)
-    if(mine>0)text="<b>"+esc(host)+"</b> t'invite à une partie de "+nm+lv+". Tu viens ?";
-    else if(names.includes("INVITÉ")||((id==="fl"||id==="meles"||id==="mg")&&d.wait&&names.length<4))text="<b>"+esc(host)+"</b> propose une partie de "+nm+lv+" : une place est libre. Tu viens ?";
-    if(!text)continue;
-    show(text,()=>{location.href="/"+C+"/"+path},d.gid);return}};
-})();
-</script>
-<script src="/d/mj-e1590356a1.js"></script>
+<script src="/d/invit-9148ad9ec3.js"></script>
+<script src="/d/mj-8ed0173992.js"></script>
 <script>/* 26/11 : bouton « À plusieurs » (partie rapide, joueurs en ligne, lien d'invitation, défi différé) */
 if(window.MJ&&window.FLMJ)MJ.init(Object.assign({game:"culture",path:"culture",gname:"culture générale",mount:".gtop"},FLMJ));</script>
-<script src="/d/ic-bb9f2e3c22.js"></script>
+<script src="/d/ic-c7eae1cc03.js"></script>
 <script>(function(){var card=document.querySelector(".cgcard"),tl=document.getElementById("cgTl"),fact=document.getElementById("cgFact");if(!card||!tl||!fact)return;var b=document.createElement("div");b.className="cgtbar";b.setAttribute("role","progressbar");b.setAttribute("aria-label","Temps restant");b.innerHTML="<i></i>";var top=card.querySelector(".cgtop");card.insertBefore(b,top?top.nextSibling:card.firstChild);function sync(){var w=parseFloat(tl.style.width);b.firstChild.style.width=(isNaN(w)?100:w)+"%";b.classList.toggle("low",w<26);b.hidden=!fact.hidden||!document.querySelector("#cgA button:not([disabled])")}new MutationObserver(sync).observe(tl,{attributes:true,attributeFilter:["style"]});new MutationObserver(sync).observe(fact,{attributes:true,attributeFilter:["hidden"]});new MutationObserver(sync).observe(document.getElementById("cgA"),{childList:true,subtree:true,attributes:true});sync()})();</script>
-<script>(function(){/* bandeau des scores lié (téléphone) : les deux joueurs dans une seule barre, le joueur actif éclairé, l'écart au centre */
-var mq=window.matchMedia("(max-width:620px)");
-function shown(e){return e&&e.style.display!=="none"&&getComputedStyle(e).display!=="none"}
-function tick(){document.querySelectorAll(".scores2").forEach(function(box){var a=box.querySelector(".sc1"),b=box.querySelector(".sc2");
-  var on=mq.matches&&shown(a)&&shown(b);box.classList.toggle("linked",!!on);if(!on){if(a)a.classList.remove("lead");if(b)b.classList.remove("lead");return}
-  var v=box.querySelector(".vsb");if(!v){v=document.createElement("span");v.className="vsb";v.setAttribute("aria-hidden","true");box.insertBefore(v,b)}
-  var sa=parseInt((a.querySelector(".sv")||{}).textContent,10)||0,sb=parseInt((b.querySelector(".sv")||{}).textContent,10)||0,d=Math.abs(sa-sb);
-  v.textContent=d?"+"+d:"=";v.style.top=(a.offsetTop+a.offsetHeight/2)+"px";
-  var turn=a.classList.contains("turn")||b.classList.contains("turn");
-  a.classList.toggle("lead",!turn&&sa>sb);b.classList.toggle("lead",!turn&&sb>sa)})}
-setInterval(tick,400);tick()})();</script>
+<script src="/d/bandeau-d4a93dba2b.js"></script>
 </body></html>

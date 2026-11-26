@@ -207,11 +207,10 @@ body.booting #boot{display:flex;position:fixed;inset:0;z-index:50;align-items:ce
   </div>
 </main>
 </div>
-<div class="overlay" id="leave"><div class="glass sheet qbox"><div class="ico-big">⏸️</div><h3>La partie n'est pas terminée</h3><div class="note" id="leaveTxt">Que veux-tu faire ?</div>
-<button class="btn primary" id="lvQuit">Quitter la partie</button><button class="btn" id="lvStay" style="background:transparent">Continuer à jouer</button>
-<div class="note" id="leaveRule"></div></div></div>
+<div class="overlay" id="leave"><div class="glass sheet qbox"><h3>La partie n'est pas terminée</h3><button class="btn primary" id="lvQuit">Quitter la partie</button><button class="btn" id="lvStay" style="background:transparent">Continuer à jouer</button>
+</div></div>
 <div class="overlay" id="endWin"><div class="glass sheet qbox"><h3 id="endT"></h3><div class="note" id="endB"></div><div id="endAgain" class="endlv"><small>Nouvelle partie : choisis le niveau</small><div class="lvrow"><button type="button" data-lv="facile">Facile</button><button type="button" data-lv="normal">Normal</button><button type="button" data-lv="difficile">Difficile</button></div></div><button class="btn" id="endDuel" style="display:none">⚔️ Défier un proche sur ces mots</button><button class="btn" id="endHome">🏠 Accueil</button></div></div>
-<script>window.SK_HDR=1;</script><script src="/d/sk-a3e70af092.js"></script>
+<script>window.SK_HDR=1;</script><script src="/d/sk-59ec88a86d.js"></script>
 <script src="/d/magnetico-bf00c0ed3b.js" defer></script>
 <script>// ===== Magnético — jeu de Motipop : reformer le mot avec les syllabes qui s'entrechoquent =====
 (function(){
@@ -444,9 +443,7 @@ function nextSolo(){if(cur>=G.words.length-1){G.done=true;G.ended=Date.now();sav
 
 /* ---------- multijoueur hors salon (26/11) : table rejointe, robot, défi différé ---------- */
 // table hors salon (partie rapide, invitation) : l'adversaire prépare la partie, on l'attend ici (20 s au plus)
-function tableWait(){document.body.classList.remove("booting");$("#endT").textContent="⏳ Ton adversaire prépare la partie…";$("#endB").innerHTML='<span class="spin"></span>';const a=$("#endAgain");if(a)a.style.display="none";const dz=$("#endDuel");if(dz)dz.style.display="none";$("#endWin").classList.add("on");
-  const t0_=Date.now(),iv=setInterval(()=>{const d=docs[DOC];if(d&&d.players&&!d.solo){clearInterval(iv);$("#endWin").classList.remove("on");if(a)a.style.display="";open(d);return}
-    if(Date.now()-t0_>20000){clearInterval(iv);$("#endT").textContent="Ton adversaire n'est pas arrivé";$("#endB").innerHTML="Reviens à l'accueil et relance une partie rapide."}},300)}
+function tableWait(){mjReady(()=>MJ.tableWait(()=>{const d=docs[DOC];if(!G&&d&&d.players&&!d.solo)open(d);return !!G},m=>{$("#endT").textContent="Ton adversaire n'est pas arrivé";$("#endB").textContent="Reviens à l'accueil et relance une partie rapide."}))}
 // robot de secours : partie sur cet appareil, Robot Pop trouve certains mots au bout d'un moment (rien n'est envoyé sauf le score final, compté comme en solo)
 const BOT={facile:{p:.6,a:.5,b:.95},normal:{p:.7,a:.4,b:.9},difficile:{p:.8,a:.3,b:.8}};let botW=null;
 function botStart(lvl){const g=newGame([ME?ME.name:"Toi","Robot Pop"],true,lvl);g.bot=1;open(g);toast("🤖","Partie contre <b>Robot Pop</b> : trouve chaque mot avant lui !")}
@@ -455,7 +452,9 @@ function botCheck(){const c=BOT[G.level]||BOT.facile;if(!botW||botW.k!==cur+":"+
   phase="timeout";SFX.time();slots();showRes(false,null,"🤖 Robot Pop a trouvé !");render()}
 // défi différé : mêmes mots (graine + liste), chacun joue quand il veut, les scores sont comparés
 const DUELT={facile:"Facile",normal:"Normal",difficile:"Difficile"};
-function api2(u,b){return fetch(u,{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify(Object.assign({name:ME?ME.name:"",token:ME?ME.token:""},b))}).then(r=>r.json()).catch(()=>({}))}
+// le code commun (MJ, outils/site/mj.js) arrive juste après la page
+const mjReady=f=>{(function w(){window.MJ?f():setTimeout(w,30)})()};
+const api2=(u,b)=>new Promise(ok=>mjReady(()=>MJ.api(u,b).then(ok)));
 function duelBoot(id){api2("/api/duel/get",{id}).then(r=>{const o=r&&r.duel;const m=o&&String(o.ref).match(/^(\d{1,10})\|([A-Za-z0-9,]{1,300})$/);
   if(!o||o.game!==GAME||!m||!LVLN[o.level]){document.body.classList.remove("booting");$("#endT").textContent="Ce défi n'existe plus";$("#endB").innerHTML="Il est peut-être trop ancien (30 jours).";$("#endWin").classList.add("on");return}
   const g=newGame([ME?ME.name:"Toi"],true,o.level);g.seed=+m[1];g.words=m[2].split(",").map(x=>/^\d+$/.test(x)?+x:x);g.duel=o.id;g.duelBy=o.by;open(g);
@@ -465,16 +464,7 @@ function duelEnd(){if(!G||!G.solo||G.bot||G.duelSent)return;G.duelSent=1;const s
 function duelNew(){const b=$("#endDuel");if(b){b.disabled=true;b.textContent="Préparation du défi…"}const sc=Number(G.players[0].score)||0,secs=Math.round(((G.ended||Date.now())-G.started)/1000);
   api2("/api/duel/new",{game:GAME,ref:G.seed+"|"+G.words.join(","),level:G.level,score:sc,secs}).then(r=>{if(b){b.disabled=false;b.textContent="⚔️ Défier un proche sur ces mots"}
     if(!r||!r.id){toast("⚠️","Impossible de créer le défi. Réessaie.");return}G.duel=r.id;G.duelRes={by:ME?ME.name:"Toi",res:[{n:ME?ME.name:"Toi",s:sc,t:secs}]};G.duelMine=1;if(b)b.style.display="none";duelPaint()})}
-const fmtS=t=>Math.floor(t/60)+" min "+String(t%60).padStart(2,"0");
-function duelPaint(){const B=$("#endB");if(!B||!G||!G.duel||!G.done)return;let d=document.getElementById("duelBox");if(!d){d=document.createElement("div");d.id="duelBox";d.className="duelbox";B.appendChild(d)}
-  const url=location.origin+"/duel/"+G.duel,o=G.duelRes||{res:[]},me=ME?ME.name:"Toi";
-  const rows=[...(o.res||[])].sort((a,b)=>b.s-a.s||a.t-b.t).slice(0,8).map((x,i)=>'<tr'+(x.n===me?' class="me"':"")+'><td>'+(i+1)+'</td><td>'+esc(x.n)+'</td><td><b>'+x.s+'</b></td><td>'+fmtS(x.t)+'</td></tr>').join("");
-  const txt=G.duelMine?"J'ai fait "+G.players[0].score+" points à Magnético ("+DUELT[G.level]+"). Tu fais mieux sur les mêmes mots ? ":"Moi aussi j'ai relevé ce défi Magnético. À ton tour : ";
-  const t=encodeURIComponent(txt+url),sms=/iPhone|iPad|iPod|Mac/.test(navigator.userAgent)?"sms:&body="+t:"sms:?body="+t;
-  d.innerHTML='<b class="dt">⚔️ '+(G.duelMine?"Ton défi est prêt":"Défi de "+esc(G.duelBy||o.by||""))+'</b>'+(rows?'<table><tr><th>#</th><th>Joueur</th><th>Points</th><th>Temps</th></tr>'+rows+"</table>":"")
-    +'<div class="dbtns"><a class="btn" target="_blank" rel="noopener" href="https://wa.me/?text='+t+'">WhatsApp</a>'+(matchMedia("(pointer:fine)").matches?"":'<a class="btn" href="'+sms+'">SMS</a>')+'<button class="btn" type="button" id="duelCopy">Copier le lien</button></div>';
-  $("#duelCopy").onclick=e=>{const el=e.currentTarget;const ok=()=>{el.textContent="Copié ✓";setTimeout(()=>el.textContent="Copier le lien",1800)};if(navigator.clipboard)navigator.clipboard.writeText(url).then(ok,()=>prompt("Copie ce lien :",url));else prompt("Copie ce lien :",url)}}
-(function(){const st=document.createElement("style");st.textContent=".duelbox{margin-top:12px;display:flex;flex-direction:column;gap:8px;text-align:left}.duelbox .dt{font-size:1rem}.duelbox table{width:100%;border-collapse:collapse;font-size:.9rem}.duelbox th,.duelbox td{padding:5px 6px;text-align:left;border-bottom:1px solid rgba(255,255,255,.1)}.duelbox th{font-size:.78rem;opacity:.7}.duelbox tr.me td{color:var(--accent);font-weight:800}.duelbox .dbtns{display:flex;gap:6px}.duelbox .dbtns .btn{flex:1;text-decoration:none;text-align:center;min-width:0;color:inherit;display:flex;align-items:center;justify-content:center}";document.head.appendChild(st)})();
+function duelPaint(){if(!G||!G.duel||!G.done||!window.MJ)return;const o=G.duelRes||{res:[]},txt=G.duelMine?"J'ai fait "+G.players[0].score+" points à Magnético ("+DUELT[G.level]+"). Tu fais mieux sur les mêmes mots ? ":"Moi aussi j'ai relevé ce défi Magnético. À ton tour : ";MJ.duelPaint({id:G.duel,res:o.res,mine:G.duelMine,by:G.duelBy||o.by,txt})}
 function duelStart(lvl){const g=newGame([ME?ME.name:"Toi"],true,lvl);g.duelNew=1;open(g);toast("⏳","Défi différé : finis la partie, puis envoie-la à un proche.")}
 window.FLMJ={playing:()=>!!(G&&!G.done&&!G.wait),robot:lvl=>botStart(lvl),duel:lvl=>duelStart(lvl),busy:()=>!!(G&&!G.solo&&!G.done)};
 /* ---------- boucle d'animation ---------- */
@@ -551,7 +541,7 @@ function soloTicket(){if(!G||!G.solo||!ME||!ME.token)return;fetch("/api/p/solo",
 /* ---------- commandes ---------- */
 $("#mgOk").onclick=validate;$("#mgPass").onclick=passWord;
 $("#mgClear").onclick=()=>{if(phase!=="play")return;let n=0;placed=placed.map((b,k)=>{if(b&&!locked[k]){queue.push(b);n++;return null}return b});if(n)SFX.back();slots()};
-$(".homebtn").onclick=()=>{if(!G||G.done||G.bot||mySeat()===null){location.href=HOME;return}$("#lvQuit").textContent=G.solo?"Annuler la partie":"Quitter la partie";$("#leaveRule").textContent=G.solo?"La partie solo n'est pas gardée.":"Si tu quittes (ou 1 min sans connexion) : la partie continue sans toi, 0 point pour toi.";$("#leave").classList.add("on")};
+$(".homebtn").onclick=()=>{if(!G||G.done||G.bot||mySeat()===null){location.href=HOME;return}$("#lvQuit").textContent=G.solo?"Annuler la partie":"Quitter la partie (0 point)";$("#leave").classList.add("on")};
 $("#lvQuit").onclick=()=>{const solo=!!(G&&G.solo);quitGame();setTimeout(()=>location.href=solo?"/":HOME,350)};$("#lvStay").onclick=()=>$("#leave").classList.remove("on");
 $("#endHome").onclick=()=>{location.href=HOME};$("#endDuel").onclick=()=>{if(G&&G.solo&&G.done&&!G.bot)duelNew()};$("#endAgain").onclick=e=>{if(e.target.closest("[data-lv]"))return;$("#endWin").classList.remove("on");again()};document.querySelectorAll("#endAgain [data-lv]").forEach(b=>b.onclick=e=>{e.stopPropagation();$("#endWin").classList.remove("on");again(b.dataset.lv)});new MutationObserver(()=>{if($("#endWin").classList.contains("on")&&G)document.querySelectorAll("#endAgain [data-lv]").forEach(b=>b.classList.toggle("on",b.dataset.lv===G.level))}).observe($("#endWin"),{attributes:true,attributeFilter:["class"]});
 
@@ -608,45 +598,9 @@ requestAnimationFrame(loop);start();
       p.e.style.transform="translate("+(p.x-p.r).toFixed(1)+"px,"+(p.y-p.r).toFixed(1)+"px)"})}
   requestAnimationFrame(frame)})();
 </script>
-<script src="/d/mj-e1590356a1.js"></script>
+<script src="/d/mj-8ed0173992.js"></script>
 <script>/* 26/11 : bouton « À plusieurs » (partie rapide, joueurs en ligne, lien d'invitation, défi différé) */
 if(window.MJ&&window.FLMJ)MJ.init(Object.assign({game:"magnetico",path:"magnetico",gname:"Magnético",mount:".gtop"},FLMJ));</script>
-<script>// ---------- invitations : un joueur du salon propose une partie → bandeau « Rejoindre la partie » chez les autres membres ----------
-(function(){
-const GAMES={fl:["fleches","mots fléchés"],rond:["rond","Tourniquet"],meles:["meles","mots mêlés"],cg:["culture","culture générale"],mg:["magnetico","Magnético"]};
-const LV={facile:"Facile",normal:"Normal",moyen:"Normal",difficile:"Difficile"};
-const SS={get(k){try{return sessionStorage.getItem(k)}catch(e){return null}},set(k,v){try{sessionStorage.setItem(k,v)}catch(e){}}};
-const me=()=>{try{const m=JSON.parse(localStorage.getItem("fl-me")||"null");return m&&m.name?String(m.name).toUpperCase():null}catch(e){return null}};
-const code=()=>((location.pathname.match(/^\/([A-Za-z0-9]{5})(?:\/|$)/)||[])[1]||"").toUpperCase();
-function seen(gid,add){let s=[];try{s=JSON.parse(SS.get("fl-inv")||"[]")}catch(e){}if(add){if(!s.includes(gid))s.push(gid);SS.set("fl-inv",JSON.stringify(s.slice(-60)))}return s.includes(gid)}
-let AC=null;function ding(){try{if(localStorage.getItem("fl-sound")==="off")return}catch(e){}try{AC=AC||new (window.AudioContext||window.webkitAudioContext)();[[740,0],[1108,.11],[1480,.24]].forEach(([f,d])=>{const n=AC.currentTime+d,o=AC.createOscillator(),g=AC.createGain();o.frequency.value=f;g.gain.setValueAtTime(0,n);g.gain.linearRampToValueAtTime(.14,n+.01);g.gain.exponentialRampToValueAtTime(.0001,n+.25);o.connect(g).connect(AC.destination);o.start(n);o.stop(n+.3)})}catch(e){}}
-function css(){if(document.getElementById("inv-css"))return;const st=document.createElement("style");st.id="inv-css";st.textContent=
-  ".invbanner{position:fixed;left:50%;bottom:22px;transform:translateX(-50%);z-index:90;display:flex;align-items:center;gap:10px;flex-wrap:wrap;justify-content:center;max-width:min(560px,calc(100vw - 24px));padding:12px 14px;border-radius:18px;"
-  +"background:rgba(20,28,48,.72);border:1px solid rgba(255,255,255,.22);backdrop-filter:blur(22px) saturate(160%);-webkit-backdrop-filter:blur(22px) saturate(160%);box-shadow:0 18px 50px rgba(0,0,0,.4),inset 0 1px 0 rgba(255,255,255,.2);color:#eef2f7;animation:invIn .45s cubic-bezier(.2,1.4,.4,1)}"
-  +".invbanner .it{flex:1 1 220px;font:600 .95rem Inter,Nunito,sans-serif;line-height:1.35}.invbanner .it b{color:#5eead4}"
-  +".invbanner button{font:800 .9rem Nunito,Inter,sans-serif;padding:9px 14px;border-radius:12px;border:1px solid rgba(255,255,255,.22);background:rgba(255,255,255,.12);color:inherit;cursor:pointer}"
-  +".invbanner button.go{background:linear-gradient(135deg,#00ADB5,#A26BFF);border-color:transparent;color:#fff;box-shadow:0 6px 18px rgba(0,173,181,.35)}"
-  +".invbanner.out{opacity:0;transform:translate(-50%,20px);transition:.5s}[data-theme=light] .invbanner{background:rgba(255,255,255,.82);color:#1b2433;border-color:rgba(15,25,40,.12)}[data-theme=light] .invbanner .it b{color:#0f766e}"
-  +"@keyframes invIn{from{opacity:0;transform:translate(-50%,30px) scale(.96)}to{opacity:1;transform:translate(-50%,0) scale(1)}}";document.head.appendChild(st)}
-function show(text,go,gid){css();const old=document.getElementById("invBanner");if(old)old.remove();const d=document.createElement("div");d.id="invBanner";d.className="invbanner";d.setAttribute("role","status");
-  d.innerHTML='<span class="it"></span><button type="button" class="go">Rejoindre la partie</button><button type="button" class="no">Plus tard</button>';d.querySelector(".it").innerHTML=text;
-  d.querySelector(".go").onclick=()=>{seen(gid,true);d.remove();go()};d.querySelector(".no").onclick=()=>{seen(gid,true);d.remove()};
-  document.body.appendChild(d);ding();if(navigator.vibrate)try{navigator.vibrate([40,60,40])}catch(e){}
-  setTimeout(()=>{if(d.isConnected)d.classList.add("out")},25000);setTimeout(()=>{if(d.isConnected){d.remove();seen(gid,true)}},25600)}
-const esc=s=>String(s==null?"":s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
-// docs : documents du salon reçus en direct ; opt.gid : partie ouverte sur cette page (pas d'invitation pour elle)
-window.FLINV=function(docs,opt){opt=opt||{};const M=me(),C=code();if(!M||!C||!docs)return;const now=Date.now();
-  for(const id in GAMES){const d=docs[id];if(!d||!Array.isArray(d.players)||d.solo||d.done||!d.gid||d.gid===opt.gid)continue;
-    const fresh=d.wait||(d.started&&now-d.started<180000);if(!fresh||seen(d.gid))continue;
-    const names=d.players.map(p=>String(p.name||"").toUpperCase());const host=d.players[0]&&d.players[0].name;const mine=names.indexOf(M);
-    if(mine===0)continue;                                             // c'est moi qui propose
-    const lv=LV[d.level]?" ("+LV[d.level]+")":"";const [path,nm]=GAMES[id];let text=null;
-    if(new RegExp("/"+path+"/?$").test(location.pathname))continue;   // déjà sur la page de ce jeu : la partie s'y rejoint toute seule (le bandeau cachait la grille)
-    if(mine>0)text="<b>"+esc(host)+"</b> t'invite à une partie de "+nm+lv+". Tu viens ?";
-    else if(names.includes("INVITÉ")||((id==="fl"||id==="meles"||id==="mg")&&d.wait&&names.length<4))text="<b>"+esc(host)+"</b> propose une partie de "+nm+lv+" : une place est libre. Tu viens ?";
-    if(!text)continue;
-    show(text,()=>{location.href="/"+C+"/"+path},d.gid);return}};
-})();
-</script>
-<script src="/d/ic-bb9f2e3c22.js"></script>
+<script src="/d/invit-9148ad9ec3.js"></script>
+<script src="/d/ic-c7eae1cc03.js"></script>
 </body></html>

@@ -16,7 +16,9 @@ SK_JS, SK_CSS, JEU, ICO = src("sk.js"), src("sk.css"), src("jeu.css"), src("icon
 u_skjs, u_skcss, u_jeu, u_ico = emit("sk", "js", SK_JS), emit("sk", "css", SK_CSS), emit("jeu", "css", JEU), emit("ic", "js", ICO)
 H = "[0-9a-f]{10}"
 # icônes dessinées (public/d/icons.js, source unique) : copie à empreinte pour toutes les pages
-u_mj = emit("mj", "js", src("mj.js"))   # multijoueur hors salon (bouton « À plusieurs »)
+u_mj = emit("mj", "js", src("mj.js"))
+u_inv = emit("invit", "js", src("invit.js"))      # bandeau « X propose une partie » des salons (jeux + accueil)
+u_band = emit("bandeau", "js", src("bandeau.js")) # bandeau des scores lié sur téléphone (jeux à 2-4)   # multijoueur hors salon (bouton « À plusieurs »)
 u_icons = emit("icons", "js", open(os.path.join(PUB, "d", "icons.js"), encoding="utf8").read())
 for name in [os.path.basename(x) for x in glob.glob(os.path.join(PUB, "*.html"))]:
     p = os.path.join(PUB, name); s = open(p, encoding="utf8").read()
@@ -38,6 +40,11 @@ for name in PAGES:
     # icônes « verre »
     if "<script>" + ICO + "</script>" in s: s = s.replace("<script>" + ICO + "</script>", '<script src="' + u_ico + '"></script>', 1)
     s = re.sub(r'<script src="/d/ic-' + H + r'\.js"></script>', '<script src="' + u_ico + '"></script>', s)
+    # scripts communs sortis des pages (26/11) : invitations des salons, bandeau des scores
+    s = re.sub(r'<script>// ---------- invitations : un joueur du salon.*?</script>', '<script src="' + u_inv + '"></script>', s, count=1, flags=re.S)
+    s = re.sub(r'<script src="/d/invit-' + H + r'\.js"></script>', '<script src="' + u_inv + '"></script>', s)
+    s = re.sub(r'<script>\(function\(\)\{/\* bandeau des scores lié.*?</script>', '<script src="' + u_band + '"></script>', s, count=1, flags=re.S)
+    s = re.sub(r'<script src="/d/bandeau-' + H + r'\.js"></script>', '<script src="' + u_band + '"></script>', s)
     # multijoueur hors salon
     s = re.sub(r'<script (?:id="mj-js"|src="/d/mj-' + H + r'\.js")></script>', '<script src="' + u_mj + '"></script>', s)
     open(p, "w", encoding="utf8").write(s)
@@ -45,5 +52,8 @@ for name in PAGES:
 # accueil : boîte d'invitations (même script, sans bouton « À plusieurs »)
 p = os.path.join(PUB, "accueil.html"); s = open(p, encoding="utf8").read()
 s2 = re.sub(r'<script (?:id="mj-js"|src="/d/mj-' + H + r'\.js")></script>', '<script src="' + u_mj + '"></script>', s)
+s2 = re.sub(r'<script>// ---------- invitations : un joueur du salon.*?</script>', '<script src="' + u_inv + '"></script>', s2, count=1, flags=re.S)
+s2 = re.sub(r'<script src="/d/invit-' + H + r'\.js"></script>', '<script src="' + u_inv + '"></script>', s2)
+s2 = re.sub(r'<script src="/d/ic-' + H + r'\.js"></script>', '<script src="' + u_ico + '"></script>', s2)   # icônes « verre » (même fichier que les jeux)
 if s2 != s: open(p, "w", encoding="utf8").write(s2)
 print(u_skjs, u_skcss, u_jeu, u_ico, u_icons)
