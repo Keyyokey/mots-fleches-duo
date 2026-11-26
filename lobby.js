@@ -143,5 +143,6 @@ module.exports = function makeLobby(D) {
     }
     return [404, { error: "route" }];
   }
-  return { handle, gone, admit, prune, duelApi, duelGet, online, GAMES };
+  function stats() { return { presents: socks.size, comptes: [...socks].filter(w => w.lob && w.lob.u).length, file: queue.length, invitations: invites.size, tables: [...accs.values()].filter(a => a.temp).length }; }
+  return { handle, gone, admit, prune, duelApi, duelGet, online, stats, GAMES };
 };

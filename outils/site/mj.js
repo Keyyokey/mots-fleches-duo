@@ -16,11 +16,13 @@
     return guestP; }
   function relob() { var m = me(); sendo({ t: "lob", game: C.game, name: m ? m.name : "", token: m ? m.token : "", busy: busy() }); }
   function code() { return ((location.pathname.match(/^\/([A-Za-z0-9]{5})(?:\/|$)/) || [])[1] || "").toUpperCase(); }
-  function sendo(o) { if (ws && ws.readyState === 1) ws.send(JSON.stringify(o)); }
+  // un message envoyé pendant une reconnexion attend l'ouverture (avant : perdu, et le bouton restait sur « Création du lien… »)
+  var pending = [];
+  function sendo(o) { if (ws && ws.readyState === 1) ws.send(JSON.stringify(o)); else if (o.t !== "lob" && o.t !== "lobbusy") pending.push(o); }
   function busy() { try { return !!(C.busy && C.busy()); } catch (e) { return false; } }
   function connect() {
     ws = new WebSocket((location.protocol === "https:" ? "wss://" : "ws://") + location.host + "/ws");
-    ws.onopen = function () { var m = me(); sendo({ t: "lob", game: C.game, name: m ? m.name : "", token: m ? m.token : "", busy: busy() }); if (qAt) sendo({ t: "lobq", lvl: lvl }); };
+    ws.onopen = function () { var m = me(); sendo({ t: "lob", game: C.game, name: m ? m.name : "", token: m ? m.token : "", busy: busy() }); if (qAt) sendo({ t: "lobq", lvl: lvl }); var p = pending; pending = []; p.forEach(sendo); };
     ws.onmessage = function (e) { var m; try { m = JSON.parse(e.data); } catch (x) { return; } on(m); };
     ws.onclose = function () { setTimeout(connect, 2500); };
   }
@@ -179,7 +181,8 @@
     if (k === "cancel") { stopQ(); render(); return; }
     if (k === "robot") { stopQ(); close(); C.robot(lvl); return; }
     if (k === "inv") { sendo({ t: "lobinv", to: a.dataset.n, lvl: lvl }); sent[a.dataset.n] = Date.now(); render(); return; }
-    if (k === "link") { sendo({ t: "loblink" }); a.disabled = true; a.textContent = "Création du lien…"; return; }
+    if (k === "link") { sendo({ t: "loblink" }); a.disabled = true; a.textContent = "Création du lien…";
+      setTimeout(function () { if (!link && a.isConnected && a.disabled) { a.disabled = false; a.textContent = "Créer le lien"; msg = "Pas de réponse du serveur. Réessaie."; render(); } }, 8000); return; }
     if (k === "copy") { copy(a.dataset.u, a); return; }
     if (k === "table") { go({ id: link.id, host: 1, opp: "Invité", lvl: lvl }); return; }
     if (k === "duel") { close(); C.duel(lvl); return; }

@@ -1522,6 +1522,7 @@ function handleHttp(req, res) {
       .then(o => { res.writeHead(200, { "content-type": "application/json", "cache-control": "no-store" }); res.end(JSON.stringify({ ...o, ms: Date.now() - t0, depuisDemarrage: redisDiag, comptesEnMemoire: players.size })); });
   }
   // /healthz répond 503 si le stockage refuse l'accès : UptimeRobot (qui surveille /healthz) envoie alors une alerte par e-mail
+  if (url.pathname === "/healthz" && url.searchParams.get("ws") === "1") { res.writeHead(200, { "content-type": "application/json", "cache-control": "no-store" }); return res.end(JSON.stringify({ connexions: wss.clients.size, refus: wsDiag.refus, erreurs: wsDiag.err, lobby: LOBBY.stats() })); }
   if (url.pathname === "/healthz" && url.searchParams.get("ip") === "1") { res.writeHead(200, { "content-type": "application/json", "cache-control": "no-store" }); return res.end(JSON.stringify(ipSource(req))); }   // quels en-têtes d'adresse arrivent (sans les valeurs)
   if (url.pathname === "/healthz") { const bad = REDIS && storage.ok === false; res.writeHead(bad ? 503 : 200, { "content-type": "text/plain; charset=utf-8" }); return res.end(bad ? "STOCKAGE KO depuis " + storage.since + " : " + storage.msg : "ok " + salons.size + (REDIS ? " redis" : "")); }
   const am = url.pathname.match(/^\/api\/p\/(guest|create|login|me|pin|logout|rank|mj|en|score|wallet|conv|salons|sjoin|screate|skick|scode|sleave|sdelete|hist|solo|skin)$/);
@@ -1609,10 +1610,12 @@ const wss = new WebSocketServer({ server, path: "/ws", maxPayload: MAX_DOC + 409
 // garde-fous (test de charge du 2/11/2026) : connexions par adresse, total, et débit de messages par connexion
 const WS_PER_IP = 24, WS_TOTAL = 4000, MSG_RATE = 25, MSG_BURST = 80;
 const wsByIp = new Map();
+// 26/11 : diagnostic public sans données personnelles (/healthz?ws=1) : connexions, refus, erreurs de traitement, salon d'attente
+const wsDiag = { refus: 0, err: [] };
 wss.on("connection", (ws, req) => {
   ws.pid = crypto.randomUUID(); ws.isAlive = true; ws.ip = clientIp(req);
   const n = (wsByIp.get(ws.ip) || 0) + 1;
-  if (n > WS_PER_IP || wss.clients.size > WS_TOTAL) { if (process.env.WSDBG) console.log("refus connexion", ws.ip, n); try { ws.close(1013, "Trop de connexions"); } catch {} return; }
+  if (n > WS_PER_IP || wss.clients.size > WS_TOTAL) { wsDiag.refus++; if (process.env.WSDBG) console.log("refus connexion", ws.ip, n); try { ws.close(1013, "Trop de connexions"); } catch {} return; }
   wsByIp.set(ws.ip, n); ws.counted = true;
   ws.tok = MSG_BURST; ws.tokAt = Date.now(); ws.drop = 0;
   ws.on("pong", () => (ws.isAlive = true));
@@ -1623,7 +1626,7 @@ wss.on("connection", (ws, req) => {
     if (ws.busy > 200) return;                                       // file d'attente pleine : on n'empile pas sans fin
     let m; try { m = JSON.parse(raw); } catch { return; }
     ws.busy = (ws.busy || 0) + 1;
-    ws.q = (ws.q || Promise.resolve()).then(() => handle(ws, m)).catch(e => console.error(e)).finally(() => { ws.busy--; });
+    ws.q = (ws.q || Promise.resolve()).then(() => handle(ws, m)).catch(e => { console.error(e); wsDiag.err.unshift({ t: new Date().toISOString(), m: String(m && m.t), e: String(e && e.message || e).slice(0, 160) }); wsDiag.err.length = Math.min(wsDiag.err.length, 15); }).finally(() => { ws.busy--; });
   });
   ws.on("close", () => {
     if (ws.counted) { ws.counted = false; const k = (wsByIp.get(ws.ip) || 1) - 1; if (k > 0) wsByIp.set(ws.ip, k); else wsByIp.delete(ws.ip); } poker.gone(ws); LOBBY.gone(ws); const s = ws.room && salons.get(ws.room); if (s) { s.sockets.delete(ws); broadcastPeers(s); if (ws.solo && !s.sockets.size) salons.delete(ws.room); } });
