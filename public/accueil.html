@@ -577,6 +577,11 @@ svg.chart{width:100%;height:118px;color:var(--ink);overflow:visible}
 @media (max-width:620px){.tile.mgt{min-height:236px}.mgv{transform:scale(.78);transform-origin:top right}}
 
 .g-bot{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+.sdv{display:grid;grid-template-columns:repeat(3,26px);gap:3px;padding:6px;border-radius:12px;background:rgba(0,0,0,.25);border:1px solid rgba(255,255,255,.25)}.sdv span{height:26px;border-radius:6px;background:rgba(255,255,255,.12);display:grid;place-items:center;font:900 .95rem Nunito,sans-serif;color:#fff}.sdv span.m{color:#ffd27a;box-shadow:inset 0 0 0 2px #ffd27a}
+.mlv{display:flex;gap:4px}.mlv span{width:26px;height:30px;border-radius:7px;display:grid;place-items:center;font:900 .95rem Nunito,sans-serif;color:#fff;background:rgba(255,255,255,.14);border:1px solid rgba(255,255,255,.25)}.mlv .g{background:#14b8a6;border-color:transparent}.mlv .y{border:2px solid #ffc857}
+html.cb .mlv .g{background:#ff8a3d}html.cb .mlv .y{border-color:#2b7fff;border-style:dashed}
+.tile .modes a.abtn{text-decoration:none;color:inherit}
+
 .tile{--ls:30px;--gap:6px;position:relative;display:flex;align-items:center;gap:14px;min-height:172px;padding:21px;border-radius:24px;overflow:hidden;cursor:pointer;
   background:var(--tg);border:1px solid rgba(255,255,255,.25);box-shadow:0 25px 50px rgba(0,0,0,.2),inset 0 1px 0 rgba(255,255,255,.4);color:#fff;
   transition:transform .6s cubic-bezier(.2,.8,.2,1),box-shadow .6s cubic-bezier(.2,.8,.2,1),filter .6s}
@@ -1133,6 +1138,18 @@ html.cb .mdv .v2{background:linear-gradient(135deg,#f07a2c,#d9601a)!important}ht
         <div class="modes acts"><button class="abtn" data-mode="solo"><span>👤</span> Solo</button><button class="abtn" data-mode="multi"><span>👥</span> Multijoueurs</button><button class="abtn abtn-s" data-cfg="1" aria-label="Réglages de la partie"><span>⚙️</span> Réglages</button></div>
       </div>
     </div>
+    <div class="g-bot g-row3">
+      <div class="tile sdt" style="--tg:linear-gradient(135deg,#2a1404 0%,#8a4a07 50%,#f0a020 100%);--ga:#ffd27a" data-game="Sudoku" data-key="sudoku" data-multi="1">
+        <div class="vis"><div class="sdv" aria-hidden="true"><span>5</span><span></span><span>3</span><span></span><span class="m">7</span><span></span><span>9</span><span>1</span><span></span></div></div>
+        <div class="txt"><span class="tag">Logique</span><h2>Sudoku</h2><p class="sp">Seul ou jusqu'à 4</p><p>200 grilles en 3 niveaux. À plusieurs : une case chacun son tour.</p></div>
+        <div class="modes acts"><button class="abtn" data-mode="solo"><span>👤</span> Solo</button><button class="abtn" data-mode="multi"><span>👥</span> Multijoueurs</button><button class="abtn abtn-s" data-cfg="1" aria-label="Réglages de la partie"><span>⚙</span> Réglages</button></div>
+      </div>
+      <div class="tile mlt" style="--tg:linear-gradient(135deg,#141a44 0%,#2c3fa0 50%,#7c9bff 100%);--ga:#c7d2ff" data-game="Mot libre" data-key="motlibre">
+        <div class="vis"><div class="mlv" aria-hidden="true"><span class="g">L</span><span class="y">I</span><span>B</span><span class="g">R</span><span class="g">E</span></div></div>
+        <div class="txt"><span class="tag">Entraînement</span><h2>Mot<br>libre</h2><p class="sp">Le Mot du jour à volonté</p><p>De 3 à 12 lettres, chrono au choix, mode Progressif.</p></div>
+        <div class="modes acts"><a class="abtn" href="/motlibre?mode=libre"><span>🔤</span> Libre</a><a class="abtn" href="/motlibre?mode=prog"><span>📈</span> Progressif</a></div>
+      </div>
+    </div>
   </div>
 <footer class="sitefoot" style="margin:22px 4px 34px;display:flex;flex-wrap:wrap;justify-content:center;gap:6px 16px;font-size:.85rem"><a href="/regles" style="color:inherit;opacity:.8">Règles et jetons</a><a href="/mentions-legales" style="color:inherit;opacity:.8">Mentions légales</a><a href="/confidentialite" style="color:inherit;opacity:.8">Confidentialité</a><a href="?tuto=1" onclick="if(window.motipopVisite){event.preventDefault();motipopVisite()}" style="color:inherit;opacity:.8">Visite guidée</a><a href="/conditions" style="color:inherit;opacity:.8">Conditions d'utilisation</a></footer>
 </main>
@@ -1381,7 +1398,7 @@ function connect(){if(!CODE||!ME||ME.stale)return;ws=new WebSocket((location.pro
 const pillMe=()=>window.innerWidth<=620?$("#mBtn"):$(".me-pill"),pillSalon=()=>window.innerWidth<=620?$("#mSal"):$(".salon-pill");
 const PCOL=["#5ad8ff","#ffa45c","#7cf0a9","#c49bff","#ff8fb1","#ffd166"];
 const colOf=n=>PCOL[[...String(n)].reduce((a,c)=>a+c.charCodeAt(0),0)%PCOL.length];
-const GAMEL={accueil:"à l'accueil",fleches:"aux mots fléchés",rond:"au Tourniquet",meles:"aux mots mêlés",poker:"à Wordflush",magnetico:"à Magnético"};
+const GAMEL={accueil:"à l'accueil",fleches:"aux mots fléchés",rond:"au Tourniquet",meles:"aux mots mêlés",poker:"à Wordflush",magnetico:"à Magnético",sudoku:"au Sudoku",motlibre:"au Mot libre"};
 function renderBar(rows){const av=$("#abAv"),tx=$("#abTx");if(!av||!tx)return;if(!rows){av.innerHTML="";tx.textContent="Joue avec tes amis";return}
   const o=rows.filter(r=>!r.me);av.innerHTML=o.slice(0,4).map(r=>'<span style="background:'+colOf(r.n)+'">'+esc(r.n[0])+'</span>').join("");
   tx.innerHTML=o.length?'<i></i>'+o.length+(o.length>1?" amis en ligne":" ami en ligne"):"Invite un ami"}
@@ -1495,7 +1512,8 @@ const GAMES={fleches:{nm:"Mots fléchés",lv:[["facile","Facile",414],["normal",
   rond:{nm:"Le Tourniquet",lv:[["facile","Facile",740],["moyen","Normal",740],["difficile","Difficile",740]],t:true},
   meles:{nm:"Mots mêlés",lv:[["facile","Facile",397],["moyen","Normal",397],["difficile","Difficile",397]]},
   poker:{nm:"Wordflush",lv:[]},culture:{nm:"Culture générale",lv:[]},
-  magnetico:{nm:"Magnético",lv:[["facile","Facile",0],["normal","Normal",0],["difficile","Difficile",0]]}};
+  magnetico:{nm:"Magnético",lv:[["facile","Facile",0],["normal","Normal",0],["difficile","Difficile",0]]},
+  sudoku:{nm:"Sudoku",lv:[["facile","Facile",70],["moyen","Intermédiaire",70],["difficile","Difficile",60]]}};
 $$(".tile").forEach(t=>t.addEventListener("click",e=>{if(e.target.closest(".modes"))return;const was=t.classList.contains("lift");$$(".tile").forEach(x=>x.classList.remove("lift"));if(!was)t.classList.add("lift")}));
 document.addEventListener("click",e=>{if(!e.target.closest(".tile"))$$(".tile").forEach(x=>x.classList.remove("lift"))});
 let CFG=null;
@@ -1519,7 +1537,7 @@ function openCfg(t,m,opp,quick){const k=t.dataset.key,G=GAMES[k];
   if(quick)return $("#cfgGo").onclick();   // un clic : on lance avec les derniers réglages (niveau retenu, grille suivante)
   $("#cfg").classList.add("on")}
 // bouton + des joueurs connectés : on choisit d'abord le jeu (5 jeux), puis ses réglages
-const PICK=[["magnetico","Magnético","Syllabes qui s'entrechoquent"],["fleches","Mots fléchés","Grille à deux"],["rond","Le Tourniquet","Six mots en rond"],["meles","Mots mêlés","Le plus rapide gagne"],["poker","Wordflush","Mots et jetons"],["culture","Culture générale","10 questions en duel"]];
+const PICK=[["magnetico","Magnético","Syllabes qui s'entrechoquent"],["fleches","Mots fléchés","Grille à deux"],["rond","Le Tourniquet","Six mots en rond"],["meles","Mots mêlés","Le plus rapide gagne"],["poker","Wordflush","Mots et jetons"],["culture","Culture générale","10 questions en duel"],["sudoku","Sudoku","Une case chacun son tour"]];
 function pickGame(opp,mode){mode=mode||"multi";$("#pickT").textContent=mode==="solo"?"À quoi veux-tu jouer ?":"Proposer une partie à "+opp;const L=$("#pickL");
   {const n=document.querySelector("#pickG .note");if(n)n.textContent=mode==="solo"?"Choisis ton jeu, puis son niveau.":"Choisis d'abord le jeu, puis ses réglages."}
   L.innerHTML=PICK.map(([k,n,d])=>'<button type="button" data-k="'+k+'"><b>'+n+'</b><small>'+d+'</small></button>').join("");
@@ -1528,7 +1546,7 @@ function pickGame(opp,mode){mode=mode||"multi";$("#pickT").textContent=mode==="s
 function fillNums(){const G=GAMES[CFG.k];{const gl=$("#gnum").closest("label");if(gl)gl.style.display=CFG.k==="magnetico"?"none":""}if(CFG.k==="magnetico")return;const i=[...$$("#lvl button")].findIndex(b=>b.classList.contains("on"));const n=CFG.k==="fleches"&&flFmt()==="t"?G.lvT[i]||G.lvT[0]:(G.lv[i]||G.lv[0])[2];
   const g=$("#gnum");g.innerHTML='<option value="">Grille suivante (au hasard parmi les non jouées)</option>'+Array.from({length:n},(_,j)=>'<option value="'+(j+1)+'">Grille '+(j+1)+'</option>').join("")}
 function bindMode(b){b.onclick=e=>{e.stopPropagation();const t=b.closest(".tile");if(b.dataset.cfg)return openCfg(t,"solo");const m=b.dataset.mode;openCfg(t,m,undefined,m==="resume")}}   // le réglage (niveau) est reproposé à chaque partie ; seul « Reprendre » et Culture (rien à régler) partent tout de suite
-$$(".modes .abtn").forEach(bindMode);
+$$(".modes .abtn:not(a)").forEach(bindMode);
 $("#cfgX").onclick=()=>$("#cfg").classList.remove("on");
 // ---------- tutoriel : quelques étapes la 1re fois qu'on lance un jeu ----------
 const TUTO={
@@ -1537,9 +1555,10 @@ const TUTO={
  magnetico:[["🫧","Les syllabes arrivent","Elles flottent et s'entrechoquent. En Normal et Difficile, attention aux syllabes pièges."],["👆","Touche-les dans l'ordre","Touche les syllabes dans l'ordre, puis « Valider ». Touche une case pour l'enlever."],["⭐","Les points","Mot trouvé : 10 × syllabes × difficulté + vitesse. Syllabe bien placée : +1. Essai faux : −5. Le 1er à trouver : +5."]],
  meles:[["🔎","Trouve les mots","Les mots de la liste sont cachés dans la grille, dans tous les sens, même à l'envers."],["👉","Glisse ou touche","Glisse du début à la fin du mot, ou touche sa 1re puis sa dernière lettre."],["⚡","Le plus rapide gagne","Chaque mot trouvé rapporte des points. À plusieurs, un mot déjà pris ne compte plus."]],
  culture:[["❓","10 questions mélangées","Images, culture, calculs, casse-tête et une question « Tout le monde a son mot à dire »."],["⏱️","20 secondes","Choisis parmi 4 réponses (touches 1 à 4). Bonne réponse : 10 points, et jusqu'à 5 de plus si tu es rapide."],["🗣️","À toi de le dire","« Tout le monde a son mot à dire » : tape ta réponse en 30 s. Réponse originale : +3."]],
+ sudoku:[["🔢","Les chiffres de 1 à 9","Chaque ligne, chaque colonne et chaque carré de 3 × 3 contient une seule fois chaque chiffre."],["👆","Touche, puis choisis","Touche une case, puis un chiffre en bas. ✏️ Notes : petits chiffres pour t'aider. En solo, la grille se vérifie quand elle est pleine."],["👥","À plusieurs","Une case par tour, puis « Valider ». Juste : +5, et +3 par ligne, colonne ou carré complété. À 80 % de grille remplie, chacun joue un dernier tour."]],
  poker:[["🃏","Tes lettres","Tu reçois 2 lettres cachées. L'Académicien retourne 3 lettres au milieu, puis les 2 dernières."],["🪙","Mise ou arrête-toi","À chaque tour, deux choix : S'arrêter ou Miser. Si quelqu'un mise plus, égale sa mise ou arrête-toi. Si tous les autres s'arrêtent, tu gagnes le pot."],["🏆","Le meilleur mot","À la fin, forme un mot avec tes lettres et celles du milieu. Le meilleur mot gagne le pot."]]};
 // 20/11 : dernière étape commune, les réglages du jeu
-const TUTO_REG={fleches:"Change le niveau et la grille",rond:"Change le niveau et la grille",meles:"Change le niveau et la grille",magnetico:"Change le niveau",culture:"Choisis un thème, puis seul ou à plusieurs",poker:"Change la mise, le nombre de coups, le temps et le niveau du robot"};
+const TUTO_REG={sudoku:"Change le niveau et la grille",fleches:"Change le niveau et la grille",rond:"Change le niveau et la grille",meles:"Change le niveau et la grille",magnetico:"Change le niveau",culture:"Choisis un thème, puis seul ou à plusieurs",poker:"Change la mise, le nombre de coups, le temps et le niveau du robot"};
 Object.keys(TUTO).forEach(k=>TUTO[k].push(["⚙️","À ta façon",(TUTO_REG[k]||"Ajuste la partie")+" quand tu veux, avec le bouton «\u00a0Réglages\u00a0» de la carte du jeu."]));
 function tuto(k,done){const S=TUTO[k];if(!S||LS.get("fl-tuto-"+k))return done();let i=0;const o=$("#tuto");
   const show=()=>{const [ic,t,p]=S[i];$("#tutoI").textContent=ic;$("#tutoT").textContent=t;$("#tutoP").textContent=p;$("#tutoN").textContent=(i+1)+"/"+S.length;
