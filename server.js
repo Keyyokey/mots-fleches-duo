@@ -801,7 +801,11 @@ const MJ = (() => {
   for (let i = 4; i < words.length; i++) { const nw = MJ_FIX[words[i]]; if (nw && allDefs[nw] && !words.includes(nw)) { words[i] = nw; defs[nw] = allDefs[nw]; } }
   const D0 = Date.UTC(2026, 10, 20);
   const dayNo = day => Math.round((Date.UTC(+day.slice(0, 4), +day.slice(4, 6) - 1, +day.slice(6, 8)) - D0) / 864e5);
-  const wordOf = day => words.length ? words[((dayNo(day) % words.length) + words.length) % words.length] : "MOTIPOP";
+  const oldWord = day => words.length ? words[((dayNo(day) % words.length) + words.length) % words.length] : "MOTIPOP";
+  // 26/11 : à partir du 1er janvier 2027, le Défi du jour prend ses mots dans le tirage annuel de 370 mots (motlibre.js)
+  let hook = null;
+  const wordOf = day => (hook && hook.dailyWord(day)) || oldWord(day);
+  const defOf = w => defs[w] || (hook && hook.dailyDef(w)) || allDefs[w] || "";
   function colors(g, w) {            // 2 = bien placée, 1 = présente ailleurs, 0 = absente (lettres en double comptées comme il faut)
     const r = Array(w.length).fill(0), left = {};
     for (let i = 0; i < w.length; i++) if (g[i] === w[i]) r[i] = 2; else left[w[i]] = (left[w[i]] || 0) + 1;
@@ -816,7 +820,7 @@ const MJ = (() => {
   function persist(day, id, st) { if (REDIS) redis(["HSET", "mj:" + day, id, JSON.stringify(st)]).then(() => redis(["EXPIRE", "mj:" + day, String(40 * 86400)])).catch(e => console.error("Mot du jour (écriture) :", e.message)); }
   function view(day, st, w) {
     const v = { day, len: w.length, first: w[0], tries: (st && st.t || []).map(g => ({ g, c: colors(g, w) })), done: !!(st && (st.ok || (st.t || []).length >= 6)), ok: !!(st && st.ok) };
-    if (v.done) { v.word = w; v.def = defs[w] || ""; if (st.ok) v.ms = st.ms; }
+    if (v.done) { v.word = w; v.def = defOf(w); if (st.ok) v.ms = st.ms; }
     return v;
   }
   // points du jour : +2 par lettre trouvée à sa place, +1 par lettre trouvée mais mal placée (jamais vue à sa place), +12 pour le mot.
@@ -860,9 +864,31 @@ const MJ = (() => {
   // 26/11 : série du direct (Twitch) : 10 mots par jour, pris HORS de la liste des mots du jour (le direct ne dévoile jamais un futur mot du jour)
   const daily = new Set(words); let livePool = Object.keys(allDefs).filter(w => w.length >= 6 && w.length <= 7 && !daily.has(w) && mjNice(w, allDefs[w])).sort();
   { let sd = 20261126; const r2 = () => (sd = (sd * 1103515245 + 12345) % 2147483648) / 2147483648; for (let i = livePool.length - 1; i > 0; i--) { const j = Math.floor(r2() * (i + 1)); [livePool[i], livePool[j]] = [livePool[j], livePool[i]]; } }
-  const liveWord = (day, n) => livePool.length ? livePool[((dayNo(day) * 10 + n) % livePool.length + livePool.length) % livePool.length] : "MOTIPOP";
-  return { strip, wordOf, colors, load, persist, view, board, score, dayList, MAXPTS, dict, liveWord, liveDef: w => allDefs[w] || "", livePool: () => livePool.length, defOf: w => defs[w] || "", size: () => words.length, resetTot: () => { totCache = null; } };
+  const liveWord = (day, n) => { const res = hook ? hook.reserved(day) : new Set(); const lp = livePool.filter(w => !res.has(w)); return lp.length ? lp[((dayNo(day) * 10 + n) % lp.length + lp.length) % lp.length] : "MOTIPOP"; };
+  return { strip, wordOf, colors, load, persist, view, board, score, dayList, MAXPTS, dict, liveWord, liveDef: w => allDefs[w] || "", livePool: () => livePool.length, defOf, size: () => words.length, setHook: h => { hook = h; }, has: g => dict.has(g) || !!(hook && hook.valid.has(g)), oldUntil: last => { const out = []; for (let t = Date.UTC(2026, 10, 20); ; t += 864e5) { const d = new Date(t).toISOString().slice(0, 10).replace(/-/g, ""); if (d > last) break; out.push(oldWord(d)); } return out; }, resetTot: () => { totCache = null; } };
 })();
+// 26/11 : Mot du jour – Journalier / Libre (motlibre.js) + tirage annuel du Défi du jour (370 mots de 6 lettres par an dès 2027)
+const ML = require("./motlibre")({ redis, REDIS, KEY: process.env.ML_KEY || RTOK || process.env.ADMIN_KEY || "" });
+ML.setOld(MJ.oldUntil("20261231")); MJ.setHook(ML);
+const mlGiven = new Map();                // partie → déjà payée (secours sans Redis)
+async function mlApi(b, out, ip) {
+  let who = null, pl = null; const name = normPseudo(b.name);
+  if (PSEUDO_RE.test(name) && b.token) { try { const p = await getPlayer(name); if (tokOk(p, b.token)) { who = name; pl = p; } } catch {} }
+  if (b.op === "new") { const k = "ml:" + ip, f = fails.get(k); if (f && f.until > Date.now()) return out(429, { error: "trop", msg: "Trop de mots d'affilée : souffle un instant." }); fail(k, 400, 3600e3); }
+  // points : une seule fois par mot, plafond de 150 par jour pour ce mode (barème dégressif des autres jeux non appliqué : le plafond le remplace)
+  const award = async (id, pts) => {
+    if (!pl || !pts) return 0;
+    if (REDIS) { try { if (await redis(["SET", "ml:paid:" + id, "1", "NX", "EX", "172800"]) !== "OK") return 0; } catch (e) { return 0; } } else { if (mlGiven.has(id)) return 0; mlGiven.set(id, 1); if (mlGiven.size > 5000) mlGiven.delete(mlGiven.keys().next().value); }
+    const day = DAYKEY(); pl.mlday = pl.mlday && pl.mlday.d === day ? pl.mlday : { d: day, p: 0, n: 0 };
+    const add = Math.max(0, Math.min(pts, ML.DAY_CAP - pl.mlday.p)); pl.mlday.p += add; pl.mlday.n++;
+    pl.ml = pl.ml || { found: 0, words: 0 }; pl.ml.found++;
+    let real = 0; if (add) real = await addPoints(who, pl, "motlibre", add); statAdd("motlibre:trouve"); savePlayer(who); return Math.round(real * 10) / 10;
+  };
+  const [code, o] = await ML.api(b, who, parisDay(), award);
+  if (b.op === "new" && code === 200) statAdd("motlibre:" + (b.mode === "prog" ? "progressif" : "libre"));
+  if (pl && o && o.done !== undefined && b.op !== "new") o.today = pl.mlday && pl.mlday.d === DAYKEY() ? pl.mlday.p : 0;
+  return out(code, o);
+}
 const MJ_TOTAL = new Map(), MJ_PRIZE = new Map();   // sans Redis (tests locaux) : points cumulés par pseudo, gagnants du jour
 // fin de journée d'un joueur : ses moyennes (mots trouvés, essais, temps pour trouver, temps pour la 1re lettre bien placée)
 // 23/11 : « Série du jour » — jours d'affilée où le Mot du jour a été terminé ; tous les 7 jours, 10 jetons offerts (une fois par jour)
@@ -927,7 +953,7 @@ async function mjApi(b, out, ip) {
     const g = MJ.strip(b.g);
     if (g.length !== lw.length) return out(200, { refus: "Le mot fait " + lw.length + " lettres." });
     if (g[0] !== lw[0]) return out(200, { refus: "Le mot commence par " + lw[0] + "." });
-    if (!MJ.dict.has(g)) return out(200, { refus: "« " + g + " » n'est pas dans le dictionnaire." });
+    if (!MJ.has(g)) return out(200, { refus: "« " + g + " » n'est pas dans le dictionnaire." });
     return out(200, { g, c: MJ.colors(g, lw), ok: g === lw });
   }
   const day = parisDay(), w = MJ.wordOf(day);
@@ -946,7 +972,7 @@ async function mjApi(b, out, ip) {
     if (s.ok || s.t.length >= 6) return out(200, MJ.view(day, s, w));
     if (g.length !== w.length) return out(200, { refus: "Le mot fait " + w.length + " lettres." });
     if (g[0] !== w[0]) return out(200, { refus: "Le mot commence par " + w[0] + "." });
-    if (!MJ.dict.has(g)) return out(200, { refus: "« " + g + " » n'est pas dans le dictionnaire." });
+    if (!MJ.has(g)) return out(200, { refus: "« " + g + " » n'est pas dans le dictionnaire." });
     if (s.t.includes(g)) return out(200, { refus: "Mot déjà essayé." });
     const before = s.t.length ? MJ.score(s, w).pts : 0;
     s.t.push(g); s.ts = s.ts || []; s.ts.push(Date.now() - (s.at || Date.now())); if (g === w) { s.ok = 1; s.ms = s.ts[s.ts.length - 1]; }
@@ -1056,6 +1082,7 @@ async function api(req, res, route) {
   const name = normPseudo(b.name);
   if (route === "rank") return out(200, await topRank(PSEUDO_RE.test(name) ? name : null));
   if (route === "mj") return mjApi(b, out, clientIp(req));
+  if (route === "ml") return mlApi(b, out, clientIp(req));
   if (route === "en") return enApi(b, out, clientIp(req));
   const bad = (field, detail) => out(400, { error: "saisie", field, msg: "Vérifie les informations saisies.", detail });
   if (route === "guest") return guestApi(ip, out);
@@ -1405,7 +1432,7 @@ function sendAudio(req, res, name) {
   res.end(req.method === "HEAD" ? undefined : buf);
 }
 // page lisible des statistiques (22/11) : mêmes chiffres que ?format=json, rendus côté serveur (aucun appel depuis la page)
-const GAME_NAMES = { fleches: "Mots fléchés", rond: "Tourniquet", meles: "Mots mêlés", culture: "Culture générale", poker: "Wordflush", magnetico: "Magnético", motdujour: "Mot du jour" };
+const GAME_NAMES = { fleches: "Mots fléchés", rond: "Tourniquet", meles: "Mots mêlés", culture: "Culture générale", poker: "Wordflush", magnetico: "Magnético", motdujour: "Mot du jour", motlibre: "Mot libre", sudoku: "Sudoku" };
 function adminStatsHtml(days, key, moi) {
   const sum = (c, re) => Object.keys(c || {}).filter(k => re.test(k)).reduce((a, k) => a + (+c[k] || 0), 0);
   const fmtDay = d => { const m = ["janv.", "févr.", "mars", "avr.", "mai", "juin", "juil.", "août", "sept.", "oct.", "nov.", "déc."]; return Number(d.slice(6, 8)) + " " + m[Number(d.slice(4, 6)) - 1]; };
@@ -1567,7 +1594,7 @@ function handleHttp(req, res) {
   if (url.pathname === "/healthz" && url.searchParams.get("ws") === "1") { res.writeHead(200, { "content-type": "application/json", "cache-control": "no-store" }); const now = Date.now(); return res.end(JSON.stringify({ instance: wsDiag.inst, demarrage: wsDiag.boot, connexions: wss.clients.size, refus: wsDiag.refus, erreurs: wsDiag.err, rejets: wsDiag.rej, fermetures: wsDiag.fin, lobby: LOBBY.stats(), sockets: [...wss.clients].map(w => ({ etat: w.readyState, file: w.busy || 0, enCours: w.cur ? w.cur.t + " depuis " + Math.round((now - w.cur.at) / 1000) + " s" : null, recus: (w.log || []).map(x => x.t + " (" + Math.round((now - x.at) / 1000) + " s)") })) })); }
   if (url.pathname === "/healthz" && url.searchParams.get("ip") === "1") { res.writeHead(200, { "content-type": "application/json", "cache-control": "no-store" }); return res.end(JSON.stringify(ipSource(req))); }   // quels en-têtes d'adresse arrivent (sans les valeurs)
   if (url.pathname === "/healthz") { const bad = REDIS && storage.ok === false; res.writeHead(bad ? 503 : 200, { "content-type": "text/plain; charset=utf-8" }); return res.end(bad ? "STOCKAGE KO depuis " + storage.since + " : " + storage.msg : "ok " + salons.size + (REDIS ? " redis" : "")); }
-  const am = url.pathname.match(/^\/api\/p\/(guest|create|login|me|pin|logout|rank|mj|en|score|wallet|conv|salons|sjoin|screate|skick|scode|sleave|sdelete|sdecide|hist|solo|skin)$/);
+  const am = url.pathname.match(/^\/api\/p\/(guest|create|login|me|pin|logout|rank|mj|ml|en|score|wallet|conv|salons|sjoin|screate|skick|scode|sleave|sdelete|sdecide|hist|solo|skin)$/);
   if (am) return void api(req, res, am[1]).catch(e => { console.error(e); try { res.writeHead(500); res.end("{}"); } catch {} });
   // culture générale : index léger des questions (identifiant → type), puis seulement les questions de la partie
   if (url.pathname === "/d/cg-index.js") { cgIdx = cgIdx || pack(Buffer.from("window.__CGI=" + JSON.stringify(CAT.cgIndex()) + ";window.__CGT=" + JSON.stringify(CAT.THEMES) + ";")); return sendBody(req, res, cgIdx, STATIC.js, "public, max-age=600"); }
@@ -1612,6 +1639,7 @@ function handleHttp(req, res) {
   if (/^\/(?:[A-Za-z0-9]{5}\/)?meles\/?$/.test(url.pathname)) return sendPage(req, res, path.join(__dirname, "public", "mm.html"));
   if (/^\/(?:[A-Za-z0-9]{5}\/)?magnetico\/?$/.test(url.pathname)) return sendPage(req, res, path.join(__dirname, "public", "mg.html"));
   if (/^\/(?:motdujour|mot-du-jour|defi)\/?$/.test(url.pathname)) return sendPage(req, res, path.join(__dirname, "public", "md.html"));
+  if (/^\/(?:motlibre|mot-libre)\/?$/.test(url.pathname)) return sendPage(req, res, path.join(__dirname, "public", "ml.html"));
   // 25/11 : mode direct (Twitch, Facebook Live…) à filmer avec OBS : Mot du jour joué avec le tchat, énigme, QR code
   // 26/11 : défi différé (même grille, scores comparés) : /duel/ID ouvre la grille du défi
   { const dm = url.pathname.match(/^\/duel\/([a-z2-9]{7})\/?$/); if (dm) { const PG = { fleches: "/fleches", magnetico: "/magnetico", rond: "/rond", meles: "/meles", culture: "/culture" };

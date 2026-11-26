@@ -1,0 +1,136 @@
+<body class="sk-new g-md g-ml">
+<div id="skTop" class="skph"></div>
+<div class="blob b1"></div><div class="blob b2"></div><div class="blob b3"></div>
+<div class="wrap">
+  <div class="gtop"><button class="homebtn" title="Retour à l'accueil" aria-label="Retour à l'accueil" onclick="location.href='/'"><svg viewBox="0 0 24 24"><path d="M3 11.2 12 4l9 7.2" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/><path d="M5.5 9.5V20h13V9.5" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linejoin="round"/></svg></button><div class="gname">Mot <span style="color:#7c9bff">libre</span> <span class="hpill" id="mlPill">…</span></div></div>
+  <div class="mdlay">
+  <div class="md">
+    <div class="glass card">
+      <div class="mdhead"><div><b id="mdInfo">Chargement…</b><br><small id="mlSub">6 essais · 1re lettre donnée</small></div><span class="mlclock" id="mlClock" hidden>2:00</span><span class="mdcount" id="mlStep" hidden></span></div>
+      <div class="mlpal" id="mlPal" hidden></div>
+    </div>
+    <div class="mdkeys" id="mdKeys" aria-label="Lettres déjà essayées"></div>
+    <div class="glass mdgrid" id="mdGrid" aria-label="Grille"><input id="mdIn" type="text" inputmode="text" autocomplete="off" autocorrect="off" autocapitalize="characters" spellcheck="false" enterkeyhint="go" aria-label="Saisie des lettres" data-lpignore="true" data-form-type="other"></div>
+    <div class="mdmsg" id="mdMsg" role="status" aria-live="polite"></div>
+    <div class="mdbar" id="mdBar"><button class="btn ghost" id="mlGive" type="button" title="Abandonner ce mot (il est montré)">Abandonner</button><button class="btn ghost mddel" id="mdDel" aria-label="Effacer la dernière lettre"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M21 5H9l-6 7 6 7h12a1 1 0 0 0 1-1V6a1 1 0 0 0-1-1Z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><path d="m12 9 6 6m0-6-6 6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></button><button class="btn primary" id="mdOk" type="button">Valider</button></div>
+    <div class="glass card mdend" id="mdEnd" aria-live="polite"></div>
+  </div>
+  <aside class="mdside" aria-label="Réglages et statistiques">
+    <div class="glass card mlset">
+      <h3>⚙️ Réglages</h3>
+      <div class="mllab">Mode</div>
+      <div class="mdtabs" role="group" aria-label="Mode"><button type="button" data-mode="libre" class="on">Libre</button><button type="button" data-mode="prog">Progressif</button></div>
+      <div id="mlLens"><div class="mllab">Longueur du mot</div><div class="mllens" role="group" aria-label="Longueur"></div></div>
+      <div class="mllab">Chronomètre</div>
+      <div class="mllens mlch" role="group" aria-label="Chronomètre"><button type="button" data-ch="0" class="on">Sans</button><button type="button" data-ch="2">2 min</button><button type="button" data-ch="3">3 min</button><button type="button" data-ch="4">4 min</button><button type="button" data-ch="5">5 min</button></div>
+      <div class="note mlhelp" id="mlHelp"></div>
+      <button class="btn primary" id="mlGo" type="button">Nouveau mot</button>
+    </div>
+    <div class="glass card">
+      <h3>📊 Mes stats <small id="mlDay"></small></h3>
+      <table class="mdtab"><tbody id="mlStats"></tbody></table>
+      <div class="mldist" id="mlDist" aria-label="Essais pour trouver"></div>
+      <div class="mdguest" id="mdGuest" hidden>Tu joues en invité : <a href="/?need=pseudo">crée ton pseudo</a> pour que tes points comptent au classement.</div>
+    </div>
+  </aside>
+  </div>
+</div>
+<script>
+(function(){
+const $=s=>document.querySelector(s),$$=s=>[...document.querySelectorAll(s)],LS={get:k=>{try{return localStorage.getItem(k)}catch(e){return null}},set:(k,v)=>{try{localStorage.setItem(k,v)}catch(e){}}};
+const esc=s=>String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+let ME=null;try{ME=JSON.parse(LS.get("fl-me")||"null")}catch(e){}if(ME&&!/^(?:[A-Z0-9@#_]{2,7}|INVITE\d{4,5})$/.test(ME.name||""))ME=null;
+const LENS=[3,4,5,6,7,8,9,10,12],PROG=LENS;
+const Q=new URLSearchParams(location.search);
+let CFG={mode:"libre",len:6,ch:0};try{CFG=Object.assign(CFG,JSON.parse(LS.get("fl-ml-cfg")||"{}"))}catch(e){}
+if(Q.get("mode"))CFG.mode=Q.get("mode")==="prog"?"prog":"libre";if(LENS.includes(+Q.get("len")))CFG.len=+Q.get("len");if(Q.has("chrono"))CFG.ch=[2,3,4,5].includes(+Q.get("chrono"))?+Q.get("chrono"):0;
+let S=null,busy=false,STEP=0;
+const call=b=>fetch("/api/p/ml",{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify(Object.assign(ME&&ME.token?{name:ME.name,token:ME.token}:{},b))}).then(r=>r.json());
+const inp=$("#mdIn");
+const PHONE=()=>matchMedia("(max-width:620px) and (pointer:coarse)").matches;
+// taille des cases : de 3 à 12 lettres, la ligne tient toujours dans la largeur (téléphone compris)
+function fit(){const g=$("#mdGrid");if(!S)return;const L=S.len,gap=L>8?4:6;g.style.setProperty("--gap",gap+"px");
+  const vw=Math.min(innerWidth,screen.width||innerWidth,(window.visualViewport&&visualViewport.width)||innerWidth);   // la page ne doit jamais s'élargir à cause de la grille
+  const w=(PHONE()?Math.min(vw,560)-28:g.clientWidth-20);let c=Math.floor((w-(L-1)*gap)/L);
+  if(!PHONE()){const top=g.getBoundingClientRect().top+scrollY,byH=Math.floor((innerHeight-Math.min(top,260)-40-5*8)/6);c=Math.min(c,byH)}
+  c=Math.max(22,Math.min(PHONE()?64:84,c));g.style.setProperty("--mdc",c+"px");g.style.setProperty("--mdf",Math.round(c*.52)+"px")}
+addEventListener("resize",()=>setTimeout(fit,60));
+// ---------- sons ----------
+let AC=null;function tone(f,t,d,type,v){if(LS.get("fl-sound")==="off")return;try{AC=AC||new(window.AudioContext||window.webkitAudioContext)();const n=AC.currentTime+(t||0),o=AC.createOscillator(),g=AC.createGain();o.type=type||"sine";o.frequency.value=f;g.gain.setValueAtTime(0,n);g.gain.linearRampToValueAtTime(v||.12,n+.01);g.gain.exponentialRampToValueAtTime(.0001,n+(d||.3));o.connect(g).connect(AC.destination);o.start(n);o.stop(n+(d||.3)+.05)}catch(e){}}
+const SC=[523.25,587.33,659.25,783.99,880,1046.5,1174.66];
+const SFX={key:()=>tone(1180,0,.06,"triangle",.06),del:()=>tone(620,0,.06,"triangle",.05),tile:(i,c)=>c===2?tone(SC[Math.min(i,6)],i*.09,.6,"sine",.16):c===1?tone(SC[Math.min(i,6)]/2,i*.09,.45,"triangle",.11):tone(196,i*.09,.15,"sine",.07),
+  win:at=>[523.25,659.25,783.99,1046.5].forEach((f,i)=>tone(f,at+i*.09,.9,"sine",.15)),lose:at=>[659.25,587.33,523.25,392].forEach((f,i)=>tone(f,at+i*.15,.7,"triangle",.1)),oops:()=>{tone(233,0,.16,"triangle",.1);tone(220,.09,.2,"triangle",.1)},tick:()=>tone(880,0,.05,"square",.04)};
+(m=>Object.keys(m).forEach(k=>{const f=SFX[k];SFX[k]=function(){return(window.MotipopSons&&window.MotipopSons.play(m[k]))||f.apply(this,arguments)}}))({oops:"faux",win:"victoire",lose:"perdu"});
+// ---------- statistiques en direct (gardées sur cet appareil, remises à zéro chaque jour) ----------
+const DAY=new Date().toLocaleDateString("fr-CA",{timeZone:"Europe/Paris"});
+let ST={d:DAY,joues:0,trouves:0,serie:0,best:0,pts:0,dist:[0,0,0,0,0,0],prog:0};try{const o=JSON.parse(LS.get("fl-ml-st")||"null");if(o&&o.d===DAY)ST=Object.assign(ST,o);else if(o)ST.prog=o.prog||0}catch(e){}
+const stSave=()=>LS.set("fl-ml-st",JSON.stringify(ST));
+function stats(){const tr=(l,v)=>"<tr><th scope=\"row\">"+l+"</th><td>"+v+"</td></tr>";$("#mlDay").textContent="aujourd'hui";
+  $("#mlStats").innerHTML=tr("Mots joués",ST.joues)+tr("Mots trouvés",ST.trouves+(ST.joues?" ("+Math.round(100*ST.trouves/ST.joues)+" %)":""))+tr("Série en cours",ST.serie+(ST.best>ST.serie?" · record "+ST.best:""))+tr("Points gagnés",ME&&!ME.guest?ST.pts+" / 150":"—")+tr("Record Progressif",ST.prog?ST.prog+" mot"+(ST.prog>1?"s":"")+" d'affilée":"—");
+  const mx=Math.max(1,...ST.dist);$("#mlDist").innerHTML=ST.dist.map((n,i)=>'<div><span>'+(i+1)+'</span><i style="width:'+Math.max(4,Math.round(100*n/mx))+'%">'+(n||"")+"</i></div>").join("");$("#mdGuest").hidden=!!(ME&&!ME.guest)}
+// ---------- réglages ----------
+$(".mllens:not(.mlch)").innerHTML=LENS.map(L=>'<button type="button" data-len="'+L+'">'+L+"</button>").join("");
+function paintCfg(){$$("[data-mode]").forEach(b=>b.classList.toggle("on",b.dataset.mode===CFG.mode));$$("[data-len]").forEach(b=>b.classList.toggle("on",+b.dataset.len===CFG.len));$$("[data-ch]").forEach(b=>b.classList.toggle("on",+b.dataset.ch===CFG.ch));
+  $("#mlLens").hidden=CFG.mode==="prog";$("#mlHelp").textContent=CFG.mode==="prog"?"De 3 à 12 lettres, 3 mots par longueur. Le 3e mot de chaque palier est plus difficile. Un mot raté et le parcours s'arrête.":"Choisis la longueur, joue autant de mots que tu veux.";
+  $("#mlGo").textContent=CFG.mode==="prog"?"Nouveau parcours":"Nouveau mot";LS.set("fl-ml-cfg",JSON.stringify(CFG))}
+document.addEventListener("click",e=>{const b=e.target.closest("[data-mode],[data-len],[data-ch]");if(!b||!b.closest(".mlset"))return;
+  if(b.dataset.mode)CFG.mode=b.dataset.mode;if(b.dataset.len)CFG.len=+b.dataset.len;if(b.dataset.ch)CFG.ch=+b.dataset.ch;paintCfg()});
+$("#mlGo").onclick=()=>{STEP=0;newWord()};
+// ---------- partie ----------
+const recKey=L=>"fl-ml-rec-"+L+(CFG.mode==="prog"&&STEP%3===2?"d":"");
+function newWord(){if(busy)return;busy=true;say("");const len=CFG.mode==="prog"?PROG[Math.floor(STEP/3)]:CFG.len;let rec=[];try{rec=JSON.parse(LS.get(recKey(len))||"[]")}catch(e){}
+  call({op:"new",mode:CFG.mode,len,step:STEP,chrono:CFG.ch,rec}).then(r=>{busy=false;if(!r||!r.tok){say(r&&r.msg||"Impossible de lancer un mot. Réessaie.");return}
+    rec.push(r.i);LS.set(recKey(len),JSON.stringify(rec.slice(-40)));S=r;inp.value="";inp.hidden=false;inp.disabled=false;draw();if(!PHONE())inp.focus()}).catch(()=>{busy=false;say("Pas de connexion : réessaie.")})}
+function cur(){const v=inp.value;return (v[0]===S.first?v:S.first+v).slice(0,S.len)}
+function draw(){if(!S)return;const L=S.len,now=S.done?-1:S.tries.length;
+  $("#mdInfo").textContent=L+" lettres · commence par "+S.first;$("#mlPill").textContent=S.mode==="prog"?"Progressif":"Libre · "+L+" lettres";
+  $("#mlSub").textContent=(S.hard?"Mot difficile · ":"")+"6 essais · 1re lettre donnée"+(S.chrono?" · "+S.chrono+" min":"");
+  const pal=$("#mlPal"),stp=$("#mlStep");pal.hidden=stp.hidden=S.mode!=="prog";
+  if(S.mode==="prog"){stp.textContent="Palier "+L+" lettres · mot "+(S.step%3+1)+"/3";pal.innerHTML=PROG.map((n,k)=>'<span class="'+(k<Math.floor(S.step/3)?"ok":k===Math.floor(S.step/3)?"now":"")+'">'+n+"</span>").join("")}
+  const g=$("#mdGrid");g.querySelectorAll(".mdrow").forEach(r=>r.remove());fit();
+  for(let r=0;r<6;r++){const row=document.createElement("div");row.className="mdrow";const t=S.tries[r];
+    for(let i=0;i<L;i++){const c=document.createElement("div");c.className="mdc";
+      if(t){c.textContent=t.g[i];c.classList.add("c"+t.c[i])}else if(r===now){const w=cur();c.textContent=w[i]||"";if(i===0)c.classList.add("first");if(i===w.length&&document.activeElement===inp)c.classList.add("cur")}
+      row.appendChild(c)}g.insertBefore(row,inp)}
+  setTimeout(fit,0);
+  const st={};S.tries.forEach(t=>[...t.g].forEach((l,i)=>{st[l]=Math.max(st[l]??-1,t.c[i])}));
+  $("#mdKeys").innerHTML="AZERTYUIOPQSDFGHJKLMWXCVBN".split("").map(l=>'<span class="'+(l in st?"k"+st[l]:"")+'">'+l+"</span>").join("");
+  $("#mdBar").style.display=S.done?"none":"";inp.disabled=!!S.done;if(S.done){if(document.activeElement===inp)inp.blur();inp.hidden=true}
+  const e=$("#mdEnd");e.classList.toggle("on",!!S.done);
+  if(S.done){const n=S.tries.length,prog=S.mode==="prog",last=prog&&S.ok&&S.step>=PROG.length*3-1;
+    e.innerHTML='<h3>'+(S.ok?"Trouvé en "+n+" essai"+(n>1?"s":"")+" !":S.late?"Temps écoulé…":"Pas cette fois…")+'</h3><div class="w">'+esc(S.word||"")+'</div>'
+      +(S.ok&&ME&&!ME.guest?'<div class="gain">+'+(S.gained||0)+" au score Motipop"+(S.pts>S.gained&&S.gained===0&&ST.pts>=150?" · plafond du jour atteint":"")+"</div>":S.ok?'<div class="note">Crée ton pseudo pour que tes points comptent.</div>':"")
+      +(prog?(S.ok?(last?'<div class="note">🏆 Parcours complet : de 3 à 12 lettres sans faute !</div>':'<div class="note">'+((S.step%3===2)?"Palier "+S.len+" lettres validé ! Prochain : "+PROG[Math.floor(S.step/3)+1]+" lettres.":"Mot suivant : "+(S.step%3+2)+"/3 du palier.")+"</div>"):'<div class="note">Parcours arrêté au palier '+S.len+" lettres ("+S.step+" mot"+(S.step>1?"s":"")+" trouvé"+(S.step>1?"s":"")+").</div>"):"")
+      +'<button class="btn primary" id="mlNext" type="button">'+(prog?(S.ok&&!last?"Mot suivant →":"Nouveau parcours"):"Mot suivant →")+"</button>";
+    $("#mlNext").onclick=()=>{if(prog){if(S.ok&&!last)STEP=S.step+1;else STEP=0}newWord()}}
+  clock()}
+// chronomètre (2 à 5 minutes par mot) : à zéro, le mot est montré
+let lastSec=-1;function clock(){const c=$("#mlClock");if(!S||!S.chrono){c.hidden=true;return}c.hidden=false;const left=Math.max(0,S.t0+S.chrono*60e3-Date.now());const s=Math.ceil(left/1000);
+  c.textContent=Math.floor(s/60)+":"+String(s%60).padStart(2,"0");c.classList.toggle("low",s<=15&&!S.done);if(S.done)return;if(s<=10&&s!==lastSec&&s>0){lastSec=s;SFX.tick()}if(left<=0&&!busy)finish()}
+setInterval(()=>{if(S&&S.chrono&&!S.done)clock()},250);
+function say(t){$("#mdMsg").textContent=t||""}
+function shake(){const rows=$("#mdGrid").querySelectorAll(".mdrow"),r=rows[S.tries.length];if(r){r.classList.remove("shake");void r.offsetWidth;r.classList.add("shake")}}
+function after(r){const was=S;S=r;inp.value="";prevLen=0;draw();
+  const last=$("#mdGrid").querySelectorAll(".mdrow")[S.tries.length-1];if(last&&S.tries.length>(was.tries||[]).length)last.querySelectorAll(".mdc").forEach((c,i)=>{c.style.animationDelay=i*90+"ms";c.classList.add("mdflip")});
+  {const t=S.tries[S.tries.length-1];if(t&&S.tries.length>(was.tries||[]).length)t.c.forEach((c,i)=>SFX.tile(i,c));const end=S.len*.09+.25;if(S.done)(S.ok?SFX.win:SFX.lose)(end)}
+  if(S.done){ST.joues++;if(S.ok){ST.trouves++;ST.serie++;ST.best=Math.max(ST.best,ST.serie);ST.dist[Math.min(5,S.tries.length-1)]++;if(S.mode==="prog")ST.prog=Math.max(ST.prog,S.step+1)}else ST.serie=0;if(typeof S.today==="number")ST.pts=S.today;stSave();stats()}
+  else if(!PHONE())inp.focus()}
+function send(){if(!S||S.done||busy)return;const g=cur();if(g.length<S.len){say("Il manque des lettres : le mot en fait "+S.len+".");shake();SFX.oops();return}
+  busy=true;call({op:"essai",tok:S.tok,g}).then(r=>{busy=false;if(r.refus){say(r.refus);shake();SFX.oops();return}if(!r.tok){say(r.msg||"Essai impossible pour le moment.");return}say("");after(r)}).catch(()=>{busy=false;say("Pas de connexion : réessaie.")})}
+function finish(){if(!S||S.done||busy)return;busy=true;call({op:"fin",tok:S.tok}).then(r=>{busy=false;if(r.tok){if(S.chrono&&Date.now()>=S.t0+S.chrono*60e3)r.late=true;after(r)}}).catch(()=>{busy=false})}
+$("#mlGive").onclick=()=>finish();
+let prevLen=0;
+inp.addEventListener("input",()=>{if(!S)return;setTimeout(()=>{const n=cur().length;if(n>prevLen)SFX.key();else if(n<prevLen)SFX.del();prevLen=n},0);inp.value=inp.value.normalize("NFD").replace(/[̀-ͯ]/g,"").toUpperCase().replace(/[^A-Z]/g,"");inp.value=inp.value.slice(0,inp.value[0]===S.first?S.len:S.len-1);say("");draw()});
+inp.addEventListener("keydown",e=>{if(e.key==="Enter"){e.preventDefault();send()}});
+$("#mdOk").addEventListener("pointerdown",e=>{if(document.activeElement===inp)e.preventDefault()});$("#mdOk").onclick=()=>send();
+$("#mdGrid").addEventListener("click",()=>{if(S&&!S.done){inp.focus({preventScroll:true});draw()}});
+inp.addEventListener("focus",draw);inp.addEventListener("blur",()=>setTimeout(draw,50));
+// lettres de l'écran : toucher une lettre l'écrit
+(function(){const K=$("#mdKeys");const put=v=>{inp.value=v;inp.dispatchEvent(new Event("input"))};
+  K.addEventListener("pointerdown",e=>{if(e.target.closest("span"))e.preventDefault()});
+  K.addEventListener("click",e=>{const x=e.target.closest("span");if(!x||!S||S.done||busy)return;const l=x.textContent.trim();if(!inp.value&&l===S.first){put(l);return}if(cur().length>=S.len){say("Le mot fait "+S.len+" lettres : touche Valider.");return}put(cur()+l)});
+  $("#mdDel").addEventListener("pointerdown",e=>e.preventDefault());$("#mdDel").onclick=()=>{if(!S||S.done||busy)return;const c=cur();put(c.length>1?c.slice(0,-1):"")}})();
+paintCfg();stats();newWord();
+if(location.hostname==="localhost")window.__t=c=>eval(c);
+})();
+</script>

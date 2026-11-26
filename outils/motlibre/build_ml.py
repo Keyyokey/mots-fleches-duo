@@ -1,0 +1,34 @@
+# Construit public/ml.html (« Mot libre » : Mot du jour – Journalier / Libre) : en-tête et styles de la page Mot du jour (md.html)
+# + corps et moteur propres (ml_body.html). Relancer après une modification de md.html ou de ml_body.html, puis partage.py.
+import os, re
+D = os.path.dirname(os.path.abspath(__file__)); ROOT = os.path.abspath(os.path.join(D, "..", ".."))
+md = open(os.path.join(ROOT, "public", "md.html"), encoding="utf8").read()
+head = md[:md.index('<body')]
+head = re.sub(r"<title>.*?</title>", "<title>Mot libre — le Mot du jour à volonté, de 3 à 12 lettres — Motipop</title>", head, count=1)
+head = re.sub(r'<meta name="description" content="[^"]*">', '<meta name="description" content="Joue au Mot du jour autant que tu veux : mots de 3 à 12 lettres, mode Progressif, chronomètre au choix. Gratuit, sans inscription.">', head, count=1)
+CSS = """<style id="mlcss">
+/* Mot libre (26/11) : bleu pervenche pour le distinguer du Mot du jour (corail) */
+.g-ml .mdc.first{color:#7c9bff}.g-ml .mdc.cur{border-color:rgba(124,155,255,.75);box-shadow:0 0 0 2px rgba(124,155,255,.25)}
+.g-ml .mdrow{gap:var(--gap,6px)}.g-ml .md{min-width:0}.g-ml .mdgrid{overflow:hidden}.g-ml .mdgrid{gap:var(--gap,6px)}
+.mlclock{font:800 1.05rem Nunito,Inter,sans-serif;padding:4px 12px;border-radius:999px;background:rgba(124,155,255,.15);border:1px solid rgba(124,155,255,.4)}.mlclock.low{color:#fff;background:#e5484d;border-color:#e5484d;animation:mlblink 1s infinite}
+@keyframes mlblink{50%{opacity:.6}}
+.g-ml .mdcount{background:rgba(124,155,255,.14);border-color:rgba(124,155,255,.35)}
+.mlpal{display:flex;gap:4px;margin-top:10px}.mlpal span{flex:1;text-align:center;padding:3px 0;border-radius:8px;font:800 .78rem Nunito,Inter,sans-serif;background:var(--glass);border:1px solid var(--stroke);color:var(--muted)}
+.mlpal span.ok{background:linear-gradient(135deg,#14b8a6,#0e9f8f);color:#fff;border-color:transparent}.mlpal span.now{border-color:#7c9bff;color:var(--ink);box-shadow:0 0 0 2px rgba(124,155,255,.25)}
+.mlset h3{margin:0 0 8px}.mllab{font:700 .8rem Inter,sans-serif;color:var(--muted);margin:10px 0 6px}
+.mllens{display:flex;flex-wrap:wrap;gap:6px}.mllens button{flex:1 0 34px;min-height:38px;border-radius:12px;border:1px solid var(--stroke);background:var(--glass);color:var(--ink);font:800 .9rem Nunito,Inter,sans-serif;cursor:pointer}
+.mllens button.on,.g-ml .mdtabs button.on{background:linear-gradient(135deg,#00ADB5,#7c6bff);color:#fff;border-color:transparent}
+.mlhelp{margin:10px 0}.mlset #mlGo{width:100%}
+.mldist{display:flex;flex-direction:column;gap:4px;margin-top:10px}.mldist div{display:flex;align-items:center;gap:6px;font:700 .8rem Inter,sans-serif}.mldist span{width:14px;color:var(--muted)}
+.mldist i{display:block;height:18px;border-radius:6px;background:linear-gradient(90deg,#14b8a6,#7c9bff);color:#fff;font-style:normal;font-size:.72rem;line-height:18px;padding:0 6px;text-align:right;min-width:4%}
+.g-ml #mdBar{display:flex;gap:8px}.g-ml #mlGive{margin-right:auto}
+.g-ml .mdend .w{font:900 1.6rem Nunito,Inter,sans-serif;letter-spacing:.08em;margin:6px 0}
+body.g-ml.mdpc #mdOk,body.g-ml.mdpc #mdDel{display:inline-flex!important}
+</style>
+"""
+body = open(os.path.join(D, "ml_body.html"), encoding="utf8").read()
+tail = md[md.index('<script>window.SK_HDR=1;</script>'):]
+tail = tail[:tail.index('\n') + 1] + '<script src="/d/icons-8d7b87098e.js" defer></script>\n</body></html>\n'
+out = head.replace("</head>", CSS + "</head>") if "</head>" in head else head + CSS
+open(os.path.join(ROOT, "public", "ml.html"), "w", encoding="utf8").write(out + body + tail)
+print("public/ml.html", len(out + body + tail) // 1024, "Ko")

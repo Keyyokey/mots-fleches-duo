@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<script>try{document.documentElement.dataset.theme=localStorage.getItem("fl-theme")||"dark";if(localStorage.getItem("fl-deco")==="off")document.documentElement.classList.add("nodeco")}catch(e){}</script>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Mot libre — le Mot du jour à volonté, de 3 à 12 lettres — Motipop</title>
+<meta name="description" content="Joue au Mot du jour autant que tu veux : mots de 3 à 12 lettres, mode Progressif, chronomètre au choix. Gratuit, sans inscription.">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml"><link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="preload" href="/d/f-inter-f11d729bb0.woff2" as="font" type="font/woff2" crossorigin><link rel="preload" href="/d/f-nunito-76388dbfe3.woff2" as="font" type="font/woff2" crossorigin><link rel="stylesheet" href="/d/polices-117650e856.css">
+<link rel="stylesheet" href="/d/jeu-88a196dffd.css">
+<link rel="stylesheet" href="/d/sk-b4a77edec2.css">
+<style>
+/* Mot du jour : couleur signature corail */
+.md{max-width:560px;margin:0 auto;display:flex;flex-direction:column;gap:12px}
+.md .card{padding:14px 16px}
+.mdhead{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}
+.mdhead b{font:800 1rem Nunito,Inter,sans-serif}
+.mdhead small{color:var(--muted);font-size:.82rem}
+.mdcount{display:inline-flex;align-items:center;gap:6px;padding:4px 10px;border-radius:999px;background:rgba(255,122,168,.14);border:1px solid rgba(255,122,168,.35);font:700 .8rem Nunito,Inter,sans-serif}
+.mdgrid{display:flex;flex-direction:column;gap:6px;align-items:center;position:relative;padding:14px 10px}
+.mdrow{display:flex;gap:6px}
+.mdc{width:var(--mdc,min(46px,11.2vw));height:var(--mdc,min(50px,12.2vw));display:grid;place-items:center;border-radius:12px;border:1px solid var(--stroke);background:var(--cell);font:800 var(--mdf,clamp(1.05rem,5vw,1.45rem)) Nunito,Inter,sans-serif;text-transform:uppercase;transition:transform .25s,background .25s}
+.mdc.first{color:#ff7aa8}
+.mdc.cur{border-color:rgba(255,122,168,.75);box-shadow:0 0 0 2px rgba(255,122,168,.25)}
+.mdc.c2{background:linear-gradient(135deg,#14b8a6,#0e9f8f);border-color:transparent;color:#fff}
+.mdc.c1{background:rgba(255,200,87,.16);border:2px solid var(--gold);color:var(--ink)}
+.mdc.c0{background:rgba(127,140,160,.18);color:var(--muted)}
+.mdc.mdflip{animation:mdpop .35s ease}
+@keyframes mdpop{50%{transform:scale(1.12)}}
+.mdrow.shake{animation:mdshake .4s}
+@keyframes mdshake{20%,60%{transform:translateX(-6px)}40%,80%{transform:translateX(6px)}}
+#mdIn{position:absolute;left:12px;top:12px;width:1px;height:1px;margin:0;padding:0;opacity:0;font-size:16px;border:0;background:transparent;color:transparent;caret-color:transparent;pointer-events:none;z-index:-1}
+.mdgrid{cursor:text}
+#mdIn::selection{background:transparent;color:transparent}
+#mdIn[hidden]{display:none}
+.mdgrid{-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
+.mdbar{display:flex;gap:8px;align-items:center}
+.mdbar .note{flex:1;min-width:0;color:var(--muted);font-size:.85rem}
+.mdkeys{display:flex;flex-wrap:wrap;gap:4px;justify-content:center}
+.mdkeys span{min-width:24px;padding:3px 0;text-align:center;border-radius:7px;font:800 .78rem Nunito,Inter,sans-serif;background:var(--cell);border:1px solid var(--stroke)}
+.mdkeys .k2{background:#14b8a6;color:#fff;border-color:transparent}.mdkeys .k1{border:2px solid var(--gold)}.mdkeys .k0{opacity:.3}
+.mdmsg{min-height:1.2em;text-align:center;font-weight:600;font-size:.9rem}
+.mdend{text-align:center;display:none;flex-direction:column;gap:8px;align-items:center}
+.mdend.on{display:flex}
+.mdend h3{margin:0;font:800 1.15rem Nunito,Inter,sans-serif}
+.mdend .w{font:800 1.6rem Nunito,Inter,sans-serif;letter-spacing:.12em;background:linear-gradient(90deg,#ff7aa8,#a78bfa);-webkit-background-clip:text;background-clip:text;color:transparent}
+.mdend .def{color:var(--muted);font-size:.92rem}
+.mdend .row{display:flex;gap:8px;flex-wrap:wrap;justify-content:center}
+.mdsh{align-items:center}.mdsh .shl{flex:1 1 100%;text-align:center;font-weight:700;font-size:.92rem}.mdsh .btn{display:inline-flex;align-items:center;gap:6px;min-height:46px;padding:0 16px;font-weight:800}
+@media (pointer:fine){.mdsh .sms{display:none}}
+.mdsh .wa{background:#25d366;border-color:#25d366;color:#06321a}.mdsh .sms{background:linear-gradient(135deg,#00ADB5,#A26BFF);border-color:transparent;color:#fff}
+.mdmini{display:flex;flex-direction:column;gap:3px;margin:4px 0 2px}.mdmini div{display:flex;gap:3px;justify-content:center}.mdmini i{width:16px;height:16px;border-radius:4px;background:#3a4258}.mdmini .m2{background:#14b8a0}.mdmini .m1{background:#f59e0b}
+#mdShare{min-height:52px;padding:0 26px;font-size:1.05rem}
+.mdtabs{display:flex;gap:6px;margin-bottom:8px}
+.mdtabs button{flex:1;min-height:38px;border-radius:12px;border:1px solid var(--stroke);background:var(--glass);color:var(--ink);font:700 .85rem Inter,sans-serif;cursor:pointer}
+.mdtabs button.on{background:var(--glass2);border-color:rgba(255,122,168,.6)}
+.mdlist{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:2px}
+.mdlist li{display:flex;align-items:center;gap:10px;padding:7px 8px;border-radius:10px}
+.mdlist li.me{background:rgba(255,122,168,.12)}
+.mdlist .rk{width:22px;text-align:center;font-weight:800;color:var(--muted)}
+.mdlist b{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis}
+.mdlist small{color:var(--muted)}
+.mdempty{color:var(--muted);font-size:.88rem;padding:6px 8px}
+.mdguest{margin-top:8px;font-size:.85rem;color:var(--muted)}
+.mdguest a{color:#ff7aa8;font-weight:700}
+.mdpop{display:block;width:120px;height:auto;margin:-4px auto 2px;filter:drop-shadow(0 8px 14px rgba(0,0,0,.3));animation:mdjump .9s cubic-bezier(.3,1.6,.5,1) both}@keyframes mdjump{from{transform:translateY(24px) scale(.6);opacity:0}}@media (prefers-reduced-motion:reduce){.mdpop{animation:none}}
+.mdlenp,.mdrkbtn,.mdrkx{display:none}
+.gtop{display:flex;align-items:center;gap:8px}
+@media (max-width:620px){
+body.tj .gtop .gname{flex:1;min-width:0;white-space:nowrap}
+body.tj .mdlenp{display:inline-flex;margin-left:4px}body.tj #mdDay{display:none}
+body.tj .md>.card{display:none}body.tj .md>.mdend.on{display:flex;padding:14px 12px}
+body.tj .mdrkbtn{display:inline-flex;align-items:center;gap:6px;margin-left:auto;min-height:40px;padding:6px 12px;border-radius:14px;border:1px solid rgba(255,122,168,.45);background:rgba(255,122,168,.14);color:var(--ink);font:800 .85rem Nunito,Inter,sans-serif;cursor:pointer}
+body.tj .mdside{display:none}
+/* 21/11 : même fond que « Mes stats » de l'accueil (voile gris-noir flouté sur tout l'écran) pour bien lire le classement */body.tj.rkOn .mdside{display:block;position:fixed;inset:0;z-index:80;padding:8px 8px 16px;overflow:auto;overscroll-behavior:contain;background:rgba(8,12,28,.55);backdrop-filter:blur(18px) saturate(140%);-webkit-backdrop-filter:blur(18px) saturate(140%);animation:popin .2s ease}[data-theme=light] body.tj.rkOn .mdside{background:rgba(230,238,248,.7)}body.tj.rkOn{overflow:hidden}
+body.tj.rkOn .mdside .card{background:rgba(14,18,36,.72);box-shadow:0 18px 50px rgba(0,0,0,.45)}[data-theme=light] body.tj.rkOn .mdside .card{background:rgba(255,255,255,.82)}
+body.tj.rkOn .mdrkx{display:grid;place-items:center;margin-left:8px;width:36px;height:36px;border-radius:50%;border:1px solid var(--stroke);background:var(--glass);color:var(--ink);cursor:pointer}
+@keyframes popin{from{transform:translateY(-8px);opacity:0}}
+}
+@media (max-width:620px){
+body.tj #skTop{display:none!important}body.tj .wrap{padding-top:6px}body.tj .gtop{margin-bottom:6px}
+body.tj .md{gap:8px}body.tj .md>.card{padding:8px 12px}body.tj .mdhead small{display:none}body.tj .mdhead br{display:none}
+body.tj .mdcount{display:none}body.tj .mdgrid{padding:8px 6px;gap:5px}body.tj .mdrow{gap:5px}
+body.tj .mdbar .note{display:none}body.tj .mdbar{justify-content:flex-end}body.tj .mdbar .btn{min-height:40px;padding:8px 22px}
+body.tj .mdmsg{min-height:0}body.tj .mdmsg:empty{display:none}
+body.tj .mdkeys{gap:5px}body.tj .mdkeys span{flex:0 0 calc((100% - 60px) / 13);min-width:0;padding:5px 0;font-size:1rem;border-radius:8px}
+body.tj .mdrow{gap:6px}
+}
+.mdprize{display:flex;align-items:center;gap:10px;margin:0 0 10px;padding:8px 12px;border-radius:14px;background:linear-gradient(135deg,rgba(255,200,87,.16),rgba(255,122,168,.1));border:1px solid rgba(255,200,87,.4)}
+.mdprize .coin{font-size:1.4rem}.mdprize b{display:block;font:800 .88rem Nunito,Inter,sans-serif}.mdprize small{display:block;color:var(--muted);font-size:.8rem}
+.mdlist li{gap:8px}.mdlist .row2 .det{flex-direction:row;flex-wrap:wrap;align-items:center;justify-content:flex-start;gap:2px 6px;text-align:left}.mdlist .row2 .det small{line-height:1.25}
+.mdlist .pts{font:800 1.05rem Nunito,Inter,sans-serif;color:#ff7aa8;white-space:nowrap}.mdlist .pts small{font-size:.7rem;color:var(--muted);margin-left:2px}
+.mdlist li.top .rk{font-size:1.05rem}.mdlist .nm{display:flex;align-items:center;gap:6px;min-width:0}.mdlist .nm b{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.mdlist .gift{font:700 .68rem Inter,sans-serif;padding:2px 6px;border-radius:999px;background:rgba(255,200,87,.2);border:1px solid rgba(255,200,87,.5);white-space:nowrap}
+.mdlist li .row2{display:flex;flex-direction:row;align-items:center;flex:1;min-width:0;gap:8px}
+.mdlist .row2 .nm{flex:0 0 auto;max-width:48%}.mdlist .row2 .det{flex:1 1 auto;min-width:0;flex-wrap:nowrap!important;overflow:hidden;justify-content:flex-end!important}.mdlist .row2 .det small{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.mdlist .nm b.gst{font-weight:700;font-style:italic;opacity:.85}.mdlist .gift{font-size:.9rem}
+.mdtab{width:100%;border-collapse:separate;border-spacing:0;border-radius:12px;overflow:hidden;border:1px solid var(--stroke);font-size:.9rem}
+.mdtab th,.mdtab td{padding:7px 10px;text-align:left;border-bottom:1px solid var(--stroke)}.mdtab tr:last-child th,.mdtab tr:last-child td{border-bottom:0}
+.mdtab th{font-weight:600;color:rgba(238,242,247,.86)}.mdtab td{text-align:right;font:800 1rem Nunito,Inter,sans-serif;white-space:nowrap}
+.mdtab tr:nth-child(odd){background:var(--cell)}[data-theme=light] .mdtab th{color:#1f2937}
+.mdme{margin-top:10px;padding-top:10px;border-top:1px solid var(--stroke)}
+.mdme h4{margin:0 0 8px;font:800 .92rem Nunito,Inter,sans-serif}
+.mdstats{display:grid;grid-template-columns:repeat(2,1fr);gap:6px}
+.mdstats div{padding:8px 10px;border-radius:12px;background:var(--cell);border:1px solid var(--stroke)}
+.mdstats b{display:block;font:800 1.15rem Nunito,Inter,sans-serif}.mdstats small{color:var(--muted);font-size:.74rem;line-height:1.2;display:block}
+.mdend .gain{font:800 1.05rem Nunito,Inter,sans-serif;color:#ffc857}
+.mdside small,.mdside .mdhow,.mdstats small,.mdprize small,.mdlist small,.mdlist .rk,.mdguest,#mdLive{color:rgba(238,242,247,.86)!important}
+[data-theme=light] .mdside small,[data-theme=light] .mdside .mdhow,[data-theme=light] .mdstats small,[data-theme=light] .mdprize small,[data-theme=light] .mdlist small,[data-theme=light] .mdlist .rk,[data-theme=light] .mdguest,[data-theme=light] #mdLive{color:#1f2937!important}
+.mdstats small{font-size:.82rem}.mdlist small{font-size:.84rem}.mdhow{font-size:.84rem!important}
+.mdlay{display:flex;flex-direction:column;gap:12px;max-width:560px;margin:0 auto}
+.mdside .card{padding:14px 16px}
+.mdside h3{margin:0 0 10px;font:800 1rem Nunito,Inter,sans-serif;display:flex;align-items:center;gap:8px}
+.mdside h3 small{margin-left:auto;font:600 .75rem Inter,sans-serif;color:var(--muted)}
+.mdsq{display:inline-flex;gap:2px;margin-right:6px;vertical-align:middle}
+.mdsq i{width:8px;height:8px;border-radius:2px;background:rgba(127,140,160,.3)}
+.mdsq i.on{background:#14b8a6}.mdsq i.half{background:#ffc857}
+.mdlist li.ok b::after{content:" ✓";color:#14b8a6}
+.mdlist .det{display:flex;flex-direction:column;align-items:flex-end;gap:2px;text-align:right}
+/* info-bulle (Juvenal, 25/11 : moins de texte sur la page) : survol sur ordinateur, toucher sur téléphone */
+.mdtip{position:relative;display:inline-flex;vertical-align:middle}.mdtip[hidden]{display:none}.mdtip>button{width:20px;height:20px;border-radius:50%;border:1px solid var(--stroke);background:var(--glass2);color:inherit;font:800 .72rem Nunito,Inter,sans-serif;line-height:1;padding:0;cursor:pointer}
+.mdtip .tipb{position:absolute;left:50%;top:calc(100% + 8px);transform:translateX(-50%);z-index:30;width:230px;padding:9px 11px;border-radius:12px;background:rgba(14,18,40,.96);border:1px solid var(--stroke);box-shadow:0 10px 28px rgba(0,0,0,.4);font:500 .82rem/1.35 Inter,sans-serif;color:#eef2f7;opacity:0;pointer-events:none;transition:opacity .15s}
+.mdtip:hover .tipb,.mdtip.on .tipb{opacity:1}[data-theme=light] .mdtip .tipb{background:#fff;color:#1f2937}
+@media (min-width:940px){.mdlay{display:grid;grid-template-columns:minmax(0,560px) 330px;max-width:910px;align-items:start;gap:18px}.mdside{position:sticky;top:16px}}
+@media (max-width:620px){.wrap{padding:10px}.md .card,.mdside .card{padding:12px}}
+</style>
+<style id="cb">html.cb .c2{background:linear-gradient(135deg,#f07a2c,#d9601a)!important;color:#fff}html.cb .c1{background:rgba(61,139,253,.22)!important;border:3px solid #4d94ff!important}html.cb .k2{background:#e8691e!important;color:#fff}html.cb .k1{border:3px solid #4d94ff!important}html.cb .c1::after{content:"";position:absolute;right:4px;top:4px;width:7px;height:7px;border-radius:50%;background:#4d94ff}html.cb .c1{position:relative}</style><style id="mdserie">.mdser{margin:10px auto 6px;padding:10px 12px;border-radius:16px;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.16);max-width:420px}.mdser .sh{font:800 1rem Nunito,Inter,sans-serif;margin-bottom:8px}.mdser .sds{display:flex;gap:6px;justify-content:center}.mdser .sd{position:relative;flex:1;max-width:46px;height:52px;border-radius:12px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;background:rgba(255,255,255,.08);border:1.5px solid rgba(255,255,255,.18);font:800 .95rem Nunito,Inter,sans-serif;color:inherit}.mdser .sd svg{display:block}.mdser .sd.ok{background:rgba(34,197,94,.22);border-color:rgba(34,197,94,.6);color:#bbf7d0}.mdser .sd.now{background:linear-gradient(160deg,#22c55e,#15803d);border-color:#86efac;color:#fff;transform:scale(1.08)}.mdser small{display:block;margin-top:8px;opacity:.85}html[data-theme="light"] .mdser{background:rgba(255,255,255,.6);border-color:rgba(20,30,60,.12)}html[data-theme="light"] .mdser .sd.ok{color:#166534}</style>
+<style id="mdcls">@media (min-width:621px),(pointer:fine){#mdGrid:not(:has(.mdrow)){min-height:360px}#mdKeys:empty{min-height:54px}.md>.glass.card:first-child{min-height:109px}}</style><style id="lisible">#mdLenP{font-size:.9rem!important}body.tj .gtop .gname{display:flex;flex-wrap:wrap;align-items:center;column-gap:6px;row-gap:3px;white-space:normal;line-height:1.15}body.tj .gtop .gname>.hpill{white-space:nowrap}@media(max-width:340px){.mdrkbtn span{display:none}}</style>
+<style id="mdtap">.mdkeys span{cursor:pointer;user-select:none;-webkit-user-select:none;touch-action:manipulation;transition:transform .08s}.mdkeys span:active{transform:scale(.9)}.mddel{display:inline-flex;align-items:center;justify-content:center;min-width:52px}.mddel svg{width:24px;height:24px}.mdbar{gap:8px}.mdbar .note{margin-right:auto}body.tj.mdnew .mdbar .note{display:block;font-size:.88rem;line-height:1.25;color:var(--txt,#fff);opacity:.92}body.tj .mdbar{justify-content:flex-end;align-items:center}.mdkeys.off span{cursor:default}</style>
+<style id="mdpc">/* ordinateur (25/11, demande de Juvenal) : on retire ce qui encombre ; les explications passent dans le bouton Infos */
+body.mdpc .mdhead small,body.mdpc .mdhead br,body.mdpc #mdNote,body.mdpc #mdDel,body.mdpc #mdOk{display:none!important}
+
+body.mdpc .md>.card{min-height:0!important}body.mdpc .mdgrid{padding:12px 10px;gap:8px}body.mdpc .mdrow{gap:8px}body.mdpc .mdc{border-radius:14px}
+body.mdpc #seoTxt{display:none}
+.mdinfo{display:none}body.mdpc .mdinfo{display:inline-flex;align-items:center;gap:6px;min-height:36px;padding:0 12px;border-radius:12px;border:1px solid var(--stroke);background:rgba(255,255,255,.08);color:inherit;font:700 .85rem Nunito,Inter,sans-serif;cursor:pointer;margin-left:8px}
+.mdinfo svg{width:18px;height:18px}
+#mdInfoBox{position:fixed;inset:0;z-index:80;display:none;place-items:center;background:rgba(5,8,20,.55);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px)}
+#mdInfoBox.on{display:grid}
+#mdInfoBox .in{width:min(640px,92vw);max-height:82vh;overflow:auto;padding:20px 22px;border-radius:20px;background:rgba(20,26,52,.97);border:1px solid rgba(255,255,255,.18);color:#eef2f7;position:relative}
+#mdInfoBox .in>p.r{margin:0 0 12px;font-weight:700}
+#mdInfoBox #seoTxt{display:block!important;margin:0;padding:0;background:none;border:0}
+#mdInfoBox .x{position:absolute;top:10px;right:10px;width:40px;height:40px;border-radius:12px;border:1px solid rgba(255,255,255,.2);background:rgba(255,255,255,.08);color:inherit;font-size:1.1rem;cursor:pointer}
+[data-theme=light] #mdInfoBox .in{background:#fff;color:#14202b;border-color:rgba(15,25,40,.15)}
+</style><style id="mlcss">
+/* Mot libre (26/11) : bleu pervenche pour le distinguer du Mot du jour (corail) */
+.g-ml .mdc.first{color:#7c9bff}.g-ml .mdc.cur{border-color:rgba(124,155,255,.75);box-shadow:0 0 0 2px rgba(124,155,255,.25)}
+.g-ml .mdrow{gap:var(--gap,6px)}.g-ml .md{min-width:0}.g-ml .mdgrid{overflow:hidden}.g-ml .mdgrid{gap:var(--gap,6px)}
+.mlclock{font:800 1.05rem Nunito,Inter,sans-serif;padding:4px 12px;border-radius:999px;background:rgba(124,155,255,.15);border:1px solid rgba(124,155,255,.4)}.mlclock.low{color:#fff;background:#e5484d;border-color:#e5484d;animation:mlblink 1s infinite}
+@keyframes mlblink{50%{opacity:.6}}
+.g-ml .mdcount{background:rgba(124,155,255,.14);border-color:rgba(124,155,255,.35)}
+.mlpal{display:flex;gap:4px;margin-top:10px}.mlpal span{flex:1;text-align:center;padding:3px 0;border-radius:8px;font:800 .78rem Nunito,Inter,sans-serif;background:var(--glass);border:1px solid var(--stroke);color:var(--muted)}
+.mlpal span.ok{background:linear-gradient(135deg,#14b8a6,#0e9f8f);color:#fff;border-color:transparent}.mlpal span.now{border-color:#7c9bff;color:var(--ink);box-shadow:0 0 0 2px rgba(124,155,255,.25)}
+.mlset h3{margin:0 0 8px}.mllab{font:700 .8rem Inter,sans-serif;color:var(--muted);margin:10px 0 6px}
+.mllens{display:flex;flex-wrap:wrap;gap:6px}.mllens button{flex:1 0 34px;min-height:38px;border-radius:12px;border:1px solid var(--stroke);background:var(--glass);color:var(--ink);font:800 .9rem Nunito,Inter,sans-serif;cursor:pointer}
+.mllens button.on,.g-ml .mdtabs button.on{background:linear-gradient(135deg,#00ADB5,#7c6bff);color:#fff;border-color:transparent}
+.mlhelp{margin:10px 0}.mlset #mlGo{width:100%}
+.mldist{display:flex;flex-direction:column;gap:4px;margin-top:10px}.mldist div{display:flex;align-items:center;gap:6px;font:700 .8rem Inter,sans-serif}.mldist span{width:14px;color:var(--muted)}
+.mldist i{display:block;height:18px;border-radius:6px;background:linear-gradient(90deg,#14b8a6,#7c9bff);color:#fff;font-style:normal;font-size:.72rem;line-height:18px;padding:0 6px;text-align:right;min-width:4%}
+.g-ml #mdBar{display:flex;gap:8px}.g-ml #mlGive{margin-right:auto}
+.g-ml .mdend .w{font:900 1.6rem Nunito,Inter,sans-serif;letter-spacing:.08em;margin:6px 0}
+body.g-ml.mdpc #mdOk,body.g-ml.mdpc #mdDel{display:inline-flex!important}
+</style>
+</head>
+<body class="sk-new g-md g-ml">
+<div id="skTop" class="skph"></div>
+<div class="blob b1"></div><div class="blob b2"></div><div class="blob b3"></div>
+<div class="wrap">
+  <div class="gtop"><button class="homebtn" title="Retour à l'accueil" aria-label="Retour à l'accueil" onclick="location.href='/'"><svg viewBox="0 0 24 24"><path d="M3 11.2 12 4l9 7.2" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/><path d="M5.5 9.5V20h13V9.5" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linejoin="round"/></svg></button><div class="gname">Mot <span style="color:#7c9bff">libre</span> <span class="hpill" id="mlPill">…</span></div></div>
+  <div class="mdlay">
+  <div class="md">
+    <div class="glass card">
+      <div class="mdhead"><div><b id="mdInfo">Chargement…</b><br><small id="mlSub">6 essais · 1re lettre donnée</small></div><span class="mlclock" id="mlClock" hidden>2:00</span><span class="mdcount" id="mlStep" hidden></span></div>
+      <div class="mlpal" id="mlPal" hidden></div>
+    </div>
+    <div class="mdkeys" id="mdKeys" aria-label="Lettres déjà essayées"></div>
+    <div class="glass mdgrid" id="mdGrid" aria-label="Grille"><input id="mdIn" type="text" inputmode="text" autocomplete="off" autocorrect="off" autocapitalize="characters" spellcheck="false" enterkeyhint="go" aria-label="Saisie des lettres" data-lpignore="true" data-form-type="other"></div>
+    <div class="mdmsg" id="mdMsg" role="status" aria-live="polite"></div>
+    <div class="mdbar" id="mdBar"><button class="btn ghost" id="mlGive" type="button" title="Abandonner ce mot (il est montré)">Abandonner</button><button class="btn ghost mddel" id="mdDel" aria-label="Effacer la dernière lettre"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M21 5H9l-6 7 6 7h12a1 1 0 0 0 1-1V6a1 1 0 0 0-1-1Z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><path d="m12 9 6 6m0-6-6 6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></button><button class="btn primary" id="mdOk" type="button">Valider</button></div>
+    <div class="glass card mdend" id="mdEnd" aria-live="polite"></div>
+  </div>
+  <aside class="mdside" aria-label="Réglages et statistiques">
+    <div class="glass card mlset">
+      <h3>⚙️ Réglages</h3>
+      <div class="mllab">Mode</div>
+      <div class="mdtabs" role="group" aria-label="Mode"><button type="button" data-mode="libre" class="on">Libre</button><button type="button" data-mode="prog">Progressif</button></div>
+      <div id="mlLens"><div class="mllab">Longueur du mot</div><div class="mllens" role="group" aria-label="Longueur"></div></div>
+      <div class="mllab">Chronomètre</div>
+      <div class="mllens mlch" role="group" aria-label="Chronomètre"><button type="button" data-ch="0" class="on">Sans</button><button type="button" data-ch="2">2 min</button><button type="button" data-ch="3">3 min</button><button type="button" data-ch="4">4 min</button><button type="button" data-ch="5">5 min</button></div>
+      <div class="note mlhelp" id="mlHelp"></div>
+      <button class="btn primary" id="mlGo" type="button">Nouveau mot</button>
+    </div>
+    <div class="glass card">
+      <h3>📊 Mes stats <small id="mlDay"></small></h3>
+      <table class="mdtab"><tbody id="mlStats"></tbody></table>
+      <div class="mldist" id="mlDist" aria-label="Essais pour trouver"></div>
+      <div class="mdguest" id="mdGuest" hidden>Tu joues en invité : <a href="/?need=pseudo">crée ton pseudo</a> pour que tes points comptent au classement.</div>
+    </div>
+  </aside>
+  </div>
+</div>
+<script>
+(function(){
+const $=s=>document.querySelector(s),$$=s=>[...document.querySelectorAll(s)],LS={get:k=>{try{return localStorage.getItem(k)}catch(e){return null}},set:(k,v)=>{try{localStorage.setItem(k,v)}catch(e){}}};
+const esc=s=>String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+let ME=null;try{ME=JSON.parse(LS.get("fl-me")||"null")}catch(e){}if(ME&&!/^(?:[A-Z0-9@#_]{2,7}|INVITE\d{4,5})$/.test(ME.name||""))ME=null;
+const LENS=[3,4,5,6,7,8,9,10,12],PROG=LENS;
+const Q=new URLSearchParams(location.search);
+let CFG={mode:"libre",len:6,ch:0};try{CFG=Object.assign(CFG,JSON.parse(LS.get("fl-ml-cfg")||"{}"))}catch(e){}
+if(Q.get("mode"))CFG.mode=Q.get("mode")==="prog"?"prog":"libre";if(LENS.includes(+Q.get("len")))CFG.len=+Q.get("len");if(Q.has("chrono"))CFG.ch=[2,3,4,5].includes(+Q.get("chrono"))?+Q.get("chrono"):0;
+let S=null,busy=false,STEP=0;
+const call=b=>fetch("/api/p/ml",{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify(Object.assign(ME&&ME.token?{name:ME.name,token:ME.token}:{},b))}).then(r=>r.json());
+const inp=$("#mdIn");
+const PHONE=()=>matchMedia("(max-width:620px) and (pointer:coarse)").matches;
+// taille des cases : de 3 à 12 lettres, la ligne tient toujours dans la largeur (téléphone compris)
+function fit(){const g=$("#mdGrid");if(!S)return;const L=S.len,gap=L>8?4:6;g.style.setProperty("--gap",gap+"px");
+  const vw=Math.min(innerWidth,screen.width||innerWidth,(window.visualViewport&&visualViewport.width)||innerWidth);   // la page ne doit jamais s'élargir à cause de la grille
+  const w=(PHONE()?Math.min(vw,560)-28:g.clientWidth-20);let c=Math.floor((w-(L-1)*gap)/L);
+  if(!PHONE()){const top=g.getBoundingClientRect().top+scrollY,byH=Math.floor((innerHeight-Math.min(top,260)-40-5*8)/6);c=Math.min(c,byH)}
+  c=Math.max(22,Math.min(PHONE()?64:84,c));g.style.setProperty("--mdc",c+"px");g.style.setProperty("--mdf",Math.round(c*.52)+"px")}
+addEventListener("resize",()=>setTimeout(fit,60));
+// ---------- sons ----------
+let AC=null;function tone(f,t,d,type,v){if(LS.get("fl-sound")==="off")return;try{AC=AC||new(window.AudioContext||window.webkitAudioContext)();const n=AC.currentTime+(t||0),o=AC.createOscillator(),g=AC.createGain();o.type=type||"sine";o.frequency.value=f;g.gain.setValueAtTime(0,n);g.gain.linearRampToValueAtTime(v||.12,n+.01);g.gain.exponentialRampToValueAtTime(.0001,n+(d||.3));o.connect(g).connect(AC.destination);o.start(n);o.stop(n+(d||.3)+.05)}catch(e){}}
+const SC=[523.25,587.33,659.25,783.99,880,1046.5,1174.66];
+const SFX={key:()=>tone(1180,0,.06,"triangle",.06),del:()=>tone(620,0,.06,"triangle",.05),tile:(i,c)=>c===2?tone(SC[Math.min(i,6)],i*.09,.6,"sine",.16):c===1?tone(SC[Math.min(i,6)]/2,i*.09,.45,"triangle",.11):tone(196,i*.09,.15,"sine",.07),
+  win:at=>[523.25,659.25,783.99,1046.5].forEach((f,i)=>tone(f,at+i*.09,.9,"sine",.15)),lose:at=>[659.25,587.33,523.25,392].forEach((f,i)=>tone(f,at+i*.15,.7,"triangle",.1)),oops:()=>{tone(233,0,.16,"triangle",.1);tone(220,.09,.2,"triangle",.1)},tick:()=>tone(880,0,.05,"square",.04)};
+(m=>Object.keys(m).forEach(k=>{const f=SFX[k];SFX[k]=function(){return(window.MotipopSons&&window.MotipopSons.play(m[k]))||f.apply(this,arguments)}}))({oops:"faux",win:"victoire",lose:"perdu"});
+// ---------- statistiques en direct (gardées sur cet appareil, remises à zéro chaque jour) ----------
+const DAY=new Date().toLocaleDateString("fr-CA",{timeZone:"Europe/Paris"});
+let ST={d:DAY,joues:0,trouves:0,serie:0,best:0,pts:0,dist:[0,0,0,0,0,0],prog:0};try{const o=JSON.parse(LS.get("fl-ml-st")||"null");if(o&&o.d===DAY)ST=Object.assign(ST,o);else if(o)ST.prog=o.prog||0}catch(e){}
+const stSave=()=>LS.set("fl-ml-st",JSON.stringify(ST));
+function stats(){const tr=(l,v)=>"<tr><th scope=\"row\">"+l+"</th><td>"+v+"</td></tr>";$("#mlDay").textContent="aujourd'hui";
+  $("#mlStats").innerHTML=tr("Mots joués",ST.joues)+tr("Mots trouvés",ST.trouves+(ST.joues?" ("+Math.round(100*ST.trouves/ST.joues)+" %)":""))+tr("Série en cours",ST.serie+(ST.best>ST.serie?" · record "+ST.best:""))+tr("Points gagnés",ME&&!ME.guest?ST.pts+" / 150":"—")+tr("Record Progressif",ST.prog?ST.prog+" mot"+(ST.prog>1?"s":"")+" d'affilée":"—");
+  const mx=Math.max(1,...ST.dist);$("#mlDist").innerHTML=ST.dist.map((n,i)=>'<div><span>'+(i+1)+'</span><i style="width:'+Math.max(4,Math.round(100*n/mx))+'%">'+(n||"")+"</i></div>").join("");$("#mdGuest").hidden=!!(ME&&!ME.guest)}
+// ---------- réglages ----------
+$(".mllens:not(.mlch)").innerHTML=LENS.map(L=>'<button type="button" data-len="'+L+'">'+L+"</button>").join("");
+function paintCfg(){$$("[data-mode]").forEach(b=>b.classList.toggle("on",b.dataset.mode===CFG.mode));$$("[data-len]").forEach(b=>b.classList.toggle("on",+b.dataset.len===CFG.len));$$("[data-ch]").forEach(b=>b.classList.toggle("on",+b.dataset.ch===CFG.ch));
+  $("#mlLens").hidden=CFG.mode==="prog";$("#mlHelp").textContent=CFG.mode==="prog"?"De 3 à 12 lettres, 3 mots par longueur. Le 3e mot de chaque palier est plus difficile. Un mot raté et le parcours s'arrête.":"Choisis la longueur, joue autant de mots que tu veux.";
+  $("#mlGo").textContent=CFG.mode==="prog"?"Nouveau parcours":"Nouveau mot";LS.set("fl-ml-cfg",JSON.stringify(CFG))}
+document.addEventListener("click",e=>{const b=e.target.closest("[data-mode],[data-len],[data-ch]");if(!b||!b.closest(".mlset"))return;
+  if(b.dataset.mode)CFG.mode=b.dataset.mode;if(b.dataset.len)CFG.len=+b.dataset.len;if(b.dataset.ch)CFG.ch=+b.dataset.ch;paintCfg()});
+$("#mlGo").onclick=()=>{STEP=0;newWord()};
+// ---------- partie ----------
+const recKey=L=>"fl-ml-rec-"+L+(CFG.mode==="prog"&&STEP%3===2?"d":"");
+function newWord(){if(busy)return;busy=true;say("");const len=CFG.mode==="prog"?PROG[Math.floor(STEP/3)]:CFG.len;let rec=[];try{rec=JSON.parse(LS.get(recKey(len))||"[]")}catch(e){}
+  call({op:"new",mode:CFG.mode,len,step:STEP,chrono:CFG.ch,rec}).then(r=>{busy=false;if(!r||!r.tok){say(r&&r.msg||"Impossible de lancer un mot. Réessaie.");return}
+    rec.push(r.i);LS.set(recKey(len),JSON.stringify(rec.slice(-40)));S=r;inp.value="";inp.hidden=false;inp.disabled=false;draw();if(!PHONE())inp.focus()}).catch(()=>{busy=false;say("Pas de connexion : réessaie.")})}
+function cur(){const v=inp.value;return (v[0]===S.first?v:S.first+v).slice(0,S.len)}
+function draw(){if(!S)return;const L=S.len,now=S.done?-1:S.tries.length;
+  $("#mdInfo").textContent=L+" lettres · commence par "+S.first;$("#mlPill").textContent=S.mode==="prog"?"Progressif":"Libre · "+L+" lettres";
+  $("#mlSub").textContent=(S.hard?"Mot difficile · ":"")+"6 essais · 1re lettre donnée"+(S.chrono?" · "+S.chrono+" min":"");
+  const pal=$("#mlPal"),stp=$("#mlStep");pal.hidden=stp.hidden=S.mode!=="prog";
+  if(S.mode==="prog"){stp.textContent="Palier "+L+" lettres · mot "+(S.step%3+1)+"/3";pal.innerHTML=PROG.map((n,k)=>'<span class="'+(k<Math.floor(S.step/3)?"ok":k===Math.floor(S.step/3)?"now":"")+'">'+n+"</span>").join("")}
+  const g=$("#mdGrid");g.querySelectorAll(".mdrow").forEach(r=>r.remove());fit();
+  for(let r=0;r<6;r++){const row=document.createElement("div");row.className="mdrow";const t=S.tries[r];
+    for(let i=0;i<L;i++){const c=document.createElement("div");c.className="mdc";
+      if(t){c.textContent=t.g[i];c.classList.add("c"+t.c[i])}else if(r===now){const w=cur();c.textContent=w[i]||"";if(i===0)c.classList.add("first");if(i===w.length&&document.activeElement===inp)c.classList.add("cur")}
+      row.appendChild(c)}g.insertBefore(row,inp)}
+  setTimeout(fit,0);
+  const st={};S.tries.forEach(t=>[...t.g].forEach((l,i)=>{st[l]=Math.max(st[l]??-1,t.c[i])}));
+  $("#mdKeys").innerHTML="AZERTYUIOPQSDFGHJKLMWXCVBN".split("").map(l=>'<span class="'+(l in st?"k"+st[l]:"")+'">'+l+"</span>").join("");
+  $("#mdBar").style.display=S.done?"none":"";inp.disabled=!!S.done;if(S.done){if(document.activeElement===inp)inp.blur();inp.hidden=true}
+  const e=$("#mdEnd");e.classList.toggle("on",!!S.done);
+  if(S.done){const n=S.tries.length,prog=S.mode==="prog",last=prog&&S.ok&&S.step>=PROG.length*3-1;
+    e.innerHTML='<h3>'+(S.ok?"Trouvé en "+n+" essai"+(n>1?"s":"")+" !":S.late?"Temps écoulé…":"Pas cette fois…")+'</h3><div class="w">'+esc(S.word||"")+'</div>'
+      +(S.ok&&ME&&!ME.guest?'<div class="gain">+'+(S.gained||0)+" au score Motipop"+(S.pts>S.gained&&S.gained===0&&ST.pts>=150?" · plafond du jour atteint":"")+"</div>":S.ok?'<div class="note">Crée ton pseudo pour que tes points comptent.</div>':"")
+      +(prog?(S.ok?(last?'<div class="note">🏆 Parcours complet : de 3 à 12 lettres sans faute !</div>':'<div class="note">'+((S.step%3===2)?"Palier "+S.len+" lettres validé ! Prochain : "+PROG[Math.floor(S.step/3)+1]+" lettres.":"Mot suivant : "+(S.step%3+2)+"/3 du palier.")+"</div>"):'<div class="note">Parcours arrêté au palier '+S.len+" lettres ("+S.step+" mot"+(S.step>1?"s":"")+" trouvé"+(S.step>1?"s":"")+").</div>"):"")
+      +'<button class="btn primary" id="mlNext" type="button">'+(prog?(S.ok&&!last?"Mot suivant →":"Nouveau parcours"):"Mot suivant →")+"</button>";
+    $("#mlNext").onclick=()=>{if(prog){if(S.ok&&!last)STEP=S.step+1;else STEP=0}newWord()}}
+  clock()}
+// chronomètre (2 à 5 minutes par mot) : à zéro, le mot est montré
+let lastSec=-1;function clock(){const c=$("#mlClock");if(!S||!S.chrono){c.hidden=true;return}c.hidden=false;const left=Math.max(0,S.t0+S.chrono*60e3-Date.now());const s=Math.ceil(left/1000);
+  c.textContent=Math.floor(s/60)+":"+String(s%60).padStart(2,"0");c.classList.toggle("low",s<=15&&!S.done);if(S.done)return;if(s<=10&&s!==lastSec&&s>0){lastSec=s;SFX.tick()}if(left<=0&&!busy)finish()}
+setInterval(()=>{if(S&&S.chrono&&!S.done)clock()},250);
+function say(t){$("#mdMsg").textContent=t||""}
+function shake(){const rows=$("#mdGrid").querySelectorAll(".mdrow"),r=rows[S.tries.length];if(r){r.classList.remove("shake");void r.offsetWidth;r.classList.add("shake")}}
+function after(r){const was=S;S=r;inp.value="";prevLen=0;draw();
+  const last=$("#mdGrid").querySelectorAll(".mdrow")[S.tries.length-1];if(last&&S.tries.length>(was.tries||[]).length)last.querySelectorAll(".mdc").forEach((c,i)=>{c.style.animationDelay=i*90+"ms";c.classList.add("mdflip")});
+  {const t=S.tries[S.tries.length-1];if(t&&S.tries.length>(was.tries||[]).length)t.c.forEach((c,i)=>SFX.tile(i,c));const end=S.len*.09+.25;if(S.done)(S.ok?SFX.win:SFX.lose)(end)}
+  if(S.done){ST.joues++;if(S.ok){ST.trouves++;ST.serie++;ST.best=Math.max(ST.best,ST.serie);ST.dist[Math.min(5,S.tries.length-1)]++;if(S.mode==="prog")ST.prog=Math.max(ST.prog,S.step+1)}else ST.serie=0;if(typeof S.today==="number")ST.pts=S.today;stSave();stats()}
+  else if(!PHONE())inp.focus()}
+function send(){if(!S||S.done||busy)return;const g=cur();if(g.length<S.len){say("Il manque des lettres : le mot en fait "+S.len+".");shake();SFX.oops();return}
+  busy=true;call({op:"essai",tok:S.tok,g}).then(r=>{busy=false;if(r.refus){say(r.refus);shake();SFX.oops();return}if(!r.tok){say(r.msg||"Essai impossible pour le moment.");return}say("");after(r)}).catch(()=>{busy=false;say("Pas de connexion : réessaie.")})}
+function finish(){if(!S||S.done||busy)return;busy=true;call({op:"fin",tok:S.tok}).then(r=>{busy=false;if(r.tok){if(S.chrono&&Date.now()>=S.t0+S.chrono*60e3)r.late=true;after(r)}}).catch(()=>{busy=false})}
+$("#mlGive").onclick=()=>finish();
+let prevLen=0;
+inp.addEventListener("input",()=>{if(!S)return;setTimeout(()=>{const n=cur().length;if(n>prevLen)SFX.key();else if(n<prevLen)SFX.del();prevLen=n},0);inp.value=inp.value.normalize("NFD").replace(/[̀-ͯ]/g,"").toUpperCase().replace(/[^A-Z]/g,"");inp.value=inp.value.slice(0,inp.value[0]===S.first?S.len:S.len-1);say("");draw()});
+inp.addEventListener("keydown",e=>{if(e.key==="Enter"){e.preventDefault();send()}});
+$("#mdOk").addEventListener("pointerdown",e=>{if(document.activeElement===inp)e.preventDefault()});$("#mdOk").onclick=()=>send();
+$("#mdGrid").addEventListener("click",()=>{if(S&&!S.done){inp.focus({preventScroll:true});draw()}});
+inp.addEventListener("focus",draw);inp.addEventListener("blur",()=>setTimeout(draw,50));
+// lettres de l'écran : toucher une lettre l'écrit
+(function(){const K=$("#mdKeys");const put=v=>{inp.value=v;inp.dispatchEvent(new Event("input"))};
+  K.addEventListener("pointerdown",e=>{if(e.target.closest("span"))e.preventDefault()});
+  K.addEventListener("click",e=>{const x=e.target.closest("span");if(!x||!S||S.done||busy)return;const l=x.textContent.trim();if(!inp.value&&l===S.first){put(l);return}if(cur().length>=S.len){say("Le mot fait "+S.len+" lettres : touche Valider.");return}put(cur()+l)});
+  $("#mdDel").addEventListener("pointerdown",e=>e.preventDefault());$("#mdDel").onclick=()=>{if(!S||S.done||busy)return;const c=cur();put(c.length>1?c.slice(0,-1):"")}})();
+paintCfg();stats();newWord();
+if(location.hostname==="localhost")window.__t=c=>eval(c);
+})();
+</script>
+<script>window.SK_HDR=1;</script><script src="/d/compte-9df4a4e0ff.js"></script><script src="/d/sk-c4e3f6ac86.js"></script>
+<script src="/d/icons-8d7b87098e.js" defer></script>
+</body></html>
