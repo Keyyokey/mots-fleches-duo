@@ -38,3 +38,24 @@ Garde-fous ajoutés :
 - Nouveau test `nouveau_visiteur_mobile.js` : téléphone neuf, navigateur Facebook, 8 pages d'arrivée ; consigne visible, rien qui déborde, tuiles-lettres qui écoutent le toucher, et parcours complet du Mot du jour. Il échoue bien sur l'ancien md.html. Il a trouvé 3 pages sans consigne, corrigées : Mots mêlés (« fais glisser ton doigt sur les lettres d'un mot »), Magnético (« Touche les N syllabes dans l'ordre »), Tourniquet (« Touche un rond pour lire sa définition, puis tape le mot »).
 - Magnético : les calculs (53cbda7) avaient été écrits dans public/mg.html ; reportés dans outils/magnetico/mg_engine.js et mg_style.css, page régénérée identique.
 - Consigne de l'audit de nuit mise à jour : suite complète AVANT et APRÈS, pas de commit si un test qui passait échoue, recherche de tous les appels avant de supprimer du code, vérification en ligne de l'accueil, de « Mes salons » et du Mot du jour après déploiement, revert immédiat si cassé.
+
+
+## 26/11/2026 — Mots fléchés
+
+Parcours : solo (ordinateur 1280 px et iPhone 390 px), à deux (un ordinateur + un téléphone, comptes de test), mot mystère, clavier du téléphone, zoom pendant la saisie, niveaux ; lecture complète du moteur de public/fl.html et des règles. Aucune erreur JavaScript, rien ne déborde à 390 px.
+
+Suite complète avant : 36 réussis, 0 en échec. Après : 37 réussis (dont le nouveau test), 0 en échec ; `node --check server.js` OK.
+À noter : un passage intermédiaire a vu magnetico.js échouer une fois (« solo : le bon mot ») sans aucun changement à Magnético, puis passer seul et dans la suite finale : test instable à regarder à l'audit des tests du 11/01.
+Le 1er essai de correction du zoom faisait échouer table_jeu_mobile.js (« la grille reste là où on l'a mise ») : la vue ne suit maintenant la case en cours que quand celle-ci change, une grille déplacée au doigt reste en place.
+
+### Bugs trouvés et corrigés (public/fl.html)
+1. **Mot mystère : +20 à chaque nouvelle proposition.** Une fois le mot trouvé, on pouvait rouvrir la fenêtre et le reproposer : +20 à chaque fois (jusqu'au plafond serveur de 800). À plusieurs c'était pire : le mot trouvé s'affiche dans les cases, le joueur suivant le recopiait et gagnait +20 lui aussi. Reproduire : grille facile n° 1 (`/fleches?go=solo&lvl=facile&n=1`), proposer REPONDRE trois fois → 60 points. Corrigé : la fenêtre ne s'ouvre plus et la proposition est refusée quand le mot mystère est déjà trouvé.
+2. **Téléphone, zoom : la fin d'un long mot s'écrivait hors de l'écran.** Le zoom centre la vue sur le mot ; un mot vertical de 8 cases ne tient pas en entier, et les dernières lettres se tapaient dans une case invisible. Reproduire : iPhone, grille normale n° 136, toucher la 1re case de « VILLE DU VIN » et taper 8 lettres. Corrigé : la vue zoomée suit la case en cours quand elle sort de l'écran (le déplacement d'un doigt et la loupe marchent comme avant).
+3. **Textes.** En solo, la fenêtre du mot mystère disait « Faux : tu passes ton tour » (il n'y a pas de tours en solo) : phrase masquée en solo. Le message de l'aide 💡 disait « réservée au niveau Facile en duo » alors que le jeu va jusqu'à 4 : « à plusieurs ».
+
+Test ajouté : outils/tests/fleches_mystere_zoom.js (échoue sur l'ancienne page, passe après).
+
+### Questions pour Juvenal (rien changé)
+- **Coupure de connexion à deux** : à 3 ou 4 joueurs, un joueur absent plus d'1 minute sort avec 0 point. À deux (d'après le code, lostCheck ne s'applique qu'à partir de 3), rien ne se passe : son tour s'écoule à chaque fois (45 à 90 s d'attente pour l'autre) et il garde ses points. Faut-il appliquer la même règle (0 point, l'autre gagne) ?
+- **Règles écrites des mots fléchés** (regles.html) : il manque le bonus +20 quand on termine la grille, la pénalité −2 par lettre fausse en Difficile, et le fait qu'en Normal/Difficile une seule lettre fausse annule tout l'essai (en Facile les bonnes lettres sont gardées). Les ajouter (texte un peu plus long) ?
+- Commentaire périmé dans fl.html sur le « format téléphone 8 × 8 » (fin du choix 8×8 depuis c992228) : sans effet, laissé tel quel.
