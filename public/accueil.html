@@ -581,6 +581,14 @@ svg.chart{width:100%;height:118px;color:var(--ink);overflow:visible}
 .mlv{display:flex;gap:4px}.mlv span{width:26px;height:30px;border-radius:7px;display:grid;place-items:center;font:900 .95rem Nunito,sans-serif;color:#fff;background:rgba(255,255,255,.14);border:1px solid rgba(255,255,255,.25)}.mlv .g{background:#14b8a6;border-color:transparent}.mlv .y{border:2px solid #ffc857}
 html.cb .mlv .g{background:#ff8a3d}html.cb .mlv .y{border-color:#2b7fff;border-style:dashed}
 .tile .modes a.abtn{text-decoration:none;color:inherit}
+.tile.mlt .mlv span{color:transparent;background:rgba(255,255,255,.14);animation:mltype 6s infinite;animation-delay:calc(var(--k)*.18s)}
+@keyframes mltype{0%,8%{color:transparent;background:rgba(255,255,255,.14);transform:none}14%,30%{color:#fff;background:rgba(255,255,255,.22);transform:none}38%{transform:rotateX(90deg)}46%,88%{color:#fff;background:var(--c);transform:none;border-color:transparent}100%{color:transparent;background:rgba(255,255,255,.14)}}
+.tile.sdt .sdv span[data-d]::after{content:attr(data-d);opacity:0;animation:sdfill 6s infinite;animation-delay:calc(var(--k)*.7s);color:#ffd27a}
+.tile.sdt .sdv span[data-d]{animation:sdcell 6s infinite;animation-delay:calc(var(--k)*.7s)}
+@keyframes sdfill{0%,12%{opacity:0;transform:scale(.4)}20%{opacity:1;transform:scale(1.25)}28%,80%{opacity:1;transform:none}92%,100%{opacity:0}}
+@keyframes sdcell{0%,8%{box-shadow:none}12%,24%{box-shadow:inset 0 0 0 2px #ffd27a;background:rgba(255,210,122,.25)}34%,100%{box-shadow:none}}
+@media (prefers-reduced-motion:reduce){.tile.mlt .mlv span,.tile.sdt .sdv span,.tile.sdt .sdv span::after{animation:none!important;opacity:1!important;color:#fff!important}}
+
 
 .tile{--ls:30px;--gap:6px;position:relative;display:flex;align-items:center;gap:14px;min-height:172px;padding:21px;border-radius:24px;overflow:hidden;cursor:pointer;
   background:var(--tg);border:1px solid rgba(255,255,255,.25);box-shadow:0 25px 50px rgba(0,0,0,.2),inset 0 1px 0 rgba(255,255,255,.4);color:#fff;
@@ -1103,14 +1111,44 @@ html.cb .mdv .v2{background:linear-gradient(135deg,#f07a2c,#d9601a)!important}ht
 
   <div class="games">
     <div class="g-bot g-row1">
+      <div class="tile mlt" style="--tg:linear-gradient(135deg,#3a1030 0%,#8c2a5c 50%,#ff7aa8 100%);--ga:#ffd1e1" data-game="Mot libre" data-key="motlibre">
+        <div class="vis"><div class="mlv" aria-hidden="true"><span style="--k:0;--c:#14b8a6">L</span><span style="--k:1;--c:#e0a422">I</span><span style="--k:2;--c:#4b4f6b">B</span><span style="--k:3;--c:#14b8a6">R</span><span style="--k:4;--c:#14b8a6">E</span></div></div>
+        <div class="txt"><span class="tag">Entraînement</span><h2>Mot<br>libre</h2><p class="sp">Le Mot du jour à volonté</p><p>De 3 à 12 lettres, chrono au choix, mode Progressif.</p></div>
+        <div class="modes acts"><a class="abtn" href="/motlibre?mode=libre"><span>🔤</span> Libre</a><a class="abtn" href="/motlibre?mode=prog"><span>📈</span> Progressif</a></div>
+      </div>
       <div class="tile mgt" style="--tg:linear-gradient(135deg,#1b1440 0%,#3b2a8c 48%,#00ADB5 100%);--ga:#7cf3ff" data-game="Magnético" data-key="magnetico" data-multi="1">
         <div class="txt"><span class="tag">Réflexe</span><h2>Magnético</h2><p class="sp">Attrape les syllabes</p><p>Les syllabes s'entrechoquent : touche-les dans le bon ordre pour reformer le mot. Seul ou jusqu'à 4.</p></div>
         <div class="vis"><div class="mgv" aria-hidden="true"><i class="bb mb1">MA</i><i class="bb mb2">GNÉ</i><i class="bb mb3">TI</i><i class="bb mb4">CO</i></div></div>
         <div class="modes acts"><button class="abtn" data-mode="solo"><span>👤</span> Solo</button><button class="abtn" data-mode="multi"><span>👥</span> Multijoueurs</button><button class="abtn abtn-s" data-cfg="1" aria-label="Réglages de la partie"><span>⚙️</span> Réglages</button></div>
       </div>
+      <div class="tile" style="--tg:linear-gradient(135deg,#0c2a33 0%,#16707d 50%,#2fb3b8 100%);--ga:#5eead4" data-game="Mots fléchés" data-key="fleches" data-multi="1">
+        <div class="vis"><div class="fg"><span class="q">▸</span><span class="l">M</span><span class="l">O</span><span class="l">T</span><span class="l">S</span><span class="q">▾</span><span class="l">A</span><span></span><span class="q">▸</span><span></span><span></span><span class="l">I</span><span></span><span></span><span></span><span></span><span class="l">R</span><span></span><span></span><span></span></div></div>
+        <div class="txt"><span class="tag">Duo</span><h2>Mots<br>Fléchés</h2><p class="sp">Seul ou à deux</p><p>Remplis la grille à deux ou en solo.</p></div>
+        <div class="modes acts"><button class="abtn" data-mode="solo"><span>👤</span> Solo</button><button class="abtn" data-mode="multi"><span>👥</span> Multijoueurs</button><button class="abtn abtn-s" data-cfg="1" aria-label="Réglages de la partie"><span>⚙️</span> Réglages</button></div>
+      </div>
+    </div>
+    <div class="g-bot">
+      <div class="tile" style="--tg:linear-gradient(135deg,#1a2e05 0%,#3f7a12 48%,#9bd534 100%);--ga:#d9f99d" data-game="Mots mêlés" data-key="meles" data-multi="1">
+        <div class="vis"><div class="hl" style="--row:2"></div><div class="wg"><span>C</span><span>H</span><span>I</span><span>E</span><span>N</span><span>A</span><span>O</span><span>U</span><span>R</span><span>S</span><span>T</span><span>E</span><span>M</span><span>P</span><span>S</span><span>V</span><span>B</span><span>L</span><span>A</span><span>N</span><span>O</span><span>C</span><span>E</span><span>A</span><span>N</span></div></div>
+        <div class="txt"><span class="tag">Observation</span><h2>Mots<br>Mêlés</h2><p class="sp">Les mots cachés</p><p>Trouve tous les mots cachés avant la fin du chrono.</p></div>
+        <div class="modes acts"><button class="abtn" data-mode="solo"><span>👤</span> Solo</button><button class="abtn" data-mode="multi"><span>👥</span> Multijoueurs</button><button class="abtn abtn-s" data-cfg="1" aria-label="Réglages de la partie"><span>⚙️</span> Réglages</button></div>
+      </div>
+      <div class="tile sdt" style="--tg:linear-gradient(135deg,#2a1404 0%,#8a4a07 50%,#f0a020 100%);--ga:#ffd27a" data-game="Sudoku" data-key="sudoku" data-multi="1">
+        <div class="vis"><div class="sdv" aria-hidden="true"><span>5</span><span data-d="2" style="--k:0"></span><span>3</span><span data-d="8" style="--k:2"></span><span class="m">7</span><span data-d="4" style="--k:1"></span><span>9</span><span>1</span><span data-d="6" style="--k:3"></span></div></div>
+        <div class="txt"><span class="tag">Logique</span><h2>Sudoku</h2><p class="sp">Seul ou jusqu'à 4</p><p>200 grilles en 3 niveaux. À plusieurs : une case chacun son tour.</p></div>
+        <div class="modes acts"><button class="abtn" data-mode="solo"><span>👤</span> Solo</button><button class="abtn" data-mode="multi"><span>👥</span> Multijoueurs</button><button class="abtn abtn-s" data-cfg="1" aria-label="Réglages de la partie"><span>⚙</span> Réglages</button></div>
+      </div>
       <div class="tile" style="--tg:linear-gradient(135deg,#0b3d2e 0%,#0f7a4f 50%,#1fae6e 100%);--ga:#f4be4d" data-game="Wordflush" data-key="poker" data-multi="1">
         <div class="txt"><span class="tag">Stratégie</span><h2>Wordflush</h2><p class="sp">Mise sur ton mot</p><p>Forme le meilleur mot avec ta main, mise et bluffe pour remporter le pot.</p></div>
         <div class="vis"><div class="fan"><div class="cd">M<small>2</small></div><div class="cd">O<small>1</small></div><div class="cd">X<small>10</small></div><div class="chip" style="left:8px"></div><div class="chip" style="left:30px;bottom:6px"></div></div></div>
+        <div class="modes acts"><button class="abtn" data-mode="solo"><span>👤</span> Solo</button><button class="abtn" data-mode="multi"><span>👥</span> Multijoueurs</button><button class="abtn abtn-s" data-cfg="1" aria-label="Réglages de la partie"><span>⚙️</span> Réglages</button></div>
+      </div>
+    </div>
+    <div class="g-bot g-row3">
+      <div class="tile" style="--tg:linear-gradient(135deg,#0f172a 0%,#1e3a5f 50%,#3b6e9e 100%);--ga:#93c5fd" data-game="Le Tourniquet" data-key="rond" data-multi="1">
+        <div class="vis"><div class="ring"><div class="ctr">MOT EN<br>ROND</div><div class="orb">
+          <span class="b" style="left:50%;top:6%">S</span><span class="b" style="left:88%;top:28%">T</span><span class="b" style="left:88%;top:72%">O</span><span class="b" style="left:50%;top:94%">R</span><span class="b" style="left:12%;top:72%">E</span><span class="b" style="left:12%;top:28%">U</span></div></div></div>
+        <div class="txt"><span class="tag">Mots en rond</span><h2>Le<br>Tourniquet</h2><p class="sp">Des mots en cercle</p><p>Six lettres autour de chaque définition.</p></div>
         <div class="modes acts"><button class="abtn" data-mode="solo"><span>👤</span> Solo</button><button class="abtn" data-mode="multi"><span>👥</span> Multijoueurs</button><button class="abtn abtn-s" data-cfg="1" aria-label="Réglages de la partie"><span>⚙️</span> Réglages</button></div>
       </div>
       <div class="tile cg" style="--tg:linear-gradient(135deg,#3a1607 0%,#a8461a 52%,#f2a93b 100%);--ga:#ffd27a" data-game="Jeu du mois · culture générale" data-key="culture" data-multi="1">
@@ -1118,36 +1156,6 @@ html.cb .mdv .v2{background:linear-gradient(135deg,#f07a2c,#d9601a)!important}ht
         <div class="illu"><div class="ring2"></div><i class="pt p1"></i><i class="pt p2"></i><i class="pt p3"></i><i class="pt p4"></i>
           <div class="scene"><div class="qobj"><div class="face front">?</div><div class="face back"><svg viewBox="0 0 24 24"><path d="M12 2C7.589 2 4 5.589 4 9.995 3.971 16.44 11.696 21.784 11 22h2c-.696-.216 7.029-5.56 7-12.005C20 5.589 16.411 2 12 2zm0 18c-3.155-2.738-6-6.61-6-10.005C6 6.691 8.691 4 12 4s6 2.691 6 5.995C18 13.39 15.155 17.262 12 20z"/><path d="M11 14h2v2h-2zM11 6h2v6h-2z"/></svg></div></div></div></div>
         <div class="modes acts"><button class="abtn" data-mode="solo"><span>👤</span> Solo</button><button class="abtn" data-mode="multi"><span>👥</span> Multijoueurs</button><button class="abtn abtn-s" data-cfg="1" aria-label="Réglages de la partie"><span>⚙️</span> Réglages</button></div>
-      </div>
-    </div>
-    <div class="g-bot">
-      <div class="tile" style="--tg:linear-gradient(135deg,#0c2a33 0%,#16707d 50%,#2fb3b8 100%);--ga:#5eead4" data-game="Mots fléchés" data-key="fleches" data-multi="1">
-        <div class="vis"><div class="fg"><span class="q">▸</span><span class="l">M</span><span class="l">O</span><span class="l">T</span><span class="l">S</span><span class="q">▾</span><span class="l">A</span><span></span><span class="q">▸</span><span></span><span></span><span class="l">I</span><span></span><span></span><span></span><span></span><span class="l">R</span><span></span><span></span><span></span></div></div>
-        <div class="txt"><span class="tag">Duo</span><h2>Mots<br>Fléchés</h2><p class="sp">Seul ou à deux</p><p>Remplis la grille à deux ou en solo.</p></div>
-        <div class="modes acts"><button class="abtn" data-mode="solo"><span>👤</span> Solo</button><button class="abtn" data-mode="multi"><span>👥</span> Multijoueurs</button><button class="abtn abtn-s" data-cfg="1" aria-label="Réglages de la partie"><span>⚙️</span> Réglages</button></div>
-      </div>
-      <div class="tile" style="--tg:linear-gradient(135deg,#0f172a 0%,#1e3a5f 50%,#3b6e9e 100%);--ga:#93c5fd" data-game="Le Tourniquet" data-key="rond" data-multi="1">
-        <div class="vis"><div class="ring"><div class="ctr">MOT EN<br>ROND</div><div class="orb">
-          <span class="b" style="left:50%;top:6%">S</span><span class="b" style="left:88%;top:28%">T</span><span class="b" style="left:88%;top:72%">O</span><span class="b" style="left:50%;top:94%">R</span><span class="b" style="left:12%;top:72%">E</span><span class="b" style="left:12%;top:28%">U</span></div></div></div>
-        <div class="txt"><span class="tag">Mots en rond</span><h2>Le<br>Tourniquet</h2><p class="sp">Des mots en cercle</p><p>Six lettres autour de chaque définition.</p></div>
-        <div class="modes acts"><button class="abtn" data-mode="solo"><span>👤</span> Solo</button><button class="abtn" data-mode="multi"><span>👥</span> Multijoueurs</button><button class="abtn abtn-s" data-cfg="1" aria-label="Réglages de la partie"><span>⚙️</span> Réglages</button></div>
-      </div>
-      <div class="tile" style="--tg:linear-gradient(135deg,#1a2e05 0%,#3f7a12 48%,#9bd534 100%);--ga:#d9f99d" data-game="Mots mêlés" data-key="meles" data-multi="1">
-        <div class="vis"><div class="hl" style="--row:2"></div><div class="wg"><span>C</span><span>H</span><span>I</span><span>E</span><span>N</span><span>A</span><span>O</span><span>U</span><span>R</span><span>S</span><span>T</span><span>E</span><span>M</span><span>P</span><span>S</span><span>V</span><span>B</span><span>L</span><span>A</span><span>N</span><span>O</span><span>C</span><span>E</span><span>A</span><span>N</span></div></div>
-        <div class="txt"><span class="tag">Observation</span><h2>Mots<br>Mêlés</h2><p class="sp">Les mots cachés</p><p>Trouve tous les mots cachés avant la fin du chrono.</p></div>
-        <div class="modes acts"><button class="abtn" data-mode="solo"><span>👤</span> Solo</button><button class="abtn" data-mode="multi"><span>👥</span> Multijoueurs</button><button class="abtn abtn-s" data-cfg="1" aria-label="Réglages de la partie"><span>⚙️</span> Réglages</button></div>
-      </div>
-    </div>
-    <div class="g-bot g-row3">
-      <div class="tile sdt" style="--tg:linear-gradient(135deg,#2a1404 0%,#8a4a07 50%,#f0a020 100%);--ga:#ffd27a" data-game="Sudoku" data-key="sudoku" data-multi="1">
-        <div class="vis"><div class="sdv" aria-hidden="true"><span>5</span><span></span><span>3</span><span></span><span class="m">7</span><span></span><span>9</span><span>1</span><span></span></div></div>
-        <div class="txt"><span class="tag">Logique</span><h2>Sudoku</h2><p class="sp">Seul ou jusqu'à 4</p><p>200 grilles en 3 niveaux. À plusieurs : une case chacun son tour.</p></div>
-        <div class="modes acts"><button class="abtn" data-mode="solo"><span>👤</span> Solo</button><button class="abtn" data-mode="multi"><span>👥</span> Multijoueurs</button><button class="abtn abtn-s" data-cfg="1" aria-label="Réglages de la partie"><span>⚙</span> Réglages</button></div>
-      </div>
-      <div class="tile mlt" style="--tg:linear-gradient(135deg,#141a44 0%,#2c3fa0 50%,#7c9bff 100%);--ga:#c7d2ff" data-game="Mot libre" data-key="motlibre">
-        <div class="vis"><div class="mlv" aria-hidden="true"><span class="g">L</span><span class="y">I</span><span>B</span><span class="g">R</span><span class="g">E</span></div></div>
-        <div class="txt"><span class="tag">Entraînement</span><h2>Mot<br>libre</h2><p class="sp">Le Mot du jour à volonté</p><p>De 3 à 12 lettres, chrono au choix, mode Progressif.</p></div>
-        <div class="modes acts"><a class="abtn" href="/motlibre?mode=libre"><span>🔤</span> Libre</a><a class="abtn" href="/motlibre?mode=prog"><span>📈</span> Progressif</a></div>
       </div>
     </div>
   </div>
