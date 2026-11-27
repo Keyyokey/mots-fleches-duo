@@ -87,6 +87,8 @@ body.tj .mdmsg{min-height:0}body.tj .mdmsg:empty{display:none}
 body.tj .mdkeys{gap:5px}body.tj .mdkeys span{flex:0 0 calc((100% - 60px) / 13);min-width:0;padding:5px 0;font-size:1rem;border-radius:8px}
 body.tj .mdrow{gap:6px}
 }
+.mdmine summary{cursor:pointer;list-style:none;display:flex;align-items:center;gap:6px}.mdmine summary::-webkit-details-marker{display:none}.mdmine summary::after{content:"▸";font-size:.8rem;opacity:.7}.mdmine[open] summary::after{content:"▾"}.mdmine summary h4{margin:0}
+.mdlist b.gst{font-weight:700;opacity:.75}
 .mdprize{display:flex;align-items:center;gap:10px;margin:0 0 10px;padding:8px 12px;border-radius:14px;background:linear-gradient(135deg,rgba(255,200,87,.16),rgba(255,122,168,.1));border:1px solid rgba(255,200,87,.4)}
 .mdprize .coin{font-size:1.4rem}.mdprize b{display:block;font:800 .88rem Nunito,Inter,sans-serif}.mdprize small{display:block;color:var(--muted);font-size:.8rem}
 .mdlist li{gap:8px}.mdlist .row2 .det{flex-direction:row;flex-wrap:wrap;align-items:center;justify-content:flex-start;gap:2px 6px;text-align:left}.mdlist .row2 .det small{line-height:1.25}
@@ -162,7 +164,7 @@ body.mdpc #seoTxt{display:none}
   <aside class="mdside" aria-label="Classement du mot du jour">
     <div class="glass card">
       <h3>🏆 Classement <span class="mdtip" id="mdHow"><button type="button" aria-label="Comment on gagne des points" aria-expanded="false">i</button><span class="tipb" role="tooltip"><b>Points :</b> lettre bien placée +2 · mal placée +1 · mot trouvé +12. Ils comptent aussi au classement général.</span></span> <small id="mdLive"></small><button class="mdrkx" id="mdRkX" type="button" aria-label="Fermer">✕</button></h3>
-      <div class="mdtabs" role="tablist"><button class="on" data-t="today" role="tab">Aujourd'hui</button><button data-t="total" role="tab">Depuis le début</button></div>
+      <div class="mdtabs" role="tablist"><button class="on" data-t="total" role="tab">Général</button><button data-t="today" role="tab">Aujourd'hui</button></div>
       <div class="mdprize" id="mdPrize"><span class="coin">🪙</span><div><b>1er à minuit = 5 jetons</b><small id="mdPrizeY"></small></div></div>
       <ul class="mdlist" id="mdList"></ul>
       <div class="mdme" id="mdMe" hidden></div>
@@ -177,7 +179,7 @@ const $=s=>document.querySelector(s),LS={get:k=>{try{return localStorage.getItem
 const esc=s=>String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 let ME=null;try{ME=JSON.parse(LS.get("fl-me")||"null")}catch(e){}if(ME&&!/^(?:[A-Z0-9@#_]{2,7}|INVITE\d{4,5})$/.test(ME.name||""))ME=null;
 let GUEST=LS.get("fl-mj-guest");if(!GUEST||!/^[a-z0-9]{12,24}$/.test(GUEST)){GUEST=(Math.random().toString(36).slice(2)+Math.random().toString(36).slice(2)).replace(/[^a-z0-9]/g,"").slice(0,16);LS.set("fl-mj-guest",GUEST)}
-let S=null,TAB="today",busy=false;
+let S=null,TAB="total",busy=false;   // 27/11 (Juvenal) : le classement général s'ouvre en premier
 const call=b=>fetch("/api/p/mj",{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify(Object.assign({guest:GUEST},ME&&ME.token?{name:ME.name,token:ME.token}:{},b))}).then(r=>r.json());
 const inp=$("#mdIn");
 function dayTxt(d){const m=["janv.","févr.","mars","avr.","mai","juin","juil.","août","sept.","oct.","nov.","déc."];return Number(d.slice(6,8))+" "+m[Number(d.slice(4,6))-1]}
@@ -262,6 +264,7 @@ function serie(){let z={last:"",n:0};try{z=JSON.parse(localStorage.getItem("fl-m
 // durée courte pour le classement : 32 s · 12 min · 1 h 08
 function fmtC(ms){const s=Math.round(ms/1000);if(s<60)return s+" s";const m=Math.round(s/60);return m<60?m+" min":Math.floor(m/60)+" h "+String(m%60).padStart(2,"0")}
 function fmt(ms){const s=Math.round(ms/1000);return s<60?s+" s":Math.floor(s/60)+" min "+String(s%60).padStart(2,"0")}
+const LS_MINE=()=>{try{return localStorage.getItem("fl-mj-mine")==="1"}catch(e){return false}};   // « Mes stats » replié par défaut : le classement passe devant
 function list(){const b=S&&S.board;const L=$("#mdList");if(!b){L.innerHTML="";return}
   const me=ME&&ME.name,len=b.len||S.len,sq=(g,y)=>'<span class="mdsq">'+Array.from({length:len-1},(_,i)=>'<i class="'+(i<g?"on":i<g+y?"half":"")+'"></i>').join("")+"</span>";
   const medal=i=>i===0?"🥇":i===1?"🥈":i===2?"🥉":String(i+1);
@@ -270,15 +273,15 @@ function list(){const b=S&&S.board;const L=$("#mdList");if(!b){L.innerHTML="";re
   const g1=b.today.findIndex(x=>!x.guest);
   if(TAB==="today")rows=b.today.map((x,i)=>({name:x.name,guest:!!x.guest,top:i<3,rk:medal(i),gift:i===g1&&x.pts>0,pts:x.pts,
     det:x.ok?"<small>✓ "+x.n+" ess."+(x.ms?" · "+fmtC(x.ms):"")+"</small>":sq(x.g,x.y)+"<small>"+(x.done?"raté":"en cours")+"</small>"}));
-  else rows=b.total.map((x,i)=>({name:x.name,top:i<3,rk:medal(i),pts:x.pts,det:"<small title=\"mots trouvés / jours joués · essais moyens · temps moyen\">✓ "+x.found+"/"+(x.days||0)+(x.avgN?" · "+String(x.avgN).replace(".",",")+" ess.":"")+(x.avgMs?" · "+fmtC(x.avgMs):"")+"</small>"}));
+  else rows=b.total.concat(b.meTotal?[b.meTotal]:[]).map((x,i)=>({name:x.name,guest:!!x.guest,top:x.rank?x.rank<=3:i<3,rk:medal((x.rank||i+1)-1),pts:x.pts,det:"<small title=\"mots trouvés / jours joués · essais moyens · temps moyen\">✓ "+x.found+"/"+(x.days||0)+(x.avgN?" · "+String(x.avgN).replace(".",",")+" ess.":"")+(x.avgMs?" · "+fmtC(x.avgMs):"")+"</small>"}));
   L.innerHTML=rows.length?rows.map(r=>'<li class="'+(r.name===me?"me ":"")+(r.top?"top":"")+'"><span class="rk">'+r.rk+'</span><div class="row2"><span class="nm"><b'+(r.guest?' class="gst"':'')+'>'+esc(r.name)+"</b>"+(r.gift?'<span class="gift" title="1er à minuit : +5 jetons">🪙</span>':"")+'</span><span class="det">'+r.det+'</span></div><span class="pts">'+r.pts+"<small>pts</small></span></li>").join(""):'<li class="mdempty">'+(TAB==="today"?(b.played?"Aucun joueur avec pseudo n'a encore joué aujourd'hui : les invités ne sont pas classés.":"Personne n'a encore joué aujourd'hui. Sois le premier !"):"Le classement se remplit avec les points des joueurs avec pseudo.")+"</li>";
-  $("#mdHow").hidden=TAB!=="today";$("#mdLive").textContent=b.played?b.played+" joueur"+(b.played>1?"s":"")+" aujourd'hui":"";
+  $("#mdHow").hidden=TAB!=="today";$("#mdLive").textContent=TAB==="total"?(b.players?b.players+" joueur"+(b.players>1?"s":"")+" au total":""):b.played?b.played+" joueur"+(b.played>1?"s":"")+" aujourd'hui":"";$("#mdPrize").style.display=TAB==="today"?"":"none";
   $("#mdPrizeY").textContent=b.prize?"Hier : "+b.prize.name+" · "+b.prize.pts+" pts":"Fais le plus de points !";
   const M=S.mine,E=$("#mdMe");E.hidden=!M;
   // tableau simple à lire (Juvenal, 25/11) : une ligne par chiffre
   if(M&&ME&&ME.guest){E.innerHTML='<h4>Mes stats</h4><div class="note">Crée ton compte pour voir tes stats (tes parties d\'invité y seront gardées).</div><a class="btn primary" href="/?moncompte=1" style="text-decoration:none;display:inline-flex">Créer mon compte</a>'}
   else if(M){const tr=(l,v)=>"<tr><th scope=\"row\">"+l+"</th><td>"+v+"</td></tr>";
-    E.innerHTML="<h4>Mes stats</h4><table class=\"mdtab\"><tbody>"+tr("Points",M.pts)+tr("Mots trouvés",M.found+" sur "+M.days+" jour"+(M.days>1?"s":""))+tr("Temps moyen pour trouver",M.avgMs!=null?fmtC(M.avgMs):"—")+tr("1re lettre verte en",M.avgG!=null?fmtC(M.avgG):"—")+tr("Essais en moyenne",M.avgN!=null?String(M.avgN).replace(".",","):"—")+tr("Fois 1er du jour",M.wins||0)+"</tbody></table>"}
+    E.innerHTML="<details class=\"mdmine\"><summary><h4>Mes stats</h4></summary><table class=\"mdtab\"><tbody>"+tr("Points",M.pts)+tr("Mots trouvés",M.found+" sur "+M.days+" jour"+(M.days>1?"s":""))+tr("Temps moyen pour trouver",M.avgMs!=null?fmtC(M.avgMs):"—")+tr("1re lettre verte en",M.avgG!=null?fmtC(M.avgG):"—")+tr("Essais en moyenne",M.avgN!=null?String(M.avgN).replace(".",","):"—")+tr("Fois 1er du jour",M.wins||0)+"</tbody></table></details>";const dt=E.querySelector("details");if(dt){dt.open=LS_MINE();dt.ontoggle=()=>{try{localStorage.setItem("fl-mj-mine",dt.open?"1":"0")}catch(e){}}}}
   $("#mdGuest").hidden=!!(S.ranked)}
 document.querySelectorAll(".mdtabs button").forEach(x=>x.onclick=()=>{TAB=x.dataset.t;document.querySelectorAll(".mdtabs button").forEach(y=>y.classList.toggle("on",y===x));list()});
 {const tp=$("#mdHow");if(tp){const bt=tp.querySelector("button");bt.onclick=e=>{e.stopPropagation();const on=tp.classList.toggle("on");bt.setAttribute("aria-expanded",on)};document.addEventListener("click",()=>{tp.classList.remove("on");bt.setAttribute("aria-expanded","false")})}}

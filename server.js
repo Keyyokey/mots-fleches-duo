@@ -817,7 +817,7 @@ const MJ = (() => {
     if (!mem.has(day)) { const m = new Map(); mem.set(day, m); if (REDIS) { try { const a = await redis(["HGETALL", "mj:" + day]); if (Array.isArray(a)) for (let i = 0; i < a.length; i += 2) { try { m.set(a[i], JSON.parse(a[i + 1])); } catch {} } } catch (e) { console.error("Mot du jour (lecture) :", e.message); } } for (const k of mem.keys()) if (k < parisDay(new Date(Date.now() - 3 * 864e5))) mem.delete(k); }
     return mem.get(day);
   }
-  function persist(day, id, st) { if (REDIS) redis(["HSET", "mj:" + day, id, JSON.stringify(st)]).then(() => redis(["EXPIRE", "mj:" + day, String(40 * 86400)])).catch(e => console.error("Mot du jour (écriture) :", e.message)); }
+  function persist(day, id, st) { totCache = null; if (REDIS) redis(["HSET", "mj:" + day, id, JSON.stringify(st)]).then(() => redis(["EXPIRE", "mj:" + day, String(40 * 86400)])).catch(e => console.error("Mot du jour (écriture) :", e.message)); }
   function view(day, st, w) {
     const v = { day, len: w.length, first: w[0], tries: (st && st.t || []).map(g => ({ g, c: colors(g, w) })), done: !!(st && (st.ok || (st.t || []).length >= 6)), ok: !!(st && st.ok) };
     if (v.done) { v.word = w; v.def = defOf(w); if (st.ok) v.ms = st.ms; }
@@ -846,20 +846,43 @@ const MJ = (() => {
     list.sort(sortDay); list.forEach(x => { if (x.guest) x.name = "Invité " + (++nG); });   // numérotés dans l'ordre du classement, sans rien révéler de l'invité
     return { found, played, list, w };
   }
-  let totCache = null;
-  async function totalList() {
-    if (totCache && Date.now() - totCache.at < 20e3) return totCache.v;
-    let top = [];
-    if (REDIS) { try { const r = await redis(["ZREVRANGE", "mj:pts", "0", "14", "WITHSCORES"]); for (let i = 0; i < (r || []).length; i += 2) top.push({ name: r[i], pts: Number(r[i + 1]) }); } catch {} }
-    else top = [...MJ_TOTAL.entries()].sort((a, b) => b[1] - a[1]).slice(0, 15).map(([name, pts]) => ({ name, pts }));
-    const v = await Promise.all(top.map(async x => { let q = null; try { q = await getPlayer(x.name); } catch {} const a = (q && q.mj) || {}; return { name: x.name, pts: x.pts, found: a.found || 0, days: a.days || 0, avgN: a.found ? +(a.nF / a.found).toFixed(1) : null, avgMs: a.found ? Math.round(a.msF / a.found) : null }; }));
-    totCache = { at: Date.now(), v }; return v;
+  // 27/11 (Juvenal) : classement général = TOUS ceux qui ont joué au moins une fois, recalculé depuis les parties de chaque jour
+  // (mj:AAAAMMJJ, gardées 40 jours ; le site a ouvert le 20/11). Comptes : par pseudo (un invité INVITE#### fusionné compte pour son
+  // compte) ; joueurs sans compte : « Invité » + code court stable de l'appareil.
+  // jours passés (plus modifiés) : lus une fois dans Redis et gardés pour le classement général
+  const past = new Map();
+  async function loadPast(day) {
+    if (past.has(day)) return past.get(day);
+    const m = new Map();
+    if (REDIS) { try { const a = await redis(["HGETALL", "mj:" + day]); if (Array.isArray(a)) for (let i = 0; i < a.length; i += 2) { try { m.set(a[i], JSON.parse(a[i + 1])); } catch {} } } catch (e) { return m; } }
+    past.set(day, m); return m;
   }
-  async function board(day) {
-    const d = await dayList(day); const total = await totalList();
+  let totCache = null;
+  const gTag = id => "Invité " + crypto.createHash("sha1").update(id).digest("hex").slice(0, 3).toUpperCase();
+  async function totalList() {
+    if (totCache && Date.now() - totCache.at < 30e3) return totCache.v;
+    const agg = new Map(), today = parisDay(), alias = new Map();
+    for (let t = Date.UTC(2026, 10, 20); ; t += 864e5) {
+      const day = new Date(t).toISOString().slice(0, 10).replace(/-/g, ""); if (day > today) break;
+      const m = day >= parisDay(new Date(Date.now() - 2 * 864e5)) ? await load(day) : await loadPast(day), w = wordOf(day);
+      for (const [id, st] of (m || new Map())) {
+        const tr = st.t || []; if (!tr.length) continue;
+        let key = id, guest = id.startsWith("g:");
+        if (!guest && /^INVITE\d+$/.test(id)) { if (!alias.has(id)) { let q = null; try { q = await getPlayer(id); } catch {} alias.set(id, q && q.merged ? q.merged : id); } key = alias.get(id); }
+        const sc = score(st, w); let a = agg.get(key);
+        if (!a) agg.set(key, a = { name: guest ? gTag(id) : key, guest: guest ? 1 : undefined, pts: 0, days: 0, found: 0, nF: 0, msF: 0, last: day });
+        a.pts += sc.pts; a.days++; if (st.ok) { a.found++; a.nF += tr.length; a.msF += st.ms || 0; } if (day > a.last) a.last = day;
+      }
+    }
+    const all = [...agg.values()].sort((x, y) => y.pts - x.pts || y.found - x.found || (x.found ? x.nF / x.found : 9) - (y.found ? y.nF / y.found : 9))
+      .map((a, i) => ({ rank: i + 1, name: a.name, guest: a.guest, pts: a.pts, found: a.found, days: a.days, avgN: a.found ? +(a.nF / a.found).toFixed(1) : null, avgMs: a.found ? Math.round(a.msF / a.found) : null }));
+    totCache = { at: Date.now(), v: all }; return all;
+  }
+  async function board(day, me) {
+    const d = await dayList(day); const all = await totalList(); const total = all.slice(0, 50); const mn = me && me.startsWith("g:") ? gTag(me) : me, mine = mn ? all.find(x => x.name === mn) : null;
     let prize = null; const yd = parisDay(new Date(Date.now() - 864e5));
     try { const r = REDIS ? await redis(["GET", "mj:prize:" + yd]) : MJ_PRIZE.get(yd); if (r) prize = Object.assign({ day: yd }, typeof r === "string" ? JSON.parse(r) : r); } catch {}
-    return { found: d.found, played: d.played, len: d.w.length, max: MAXPTS(d.w), today: d.list.slice(0, 15), total, prize };
+    return { found: d.found, played: d.played, len: d.w.length, max: MAXPTS(d.w), today: d.list.slice(0, 15), total, players: all.length, meTotal: mine && mine.rank > 50 ? mine : undefined, prize };
   }
   // 26/11 : série du direct (Twitch) : 10 mots par jour, pris HORS de la liste des mots du jour (le direct ne dévoile jamais un futur mot du jour)
   const daily = new Set(words); let livePool = Object.keys(allDefs).filter(w => w.length >= 6 && w.length <= 7 && !daily.has(w) && mjNice(w, allDefs[w])).sort();
@@ -985,10 +1008,10 @@ async function mjApi(b, out, ip) {
       if (s.ok || s.t.length >= 6) mjClose(pl, s, sc, day);
       savePlayer(id);
     }
-    return out(200, { ...MJ.view(day, s, w), pts: sc.pts, gained: sc.pts - before, board: await MJ.board(day), mine: pl ? mjMine(pl) : undefined });
+    return out(200, { ...MJ.view(day, s, w), pts: sc.pts, gained: sc.pts - before, board: await MJ.board(day, id), mine: pl ? mjMine(pl) : undefined });
   }
   // op « etat » : ma grille du jour + les chiffres du jour + les classements
-  return out(200, { ...MJ.view(day, st, w), pts: st && st.t && st.t.length ? MJ.score(st, w).pts : 0, board: await MJ.board(day), ranked: !!pl, mine: pl ? mjMine(pl) : undefined });
+  return out(200, { ...MJ.view(day, st, w), pts: st && st.t && st.t.length ? MJ.score(st, w).pts : 0, board: await MJ.board(day, id), ranked: !!pl, mine: pl ? mjMine(pl) : undefined });
 }
 const mjMine = p => { const a = p.mj || {}; return { days: a.days || 0, found: a.found || 0, pts: a.pts || 0, avgN: a.found ? +(a.nF / a.found).toFixed(1) : null, avgMs: a.found ? Math.round(a.msF / a.found) : null, avgG: a.gN ? Math.round(a.gMs / a.gN) : null, wins: p.mjWins || 0, ser: (() => { const z = p.ser || {}, d = parisDay(); return { n: z.last === d || z.last === mjPrev(d) ? z.n || 0 : 0, today: z.last === d, gift: z.gift === d }; })() }; };
 // minuit (Paris) : le 1er du classement du jour qui se termine gagne 5 jetons (une seule fois, même si le serveur redémarre)
