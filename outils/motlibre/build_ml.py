@@ -51,6 +51,10 @@ body.sk-nohdr #skTop{min-height:0}
 .mlbar{flex:1;height:4px;border-radius:2px;background:var(--stroke);margin-top:15px}.mlbar.ok{background:linear-gradient(90deg,#14b8a6,#7c9bff)}
 .g-ml #mlStep[hidden]{display:none!important}
 .mdend .mltl{width:100%;max-width:280px;margin:4px auto 2px}.mdend .mlgo b{color:var(--ink)}
+/* 27/11 soir : Progressif — carte réduite à la frise + paliers (place pour le clavier du téléphone) */
+.g-ml .mdhead[hidden],.g-ml .mdhead>div[hidden]{display:none!important}
+.g-ml .card.mlprog{padding-top:10px;padding-bottom:10px}.g-ml .card.mlprog .mltl{margin-top:0}.g-ml .card.mlprog .mdhead{justify-content:flex-end;margin-bottom:6px}
+.g-ml .card.mlprog .mlpal{margin-top:8px}
 </style>
 """
 body = open(os.path.join(D, "ml_body.html"), encoding="utf8").read()

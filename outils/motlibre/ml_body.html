@@ -103,7 +103,7 @@ function cur(){const v=inp.value;return (v[0]===S.first?v:S.first+v).slice(0,S.l
 function draw(){if(!S)return;const L=S.len,now=S.done?-1:S.tries.length;
   $("#mdInfo").textContent=L+" lettres · commence par "+S.first;$("#mlPill").textContent=S.mode==="prog"?"Progressif":"Libre · "+L+" lettres";
   $("#mlSub").textContent=(S.hard?"Mot difficile · ":"")+"6 essais · 1re lettre donnée"+(S.chrono?" · "+S.chrono+" min":"");
-  const pal=$("#mlPal"),stp=$("#mlStep");pal.hidden=S.mode!=="prog";stp.hidden=true;$("#mlTl").hidden=S.mode!=="prog";if(S.mode==="prog")$("#mlTl").innerHTML=tl();
+  const pal=$("#mlPal"),stp=$("#mlStep");pal.hidden=S.mode!=="prog";stp.hidden=true;$("#mlTl").hidden=S.mode!=="prog";{const pg=S.mode==="prog";$("#mdInfo").parentElement.hidden=pg;$(".mdhead").hidden=pg&&!S.chrono;$("#mdInfo").closest(".card").classList.toggle("mlprog",pg)}if(S.mode==="prog")$("#mlTl").innerHTML=tl();
   if(S.mode==="prog"){stp.textContent="Palier "+L+" lettres · mot "+(S.step%3+1)+"/3";pal.innerHTML=PROG.map((n,k)=>'<span class="'+(k<Math.floor(S.step/3)?"ok":k===Math.floor(S.step/3)?"now":"")+'">'+n+"</span>").join("")}
   const g=$("#mdGrid");g.querySelectorAll(".mdrow").forEach(r=>r.remove());fit();
   for(let r=0;r<6;r++){const row=document.createElement("div");row.className="mdrow";const t=S.tries[r];
