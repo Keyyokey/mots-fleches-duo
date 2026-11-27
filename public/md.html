@@ -30,6 +30,12 @@
 @keyframes mdpop{50%{transform:scale(1.12)}}
 .mdrow.shake{animation:mdshake .4s}
 @keyframes mdshake{20%,60%{transform:translateX(-6px)}40%,80%{transform:translateX(6px)}}
+/* 27/11 : tuiles en rouge — lettres absentes du mot (s'éteignent en gris) et mot refusé (la ligne tremble en rouge) */
+.mdc.c0.mdflip{animation:mdpop .35s ease,mdko0 1.1s ease}
+@keyframes mdko0{0%,45%{background:rgba(229,72,77,.55);border-color:#ff5d7a;color:#fff;box-shadow:0 0 14px rgba(255,93,122,.45)}}
+.mdrow.shake .mdc{animation:mdko .7s ease}
+@keyframes mdko{0%,55%{background:rgba(229,72,77,.35);border-color:#ff5d7a;box-shadow:0 0 12px rgba(255,93,122,.4)}}
+@media (prefers-reduced-motion:reduce){.mdc.c0.mdflip,.mdrow.shake .mdc{animation:none}}
 #mdIn{position:absolute;left:12px;top:12px;width:1px;height:1px;margin:0;padding:0;opacity:0;font-size:16px;border:0;background:transparent;color:transparent;caret-color:transparent;pointer-events:none;z-index:-1}
 .mdgrid{cursor:text}
 #mdIn::selection{background:transparent;color:transparent}
