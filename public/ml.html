@@ -43,6 +43,14 @@
 .mdmsg{min-height:1.2em;text-align:center;font-weight:600;font-size:.9rem}
 .mdend{text-align:center;display:none;flex-direction:column;gap:8px;align-items:center}
 .mdend.on{display:flex}
+/* 27/11 : résultat en fenêtre par-dessus la grille */
+#mdEndBg{position:fixed;inset:0;z-index:94;background:rgba(5,10,25,.5);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);animation:mdfade .2s ease-out}#mdEndBg[hidden]{display:none}
+.mdend.pop{position:fixed;left:50%;top:50%;transform:translate(-50%,-50%);z-index:95;width:min(430px,calc(100vw - 24px));max-height:calc(100dvh - 24px);overflow:auto;margin:0;padding:18px 14px 14px!important;background:linear-gradient(160deg,rgba(30,40,70,.96),rgba(45,30,70,.96));box-shadow:0 24px 70px rgba(0,0,0,.55);animation:mdpopin .25s ease-out}
+.mdend{position:relative}.mdend .mdx{display:none}.mdend.pop .mdx{display:grid;place-items:center;position:absolute;top:10px;right:10px;width:38px;height:38px;border-radius:10px;border:1px solid var(--stroke);background:var(--glass2);color:var(--ink);font:700 1.4rem/1 Inter,sans-serif;cursor:pointer;z-index:2}
+.mdend.pop .mdx:hover{background:#e5484d;border-color:#e5484d;color:#fff}
+@keyframes mdpopin{from{opacity:0;transform:translate(-50%,-46%) scale(.96)}}@keyframes mdfade{from{opacity:0}}
+[data-theme=light] .mdend.pop{background:linear-gradient(160deg,rgba(255,255,255,.97),rgba(243,238,255,.97))}
+
 .mdend h3{margin:0;font:800 1.15rem Nunito,Inter,sans-serif}
 .mdend .w{font:800 1.6rem Nunito,Inter,sans-serif;letter-spacing:.12em;background:linear-gradient(90deg,#ff7aa8,#a78bfa);-webkit-background-clip:text;background-clip:text;color:transparent}
 .mdend .def{color:var(--muted);font-size:.92rem}

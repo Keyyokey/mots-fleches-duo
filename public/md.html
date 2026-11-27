@@ -43,6 +43,14 @@
 .mdmsg{min-height:1.2em;text-align:center;font-weight:600;font-size:.9rem}
 .mdend{text-align:center;display:none;flex-direction:column;gap:8px;align-items:center}
 .mdend.on{display:flex}
+/* 27/11 : résultat en fenêtre par-dessus la grille */
+#mdEndBg{position:fixed;inset:0;z-index:94;background:rgba(5,10,25,.5);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);animation:mdfade .2s ease-out}#mdEndBg[hidden]{display:none}
+.mdend.pop{position:fixed;left:50%;top:50%;transform:translate(-50%,-50%);z-index:95;width:min(430px,calc(100vw - 24px));max-height:calc(100dvh - 24px);overflow:auto;margin:0;padding:18px 14px 14px!important;background:linear-gradient(160deg,rgba(30,40,70,.96),rgba(45,30,70,.96));box-shadow:0 24px 70px rgba(0,0,0,.55);animation:mdpopin .25s ease-out}
+.mdend{position:relative}.mdend .mdx{display:none}.mdend.pop .mdx{display:grid;place-items:center;position:absolute;top:10px;right:10px;width:38px;height:38px;border-radius:10px;border:1px solid var(--stroke);background:var(--glass2);color:var(--ink);font:700 1.4rem/1 Inter,sans-serif;cursor:pointer;z-index:2}
+.mdend.pop .mdx:hover{background:#e5484d;border-color:#e5484d;color:#fff}
+@keyframes mdpopin{from{opacity:0;transform:translate(-50%,-46%) scale(.96)}}@keyframes mdfade{from{opacity:0}}
+[data-theme=light] .mdend.pop{background:linear-gradient(160deg,rgba(255,255,255,.97),rgba(243,238,255,.97))}
+
 .mdend h3{margin:0;font:800 1.15rem Nunito,Inter,sans-serif}
 .mdend .w{font:800 1.6rem Nunito,Inter,sans-serif;letter-spacing:.12em;background:linear-gradient(90deg,#ff7aa8,#a78bfa);-webkit-background-clip:text;background-clip:text;color:transparent}
 .mdend .def{color:var(--muted);font-size:.92rem}
@@ -251,8 +259,15 @@ function draw(){if(!S)return;
   $("#mdBar").style.display=S.done?"none":"";inp.disabled=!!S.done;if(S.done){if(document.activeElement===inp)inp.blur();inp.hidden=true}
   const e=$("#mdEnd");e.classList.toggle("on",!!S.done);if(S.done)fit();
   if(S.done){const n=S.tries.length;e.innerHTML=(S.ok?'<img class="mdpop" src="/d/pop-victoire-d9b3c764d3.webp" width="120" height="120" alt="Pop saute de joie">':'')+(S.ok?'<h3>Trouvé en '+n+" essai"+(n>1?"s":"")+(S.ms?" · "+fmt(S.ms):"")+" !</h3>":"<h3>Pas cette fois…</h3>")+'<div class="gain">+'+(S.pts||0)+' points aujourd\'hui</div><div class="w">'+esc(S.word)+'</div><div class="def">'+esc(S.def||"")+'</div><div class="mdmini" aria-hidden="true">'+S.tries.map(t=>'<div>'+t.c.map(c=>'<i class="m'+c+'"></i>').join("")+'</div>').join("")+'</div><div class="row mdsh"><span class="shl">Défie un proche :</span><button class="btn mdpart" id="mdShare" type="button" title="Envoyer ton résultat (WhatsApp, SMS…)">'+SHI+' Partager</button><a class="btn mdnext" id="mdNext" href="/motlibre?mode=prog">'+NXI+' Nouvelle partie</a></div>'+serie()+'<small class="note">Le mot n\'est jamais montré : rien n\'est gâché.</small><small class="note">Nouveau mot demain à minuit.</small>';
-    $("#mdShare").onclick=()=>share("p")}
+    $("#mdShare").onclick=()=>share("p");endPop()}
   list()}
+// 27/11 : à la fin de la partie, le résultat s'ouvre en fenêtre par-dessus la grille (fermeture par ×, Échap ou clic à côté) ; fermée, elle reprend sa place sous la grille
+let EPd=false,EPt0=Date.now();
+function endPop(){const e=$("#mdEnd");if(!e.querySelector(".mdx"))e.insertAdjacentHTML("afterbegin",'<button class="mdx" type="button" aria-label="Fermer" title="Fermer">×</button>');e.querySelector(".mdx").onclick=endClose;
+  if(EPd)return;EPd=true;setTimeout(()=>{if(!$("#mdEnd").classList.contains("on"))return;let bg=$("#mdEndBg");if(!bg){bg=document.createElement("div");bg.id="mdEndBg";bg.onclick=endClose;document.body.appendChild(bg)}
+  const e=$("#mdEnd");if(!$("#mdEndPh")){const ph=document.createElement("div");ph.id="mdEndPh";ph.hidden=true;e.before(ph)}document.body.appendChild(e);e.classList.add("pop");bg.hidden=false;e.setAttribute("role","dialog");e.setAttribute("aria-modal","true");const x=e.querySelector(".mdx");if(x&&!matchMedia("(pointer:coarse)").matches)x.focus({preventScroll:true})},Date.now()-EPt0<2500?150:1400)}
+function endClose(){const e=$("#mdEnd"),bg=$("#mdEndBg"),ph=$("#mdEndPh");if(!e.classList.contains("pop"))return;e.classList.remove("pop");e.removeAttribute("role");e.removeAttribute("aria-modal");if(bg)bg.hidden=true;if(ph)ph.replaceWith(e)}
+addEventListener("keydown",ev=>{if(ev.key==="Escape")endClose()});
 // 23/11 : Série du jour (jours d'affilée avec le Mot du jour terminé ; cadeau de 10 jetons au 7e jour pour les joueurs avec pseudo)
 function serPrev(d){const x=new Date(Date.UTC(+d.slice(0,4),+d.slice(4,6)-1,+d.slice(6,8))-864e5);return x.toISOString().slice(0,10).replace(/-/g,"")}
 function serie(){let z={last:"",n:0};try{z=JSON.parse(localStorage.getItem("fl-mj-serie"))||z}catch(e){}
