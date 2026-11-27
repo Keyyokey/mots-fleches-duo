@@ -39,6 +39,18 @@ body.sk-nohdr #skTop{min-height:0}
 .mlcol b{font:800 .75rem Nunito,Inter,sans-serif;margin-bottom:3px;min-height:1em}
 .mlcol span{position:absolute;bottom:-20px;font:700 .75rem Inter,sans-serif;color:var(--muted)}
 .mldist .mlax{display:block;text-align:center;font:600 .72rem Inter,sans-serif;color:var(--muted);margin-top:24px}
+/* 27/11 : frise des 3 mots d'un palier (Progressif) */
+.mltl{display:flex;align-items:flex-start;margin-top:12px}.mltl[hidden]{display:none}
+.mlj{display:flex;flex-direction:column;align-items:center;gap:4px;flex:0 0 auto;width:46px}
+.mlj i{width:32px;height:32px;border-radius:50%;display:grid;place-items:center;font:800 .9rem Nunito,Inter,sans-serif;font-style:normal;background:var(--glass);border:2px solid var(--stroke);color:var(--muted);transition:.3s}
+.mlj b{font:800 .8rem Nunito,Inter,sans-serif;color:var(--muted)}
+.mlj.now i{border-color:#7c9bff;color:var(--ink);box-shadow:0 0 0 4px rgba(124,155,255,.22)}.mlj.now b{color:var(--ink)}
+.mlj.ok i{background:linear-gradient(135deg,#14b8a6,#0e9f8f);border-color:transparent;color:#fff;animation:mljok .45s cubic-bezier(.3,1.6,.5,1)}.mlj.ok b{color:#ffc857}
+.mlj.ko i{background:#e5484d;border-color:transparent;color:#fff}
+@keyframes mljok{from{transform:scale(.6)}}
+.mlbar{flex:1;height:4px;border-radius:2px;background:var(--stroke);margin-top:15px}.mlbar.ok{background:linear-gradient(90deg,#14b8a6,#7c9bff)}
+.g-ml #mlStep[hidden]{display:none!important}
+.mdend .mltl{width:100%;max-width:280px;margin:4px auto 2px}.mdend .mlgo b{color:var(--ink)}
 </style>
 """
 body = open(os.path.join(D, "ml_body.html"), encoding="utf8").read()

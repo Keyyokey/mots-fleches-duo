@@ -37,7 +37,7 @@ const sleep = ms => new Promise(r => setTimeout(r, ms));
     await p.focus('#mdIn'); await p.keyboard.type(word.slice(1)); await p.keyboard.press('Enter'); await sleep(1500);
     const end = await p.evaluate(() => document.querySelector('#mdEnd.on') ? document.querySelector('#mdEnd').innerText : '');
     chk(/Trouvé en 1 essai/.test(end), label + ' : mot trouvé, fin affichée');
-    const stats = await p.$eval('#mlStats', e => e.innerText.replace(/\s+/g, ' ')); chk(/Mots trouvés 1/.test(stats) || /Mots trouvés 2/.test(stats), label + ' : stats en direct : ' + stats.slice(0, 80));
+    const stats = await p.$eval('#mlStats', e => e.innerText.replace(/\s+/g, ' ')); chk(/Mots trouvés ?[12]/.test(stats), label + ' : stats en direct : ' + stats.slice(0, 80));
     await p.screenshot({ path: '/tmp/ml_' + (w < 500 ? 'tel' : 'pc') + '.png' });
     // progressif
     await p.click('[data-mode="prog"]'); await p.click('#mlGo'); await sleep(1500);
