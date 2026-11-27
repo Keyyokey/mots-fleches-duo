@@ -568,6 +568,28 @@ async function salonApi(route, name, p, b, ip, out, bad) {
     return out(503, { error: "indispo", msg: route === "salons" ? "Impossible de charger tes salons. Réessaie." : "Serveur occupé, réessaie dans un instant." });
   }
 }
+// 27/11 : suppression définitive d'un compte et des données liées (salons, classements, skin, Mot du jour, énigme, boîte de messages)
+async function deleteAccount(name, p) {
+  for (const id of Object.keys(p.acc || {})) {
+    try {
+      const m = await getAcc(id); if (!m) continue;
+      if (m.owner === name) {        // salon dont il est responsable : supprimé pour tous (comme « Supprimer ce salon »)
+        for (const w of Object.keys(m.members)) { if (w === name) continue; const q = await getPlayer(w); if (q && q.acc && q.acc[id]) { delete q.acc[id]; savePlayer(w); } evict(id, w); }
+        evict(id, name); const old = m.code; m.members = {}; m.pend = {}; m.code = null; m.deleted = Date.now(); saveAcc(m);
+        if (old) { codeIdx.delete(old); if (REDIS) redis(["DEL", "sc:" + old]).catch(() => {}); }
+      } else if (m.members[name] || (m.pend && m.pend[name])) { delete m.members[name]; if (m.pend) delete m.pend[name]; saveAcc(m); evict(id, name); }
+    } catch (e) { console.error("Suppression (salon) :", e.message); }
+  }
+  const days = []; for (let t = Date.UTC(2026, 10, 20); ; t += 864e5) { const d = new Date(t).toISOString().slice(0, 10).replace(/-/g, ""); if (d > parisDay()) break; days.push(d); }
+  MJ.forget(name, days); for (const d of days) { const m = EN_MEM.get(d); if (m) m.delete(name); }
+  rankMem.delete(name); skinMem.delete(name);
+  if (REDIS) {
+    await redis(["DEL", "pl:" + name]);
+    await Promise.all([redis(["ZREM", "rank", name]), redis(["ZREM", "mj:pts", name]), redis(["HDEL", "skins", name]), redis(["DEL", "bx:" + name])].map(x => x.catch(() => {})));
+    for (const d of days) { redis(["HDEL", "mj:" + d, name]).catch(() => {}); redis(["HDEL", "en:" + d, name]).catch(() => {}); }
+  }
+  players.delete(name); fails.delete("pl:" + name); savePlayer(name);   // sans Redis : réécrit le fichier des comptes sans lui
+}
 // Sauvegarde avant la reprise des comptes : copie unique de tous les comptes (pl:*) dans bak:pl:AAAAMMJJ.
 async function backupPlayers() {
   const tag = new Date().toISOString().slice(0, 10).replace(/-/g, "");
@@ -888,7 +910,7 @@ const MJ = (() => {
   const daily = new Set(words); let livePool = Object.keys(allDefs).filter(w => w.length >= 6 && w.length <= 7 && !daily.has(w) && mjNice(w, allDefs[w])).sort();
   { let sd = 20261126; const r2 = () => (sd = (sd * 1103515245 + 12345) % 2147483648) / 2147483648; for (let i = livePool.length - 1; i > 0; i--) { const j = Math.floor(r2() * (i + 1)); [livePool[i], livePool[j]] = [livePool[j], livePool[i]]; } }
   const liveWord = (day, n) => { const res = hook ? hook.reserved(day) : new Set(); const lp = livePool.filter(w => !res.has(w)); return lp.length ? lp[((dayNo(day) * 10 + n) % lp.length + lp.length) % lp.length] : "MOTIPOP"; };
-  return { strip, wordOf, colors, load, persist, view, board, score, dayList, MAXPTS, dict, liveWord, liveDef: w => allDefs[w] || "", livePool: () => livePool.length, defOf, size: () => words.length, setHook: h => { hook = h; }, has: g => dict.has(g) || !!(hook && hook.valid.has(g)), oldUntil: last => { const out = []; for (let t = Date.UTC(2026, 10, 20); ; t += 864e5) { const d = new Date(t).toISOString().slice(0, 10).replace(/-/g, ""); if (d > last) break; out.push(oldWord(d)); } return out; }, resetTot: () => { totCache = null; } };
+  return { strip, wordOf, colors, load, persist, view, board, score, dayList, MAXPTS, dict, liveWord, liveDef: w => allDefs[w] || "", livePool: () => livePool.length, defOf, size: () => words.length, setHook: h => { hook = h; }, has: g => dict.has(g) || !!(hook && hook.valid.has(g)), oldUntil: last => { const out = []; for (let t = Date.UTC(2026, 10, 20); ; t += 864e5) { const d = new Date(t).toISOString().slice(0, 10).replace(/-/g, ""); if (d > last) break; out.push(oldWord(d)); } return out; }, resetTot: () => { totCache = null; }, forget: (id, days) => { for (const d of days) { const a = mem.get(d), b2 = past.get(d); if (a) a.delete(id); if (b2) b2.delete(id); } totCache = null; } };
 })();
 // 26/11 : Mot du jour – Journalier / Libre (motlibre.js) + tirage annuel du Défi du jour (370 mots de 6 lettres par an dès 2027)
 const ML = require("./motlibre")({ redis, REDIS, KEY: process.env.ML_KEY || RTOK || process.env.ADMIN_KEY || "" });
@@ -1152,6 +1174,17 @@ async function api(req, res, route) {
     const mg = await mergeGuest(name, p, b.guest, b.gtoken, false); savePlayer(name);
     let list = null; try { list = await salonList(name, p); } catch {}
     return out(200, { name, token, salons: list, merged: mg || undefined });
+  }
+  // 27/11 : suppression du compte (exigence Google Play) — demandée dans l'appli (Ma page) ou sur /supprimer-compte, confirmée par le code secret
+  if (route === "delme") {
+    if (!pinOk) return bad("pin", PIN_DETAIL);
+    const lk = locked("pl:" + name) || locked("ip:" + ip); if (lk) return tooMany(lk);
+    const h = hashPin(b.pin, p && !p.guest ? p.salt : DUMMY_SALT);
+    const ok = !!p && !p.guest && h.length === p.h.length && crypto.timingSafeEqual(Buffer.from(h), Buffer.from(p.h));
+    if (!ok) { fail("pl:" + name, 5, 15 * 60e3); fail("ip:" + ip, 30, 15 * 60e3); return out(401, { error: "ident", msg: "Identifiants incorrects." }); }
+    try { await deleteAccount(name, p); } catch (e) { console.error("Suppression de compte :", e.message); return out(503, { error: "indispo", msg: "La suppression n'a pas pu se faire. Réessaie plus tard." }); }
+    statAdd("compte:supprime");
+    return out(200, { ok: true, msg: "Ton compte " + name + " et ses données ont été supprimés." });
   }
   if (!authed()) return out(401, { error: "jeton", msg: "Reconnecte-toi avec ton code secret." });
   if (["salons", "sjoin", "screate", "skick", "scode", "sleave", "sdelete", "sdecide"].includes(route)) return void await salonApi(route, name, p, b, ip, out, bad);
@@ -1617,7 +1650,7 @@ function handleHttp(req, res) {
   if (url.pathname === "/healthz" && url.searchParams.get("ws") === "1") { res.writeHead(200, { "content-type": "application/json", "cache-control": "no-store" }); const now = Date.now(); return res.end(JSON.stringify({ instance: wsDiag.inst, demarrage: wsDiag.boot, connexions: wss.clients.size, refus: wsDiag.refus, erreurs: wsDiag.err, rejets: wsDiag.rej, fermetures: wsDiag.fin, lobby: LOBBY.stats(), sockets: [...wss.clients].map(w => ({ etat: w.readyState, file: w.busy || 0, enCours: w.cur ? w.cur.t + " depuis " + Math.round((now - w.cur.at) / 1000) + " s" : null, recus: (w.log || []).map(x => x.t + " (" + Math.round((now - x.at) / 1000) + " s)") })) })); }
   if (url.pathname === "/healthz" && url.searchParams.get("ip") === "1") { res.writeHead(200, { "content-type": "application/json", "cache-control": "no-store" }); return res.end(JSON.stringify(ipSource(req))); }   // quels en-têtes d'adresse arrivent (sans les valeurs)
   if (url.pathname === "/healthz") { const bad = REDIS && storage.ok === false; res.writeHead(bad ? 503 : 200, { "content-type": "text/plain; charset=utf-8" }); return res.end(bad ? "STOCKAGE KO depuis " + storage.since + " : " + storage.msg : "ok " + salons.size + (REDIS ? " redis" : "")); }
-  const am = url.pathname.match(/^\/api\/p\/(guest|create|login|me|pin|logout|rank|mj|ml|en|score|wallet|conv|salons|sjoin|screate|skick|scode|sleave|sdelete|sdecide|hist|solo|skin)$/);
+  const am = url.pathname.match(/^\/api\/p\/(guest|create|login|me|pin|logout|rank|mj|ml|en|score|wallet|conv|salons|sjoin|screate|skick|scode|sleave|sdelete|sdecide|hist|solo|skin|delme)$/);
   if (am) return void api(req, res, am[1]).catch(e => { console.error(e); try { res.writeHead(500); res.end("{}"); } catch {} });
   // culture générale : index léger des questions (identifiant → type), puis seulement les questions de la partie
   if (url.pathname === "/d/cg-index.js") { cgIdx = cgIdx || pack(Buffer.from("window.__CGI=" + JSON.stringify(CAT.cgIndex()) + ";window.__CGT=" + JSON.stringify(CAT.THEMES) + ";")); return sendBody(req, res, cgIdx, STATIC.js, "public, max-age=600"); }
@@ -1657,7 +1690,7 @@ function handleHttp(req, res) {
   if (url.pathname === "/mot" || url.pathname === "/mot/") { res.writeHead(301, { location: "/" }); return res.end(); }
   // pages d'information : règles et jetons, informations légales (3 adresses vers la même page, ouverte à la bonne section)
   if (url.pathname === "/regles" || url.pathname === "/regles/") return sendPage(req, res, path.join(__dirname, "public", "regles.html"));
-  if (/^\/(?:mentions-legales|confidentialite|conditions|legal)\/?$/.test(url.pathname)) return sendPage(req, res, path.join(__dirname, "public", "legal.html"));
+  if (/^\/(?:mentions-legales|confidentialite|conditions|legal|supprimer-compte)\/?$/.test(url.pathname)) return sendPage(req, res, path.join(__dirname, "public", "legal.html"));
   if (/^\/(?:[A-Za-z0-9]{5}\/)?rond\/?$/.test(url.pathname)) return sendPage(req, res, path.join(__dirname, "public", "rd.html"));
   if (/^\/(?:[A-Za-z0-9]{5}\/)?meles\/?$/.test(url.pathname)) return sendPage(req, res, path.join(__dirname, "public", "mm.html"));
   if (/^\/(?:[A-Za-z0-9]{5}\/)?magnetico\/?$/.test(url.pathname)) return sendPage(req, res, path.join(__dirname, "public", "mg.html"));
@@ -1680,7 +1713,7 @@ function handleHttp(req, res) {
   // icônes Motipop : onglet (SVG) et écran d'accueil du téléphone (PNG)
   if (url.pathname === "/favicon.ico" || url.pathname === "/favicon.svg") { res.writeHead(200, { "content-type": "image/svg+xml", "cache-control": "public, max-age=86400" }); return res.end(FAVICON); }
   // 20/11 : manifeste d'application (Motipop s'installe sur l'écran d'accueil du téléphone, plein écran, sans barre du navigateur)
-  if (url.pathname === "/manifest.webmanifest") { res.writeHead(200, { "content-type": "application/manifest+json; charset=utf-8", "cache-control": "public, max-age=3600" }); return res.end(JSON.stringify({ id: "/", name: "Motipop — jeux de mots entre amis", short_name: "Motipop", description: "Mot du jour, mots fléchés, Magnético, Wordflush, culture générale : jeux de mots en solo ou entre amis.", lang: "fr", dir: "ltr", start_url: "/?app=1", scope: "/", display: "standalone", orientation: "portrait", background_color: "#12152e", theme_color: "#12152e", categories: ["games", "education"], icons: [{ src: "/motipop-app-192.png", sizes: "192x192", type: "image/png", purpose: "any" }, { src: "/motipop-app-512.png", sizes: "512x512", type: "image/png", purpose: "any" }, { src: "/motipop-maskable-512.png", sizes: "512x512", type: "image/png", purpose: "maskable" }], shortcuts: [{ name: "Mot du jour", url: "/motdujour", icons: [{ src: "/motipop-app-192.png", sizes: "192x192" }] }] })); }
+  if (url.pathname === "/manifest.webmanifest") { res.writeHead(200, { "content-type": "application/manifest+json; charset=utf-8", "cache-control": "public, max-age=3600" }); return res.end(JSON.stringify({ id: "/", screenshots: [{ src: "/d/appli-accueil-219e83ed75.webp", sizes: "540x960", type: "image/webp", form_factor: "narrow", label: "L'accueil : le mot du jour et tous les jeux" }, { src: "/d/appli-motdujour-e72f0286cf.webp", sizes: "540x960", type: "image/webp", form_factor: "narrow", label: "Le mot du jour : 6 essais pour trouver le mot" }, { src: "/d/appli-fleches-77b1b93cff.webp", sizes: "540x960", type: "image/webp", form_factor: "narrow", label: "Les mots fléchés, seul ou à plusieurs" }], display_override: ["standalone"], launch_handler: { client_mode: "navigate-existing" }, name: "Motipop — jeux de mots entre amis", short_name: "Motipop", description: "Mot du jour, mots fléchés, Magnético, Wordflush, culture générale : jeux de mots en solo ou entre amis.", lang: "fr", dir: "ltr", start_url: "/?app=1", scope: "/", display: "standalone", orientation: "portrait", background_color: "#12152e", theme_color: "#12152e", categories: ["games", "education"], icons: [{ src: "/motipop-app-192.png", sizes: "192x192", type: "image/png", purpose: "any" }, { src: "/motipop-app-512.png", sizes: "512x512", type: "image/png", purpose: "any" }, { src: "/motipop-maskable-512.png", sizes: "512x512", type: "image/png", purpose: "maskable" }], shortcuts: [{ name: "Mot du jour", url: "/motdujour", icons: [{ src: "/motipop-app-192.png", sizes: "192x192" }] }] })); }
   if (/^\/motipop-(app-192|app-512|maskable-512)\.png$/.test(url.pathname)) { res.writeHead(200, { "content-type": "image/png", "cache-control": "public, max-age=86400" }); return res.end(fs.readFileSync(path.join(__dirname, "public", "d", url.pathname.slice(1)))); }
   // application installée (et future appli Android) : service worker minimal = écran « hors connexion » aux couleurs de Motipop
   if (url.pathname === "/sw.js") { res.writeHead(200, { "content-type": "text/javascript; charset=utf-8", "cache-control": "no-cache", "service-worker-allowed": "/" }); return res.end(SW_JS); }

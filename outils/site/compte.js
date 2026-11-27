@@ -48,11 +48,19 @@ window.makeAcctUI=function makeAcctUI(env){
           else{er2.innerHTML=say(r);(r.field==="pin"?nc:nn).focus()}};
         p.querySelector("#nwGo").onclick=go2;nc.onkeydown=e=>{if(e.key==="Enter")go2()};setTimeout(()=>nn.focus(),50)}}
     else{const L=ME.salons||[];
-      p.innerHTML='<h4>Bonjour '+esc(ME.name)+' 👋</h4>'+(env.skins?'<button class="btn skbtn" id="meSkin" type="button">'+env.skins.av()+'<span>🎭 Mon skin<small>'+env.skins.label()+'</small></span></button>':'')+'<div class="note">Mes salons</div><div class="list">'+(L.length?rows(L):'<div class="note">Tu n\'as accès à aucun salon pour le moment.</div>')+'</div>'+(env.homeUrl?'<button class="btn" id="meHome">🏠 Accueil</button>':"")+'<button class="lnk" id="meOut">Se déconnecter</button>';
+      p.innerHTML='<h4>Bonjour '+esc(ME.name)+' 👋</h4>'+(env.skins?'<button class="btn skbtn" id="meSkin" type="button">'+env.skins.av()+'<span>🎭 Mon skin<small>'+env.skins.label()+'</small></span></button>':'')+'<div class="note">Mes salons</div><div class="list">'+(L.length?rows(L):'<div class="note">Tu n\'as accès à aucun salon pour le moment.</div>')+'</div>'+(env.homeUrl?'<button class="btn" id="meHome">🏠 Accueil</button>':"")+'<button class="lnk" id="meOut">Se déconnecter</button><button class="lnk medel" id="meDel" type="button">Supprimer mon compte</button>';
       p.querySelectorAll(".sl").forEach(b=>b.onclick=()=>openRoom(b.dataset.c));
       const sk=p.querySelector("#meSkin");if(sk)sk.onclick=()=>{env.hide(p);env.skins.open()};
       const h=p.querySelector("#meHome");if(h)h.onclick=()=>{location.href=env.homeUrl()};
-      p.querySelector("#meOut").onclick=async()=>{await env.call("logout",{name:ME.name,token:ME.token});env.setME(null);env.hide(p);env.onLogout()}}
+      p.querySelector("#meOut").onclick=async()=>{await env.call("logout",{name:ME.name,token:ME.token});env.setME(null);env.hide(p);env.onLogout()}
+      // 27/11 : suppression du compte (Google Play l'exige), confirmée par le code secret
+      p.querySelector("#meDel").onclick=()=>{p.innerHTML='<h4>Supprimer mon compte</h4><div class="note">Ton pseudo <b>'+esc(ME.name)+'</b>, tes points, tes skins, ta progression et tes salons (ceux dont tu es responsable sont supprimés pour tous) seront effacés <b>pour de bon</b>. Ça ne peut pas être annulé.</div><input id="dmPin" inputmode="numeric" autocomplete="off" placeholder="Ton code secret · 4 chiffres" aria-label="Code secret"><div class="err" id="dmErr" role="alert"></div><button class="btn dangerbtn" id="dmGo" type="button">Supprimer définitivement</button><button class="lnk" id="dmNo" type="button">Annuler</button>';
+        const pi=p.querySelector("#dmPin");pinIn(pi);setTimeout(()=>pi.focus(),50);p.querySelector("#dmNo").onclick=()=>openMe(btn);
+        const go=async()=>{const er=p.querySelector("#dmErr");if(!/^\d{4}$/.test(pi.value)){er.textContent="Code secret : exactement 4 chiffres.";pi.focus();return}
+          const b=p.querySelector("#dmGo");b.disabled=true;const r=await env.call("delme",{name:ME.name,pin:pi.value});b.disabled=false;
+          if(r.status===200){try{Object.keys(localStorage).filter(k=>/^fl-/.test(k)&&!/^fl-(sound|music|theme|deco|icons|cb|fmt)$/.test(k)).forEach(k=>localStorage.removeItem(k))}catch(e){}env.setME(null);env.hide(p);env.onLogout();env.toast("🗑️","Ton compte a été supprimé.")}
+          else{er.innerHTML=say(r);pi.focus()}};
+        p.querySelector("#dmGo").onclick=go;pi.onkeydown=e=>{if(e.key==="Enter")go()}}}
     env.hide(env.q("#popSalon"));env.place(p,btn);env.show(p);const f=p.querySelector("input");if(f)setTimeout(()=>f.focus(),50)}
 
   // ----- Salon -----
