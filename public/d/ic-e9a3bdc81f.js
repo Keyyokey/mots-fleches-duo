@@ -66,7 +66,7 @@ try{document.documentElement.dataset.saison=SAISON;if(!document.getElementById("
 
 const MAP={"🎉":"party","🏆":"trophy","🔁":"replay","🎲":"dice","🏠":"home","⏸":"pause","▶":"play","🚪":"exit","🪙":"coin","⏱":"clock","👤":"person","👥":"people","🧹":"eraser","💡":"bulb","⏭":"skip","🤝":"cheers","⇄":"swap"};
 const RE=new RegExp("("+Object.keys(MAP).map(k=>k.replace(/[.*+?^${}()|[\]\\]/g,"\\$&")).join("|")+")\uFE0F?","g");
-const ZONES=".overlay,.fbtns,.modes,.lvBtns,.cgfact";
+const ZONES=".overlay,.fbtns,.modes,.lvBtns,.cgfact,.mjpill";   // 27/11 : le bouton « À plusieurs » prend l'icône verre (plus d'émoji)
 function glass(root){
   const w=document.createTreeWalker(root,NodeFilter.SHOW_TEXT,{acceptNode:n=>{RE.lastIndex=0;return RE.test(n.nodeValue)&&!(n.parentNode&&n.parentNode.closest&&n.parentNode.closest("input,textarea,.bico"))?1:2}});
   const list=[];while(w.nextNode())list.push(w.currentNode);
