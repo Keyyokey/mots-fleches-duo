@@ -1,8 +1,8 @@
-<body class="sk-new g-md g-ml">
+<body class="sk-new g-md g-ml sk-nohdr">
 <div id="skTop" class="skph"></div>
 <div class="blob b1"></div><div class="blob b2"></div><div class="blob b3"></div>
 <div class="wrap">
-  <div class="gtop"><button class="homebtn" title="Retour à l'accueil" aria-label="Retour à l'accueil" onclick="location.href='/'"><svg viewBox="0 0 24 24"><path d="M3 11.2 12 4l9 7.2" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/><path d="M5.5 9.5V20h13V9.5" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linejoin="round"/></svg></button><div class="gname">Mot <span style="color:#7c9bff">libre</span> <span class="hpill" id="mlPill">…</span></div></div>
+  <div class="gtop"><button class="homebtn" title="Retour à l'accueil" aria-label="Retour à l'accueil" onclick="location.href='/'"><svg viewBox="0 0 24 24"><path d="M3 11.2 12 4l9 7.2" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/><path d="M5.5 9.5V20h13V9.5" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linejoin="round"/></svg></button><div class="gname">Mot <span style="color:#7c9bff">libre</span> <span class="hpill" id="mlPill">…</span></div><button class="homebtn mlstb" id="mlStatsBtn" type="button" title="Mes stats" aria-label="Mes stats" aria-haspopup="dialog"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 20V13M12 20V5M18 20v-9" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"/></svg></button></div>
   <div class="mdlay">
   <div class="md">
     <div class="glass card">
@@ -26,14 +26,16 @@
       <div class="note mlhelp" id="mlHelp"></div>
       <button class="btn primary" id="mlGo" type="button">Nouveau mot</button>
     </div>
-    <div class="glass card">
-      <h3>📊 Mes stats <small id="mlDay"></small></h3>
+</div>
+  </aside>
+  </div>
+</div>
+<div class="mlov" id="mlOv" role="dialog" aria-modal="true" aria-labelledby="mlOvT" hidden>
+<div class="glass card mlbox">
+      <h3 id="mlOvT">📊 Mes stats <small id="mlDay"></small></h3><button class="mlx" id="mlOvX" type="button" aria-label="Fermer">×</button>
       <table class="mdtab"><tbody id="mlStats"></tbody></table>
       <div class="mldist" id="mlDist" aria-label="Essais pour trouver"></div>
       <div class="mdguest" id="mdGuest" hidden>Tu joues en invité : <a href="/?need=pseudo">crée ton pseudo</a> pour que tes points comptent au classement.</div>
-    </div>
-  </aside>
-  </div>
 </div>
 <script>
 (function(){
@@ -65,6 +67,8 @@ const SFX={key:()=>tone(1180,0,.06,"triangle",.06),del:()=>tone(620,0,.06,"trian
 const DAY=new Date().toLocaleDateString("fr-CA",{timeZone:"Europe/Paris"});
 let ST={d:DAY,joues:0,trouves:0,serie:0,best:0,pts:0,dist:[0,0,0,0,0,0],prog:0};try{const o=JSON.parse(LS.get("fl-ml-st")||"null");if(o&&o.d===DAY)ST=Object.assign(ST,o);else if(o)ST.prog=o.prog||0}catch(e){}
 const stSave=()=>LS.set("fl-ml-st",JSON.stringify(ST));
+/* 27/11 : stats dans une fenêtre (bouton en haut) */
+(function(){const ov=$("#mlOv"),bt=$("#mlStatsBtn");const close=()=>{ov.hidden=true;bt.focus()};bt.onclick=()=>{try{stats()}catch(e){}ov.hidden=false;$("#mlOvX").focus()};$("#mlOvX").onclick=close;ov.addEventListener("click",e=>{if(e.target===ov)close()});addEventListener("keydown",e=>{if(e.key==="Escape"&&!ov.hidden)close()})})();
 function stats(){const tr=(l,v)=>"<tr><th scope=\"row\">"+l+"</th><td>"+v+"</td></tr>";$("#mlDay").textContent="aujourd'hui";
   $("#mlStats").innerHTML=tr("Mots joués",ST.joues)+tr("Mots trouvés",ST.trouves+(ST.joues?" ("+Math.round(100*ST.trouves/ST.joues)+" %)":""))+tr("Série en cours",ST.serie+(ST.best>ST.serie?" · record "+ST.best:""))+tr("Points gagnés",ME&&!ME.guest?ST.pts+" / 150":"—")+tr("Record Progressif",ST.prog?ST.prog+" mot"+(ST.prog>1?"s":"")+" d'affilée":"—");
   const mx=Math.max(1,...ST.dist);$("#mlDist").innerHTML=ST.dist.map((n,i)=>'<div><span>'+(i+1)+'</span><i style="width:'+Math.max(4,Math.round(100*n/mx))+'%">'+(n||"")+"</i></div>").join("");$("#mdGuest").hidden=!!(ME&&!ME.guest)}

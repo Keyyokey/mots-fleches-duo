@@ -24,6 +24,13 @@ CSS = """<style id="mlcss">
 .g-ml #mdBar{display:flex;gap:8px}.g-ml #mlGive{margin-right:auto}
 .g-ml .mdend .w{font:900 1.6rem Nunito,Inter,sans-serif;letter-spacing:.08em;margin:6px 0}
 body.g-ml.mdpc #mdOk,body.g-ml.mdpc #mdDel{display:inline-flex!important}
+/* 27/11 : page épurée — pas de barre du site, stats dans une fenêtre */
+.g-ml .gtop .mlstb{flex:0 0 auto;margin-left:auto}.g-ml .gtop .mlstb svg{color:#7c9bff}
+.mlov{position:fixed;inset:0;z-index:90;display:grid;place-items:center;padding:16px;background:rgba(5,10,25,.45);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px)}.mlov[hidden]{display:none}
+.mlov .mlbox{position:relative;width:min(420px,100%);max-height:86vh;overflow:auto;margin:0;animation:mlpop .2s ease-out}.mlov h3{margin:0 46px 14px 0;min-height:36px;display:flex;align-items:center;justify-content:flex-start;gap:8px}.mlov h3 small{color:var(--muted);font-weight:600}
+.mlx{position:absolute;top:14px;right:14px;width:36px;height:36px;border-radius:12px;border:1px solid var(--stroke);background:var(--glass2);color:var(--ink);font:700 1.3rem/1 Inter,sans-serif;cursor:pointer}
+@keyframes mlpop{from{transform:scale(.96);opacity:0}}
+body.sk-nohdr #skTop{min-height:0}
 </style>
 """
 body = open(os.path.join(D, "ml_body.html"), encoding="utf8").read()
