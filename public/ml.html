@@ -171,6 +171,14 @@ body.g-ml.mdpc #mdOk,body.g-ml.mdpc #mdDel{display:inline-flex!important}
 .mlx{position:absolute;top:14px;right:14px;width:36px;height:36px;border-radius:12px;border:1px solid var(--stroke);background:var(--glass2);color:var(--ink);font:700 1.3rem/1 Inter,sans-serif;cursor:pointer}
 @keyframes mlpop{from{transform:scale(.96);opacity:0}}
 body.sk-nohdr #skTop{min-height:0}
+/* 27/11 : diagramme en colonnes — abscisse : nombre de lettres, ordonnée : mots trouvés */
+.mllg{font:700 .8rem Inter,sans-serif;color:var(--muted);margin:0 0 6px}.mlov .mldist{margin:0 0 14px}
+.mlcols{display:flex;align-items:flex-end;gap:5px;height:120px;padding:0 2px;border-bottom:1px solid var(--stroke)}
+.mlcol{flex:1;height:100%;display:flex;flex-direction:column;justify-content:flex-end;align-items:center;position:relative}
+.mlcol i{display:block;width:100%;border-radius:6px 6px 2px 2px;background:linear-gradient(0deg,#14b8a6,#7c9bff);transition:height .3s}
+.mlcol b{font:800 .75rem Nunito,Inter,sans-serif;margin-bottom:3px;min-height:1em}
+.mlcol span{position:absolute;bottom:-20px;font:700 .75rem Inter,sans-serif;color:var(--muted)}
+.mldist .mlax{display:block;text-align:center;font:600 .72rem Inter,sans-serif;color:var(--muted);margin-top:24px}
 </style>
 </head>
 <body class="sk-new g-md g-ml sk-nohdr">
@@ -208,8 +216,9 @@ body.sk-nohdr #skTop{min-height:0}
 <div class="mlov" id="mlOv" role="dialog" aria-modal="true" aria-labelledby="mlOvT" hidden>
 <div class="glass card mlbox">
       <h3 id="mlOvT">📊 Mes stats <small id="mlDay"></small></h3><button class="mlx" id="mlOvX" type="button" aria-label="Fermer">×</button>
+      <div class="mllg">Mots trouvés par nombre de lettres</div>
+      <div class="mldist" id="mlDist" aria-label="Mots trouvés selon le nombre de lettres"></div>
       <table class="mdtab"><tbody id="mlStats"></tbody></table>
-      <div class="mldist" id="mlDist" aria-label="Essais pour trouver"></div>
       <div class="mdguest" id="mdGuest" hidden>Tu joues en invité : <a href="/?need=pseudo">crée ton pseudo</a> pour que tes points comptent au classement.</div>
 </div>
 <script>
@@ -240,13 +249,13 @@ const SFX={key:()=>tone(1180,0,.06,"triangle",.06),del:()=>tone(620,0,.06,"trian
 (m=>Object.keys(m).forEach(k=>{const f=SFX[k];SFX[k]=function(){return(window.MotipopSons&&window.MotipopSons.play(m[k]))||f.apply(this,arguments)}}))({oops:"faux",win:"victoire",lose:"perdu"});
 // ---------- statistiques en direct (gardées sur cet appareil, remises à zéro chaque jour) ----------
 const DAY=new Date().toLocaleDateString("fr-CA",{timeZone:"Europe/Paris"});
-let ST={d:DAY,joues:0,trouves:0,serie:0,best:0,pts:0,dist:[0,0,0,0,0,0],prog:0};try{const o=JSON.parse(LS.get("fl-ml-st")||"null");if(o&&o.d===DAY)ST=Object.assign(ST,o);else if(o)ST.prog=o.prog||0}catch(e){}
+let ST={d:DAY,joues:0,trouves:0,serie:0,best:0,pts:0,dist:[0,0,0,0,0,0],prog:0,lens:{}};try{const o=JSON.parse(LS.get("fl-ml-st")||"null");if(o&&o.d===DAY){ST=Object.assign(ST,o);ST.lens=ST.lens||{}}else if(o)ST.prog=o.prog||0}catch(e){}
 const stSave=()=>LS.set("fl-ml-st",JSON.stringify(ST));
 /* 27/11 : stats dans une fenêtre (bouton en haut) */
 (function(){const ov=$("#mlOv"),bt=$("#mlStatsBtn");const close=()=>{ov.hidden=true;bt.focus()};bt.onclick=()=>{try{stats()}catch(e){}ov.hidden=false;$("#mlOvX").focus()};$("#mlOvX").onclick=close;ov.addEventListener("click",e=>{if(e.target===ov)close()});addEventListener("keydown",e=>{if(e.key==="Escape"&&!ov.hidden)close()})})();
 function stats(){const tr=(l,v)=>"<tr><th scope=\"row\">"+l+"</th><td>"+v+"</td></tr>";$("#mlDay").textContent="aujourd'hui";
   $("#mlStats").innerHTML=tr("Mots joués",ST.joues)+tr("Mots trouvés",ST.trouves+(ST.joues?" ("+Math.round(100*ST.trouves/ST.joues)+" %)":""))+tr("Série en cours",ST.serie+(ST.best>ST.serie?" · record "+ST.best:""))+tr("Points gagnés",ME&&!ME.guest?ST.pts+" / 150":"—")+tr("Record Progressif",ST.prog?ST.prog+" mot"+(ST.prog>1?"s":"")+" d'affilée":"—");
-  const mx=Math.max(1,...ST.dist);$("#mlDist").innerHTML=ST.dist.map((n,i)=>'<div><span>'+(i+1)+'</span><i style="width:'+Math.max(4,Math.round(100*n/mx))+'%">'+(n||"")+"</i></div>").join("");$("#mdGuest").hidden=!!(ME&&!ME.guest)}
+  {const v=LENS.map(L=>ST.lens[L]||0),mx=Math.max(1,...v);$("#mlDist").innerHTML='<div class="mlcols">'+LENS.map((L,i)=>'<div class="mlcol" title="'+v[i]+' mot'+(v[i]>1?"s":"")+' de '+L+' lettres trouvé'+(v[i]>1?"s":"")+'"><b>'+(v[i]||"")+'</b><i style="height:'+(v[i]?Math.max(6,Math.round(100*v[i]/mx)):0)+'%"></i><span>'+L+"</span></div>").join("")+'</div><div class="mlax">Nombre de lettres</div>'}$("#mdGuest").hidden=!!(ME&&!ME.guest)}
 // ---------- réglages ----------
 $(".mllens:not(.mlch)").innerHTML=LENS.map(L=>'<button type="button" data-len="'+L+'">'+L+"</button>").join("");
 function paintCfg(){$$("[data-mode]").forEach(b=>b.classList.toggle("on",b.dataset.mode===CFG.mode));$$("[data-len]").forEach(b=>b.classList.toggle("on",+b.dataset.len===CFG.len));$$("[data-ch]").forEach(b=>b.classList.toggle("on",+b.dataset.ch===CFG.ch));
@@ -292,7 +301,7 @@ function shake(){const rows=$("#mdGrid").querySelectorAll(".mdrow"),r=rows[S.tri
 function after(r){const was=S;S=r;inp.value="";prevLen=0;draw();
   const last=$("#mdGrid").querySelectorAll(".mdrow")[S.tries.length-1];if(last&&S.tries.length>(was.tries||[]).length)last.querySelectorAll(".mdc").forEach((c,i)=>{c.style.animationDelay=i*90+"ms";c.classList.add("mdflip")});
   {const t=S.tries[S.tries.length-1];if(t&&S.tries.length>(was.tries||[]).length)t.c.forEach((c,i)=>SFX.tile(i,c));const end=S.len*.09+.25;if(S.done)(S.ok?SFX.win:SFX.lose)(end)}
-  if(S.done){ST.joues++;if(S.ok){ST.trouves++;ST.serie++;ST.best=Math.max(ST.best,ST.serie);ST.dist[Math.min(5,S.tries.length-1)]++;if(S.mode==="prog")ST.prog=Math.max(ST.prog,S.step+1)}else ST.serie=0;if(typeof S.today==="number")ST.pts=S.today;stSave();stats()}
+  if(S.done){ST.joues++;if(S.ok){ST.trouves++;ST.serie++;ST.best=Math.max(ST.best,ST.serie);ST.dist[Math.min(5,S.tries.length-1)]++;ST.lens[S.len]=(ST.lens[S.len]||0)+1;if(S.mode==="prog")ST.prog=Math.max(ST.prog,S.step+1)}else ST.serie=0;if(typeof S.today==="number")ST.pts=S.today;stSave();stats()}
   else if(!PHONE())inp.focus()}
 function send(){if(!S||S.done||busy)return;const g=cur();if(g.length<S.len){say("Il manque des lettres : le mot en fait "+S.len+".");shake();SFX.oops();return}
   busy=true;call({op:"essai",tok:S.tok,g}).then(r=>{busy=false;if(r.refus){say(r.refus);shake();SFX.oops();return}if(!r.tok){say(r.msg||"Essai impossible pour le moment.");return}say("");after(r)}).catch(()=>{busy=false;say("Pas de connexion : réessaie.")})}

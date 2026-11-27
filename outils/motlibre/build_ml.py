@@ -31,6 +31,14 @@ body.g-ml.mdpc #mdOk,body.g-ml.mdpc #mdDel{display:inline-flex!important}
 .mlx{position:absolute;top:14px;right:14px;width:36px;height:36px;border-radius:12px;border:1px solid var(--stroke);background:var(--glass2);color:var(--ink);font:700 1.3rem/1 Inter,sans-serif;cursor:pointer}
 @keyframes mlpop{from{transform:scale(.96);opacity:0}}
 body.sk-nohdr #skTop{min-height:0}
+/* 27/11 : diagramme en colonnes — abscisse : nombre de lettres, ordonnée : mots trouvés */
+.mllg{font:700 .8rem Inter,sans-serif;color:var(--muted);margin:0 0 6px}.mlov .mldist{margin:0 0 14px}
+.mlcols{display:flex;align-items:flex-end;gap:5px;height:120px;padding:0 2px;border-bottom:1px solid var(--stroke)}
+.mlcol{flex:1;height:100%;display:flex;flex-direction:column;justify-content:flex-end;align-items:center;position:relative}
+.mlcol i{display:block;width:100%;border-radius:6px 6px 2px 2px;background:linear-gradient(0deg,#14b8a6,#7c9bff);transition:height .3s}
+.mlcol b{font:800 .75rem Nunito,Inter,sans-serif;margin-bottom:3px;min-height:1em}
+.mlcol span{position:absolute;bottom:-20px;font:700 .75rem Inter,sans-serif;color:var(--muted)}
+.mldist .mlax{display:block;text-align:center;font:600 .72rem Inter,sans-serif;color:var(--muted);margin-top:24px}
 </style>
 """
 body = open(os.path.join(D, "ml_body.html"), encoding="utf8").read()
