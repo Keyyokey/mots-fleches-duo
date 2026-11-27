@@ -55,6 +55,15 @@ body.sk-nohdr #skTop{min-height:0}
 .g-ml .mdhead[hidden],.g-ml .mdhead>div[hidden]{display:none!important}
 .g-ml .card.mlprog{padding-top:10px;padding-bottom:10px}.g-ml .card.mlprog .mltl{margin-top:0}.g-ml .card.mlprog .mdhead{justify-content:flex-end;margin-bottom:6px}
 .g-ml .card.mlprog .mlpal{margin-top:8px}
+/* 27/11 soir : transition entre deux mots d'un palier */
+.mdc.mdwin{animation:mlwave .6s cubic-bezier(.3,1.6,.5,1) both}@keyframes mlwave{40%{transform:translateY(-12px) scale(1.08)}}
+.mlwin{position:absolute;left:50%;top:50%;transform:translateX(-50%);z-index:5;display:flex;flex-direction:column;align-items:center;gap:4px;padding:16px 22px 14px;border-radius:20px;background:rgba(14,22,44,.82);border:1px solid rgba(124,155,255,.45);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);box-shadow:0 16px 40px rgba(0,0,0,.45);text-align:center;width:min(270px,86%);animation:mlwinin .35s cubic-bezier(.3,1.5,.5,1) both;pointer-events:none}
+.mlwin b{font:900 1.5rem Nunito,Inter,sans-serif;color:#fff}.mlwin span{font:900 1.25rem Nunito,Inter,sans-serif;color:#ffc857}.mlwin small{font:600 .78rem Inter,sans-serif;color:#c9d2e6}
+.mlwin em{display:block;width:100%;height:5px;border-radius:3px;background:rgba(255,255,255,.14);margin-top:8px;overflow:hidden}.mlwin em i{display:block;height:100%;width:0;background:linear-gradient(90deg,#14b8a6,#7c9bff);animation:mlfill 2.75s linear .05s forwards}
+@keyframes mlwinin{from{opacity:0;transform:translate(-50%,10px) scale(.85)}}.mlwin .mlskip{opacity:.65;font-size:.72rem}@keyframes mlfill{to{width:100%}}
+.mdgrid.mlout{transition:opacity .25s,transform .25s;opacity:0;transform:scale(.97)}.mdgrid.mlin{animation:mlgin .4s ease-out}@keyframes mlgin{from{opacity:0;transform:translateY(10px)}}
+[data-theme=light] .mlwin{background:rgba(255,255,255,.92)}[data-theme=light] .mlwin b{color:#1b1b22}[data-theme=light] .mlwin small{color:#5b6475}
+@media (prefers-reduced-motion:reduce){.mdc.mdwin,.mlwin,.mdgrid.mlin{animation:none}}
 </style>
 """
 body = open(os.path.join(D, "ml_body.html"), encoding="utf8").read()

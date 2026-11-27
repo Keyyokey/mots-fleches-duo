@@ -48,7 +48,7 @@ const LENS=[3,4,5,6,7,8,9,10,12],PROG=LENS;
 const Q=new URLSearchParams(location.search);
 let CFG={mode:"libre",len:6,ch:0};try{CFG=Object.assign(CFG,JSON.parse(LS.get("fl-ml-cfg")||"{}"))}catch(e){}
 if(Q.get("mode"))CFG.mode=Q.get("mode")==="prog"?"prog":"libre";if(LENS.includes(+Q.get("len")))CFG.len=+Q.get("len");if(Q.has("chrono"))CFG.ch=[2,3,4,5].includes(+Q.get("chrono"))?+Q.get("chrono"):0;
-let S=null,busy=false,STEP=0,PALP=[],NEEDPOP=false,CHAIN=0;
+let S=null,busy=false,STEP=0,PALP=[],NEEDPOP=false,CHAIN=0,SKIP=null;
 const call=b=>fetch("/api/p/ml",{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify(Object.assign(ME&&ME.token?{name:ME.name,token:ME.token}:{},b))}).then(r=>r.json());
 const inp=$("#mdIn");
 const PHONE=()=>matchMedia("(max-width:620px) and (pointer:coarse)").matches;
@@ -84,9 +84,9 @@ document.addEventListener("click",e=>{const b=e.target.closest("[data-mode],[dat
 $("#mlGo").onclick=()=>{STEP=0;newWord()};
 // ---------- partie ----------
 const recKey=L=>"fl-ml-rec-"+L+(CFG.mode==="prog"&&STEP%3===2?"d":"");
-function newWord(){if(busy)return;clearTimeout(CHAIN);busy=true;say("");const len=CFG.mode==="prog"?PROG[Math.floor(STEP/3)]:CFG.len;let rec=[];try{rec=JSON.parse(LS.get(recKey(len))||"[]")}catch(e){}
+function newWord(){if(busy)return;clearTimeout(CHAIN);SKIP=null;busy=true;say("");const len=CFG.mode==="prog"?PROG[Math.floor(STEP/3)]:CFG.len;let rec=[];try{rec=JSON.parse(LS.get(recKey(len))||"[]")}catch(e){}
   call({op:"new",mode:CFG.mode,len,step:STEP,chrono:CFG.ch,rec}).then(r=>{busy=false;if(!r||!r.tok){say(r&&r.msg||"Impossible de lancer un mot. Réessaie.");return}
-    rec.push(r.i);LS.set(recKey(len),JSON.stringify(rec.slice(-40)));if(r.mode==="prog"&&r.step%3===0)PALP=[];mlClose();S=r;inp.value="";inp.hidden=false;inp.disabled=false;draw();if(!PHONE())inp.focus()}).catch(()=>{busy=false;say("Pas de connexion : réessaie.")})}
+    rec.push(r.i);LS.set(recKey(len),JSON.stringify(rec.slice(-40)));if(r.mode==="prog"&&r.step%3===0)PALP=[];mlClose();S=r;{const g=$("#mdGrid");if(g.classList.contains("mlout")){g.classList.remove("mlout");g.classList.add("mlin");setTimeout(()=>g.classList.remove("mlin"),450)}}inp.value="";inp.hidden=false;inp.disabled=false;draw();if(!PHONE())inp.focus()}).catch(()=>{busy=false;say("Pas de connexion : réessaie.")})}
 // 27/11 : Progressif — frise des 3 mots du palier (points en jeu / gagnés), enchaînement direct, fenêtre en fin de palier
 const ptsOf=s=>s.ok?s.len+2*(6-s.tries.length)+(s.hard?5:0)+(s.chrono?3:0):0;
 function tl(){if(!S)return"";const k=S.step%3,L=S.len,ch=S.chrono?3:0;let h="";
@@ -99,6 +99,13 @@ function mlPop(){const e=$("#mdEnd");let bg=$("#mdEndBg");if(!bg){bg=document.cr
     document.body.appendChild(e);e.classList.add("pop");bg.hidden=false;e.setAttribute("role","dialog");e.setAttribute("aria-modal","true")},S.len*90+900)}
 function mlClose(){const e=$("#mdEnd"),bg=$("#mdEndBg"),ph=$("#mdEndPh");if(!e||!e.classList.contains("pop"))return;e.classList.remove("pop");e.removeAttribute("role");e.removeAttribute("aria-modal");if(bg)bg.hidden=true;if(ph)ph.replaceWith(e)}
 addEventListener("keydown",ev=>{if(ev.key==="Escape")mlClose()});
+// 27/11 soir : mot trouvé dans un palier — la ligne gagnante saute, un bandeau « Bravo ! +X points » se remplit (~2,8 s), puis la grille s'efface et le mot suivant arrive ; toucher la grille (ou Entrée) pour passer
+function celebrate(){const me=S,pts=ptsOf(S),d=S.len*90+420,g=$("#mdGrid");say("");
+  const go=()=>{if(S!==me||!SKIP)return;SKIP=null;clearTimeout(CHAIN);const w=g.querySelector(".mlwin");if(w)w.remove();g.classList.add("mlout");setTimeout(()=>{if(S===me){STEP=S.step+1;newWord()}},260)};
+  SKIP=go;
+  setTimeout(()=>{if(S!==me||!SKIP)return;const row=g.querySelectorAll(".mdrow")[S.tries.length-1];if(row)row.querySelectorAll(".mdc").forEach((c,i)=>{c.classList.remove("mdflip");c.style.animationDelay=i*70+"ms";c.classList.add("mdwin")});
+    const k=S.step%3+1;g.insertAdjacentHTML("beforeend",'<div class="mlwin" role="status"><b>Bravo !</b><span>+'+pts+' points</span><small>'+(k===2?"Puis le mot difficile ★":"Puis le mot "+(k+1)+"/3")+'</small><small class="mlskip">Touche pour passer</small><em><i></i></em></div>');const w=g.querySelector(".mlwin");if(w&&row)w.style.top=(row.offsetTop+row.offsetHeight+10)+"px"},d);
+  CHAIN=setTimeout(go,d+2800)}
 function cur(){const v=inp.value;return (v[0]===S.first?v:S.first+v).slice(0,S.len)}
 function draw(){if(!S)return;const L=S.len,now=S.done?-1:S.tries.length;
   $("#mdInfo").textContent=L+" lettres · commence par "+S.first;$("#mlPill").textContent=S.mode==="prog"?"Progressif":"Libre · "+L+" lettres";
@@ -113,7 +120,7 @@ function draw(){if(!S)return;const L=S.len,now=S.done?-1:S.tries.length;
   setTimeout(fit,0);
   const st={};S.tries.forEach(t=>[...t.g].forEach((l,i)=>{st[l]=Math.max(st[l]??-1,t.c[i])}));
   $("#mdKeys").innerHTML="AZERTYUIOPQSDFGHJKLMWXCVBN".split("").map(l=>'<span class="'+(l in st?"k"+st[l]:"")+'">'+l+"</span>").join("");
-  $("#mdBar").style.display=S.done?"none":"";inp.disabled=!!S.done;if(S.done){if(document.activeElement===inp)inp.blur();inp.hidden=true}
+  $("#mdBar").style.display=S.done?"none":"";const KEEP=S.done&&S.mode==="prog"&&S.ok&&S.step%3!==2&&S.step<PROG.length*3-1;inp.disabled=!!S.done&&!KEEP;if(S.done&&!KEEP){if(document.activeElement===inp)inp.blur();inp.hidden=true}
   const e=$("#mdEnd"),prog=S.mode==="prog",last=prog&&S.ok&&S.step>=PROG.length*3-1,chain=prog&&S.done&&S.ok&&!last&&S.step%3!==2;
   e.classList.toggle("on",!!S.done&&!chain);
   if(S.done&&!chain){const n=S.tries.length,sum=PALP.reduce((a,b)=>a+(b||0),0),guest=!(ME&&!ME.guest);
@@ -143,7 +150,7 @@ function say(t){$("#mdMsg").textContent=t||""}
 function shake(){const rows=$("#mdGrid").querySelectorAll(".mdrow"),r=rows[S.tries.length];if(r){r.classList.remove("shake");void r.offsetWidth;r.classList.add("shake")}}
 function after(r){const was=S;S=r;inp.value="";prevLen=0;
   if(S.done&&S.mode==="prog"){PALP[S.step%3]=S.ok?ptsOf(S):0;const last=S.ok&&S.step>=PROG.length*3-1;
-    if(S.ok&&!last&&S.step%3!==2){const me=S;say("Bravo ! +"+ptsOf(S)+" points · mot suivant…");CHAIN=setTimeout(()=>{if(S===me){STEP=S.step+1;newWord()}},S.len*90+1300)}else NEEDPOP=true}
+    if(S.ok&&!last&&S.step%3!==2){celebrate()}else NEEDPOP=true}
   draw();
   const last=$("#mdGrid").querySelectorAll(".mdrow")[S.tries.length-1];if(last&&S.tries.length>(was.tries||[]).length)last.querySelectorAll(".mdc").forEach((c,i)=>{c.style.animationDelay=i*90+"ms";c.classList.add("mdflip")});
   {const t=S.tries[S.tries.length-1];if(t&&S.tries.length>(was.tries||[]).length)t.c.forEach((c,i)=>SFX.tile(i,c));const end=S.len*.09+.25;if(S.done)(S.ok?SFX.win:SFX.lose)(end)}
@@ -154,10 +161,10 @@ function send(){if(!S||S.done||busy)return;const g=cur();if(g.length<S.len){say(
 function finish(){if(!S||S.done||busy)return;busy=true;call({op:"fin",tok:S.tok}).then(r=>{busy=false;if(r.tok){if(S.chrono&&Date.now()>=S.t0+S.chrono*60e3)r.late=true;after(r)}}).catch(()=>{busy=false})}
 $("#mlGive").onclick=()=>finish();
 let prevLen=0;
-inp.addEventListener("input",()=>{if(!S)return;setTimeout(()=>{const n=cur().length;if(n>prevLen)SFX.key();else if(n<prevLen)SFX.del();prevLen=n},0);inp.value=inp.value.normalize("NFD").replace(/[̀-ͯ]/g,"").toUpperCase().replace(/[^A-Z]/g,"");inp.value=inp.value.slice(0,inp.value[0]===S.first?S.len:S.len-1);say("");draw()});
-inp.addEventListener("keydown",e=>{if(e.key==="Enter"){e.preventDefault();send()}});
+inp.addEventListener("input",()=>{if(!S)return;if(S.done){inp.value="";return}setTimeout(()=>{const n=cur().length;if(n>prevLen)SFX.key();else if(n<prevLen)SFX.del();prevLen=n},0);inp.value=inp.value.normalize("NFD").replace(/[̀-ͯ]/g,"").toUpperCase().replace(/[^A-Z]/g,"");inp.value=inp.value.slice(0,inp.value[0]===S.first?S.len:S.len-1);say("");draw()});
+inp.addEventListener("keydown",e=>{if(e.key==="Enter"){e.preventDefault();if(S&&S.done&&SKIP)SKIP();else send()}});
 $("#mdOk").addEventListener("pointerdown",e=>{if(document.activeElement===inp)e.preventDefault()});$("#mdOk").onclick=()=>send();
-$("#mdGrid").addEventListener("click",()=>{if(S&&!S.done){inp.focus({preventScroll:true});draw()}});
+$("#mdGrid").addEventListener("click",()=>{if(S&&S.done&&SKIP){SKIP();return}if(S&&!S.done){inp.focus({preventScroll:true});draw()}});
 inp.addEventListener("focus",draw);inp.addEventListener("blur",()=>setTimeout(draw,50));
 // lettres de l'écran : toucher une lettre l'écrit
 (function(){const K=$("#mdKeys");const put=v=>{inp.value=v;inp.dispatchEvent(new Event("input"))};
