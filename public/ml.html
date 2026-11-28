@@ -220,7 +220,7 @@ body.sk-nohdr #skTop{min-height:0}
 [data-theme=light] .mlwin{background:rgba(255,255,255,.92)}[data-theme=light] .mlwin b{color:#1b1b22}[data-theme=light] .mlwin small{color:#5b6475}
 @media (prefers-reduced-motion:reduce){.mdc.mdwin,.mlwin,.mdgrid.mlin{animation:none}}
 </style>
-<link rel="stylesheet" href="/d/theme-828ce3d3ac.css"></head>
+<link rel="stylesheet" href="/d/theme-a3053f627e.css"></head>
 <body class="sk-new g-md g-ml sk-nohdr">
 <div id="skTop" class="skph"></div>
 <div class="blob b1"></div><div class="blob b2"></div><div class="blob b3"></div>
@@ -352,7 +352,7 @@ function draw(){if(!S)return;const L=S.len,now=S.done?-1:S.tries.length;
       +(S.ok&&!guest?'<div class="gain">+'+(S.gained||0)+" au score Motipop"+(S.pts>S.gained&&S.gained===0&&ST.pts>=150?" · plafond du jour atteint":"")+"</div>":S.ok?'<div class="note">Crée ton pseudo pour que tes points comptent.</div>':"")
       +'<button class="btn primary" id="mlNext" type="button">Mot suivant →</button>'}
     else if(S.ok){const nx=last?0:PROG[Math.floor(S.step/3)+1];
-      e.innerHTML='<img class="mdpop" src="/d/pop-victoire-d9b3c764d3.webp" width="120" height="120" alt="Pop saute de joie">'
+      e.innerHTML='<img class="mdpop" src="/d/pop-saut-097d07117c.webp" width="95" height="120" alt="Pop saute de joie">'
       +(last?'<h3>🏆 Parcours complet !</h3><div class="note">De 3 à 12 lettres sans faute.</div>':'<h3>Bravo ! Palier '+S.len+' lettres validé</h3>')
       +'<div class="w">'+esc(S.word||"")+'</div><div class="gain">+'+sum+' points sur ce palier</div>'+motip
       +'<div class="mltl">'+tl()+'</div>'
@@ -398,6 +398,6 @@ paintCfg();stats();newWord();
 if(location.hostname==="localhost")window.__t=c=>eval(c);
 })();
 </script>
-<script>window.SK_HDR=1;</script><script src="/d/compte-e08aa623bf.js"></script><script src="/d/sk-5e2606d4d7.js"></script>
+<script>window.SK_HDR=1;</script><script src="/d/compte-e08aa623bf.js"></script><script src="/d/sk-17a7388056.js"></script>
 <script src="/d/icons-ec7b5caa49.js" defer></script>
 </body></html>

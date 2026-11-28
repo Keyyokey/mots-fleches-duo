@@ -129,7 +129,7 @@ function draw(){if(!S)return;const L=S.len,now=S.done?-1:S.tries.length;
       +(S.ok&&!guest?'<div class="gain">+'+(S.gained||0)+" au score Motipop"+(S.pts>S.gained&&S.gained===0&&ST.pts>=150?" · plafond du jour atteint":"")+"</div>":S.ok?'<div class="note">Crée ton pseudo pour que tes points comptent.</div>':"")
       +'<button class="btn primary" id="mlNext" type="button">Mot suivant →</button>'}
     else if(S.ok){const nx=last?0:PROG[Math.floor(S.step/3)+1];
-      e.innerHTML='<img class="mdpop" src="/d/pop-victoire-d9b3c764d3.webp" width="120" height="120" alt="Pop saute de joie">'
+      e.innerHTML='<img class="mdpop" src="/d/pop-saut-097d07117c.webp" width="95" height="120" alt="Pop saute de joie">'
       +(last?'<h3>🏆 Parcours complet !</h3><div class="note">De 3 à 12 lettres sans faute.</div>':'<h3>Bravo ! Palier '+S.len+' lettres validé</h3>')
       +'<div class="w">'+esc(S.word||"")+'</div><div class="gain">+'+sum+' points sur ce palier</div>'+motip
       +'<div class="mltl">'+tl()+'</div>'

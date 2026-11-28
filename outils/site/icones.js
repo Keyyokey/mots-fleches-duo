@@ -21,8 +21,15 @@ const CLOSE_RE=/^(Fermer|Annuler|Continuer à jouer)$/;
 function cross(ov){const sh=ov.querySelector(".sheet");if(!sh||sh.querySelector(":scope>.xbtn"))return;if([...sh.querySelectorAll("button")].some(b=>CLOSE_RE.test(b.textContent.trim())))return;const b=document.createElement("button");b.className="xbtn";b.type="button";b.setAttribute("aria-label","Fermer");b.title="Fermer";
   b.innerHTML='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6.5 6.5l11 11M17.5 6.5l-11 11" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></svg>';
   b.onclick=e=>{e.stopPropagation();const stay=ov.querySelector("#lvStay");if(stay){stay.click();return}ov.classList.remove("on");document.dispatchEvent(new CustomEvent("fl-closed",{detail:ov.id}))};sh.prepend(b)}
-function scan(){document.querySelectorAll(".overlay").forEach(cross)}
-let busy=false;const mo=new MutationObserver(()=>{if(busy)return;busy=true;requestAnimationFrame(()=>{mo.disconnect();try{scan()}finally{busy=false;mo.observe(document.body,{subtree:true,childList:true,characterData:true})}})});
+// 28/11 (style D) : Pop dans les fenêtres de fin — il saute de joie, ou il a l'air perdu quand la partie est perdue ou arrêtée
+const POPJ="/d/pop-saut-097d07117c.webp",POPP="/d/pop-perdu-b4dd8a59b8.webp";
+const LOSE=/arrêtée|Robot Pop gagne|n'est pas arrivé|n'existe plus|[Pp]erdu|[Tt]emps écoulé|Dommage|Pas cette fois/;
+function popIn(sh,txt){if(!sh)return;let im=sh.querySelector(":scope>img.dpop");const src=LOSE.test(txt||"")?POPP:POPJ;
+  if(!im){im=document.createElement("img");im.className="dpop";im.alt="";im.setAttribute("aria-hidden","true");im.decoding="async";sh.prepend(im)}
+  if(im.getAttribute("src")!==src)im.setAttribute("src",src)}
+function popEnd(){const w=document.getElementById("endWin");if(w&&w.classList.contains("on"))popIn(w.querySelector(".sheet"),(document.getElementById("endT")||{}).textContent);}
+function scan(){document.querySelectorAll(".overlay").forEach(cross);popEnd()}
+let busy=false;const mo=new MutationObserver(()=>{if(busy)return;busy=true;requestAnimationFrame(()=>{mo.disconnect();try{scan()}finally{busy=false;mo.observe(document.body,{subtree:true,childList:true,characterData:true,attributes:true,attributeFilter:["class"]})}})});
 const st=document.createElement("style");st.textContent=".bico{display:inline-flex;width:1.35em;height:1.35em;vertical-align:-.32em;margin-right:.3em;flex:none}.bico svg{width:100%;height:100%;display:block}"
   +".bico.only{margin-right:0}h3 .bico{width:1.45em;height:1.45em;vertical-align:-.36em}"
   +".overlay .sheet{position:relative}.xbtn{position:absolute;top:10px;right:10px;width:32px;height:32px;border-radius:50%;display:grid;place-items:center;padding:0;cursor:pointer;color:inherit;"
@@ -30,6 +37,6 @@ const st=document.createElement("style");st.textContent=".bico{display:inline-fl
   +".xbtn:hover{transform:scale(1.08);background:rgba(255,255,255,.22)}.xbtn svg{width:16px;height:16px}"
   +"[data-theme=light] .xbtn{background:rgba(255,255,255,.7);border-color:rgba(15,25,40,.12);color:#1b2433}";
 document.head.appendChild(st);
-const go=()=>{scan();mo.observe(document.body,{subtree:true,childList:true,characterData:true})};
+const go=()=>{scan();mo.observe(document.body,{subtree:true,childList:true,characterData:true,attributes:true,attributeFilter:["class"]})};
 if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",go);else go();
 })();

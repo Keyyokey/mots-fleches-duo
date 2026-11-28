@@ -161,7 +161,7 @@ body.mdpc #seoTxt{display:none}
 #mdInfoBox #seoTxt{display:block!important;margin:0;padding:0;background:none;border:0}
 #mdInfoBox .x{position:absolute;top:10px;right:10px;width:40px;height:40px;border-radius:12px;border:1px solid rgba(255,255,255,.2);background:rgba(255,255,255,.08);color:inherit;font-size:1.1rem;cursor:pointer}
 [data-theme=light] #mdInfoBox .in{background:#fff;color:#14202b;border-color:rgba(15,25,40,.15)}
-</style><link rel="stylesheet" href="/d/theme-828ce3d3ac.css"></head>
+</style><link rel="stylesheet" href="/d/theme-a3053f627e.css"></head>
 <body class="sk-new g-md">
 <div id="skTop" class="skph"></div>
 <div class="blob b1"></div><div class="blob b2"></div><div class="blob b3"></div>
@@ -265,7 +265,7 @@ function draw(){if(!S)return;
   $("#mdKeys").innerHTML=!S.done||S.tries.length?"AZERTYUIOPQSDFGHJKLMWXCVBN".split("").map(L=>'<span class="'+(L in st?"k"+st[L]:"")+'">'+L+"</span>").join(""):"";
   $("#mdBar").style.display=S.done?"none":"";inp.disabled=!!S.done;if(S.done){if(document.activeElement===inp)inp.blur();inp.hidden=true}
   const e=$("#mdEnd");e.classList.toggle("on",!!S.done);if(S.done)fit();
-  if(S.done){const n=S.tries.length;e.innerHTML=(S.ok?'<img class="mdpop" src="/d/pop-victoire-d9b3c764d3.webp" width="120" height="120" alt="Pop saute de joie">':'')+(S.ok?'<h3>Trouvé en '+n+" essai"+(n>1?"s":"")+(S.ms?" · "+fmt(S.ms):"")+" !</h3>":"<h3>Pas cette fois…</h3>")+'<div class="gain">+'+(S.pts||0)+' points aujourd\'hui</div><div class="w">'+esc(S.word)+'</div><div class="def">'+esc(S.def||"")+'</div><div class="mdmini" aria-hidden="true">'+S.tries.map(t=>'<div>'+t.c.map(c=>'<i class="m'+c+'"></i>').join("")+'</div>').join("")+'</div><div class="row mdsh"><span class="shl">Défie un proche :</span><button class="btn mdpart" id="mdShare" type="button" title="Envoyer ton résultat (WhatsApp, SMS…)">'+SHI+' Partager</button><a class="btn mdnext" id="mdNext" href="/motlibre?mode=prog">'+NXI+' Nouvelle partie</a></div>'+serie()+'<small class="note">Le mot n\'est jamais montré : rien n\'est gâché.</small><small class="note">Nouveau mot demain à minuit.</small>';
+  if(S.done){const n=S.tries.length;e.innerHTML=(S.ok?'<img class="mdpop" src="/d/pop-saut-097d07117c.webp" width="95" height="120" alt="Pop saute de joie">':'')+(S.ok?'<h3>Trouvé en '+n+" essai"+(n>1?"s":"")+(S.ms?" · "+fmt(S.ms):"")+" !</h3>":"<h3>Pas cette fois…</h3>")+'<div class="gain">+'+(S.pts||0)+' points aujourd\'hui</div><div class="w">'+esc(S.word)+'</div><div class="def">'+esc(S.def||"")+'</div><div class="mdmini" aria-hidden="true">'+S.tries.map(t=>'<div>'+t.c.map(c=>'<i class="m'+c+'"></i>').join("")+'</div>').join("")+'</div><div class="row mdsh"><span class="shl">Défie un proche :</span><button class="btn mdpart" id="mdShare" type="button" title="Envoyer ton résultat (WhatsApp, SMS…)">'+SHI+' Partager</button><a class="btn mdnext" id="mdNext" href="/motlibre?mode=prog">'+NXI+' Nouvelle partie</a></div>'+serie()+'<small class="note">Le mot n\'est jamais montré : rien n\'est gâché.</small><small class="note">Nouveau mot demain à minuit.</small>';
     $("#mdShare").onclick=()=>share("p");endPop()}
   list()}
 // 27/11 : à la fin de la partie, le résultat s'ouvre en fenêtre par-dessus la grille (fermeture par ×, Échap ou clic à côté) ; fermée, elle reprend sa place sous la grille
@@ -354,7 +354,7 @@ const d0=draw;draw=function(){d0.apply(this,arguments);try{upd()}catch(e){}};upd
 if(location.hostname==="localhost")window.__t=c=>eval(c);
 })();
 </script>
-<script>window.SK_HDR=1;</script><script src="/d/compte-e08aa623bf.js"></script><script src="/d/sk-5e2606d4d7.js"></script>
+<script>window.SK_HDR=1;</script><script src="/d/compte-e08aa623bf.js"></script><script src="/d/sk-17a7388056.js"></script>
 <script src="/d/icons-ec7b5caa49.js" defer></script>
 <style id="popguide">
 /* Pop qui guide (25/11) : seulement pour un visiteur arrivé par un lien de suivi, une seule fois */

@@ -5,7 +5,7 @@
 (function(){if(window.__errOn)return;window.__errOn=1;let n=0;const send=(m,w)=>{if(n++>5||!m)return;try{const b=JSON.stringify({m:String(m).slice(0,300),w:String(w||"").slice(0,120),p:location.pathname,ua:navigator.userAgent});if(navigator.sendBeacon)navigator.sendBeacon("/api/err",new Blob([b],{type:"application/json"}));else fetch("/api/err",{method:"POST",body:b,keepalive:true})}catch(e){}};addEventListener("error",e=>{if(e&&e.message)send(e.message,String(e.filename||"").split("/").pop()+":"+e.lineno)});addEventListener("unhandledrejection",e=>{const r=e&&e.reason;send("promesse : "+(r&&r.message||r))})})();
 </script>
 <meta name="description" content="Motipop : jeux de mots gratuits en ligne. Mot du jour, énigme du jour, mots fléchés, mots mêlés, Tourniquet, Magnético, Wordflush et culture générale, seul ou entre amis.">
-<meta name="theme-color" content="#12152e">
+<meta name="theme-color" content="#24113d">
 <link rel="icon" href="/favicon.svg" type="image/svg+xml"><link rel="apple-touch-icon" href="/apple-touch-icon.png">
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
@@ -1691,7 +1691,7 @@ else if(!ME&&guestN()>=GUEST_MAX&&!LS.get("fl-guest-asked")){LS.set("fl-guest-as
 
 </script>
 <script src="/d/invit-9148ad9ec3.js"></script>
-<script src="/d/ic-6effd04d70.js"></script>
+<script src="/d/ic-0cf1217517.js"></script>
 <script>// animations des tuiles : en pause quand la tuile n'est pas à l'écran (moins de calcul sur téléphone)
 (function(){if(!("IntersectionObserver" in window))return;var io=new IntersectionObserver(function(es){es.forEach(function(e){e.target.classList.toggle("zz",!e.isIntersecting)})},{rootMargin:"60px"});
 document.querySelectorAll(".tile").forEach(function(t){t.classList.add("zz");io.observe(t)})})();</script>

@@ -250,3 +250,93 @@ html .mginfo .mgchip{background:var(--glass2)!important;color:var(--muted)!impor
 html .mginfo .mgsc{background:var(--glass2)!important;border:0!important;color:var(--dact)!important}
 html .mgfield .count{background:rgba(26,11,46,.6)!important;backdrop-filter:none!important}
 html[data-theme="light"] .mgempty{background:#efe3fa!important;border-color:#d9c6ee!important}
+/* ===== Étape 6.4 · Mot libre (planche D-MotLibre) =====
+   jalons : carré arrondi ; franchi = turquoise coché, en cours = crème bordé de jaune, à venir = prune ; points en jaune.
+   paliers (3 à 12 lettres) : faits turquoise, en cours crème, à venir prune. Barres et diagrammes turquoise → jaune (plus de bleu pervenche). */
+html .mlj i{border-radius:12px!important;width:38px!important;height:38px!important;background:var(--glass2)!important;border:0!important;color:var(--muted)!important;box-shadow:0 3px 0 rgba(16,4,30,.4)!important}
+html .mlj.now i{background:#fff3df!important;color:#5b2a91!important;box-shadow:0 0 0 3px var(--dact),inset 0 -3px 0 #e2b97a!important}
+html .mlj.ok i{background:#2ec4b6!important;color:#08302c!important;box-shadow:inset 0 -3px 0 #1a8f84!important}
+html .mlj.ko i{background:#ff6b6b!important;color:#2a0f1a!important}
+html .mlj b{color:var(--muted)!important}html .mlj.ok b,html .mlj.now b{color:var(--dact)!important}
+html .mlbar{height:6px!important;border-radius:999px!important;background:var(--glass2)!important;margin-top:17px!important}
+html .mlbar.ok{background:#2ec4b6!important}
+html .mlpal span{background:var(--glass2)!important;border:0!important;color:var(--muted)!important;border-radius:9px!important;padding:5px 0!important}
+html .mlpal span.ok{background:#2ec4b6!important;color:#08302c!important}
+html .mlpal span.now{background:#fff3df!important;color:#5b2a91!important;box-shadow:inset 0 -3px 0 #e2b97a!important}
+html .mldist i,html .mlcol i,html .mlwin em i{background:linear-gradient(90deg,#2ec4b6,#ffd23f)!important}
+html .mlcol i{background:linear-gradient(0deg,#2ec4b6,#ffd23f)!important}
+html .g-ml .gtop .mlstb svg{color:#fff3df!important}
+html .g-ml .mdc.first,html .mdc.first{color:#5b2a91!important}
+html .g-ml .mdc.cur{border-color:var(--dact)!important}
+/* ===== Étape 6.5 · Mot du jour (planche D-Jeu) =====
+   la consigne devient une bulle crème de Pop (comme sur la planche) ; clavier des lettres essayées en tuiles. */
+html body.tj.mdnew .mdbar .note,html .mdbar #mdNote{position:relative;background:#fff3df!important;color:#3b1d5c!important;border-radius:16px 16px 16px 6px;padding:8px 12px 8px 52px!important;font:700 .86rem/1.25 Nunito,Inter,sans-serif!important;box-shadow:inset 0 -3px 0 #e2b97a;min-height:44px;display:flex;align-items:center}
+html .mdbar #mdNote::before{content:"";position:absolute;left:4px;bottom:0;width:44px;height:48px;background:url(/d/pop-explique-171569b04b.webp) center bottom/contain no-repeat}
+html .mdbar #mdNote:empty{display:none}
+html .mdkeys span{border-radius:9px!important;box-shadow:0 2px 0 rgba(16,4,30,.35)}
+html .mdkeys .k2{box-shadow:inset 0 -3px 0 #1a8f84!important}html .mdkeys .k1{box-shadow:inset 0 -3px 0 #c79a00!important}
+html .mdhead .mdcount{background:var(--glass2)!important;border:0!important;color:var(--dact)!important}
+html .btn.mddel svg,html .btn.moreBtn svg{width:24px!important;height:24px!important;flex:none}
+html[data-theme="light"] .g-ml .gtop .mlstb svg{color:#3b1d5c!important}
+/* ===== Étape 6.6 · Mots mêlés =====
+   grille posée sur une carte crème (lettres prune, Nunito 900) ; mots trouvés : capsule à la couleur du joueur, lettres assombries ;
+   liste des mots : pastilles prune, barrées quand elles sont trouvées ; chrono en pastille nuit. */
+html .wgrid{background:#fff3df!important;border-radius:16px!important;box-shadow:inset 0 -5px 0 #e2b97a,0 8px 20px rgba(16,4,30,.28)!important;padding:4px}
+html .mc{color:#3b1d5c!important;font-family:Nunito,Inter,sans-serif!important;font-weight:900!important;background:transparent!important;border:0!important}
+html .mc.hl-p1{color:color-mix(in srgb,var(--p1) 50%,#1a0b2e)!important}html .mc.hl-p2{color:color-mix(in srgb,var(--p2) 50%,#1a0b2e)!important}
+html .mc.hl-p3{color:color-mix(in srgb,var(--p3,#a77bd6) 50%,#1a0b2e)!important}html .mc.hl-p4{color:color-mix(in srgb,var(--p4,#ffa94d) 50%,#1a0b2e)!important}
+html .mc.wrong{color:#d63a3a!important}
+html .wpill{background:var(--glass2)!important;border:0!important;color:var(--ink)!important;border-radius:999px!important;font-weight:800!important;box-shadow:0 2px 0 rgba(16,4,30,.35)}
+html .wpill[class*="found"]{background:#2ec4b6!important;color:#08302c!important;text-decoration:line-through;opacity:.85;box-shadow:none}
+html .wpill.found-p2{background:#ff6b6b!important;color:#2a0f1a!important}
+html .mmclock,html .scores2.linked .mmclock{background:#24113d!important;border:0!important;color:#fff3df!important;border-radius:999px!important;font-weight:800}
+html[data-theme="light"] .mmclock,html[data-theme="light"] .scores2.linked .mmclock{background:#3b1d5c!important}
+/* ===== Étape 6.7 · Tourniquet =====
+   définitions : grands ronds crème, texte prune ; choisie = anneau jaune ; trouvée = turquoise (toi) ou corail (l'autre).
+   lettres : petits ronds « case vide » ; lettre tapée sur bois avec anneau jaune ; trouvées en couleur du joueur. */
+html #rring .rq,html #rring .rq:not(.f1):not(.f2),html .rq{background:#fff3df!important;color:#3b1d5c!important;border:0!important;box-shadow:inset 0 -4px 0 #e2b97a,0 4px 10px rgba(16,4,30,.25)!important;backdrop-filter:none!important}
+html .rq.sel,html #rring .rq.sel{box-shadow:inset 0 -4px 0 #e2b97a,0 0 0 4px var(--dact)!important}
+html .rq.f1,html #rring .rq.f1{background:#2ec4b6!important;color:#08302c!important;box-shadow:inset 0 -4px 0 #1a8f84!important}
+html .rq.f2,html #rring .rq.f2{background:#ff6b6b!important;color:#2a0f1a!important;box-shadow:inset 0 -4px 0 #c84a4a!important}
+html .rb2{background:#55327a!important;border:0!important;color:#fff3df!important;text-shadow:none!important;box-shadow:0 2px 0 rgba(16,4,30,.35)}
+html[data-theme="light"] .rb2{background:#efe6f7!important;color:#3b1d5c!important}
+html .rb2.typ{background:#fff3df!important;color:#5b2a91!important;box-shadow:inset 0 -3px 0 #e2b97a,0 0 0 3px var(--dact)!important}
+html .rb2.f1{background:#2ec4b6!important;color:#08302c!important;box-shadow:inset 0 -3px 0 #1a8f84!important}
+html .rb2.f2{background:#ff6b6b!important;color:#2a0f1a!important;box-shadow:inset 0 -3px 0 #c84a4a!important}
+html .rb2.hint{color:#c9b6e0!important}
+html .rb2.dup,html .rb2.live{outline:2px dashed #a77bd6;outline-offset:-3px}
+html .rb2.num{border:0!important;outline:2px dashed var(--dact);outline-offset:-3px;color:var(--dact)!important}
+html .rb2.n1{box-shadow:0 0 0 3px var(--dact)!important}
+/* ===== Étape 6.8 · Culture générale =====
+   question en Nunito 900 (plus de Playfair) ; réponses = tuiles de bois avec leur lettre (A, B, C, D) sur pastille prune ;
+   choisie = anneau jaune ; bonne = turquoise ; fausse = corail + secousse. Points de progression : prune, faits turquoise, ratés corail, en cours jaune.
+   « Le savais-tu ? » : carte crème. */
+html .cgq{font-family:Nunito,Inter,system-ui,sans-serif!important;font-weight:900!important;color:var(--ink)}
+html .cgans button{background:#fff3df!important;color:#3b1d5c!important;border:0!important;box-shadow:inset 0 -4px 0 #e2b97a!important;backdrop-filter:none!important;-webkit-backdrop-filter:none!important;font-weight:800!important}
+html .cgans button::before{background:#3b1d5c!important;color:#ffd23f!important;font-weight:900}
+html .cgans button:hover{transform:translateY(-2px);background:#fff8ea!important}
+html .cgans button.pick{box-shadow:inset 0 -4px 0 #e2b97a,0 0 0 3px var(--dact)!important}
+html .cgans button.ok{background:#2ec4b6!important;color:#08302c!important;box-shadow:inset 0 -4px 0 #1a8f84!important}
+html .cgans button.ok::before{background:#08302c!important;color:#2ec4b6!important}
+html .cgans button.ko{background:#ff6b6b!important;color:#2a0f1a!important;box-shadow:inset 0 -4px 0 #c84a4a!important;animation:dsec .42s ease!important}
+html .cgans button.ko::before{background:#2a0f1a!important;color:#ff6b6b!important}
+html .cgdots i{background:var(--glass2)!important;border:0!important;width:10px!important;height:10px!important}
+html .cgdots i.ok{background:#2ec4b6!important}html .cgdots i.ko{background:#ff6b6b!important}
+html .cgdots i.cur{background:var(--dact)!important;box-shadow:none!important}
+html .cgfact{background:#fff3df!important;color:#3b1d5c!important;border:0!important;box-shadow:inset 0 -3px 0 #e2b97a!important}
+html .cgfact b{color:#7a4fb3!important}
+html .cgfact a{color:#5b2a91!important}
+/* ===== Étape 6.9 · Wordflush =====
+   le tapis vert reste propre au jeu ; tout ce qui l'entoure passe en D : liseré en bois clair, panneaux sans flou, liens jaunes. */
+html .pkfelt{border-color:#e2b97a!important}
+html #pkLobby.pklobby,html #pkDealer.pkdealer{background:rgba(26,11,46,.55)!important;backdrop-filter:none!important;-webkit-backdrop-filter:none!important;border-color:transparent!important}
+html .pot{background:#24113d!important;border:0!important}
+html #seoTxt{background:var(--glass)!important;border:0!important;backdrop-filter:none!important}
+html .pkwallet a,html #pkWalNote a,html .pkfelt a{color:var(--dact)!important}
+/* ===== Étape 7 · fenêtres et écrans de fin (planches D-Fin, D-Palier, D-Perdu) =====
+   Pop en haut de la fenêtre (il saute de joie, ou il a l'air perdu), titre Nunito 900 centré, points en jaune. */
+html .overlay .sheet>img.dpop,html .mdend.pop>img.dpop{display:block;width:96px;height:auto;margin:0 auto -2px;pointer-events:none;filter:drop-shadow(0 6px 10px rgba(16,4,30,.4));animation:din .35s ease-out both}
+html #endWin .sheet h3,html .overlay .sheet>h3{font:900 1.35rem/1.2 Nunito,Inter,sans-serif!important;text-align:center;color:var(--ink)}
+html #endWin .sheet .endrow .sv,html #endWin .sheet b.pts{color:var(--dact)}
+html .endrow{background:var(--glass2);border-radius:14px;padding:6px 10px;display:flex;align-items:center;gap:10px}
+html .endrow .pi{border-radius:9px!important;color:#08302c!important}

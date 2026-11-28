@@ -15,7 +15,8 @@ def emit(prefix, ext, body):
 SK_JS, SK_CSS, JEU, ICO = src("sk.js"), src("sk.css"), src("jeu.css"), src("icones.js")
 u_skjs, u_skcss, u_jeu, u_ico = emit("sk", "js", SK_JS), emit("sk", "css", SK_CSS), emit("jeu", "css", JEU), emit("ic", "js", ICO)
 u_theme = emit("theme", "css", src("theme.css"))   # style D (28/11) : chargé en dernier, juste avant </head>, sur les pages de jeu
-u_thac = emit("theme-accueil", "css", src("theme_accueil.css"))   # style D de la page d'accueil (étape 4)
+u_thac = emit("theme-accueil", "css", src("theme_accueil.css"))
+u_thpg = emit("theme-pages", "css", src("theme_pages.css"))   # style D des pages Règles, Mentions légales et Solution (étape 8)   # style D de la page d'accueil (étape 4)
 JEUX = {"fl.html", "mm.html", "rd.html", "cg.html", "mg.html", "md.html", "ml.html", "sd.html", "poker.html"}
 H = "[0-9a-f]{10}"
 # icônes dessinées (public/d/icons.js, source unique) : copie à empreinte pour toutes les pages
@@ -58,7 +59,11 @@ for name in PAGES:
     # style D : une seule feuille, toujours la dernière de l'en-tête
     s = re.sub(r'<link rel="stylesheet" href="/d/theme-' + H + r'\.css">', '', s)
     s = re.sub(r'<link rel="stylesheet" href="/d/theme-accueil-' + H + r'\.css">', '', s)
+    s = re.sub(r'<link rel="stylesheet" href="/d/theme-pages-' + H + r'\.css">', '', s)
     if name in JEUX: s = s.replace('</head>', '<link rel="stylesheet" href="' + u_theme + '"></head>', 1)
+    if name in ("regles.html", "legal.html"): s = s.replace('</head>', '<link rel="stylesheet" href="' + u_thpg + '"></head>', 1)
+    # 28/11 : Magnético reçoit aussi le script commun des fenêtres (croix de fermeture, Pop dans la fenêtre de fin)
+    if name == "mg.html" and '/d/ic-' not in s: s = s.replace('</body>', '<script src="' + u_ico + '"></script></body>', 1)
     open(p, "w", encoding="utf8").write(s)
     print(f"{name:10s} {n0 // 1024:4d} Ko → {len(s) // 1024:4d} Ko")
 # accueil : boîte d'invitations (même script, sans bouton « À plusieurs »)
