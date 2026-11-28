@@ -14,6 +14,8 @@ def emit(prefix, ext, body):
     return "/d/" + prefix + "-" + h + "." + ext
 SK_JS, SK_CSS, JEU, ICO = src("sk.js"), src("sk.css"), src("jeu.css"), src("icones.js")
 u_skjs, u_skcss, u_jeu, u_ico = emit("sk", "js", SK_JS), emit("sk", "css", SK_CSS), emit("jeu", "css", JEU), emit("ic", "js", ICO)
+u_theme = emit("theme", "css", src("theme.css"))   # style D (28/11) : chargé en dernier, juste avant </head>, sur les pages de jeu
+JEUX = {"fl.html", "mm.html", "rd.html", "cg.html", "mg.html", "md.html", "ml.html", "sd.html", "poker.html"}
 H = "[0-9a-f]{10}"
 # icônes dessinées (public/d/icons.js, source unique) : copie à empreinte pour toutes les pages
 u_mj = emit("mj", "js", src("mj.js"))
@@ -52,6 +54,9 @@ for name in PAGES:
     s = re.sub(r'<script src="/d/bandeau-' + H + r'\.js"></script>', '<script src="' + u_band + '"></script>', s)
     # multijoueur hors salon
     s = re.sub(r'<script (?:id="mj-js"|src="/d/mj-' + H + r'\.js")></script>', '<script src="' + u_mj + '"></script>', s)
+    # style D : une seule feuille, toujours la dernière de l'en-tête
+    s = re.sub(r'<link rel="stylesheet" href="/d/theme-' + H + r'\.css">', '', s)
+    if name in JEUX: s = s.replace('</head>', '<link rel="stylesheet" href="' + u_theme + '"></head>', 1)
     open(p, "w", encoding="utf8").write(s)
     print(f"{name:10s} {n0 // 1024:4d} Ko → {len(s) // 1024:4d} Ko")
 # accueil : boîte d'invitations (même script, sans bouton « À plusieurs »)
