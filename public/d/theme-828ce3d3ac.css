@@ -210,3 +210,43 @@ html .fc.db{box-shadow:inset 0 -3px 0 #ff6b6b!important}html .fc.dr{box-shadow:i
 html[data-theme="light"] .fgrid{background:#3b1d5c!important;border-color:#3b1d5c!important}
 /* couleurs des joueurs (pastilles, anneaux) : turquoise et corail de la palette */
 html:root,html:root[data-theme="light"]{--p1:#2ec4b6;--p2:#ff6b6b}
+/* ===== Étape 6.2 · Sudoku (planche D-Sudoku) =====
+   grille crème, traits fins sable, gros traits prune ; chiffres donnés prune, les tiens turquoise foncé ;
+   ligne, colonne et carré de la case choisie en jaune clair ; case choisie jaune entourée d'encre ; mêmes chiffres en jaune.
+   pavé : tuiles de bois ; chiffre actif en jaune. */
+html .sdg{--sdthin:#e7d2b0;--sdline:#5b2a91;--sdgiven:#3b1d5c;--sdmine:#0e8a7c;--cell:#fff3df;background:#fff3df!important;border:3px solid #5b2a91!important;border-radius:14px!important;box-shadow:0 8px 22px rgba(16,4,30,.3)}
+html .sdc{color:var(--sdmine)}
+html .sdc.g{color:var(--sdgiven)}
+html .sdc.zone,html[data-theme=light] .sdc.zone{background:#ffe88a!important}
+html .sdc.same,html[data-theme=light] .sdc.same{background:#ffd23f!important;color:#2a0f1a!important}
+html .sdc.sel,html[data-theme=light] .sdc.sel{background:#ffd23f!important;color:#2a0f1a!important;box-shadow:inset 0 0 0 3px #2a0f1a!important}
+html .sdc.bad{color:#d63a3a!important}
+html .sdc.bad::after{border-color:rgba(214,58,58,.6)!important}
+html .sdc .nt{color:#7a4fb3!important}
+html .sdpad button{background:#fff3df!important;color:#3b1d5c!important;border:0!important;border-radius:12px!important;box-shadow:inset 0 -4px 0 #e2b97a!important;font:900 1.35rem Nunito,Inter,sans-serif!important}
+html .sdpad button:active{transform:translateY(2px);box-shadow:inset 0 -2px 0 #e2b97a!important}
+html .sdpad button.on{background:var(--dact)!important;color:#2a0f1a!important;box-shadow:inset 0 -4px 0 #c79a00!important}
+html .sdpad button.full{opacity:.35}
+html.cb .sdc.same{background:#9fc2ff!important;color:#0d1b3d!important}
+html.cb .sdc.sel{background:#5aa0ff!important;color:#0d1b3d!important;box-shadow:inset 0 0 0 3px #0d1b3d!important}
+/* ===== Étape 6.3 · Magnético (planche D-Magnetico) =====
+   bulles pleines aux couleurs de la palette (violet, turquoise, corail, jaune) avec un relief dessous, plus de bulles de verre ;
+   encadré du mot : carte prune, cases vides en pointillé, syllabe posée sur une tuile de bois ; barre turquoise → jaune. */
+html .mgcore{background:var(--dg)!important;border:0!important;color:var(--dk)!important;text-shadow:none!important;box-shadow:inset 0 -6px 0 var(--dd),0 6px 14px rgba(16,4,30,.35)!important;animation:none!important}
+html .mgcore::before{display:none!important}
+html .mgcore.c0{--dg:#2ec4b6;--dd:#1a8f84;--dk:#08302c}html .mgcore.c1{--dg:#8b5cf6;--dd:#6236c9;--dk:#fff}
+html .mgcore.c2{--dg:#ffd23f;--dd:#c79a00;--dk:#3b1d5c}html .mgcore.c3{--dg:#ff6b6b;--dd:#c84a4a;--dk:#2a0f1a}
+html .mgcore.hit{box-shadow:inset 0 -6px 0 var(--dd),0 0 0 4px #fff3df,0 6px 14px rgba(16,4,30,.35)!important;animation:dsaut .5s ease!important}
+html .mgpass{background:#55327a!important;opacity:.55!important;box-shadow:none!important;backdrop-filter:none!important;-webkit-backdrop-filter:none!important}
+html .mgfield.flash{box-shadow:inset 0 0 0 4px #ff6b6b!important}
+html .mgbox{background:var(--glass)!important;border:0!important;box-shadow:0 8px 20px rgba(16,4,30,.28)!important;backdrop-filter:none!important;-webkit-backdrop-filter:none!important}
+html .mgbox.ko{box-shadow:0 0 0 3px #ff6b6b!important}html .mgbox.ok{box-shadow:0 0 0 3px #2ec4b6!important}
+html .mgempty{border:2px dashed #6c4691!important;background:#3b1d5c!important}
+html .mgslot{background:#fff3df!important;color:#5b2a91!important;border:0!important;box-shadow:inset 0 -4px 0 #e2b97a!important;text-shadow:none!important;backdrop-filter:none!important;-webkit-backdrop-filter:none!important}
+html .mgslot::before{display:none!important}
+html .mgslot.lock,html .mgbox.ok .mgslot{background:#2ec4b6!important;color:#08302c!important;box-shadow:inset 0 -4px 0 #1a8f84!important}
+html .mgbar{background:#24113d!important}html .mgbar i{background:linear-gradient(90deg,#2ec4b6,#ffd23f)!important}
+html .mginfo .mgchip{background:var(--glass2)!important;color:var(--muted)!important}
+html .mginfo .mgsc{background:var(--glass2)!important;border:0!important;color:var(--dact)!important}
+html .mgfield .count{background:rgba(26,11,46,.6)!important;backdrop-filter:none!important}
+html[data-theme="light"] .mgempty{background:#efe3fa!important;border-color:#d9c6ee!important}
