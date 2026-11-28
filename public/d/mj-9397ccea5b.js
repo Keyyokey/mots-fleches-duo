@@ -77,7 +77,7 @@
   function pill() {
     if (!P) return; var n = others().length;
     P.style.display = busy() ? "none" : ""; var u = unread();
-    P.innerHTML = '<span class="dot' + (n ? "" : " off") + '"></span>👥 <span class="lb">À plusieurs</span>' + (n ? " · " + n : "") + (u ? '<span class="mjbdg" aria-label="' + u + ' invitation' + (u > 1 ? "s" : "") + ' non lue' + (u > 1 ? "s" : "") + '">' + u + "</span>" : "");
+    P.innerHTML = '<span class="dot' + (n ? "" : " off") + '"></span><svg class="mjico" viewBox="0 0 24 24" aria-hidden="true"><circle cx="9" cy="8.5" r="3.4" fill="none" stroke="currentColor" stroke-width="2.2"/><path d="M3 19.5c0-3.3 2.7-5.6 6-5.6s6 2.3 6 5.6" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/><path d="M15.5 5.6a3.2 3.2 0 0 1 0 6.1M18 14.3c1.8.7 3 2.5 3 4.9" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg><span class="lb">À plusieurs</span>' + (n ? '<span class="mjn"> · ' + n + "</span>" : "") + (u ? '<span class="mjbdg" aria-label="' + u + ' invitation' + (u > 1 ? "s" : "") + ' non lue' + (u > 1 ? "s" : "") + '">' + u + "</span>" : "");
     P.title = n ? n + " joueur" + (n > 1 ? "s" : "") + " en ligne" : "Jouer avec d'autres joueurs";
   }
   // ---------- boîte d'invitations (26/11) ----------
