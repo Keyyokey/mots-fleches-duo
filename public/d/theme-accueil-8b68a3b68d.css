@@ -1,0 +1,117 @@
+/* ===== Style D · page d'accueil (étape 4, 28/11/2026) =====
+   Chargée en dernier sur l'accueil seulement (partage.py). Même palette que theme.css.
+   Cartes de jeu : le nom + une petite animation qui montre le jeu + un badge de jouabilité (Solo / Solo · Multi / Multi).
+   Teintes des jeux (pastille animée) : Mot libre corail, Magnético violet, Mots fléchés turquoise, Mots mêlés vert pomme,
+   Tourniquet rose, Culture orange, Sudoku bleu, Wordflush ambre. */
+html:root{--bg1:#24113d;--bg2:#3b1d5c;--glass:#45265f;--glass2:#4a2a6e;--stroke:#6c4691;--ink:#fff;--muted:#e2d3f2;--gold:#ffd23f;
+  --dact:#ffd23f;--dactink:#2a0f1a;--dactedge:#c79a00}
+html:root[data-theme="light"]{--glass:#fff;--glass2:#efe3fa;--stroke:#d9c6ee;--ink:#2a0f3d;--muted:#5e4a75;--gold:#c79a00}
+html body{background:radial-gradient(circle at 85% 0%,rgba(255,210,63,.22),transparent 42%),linear-gradient(170deg,#3b1d5c,#24113d 70%) fixed!important;background-color:#24113d!important;color:var(--ink);min-height:100vh}
+html[data-theme="light"] body{background:radial-gradient(circle at 85% 0%,rgba(255,210,63,.28),transparent 42%),linear-gradient(170deg,#fbf4ff,#f1e4fb 70%) fixed!important;background-color:#f1e4fb!important}
+html .blob,html .skblob,html .hline{display:none!important}
+html .glass,html .glass-pill{background:var(--glass)!important;border-color:transparent!important;backdrop-filter:none!important;-webkit-backdrop-filter:none!important}
+html .glass-pill.sq{background:var(--glass2)!important;border-radius:14px!important;box-shadow:0 3px 0 rgba(16,4,30,.45)!important;color:#fff3df}
+html[data-theme="light"] .glass-pill.sq{color:#3b1d5c;box-shadow:0 3px 0 #d9c6ee!important}
+html #logoHome.glass-pill{background:transparent!important;box-shadow:none!important}
+html button,html .abtn{backdrop-filter:none!important;-webkit-backdrop-filter:none!important}
+/* barre « Joue avec tes amis » */
+html #amisBar{border-radius:22px!important;box-shadow:0 10px 28px rgba(16,4,30,.3)}
+html #amisBar .abbtn{background:var(--dact)!important;color:var(--dactink)!important;border:0!important;border-radius:999px!important;font:800 .95rem Nunito,Inter,sans-serif;box-shadow:0 3px 0 var(--dactedge);min-height:42px;padding:0 16px}
+/* ===== Mot du jour : carte corail (planche D-Accueil) ===== */
+html .tile.mdt{background:linear-gradient(135deg,#ff6b6b,#ffa94d)!important;border:0!important;border-radius:26px!important;box-shadow:0 14px 34px rgba(255,107,107,.28)!important;color:#2a0f1a}
+html .tile.mdt::before,html .tile.mdt::after{display:none!important}
+html .tile.mdt .tag{background:#2a0f1a!important;color:var(--dact)!important;border:0!important}
+html .tile.mdt h2{font-family:Nunito,Inter,sans-serif!important;font-weight:900!important;color:#2a0f1a!important;text-shadow:none!important;letter-spacing:-.01em}
+html .tile.mdt p{color:#3b1020!important;font-weight:700}
+html .tile.mdt .mdtpill{background:rgba(42,15,26,.14)!important;color:#2a0f1a!important;border:0!important}
+html .tile.mdt .mdgo{background:#2a0f1a!important;color:var(--dact)!important;border:0!important;border-radius:999px!important;box-shadow:0 4px 0 rgba(42,15,26,.35)!important;font:900 1.05rem Nunito,Inter,sans-serif!important}
+html .tile.mdt .mdsol{color:#2a0f1a!important}
+html .tile.mdt .mdv i,html .tile.mdt #mdtGrid i,html .tile.mdt .mdv span{border-radius:10px}
+html .tile.mdt .v2{background:#2ec4b6!important;color:#08302c!important;box-shadow:inset 0 -4px 0 #1a8f84!important;border:0!important}
+html .tile.mdt .v1{background:#ffd23f!important;color:#3b1d5c!important;box-shadow:inset 0 -4px 0 #c79a00!important;border:0!important}
+html .tile.mdt .v0{background:#7d6a92!important;color:#efe6f7!important;border:0!important}
+/* ===== Énigme du jour : carte crème (bois) ===== */
+html .papy .proll{display:none!important}
+html .papy .psheet{background:#fff3df!important;border:0!important;border-radius:22px!important;box-shadow:inset 0 -5px 0 #e2b97a,0 10px 26px rgba(16,4,30,.3)!important;color:#3b1d5c!important}
+html .papy .psheet *{color:#3b1d5c}
+html .papy .pform button,html .papy button[type=submit]{background:#3b1d5c!important;color:#fff3df!important;border:0!important;border-radius:999px!important;box-shadow:0 3px 0 #24113d!important;font-weight:800}
+html .papy input{background:#fff!important;border:2px solid #e2b97a!important;color:#3b1d5c!important;border-radius:14px!important}
+/* ===== « Nos jeux » ===== */
+html .sec2{font:900 1.2rem Nunito,Inter,sans-serif!important;color:var(--ink)!important;opacity:1!important}
+html .sec2>span[aria-hidden]{display:none}
+html .g-bot .tile{--dc:#ff6b6b;background:var(--glass)!important;border:0!important;border-radius:22px!important;box-shadow:0 8px 22px rgba(16,4,30,.3)!important;
+  display:flex!important;flex-direction:column!important;align-items:stretch!important;gap:10px;padding:10px 10px 12px!important;min-height:0!important;height:auto!important;overflow:hidden}
+html .g-bot{align-items:start!important;grid-auto-rows:auto!important}
+html body .games:not(.g-hero) .g-bot .tile{min-height:0!important;padding:10px 10px 12px!important;border-radius:22px!important}
+html body .games:not(.g-hero) .g-bot .tile:has(.abtn[data-mode="resume"]){min-height:0!important}
+html .tile .vis::after,html .tile .illu::after{display:none!important}
+html body .games:not(.g-hero) .g-bot .tile.mgt .vis{background:var(--dc)!important;box-shadow:inset 0 -5px 0 rgba(0,0,0,.14)!important}
+html body .games:not(.g-hero) .tile .vis,html body .games:not(.g-hero) .tile .illu,html body .games:not(.g-hero) .tile[data-key] .vis{zoom:1!important;animation:none!important}
+html .g-bot .tile .vis>.mlv{transform:scale(.92)!important}html .g-bot .tile .vis>.fg{transform:scale(.85)!important}html .g-bot .tile .vis>.ring{transform:scale(1)!important}html .g-bot .tile .vis>.sdv{transform:scale(.88)!important}html .g-bot .tile .vis>.fan{transform:translateX(-26px) scale(.6)!important;margin:0!important}html .g-bot .tile .vis>.mgv{transform:none!important;width:150px!important;height:96px!important;margin:0!important;left:auto!important;top:auto!important}
+html .g-bot .tile .illu{width:auto!important}
+html[data-theme="light"] .g-bot .tile{box-shadow:0 4px 0 #e6d6f3,0 10px 24px rgba(91,42,145,.10)!important}
+html .g-bot .tile::before,html .g-bot .tile::after{display:none}
+html .g-bot .tile[data-key=motlibre]{--dc:#ff6b6b}html .g-bot .tile[data-key=magnetico]{--dc:#8b5cf6}html .g-bot .tile[data-key=fleches]{--dc:#2ec4b6}
+html .g-bot .tile[data-key=meles]{--dc:#8cc63f}html .g-bot .tile[data-key=rond]{--dc:#ff8fc8}html .g-bot .tile[data-key=culture]{--dc:#ffa94d}
+html .g-bot .tile[data-key=sudoku]{--dc:#4f8cff}html .g-bot .tile[data-key=poker]{--dc:#ffb800}
+/* scène animée : pastille de la couleur du jeu, en haut de la carte */
+html .g-bot .tile .vis,html .g-bot .tile .illu{order:0;position:relative!important;inset:auto!important;right:auto!important;top:auto!important;left:auto!important;
+  height:104px!important;min-height:104px!important;width:auto!important;flex:none!important;border-radius:16px;background:var(--dc);display:grid!important;place-items:center;padding:0!important;margin:0!important;overflow:hidden;transform:none!important;opacity:1!important;visibility:visible!important;box-shadow:inset 0 -5px 0 rgba(0,0,0,.14)}
+html .g-bot .tile .txt{order:1;margin:0!important;padding:0 4px!important;flex:none!important}
+html .g-bot .tile .txt .tag,html .g-bot .tile .txt p{display:none!important}
+html .g-bot .tile h2{font-family:Nunito,Inter,sans-serif!important;font-weight:900!important;font-size:1.18rem!important;line-height:1.1!important;margin:0!important;color:var(--ink)!important;text-shadow:none!important}
+/* badge de jouabilité */
+html .g-bot .tile .txt::after{content:"Solo · Multi";display:inline-block;margin-top:7px;padding:4px 10px;border-radius:999px;background:var(--glass2);color:var(--muted);font:800 .74rem Nunito,Inter,sans-serif;letter-spacing:.02em}
+html .g-bot .tile:not([data-multi]) .txt::after{content:"Solo"}
+html .g-bot .tile[data-key=poker] .txt::after{content:"Multi"}
+/* boutons Solo / Multijoueurs / Réglages qui apparaissent quand on touche la carte : ils recouvrent la scène */
+html .g-bot .tile .modes.acts{position:absolute!important;left:10px!important;right:10px!important;top:10px!important;bottom:auto!important;height:104px;transform:none!important;flex-direction:column;justify-content:center;gap:6px!important;z-index:3}
+html .g-bot .tile:not(.lift):not(:hover) .modes.acts{opacity:0!important;pointer-events:none!important}
+html .g-bot .tile:hover .vis,html .g-bot .tile.lift .vis,html .g-bot .tile:hover .illu,html .g-bot .tile.lift .illu{filter:brightness(.55)}
+html .g-bot .abtn{width:auto!important;min-height:30px;padding:4px 10px!important;border-radius:999px!important;border:0!important;background:var(--glass)!important;color:var(--ink)!important;font:800 .8rem Nunito,Inter,sans-serif!important;box-shadow:0 2px 0 rgba(16,4,30,.45)!important;justify-content:center}
+html .g-bot .abtn:first-child{background:var(--dact)!important;color:var(--dactink)!important;box-shadow:0 2px 0 var(--dactedge)!important}
+html .g-bot .abtn.abtn-s{background:transparent!important;box-shadow:none!important;color:#fff!important}
+/* ===== petites animations des cartes (une par jeu) ===== */
+@keyframes dacFlip{0%,70%,100%{transform:rotateX(0)}80%{transform:rotateX(90deg)}90%{transform:rotateX(0)}}
+@keyframes dacBob{0%,100%{translate:0 0}50%{translate:4px -7px}}
+@keyframes dacSpin{to{transform:rotate(360deg)}}
+@keyframes dacSweep{0%,15%{clip-path:inset(0 100% 0 0)}55%,85%{clip-path:inset(0 0 0 0)}100%{clip-path:inset(0 0 0 100%)}}
+@keyframes dacPop{0%,60%,100%{transform:scale(1)}70%{transform:scale(1.18)}}
+@keyframes dacSway{0%,100%{rotate:-4deg}50%{rotate:4deg}}
+/* Mot libre : tuiles de bois qui se retournent l'une après l'autre */
+html .tile .mlv span{background:#fff3df!important;color:#5b2a91!important;box-shadow:inset 0 -3px 0 #e2b97a!important;border-radius:8px!important;opacity:1!important;width:26px!important;height:30px!important;display:grid!important;place-items:center;font:900 1rem Nunito,Inter,sans-serif!important;animation:dacFlip 2.6s ease-in-out infinite!important;animation-delay:calc(var(--k,0)*.18s)!important}
+html .tile .mlv{display:flex!important;gap:4px!important}
+/* Magnético : les bulles flottent */
+html .tile .mgv .mb1{left:10px!important;top:8px!important}html .tile .mgv .mb2{left:82px!important;top:2px!important}html .tile .mgv .mb3{left:38px!important;top:48px!important}html .tile .mgv .mb4{left:100px!important;top:46px!important}
+html .tile .mgv .bb{width:46px!important;height:46px!important;font-size:14px!important;transform:none!important;text-shadow:none!important;animation:dacBob 2.4s ease-in-out infinite;border:0!important;box-shadow:0 3px 0 rgba(0,0,0,.18)!important}
+html .tile .mgv .mb1{background:#2ec4b6!important;color:#08302c!important}html .tile .mgv .mb2{background:#ffd23f!important;color:#3b1d5c!important;animation-delay:.4s}
+html .tile .mgv .mb3{background:#ff6b6b!important;color:#2a0f1a!important;animation-delay:.8s}html .tile .mgv .mb4{background:#fff3df!important;color:#5b2a91!important;animation-delay:1.2s}
+/* Mots fléchés : cases crème, définitions prune, les lettres apparaissent */
+html .tile .fg span{background:#fff3df!important;border-radius:5px!important;border:0!important}
+html .tile .fg .q{background:#3b1d5c!important;color:#ffd23f!important}
+html .tile .fg .l{color:#5b2a91!important;animation:dacPop 2.4s ease-in-out infinite}
+html .tile .fg .l:nth-child(3){animation-delay:.2s}html .tile .fg .l:nth-child(4){animation-delay:.4s}html .tile .fg .l:nth-child(5){animation-delay:.6s}
+/* Mots mêlés : le surligneur balaie un mot */
+html .tile .wg span{color:#24310e!important;background:transparent;font-weight:900!important}
+html .tile .hl{display:none!important}
+@keyframes dacMark{0%,30%{background:transparent}45%,85%{background:#ffd23f}100%{background:transparent}}
+html .tile .wg span:nth-child(n+6):nth-child(-n+10){border-radius:6px;animation:dacMark 3s ease-in-out infinite}
+html .tile .wg span:nth-child(7){animation-delay:.08s}html .tile .wg span:nth-child(8){animation-delay:.16s}html .tile .wg span:nth-child(9){animation-delay:.24s}html .tile .wg span:nth-child(10){animation-delay:.32s}
+/* Tourniquet : la ronde tourne lentement */
+html .tile .ring .orb{animation:dacSpin 14s linear infinite}
+html .tile .ring .b{background:#fff3df!important;color:#5b2a91!important;border:0!important;box-shadow:0 2px 0 rgba(0,0,0,.15)!important}
+html .tile .ring .ctr{background:#3b1d5c!important;color:#fff3df!important;border:0!important}
+/* Culture : le point d'interrogation se balance */
+html .tile .illu .ring2,html .tile .illu .pt{display:none!important}
+html .tile .illu .scene{animation:dacSway 2.2s ease-in-out infinite}
+html .tile .illu .face{background:#fff3df!important;color:#3b1d5c!important;border:0!important}
+/* Sudoku : grille crème, les chiffres arrivent un à un */
+html .tile .sdv{background:#3b1d5c!important;border:0!important;border-radius:10px!important;padding:4px!important}
+html .tile .sdv span{background:#fff3df!important;color:#3b1d5c!important;border:0!important;border-radius:4px!important}
+html .tile .sdv .m{background:#ffd23f!important}
+/* Wordflush : les cartes se dandinent */
+html .tile .fan .cd{animation:dacSway 2.6s ease-in-out infinite;transform-origin:50% 100%}html .tile .fan .cd:nth-child(2){animation-delay:.3s}html .tile .fan .cd:nth-child(3){animation-delay:.6s}
+html .tile .fan .cd{background:#fff3df!important;color:#5b2a91!important;border:0!important}
+@media (prefers-reduced-motion:reduce){html *,html *::before,html *::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}}
+html .papy .phead b,html .papy .pq,html .papy p,html .papy .phead{font-family:Nunito,Inter,system-ui,sans-serif!important}
+html .papy .phead b{font-weight:900!important;font-size:1.15rem}

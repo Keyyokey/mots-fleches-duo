@@ -2,7 +2,9 @@
 // Usage : serveur local sur 3999, puis PW=<module playwright> node outils/site/audit_charte.js   — objectif : 0 objet hors charte à la fin de la bascule.
 const {chromium}=require(process.env.PW||'playwright');
 const P=[['accueil','/'],['motdujour','/motdujour'],['fleches','/fleches'],['magnetico','/magnetico'],['sudoku','/sudoku'],['motlibre','/motlibre?mode=prog'],['meles','/meles'],['rond','/rond'],['culture','/culture'],['poker','/poker']];
-const PAL=['#24113d','#3b1d5c','#45265f','#4a2a6e','#55327a','#6c4691','#fff3df','#5b2a91','#e2b97a','#ffd23f','#2a0f1a','#c79a00','#2ec4b6','#08302c','#1a8f84','#7d6a92','#efe6f7','#5d4c70','#ff6b6b','#e2d3f2','#ffffff','#a77bd6','#1a0b2e','#ffe88a','#0b6b60','#b0124f','#d6336c','#000000','#c9b6e0','#8b6bb0'];
+const PAL=['#24113d','#3b1d5c','#45265f','#4a2a6e','#55327a','#6c4691','#fff3df','#5b2a91','#e2b97a','#ffd23f','#2a0f1a','#c79a00','#2ec4b6','#08302c','#1a8f84','#7d6a92','#efe6f7','#5d4c70','#ff6b6b','#e2d3f2','#ffffff','#a77bd6','#1a0b2e','#ffe88a','#0b6b60','#b0124f','#d6336c','#000000','#c9b6e0','#8b6bb0',
+  // teintes des jeux sur l'accueil (planche D-Accueil), orange du Mot du jour, crème appuyé des boutons posés sur du crème
+  '#ff6b6b','#8b5cf6','#8cc63f','#ff8fc8','#ffa94d','#4f8cff','#ffb800','#f1dfc0','#7a4fb3','#5e4a75','#d9c6ee','#efe3fa','#fbf4ff','#f1e4fb','#2a0f3d'];
 (async()=>{const br=await chromium.launch({executablePath:process.env.CHROMIUM||'/opt/pw-browsers/chromium'});
 const c=await br.newContext({viewport:{width:390,height:844},isMobile:true,hasTouch:true});
 await c.addInitScript(()=>{try{localStorage.setItem('fl-tuto-vu','1');localStorage.setItem('fl-tuto','1')}catch(e){}});

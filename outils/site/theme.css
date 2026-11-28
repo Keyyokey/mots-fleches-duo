@@ -78,7 +78,7 @@ html body.tj.mdnew .mdbar .note{color:var(--ink)}
 /* ===== Étape 1 · icônes (28/11) =====
    Boutons-icônes de la ligne de titre : carrés prune 46 px, icône crème au trait (Accueil, Stats, Classement, Menu).
    « À plusieurs » : action sociale = rond jaune (pastille jaune avec son nom sur ordinateur). */
-html body.sk-nohdr .gtop>.homebtn,html body.sk-nohdr .gtop .gbtn,html body.sk-nohdr .gtop .mdrkbtn{height:46px!important;min-height:46px!important;min-width:46px;border-radius:14px!important;background:var(--glass2)!important;border:0!important;color:#fff3df!important;box-shadow:0 3px 0 rgba(16,4,30,.45)!important;backdrop-filter:none!important;-webkit-backdrop-filter:none!important;padding:0 13px!important;display:inline-flex!important;align-items:center;justify-content:center;gap:7px}
+html body.sk-nohdr .gtop>.homebtn,html body.sk-nohdr .gtop .gbtn,html body.sk-nohdr .gtop .mdrkbtn{height:46px!important;min-height:46px!important;min-width:46px;border-radius:14px!important;background:var(--glass2)!important;border:0!important;color:#fff3df!important;box-shadow:0 3px 0 rgba(16,4,30,.45)!important;backdrop-filter:none!important;-webkit-backdrop-filter:none!important;padding:0 13px!important;align-items:center;justify-content:center;gap:7px}
 html body.sk-nohdr .gtop .gmenu{width:46px;padding:0!important}
 html body.sk-nohdr .gtop>.homebtn svg{width:24px;height:24px}
 html body.sk-nohdr .gtop .gbtn svg,html body.sk-nohdr .gtop .mdrkbtn svg{width:21px!important;height:21px!important}
@@ -99,3 +99,114 @@ html .xbtn svg{width:18px;height:18px}
 /* titre du jeu : le mot mis en couleur prend le jaune d'action (lilas foncé en thème clair) */
 html .gtop .gname span:not(.hpill),html .gtop .gname b span:not(.hpill){color:var(--dact)!important}
 html[data-theme="light"] .gtop .gname span:not(.hpill){color:#7a4fb3!important}
+/* ===== Étape 2 · boutons (28/11) =====
+   Trois sortes seulement : PRINCIPAL (jaune en relief), SECONDAIRE (prune plein en relief), DISCRET (texte seul).
+   Formes dérivées : CHOIX (pastilles et onglets : prune, l'actif en jaune) et PUCE D'INFO (rond prune « i »).
+   Tous en pilule, 48 px de haut sur téléphone, police Nunito 800, aucun voile ni flou. */
+html .btn{min-height:48px;border-radius:999px;padding:0 20px;font:800 1rem/1.1 Nunito,Inter,system-ui,sans-serif;color:var(--ink);box-shadow:0 3px 0 rgba(16,4,30,.45);align-items:center;justify-content:center;gap:8px;transition:transform .12s,box-shadow .12s,background .15s}
+html[data-theme="light"] .btn{box-shadow:0 3px 0 #d9c6ee}
+html .btn:active{transform:translateY(3px);box-shadow:0 0 0 rgba(16,4,30,.45)}
+html .btn.primary{min-height:48px;border-radius:999px;font-size:1.02rem}
+/* discret : texte seul, souligné au survol */
+html .btn.ghost:not(.mddel),html #lvStay.btn,html .btn.link{background:transparent!important;box-shadow:none!important;color:var(--muted);text-decoration:none}
+html .btn.ghost:not(.mddel):hover,html #lvStay.btn:hover{color:var(--ink);text-decoration:underline;text-underline-offset:4px}
+/* boutons-icônes dans le jeu (effacer, loupe, plus) : carrés prune 48 px */
+html .btn.mddel,html .btn.moreBtn{width:48px;min-width:48px;padding:0;border-radius:14px;background:var(--glass2)!important}
+/* choix : niveaux de fin de partie, réglages de Mot libre, niveaux de Wordflush, thèmes de Culture */
+html .lvrow button,html .mllens button,html .mdtabs button,html .seg button,html .pklv button{min-height:44px;border-radius:999px!important;border:0!important;background:var(--glass2)!important;color:var(--ink)!important;backdrop-filter:none!important;-webkit-backdrop-filter:none!important;box-shadow:0 3px 0 rgba(16,4,30,.4);font:800 .95rem Nunito,Inter,system-ui,sans-serif!important;padding:0 14px}
+html[data-theme="light"] .lvrow button,html[data-theme="light"] .mllens button,html[data-theme="light"] .mdtabs button,html[data-theme="light"] .seg button{box-shadow:0 3px 0 #d9c6ee}
+html .lvrow button.on,html .mllens button.on,html .mdtabs button.on,html .seg button.on,html .pklv button.on{background:var(--dact)!important;color:var(--dactink)!important;box-shadow:0 3px 0 var(--dactedge)}
+html .seg,html .pklv{background:transparent!important;border:0!important;gap:6px}
+/* puce d'info */
+html .infobtn{width:32px!important;height:32px!important;min-width:32px;border-radius:50%!important;background:var(--glass2)!important;color:#fff3df!important;border:0!important;font:900 .95rem Nunito,Inter,sans-serif!important;box-shadow:0 2px 0 rgba(16,4,30,.4)}
+html[data-theme="light"] .infobtn{color:#3b1d5c!important;box-shadow:0 2px 0 #d9c6ee}
+/* plus aucun bouton en verre flou */
+html button,html .btn,html a.abtn{backdrop-filter:none!important;-webkit-backdrop-filter:none!important}
+/* Wordflush : « Convertir mes points » devient un bouton secondaire */
+html #pkCvPill.pkcvpill{background:var(--glass2)!important;border:0!important;color:var(--ink)!important;border-radius:999px!important;min-height:44px;box-shadow:0 3px 0 rgba(16,4,30,.45);font-weight:800}
+/* clavier système absent sur ordinateur : on garde des boutons un peu moins hauts */
+@media (pointer:fine){html .btn,html .btn.primary{min-height:44px}}
+/* ===== Étape 3 · animations (28/11) — un seul vocabulaire, de 150 à 350 ms =====
+   appui : le bouton s'enfonce dans son relief · fenêtre : voile nuit puis la carte « pope » (grossit un peu et se pose)
+   secousse : classe .dsec (erreur) · saut : classe .dsaut (réussite, Pop) · apparition douce : classe .din
+   L'appareil demande « réduire les animations » → plus aucun mouvement. */
+@keyframes dvoile{from{opacity:0}to{opacity:1}}
+@keyframes dfen{0%{transform:scale(.9);opacity:0}60%{transform:scale(1.03);opacity:1}100%{transform:scale(1);opacity:1}}
+@keyframes dsec{0%,100%{transform:translateX(0)}20%{transform:translateX(-7px)}40%{transform:translateX(6px)}60%{transform:translateX(-4px)}80%{transform:translateX(2px)}}
+@keyframes dsaut{0%,100%{transform:translateY(0)}40%{transform:translateY(-12px)}70%{transform:translateY(0) scale(1.05,.95)}85%{transform:scale(.98,1.02)}}
+@keyframes din{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+/* fenêtres : voile nuit sans flou, carte qui pope */
+html .overlay{background:rgba(26,11,46,.72)!important;backdrop-filter:none!important;-webkit-backdrop-filter:none!important}
+html[data-theme="light"] .overlay{background:rgba(59,29,92,.35)!important}
+html .overlay.on{animation:dvoile .2s ease-out}
+html .overlay.on>.sheet,html .overlay.on>.box,html .overlay.on>.glass{animation:dfen .32s cubic-bezier(.2,.9,.3,1.25) both}
+/* appui sur tous les boutons de choix, puces et pastilles */
+html .lvrow button:active,html .mllens button:active,html .mdtabs button:active,html .seg button:active,html .infobtn:active,html .xbtn:active,html .gtop .mjpill:active{transform:translateY(3px);box-shadow:none!important}
+html .btn,html .lvrow button,html .mllens button,html .mdtabs button,html .seg button{transition:transform .12s ease,box-shadow .12s ease,background-color .15s ease,color .15s ease}
+/* classes utilitaires communes à tous les jeux */
+html .dsec{animation:dsec .42s ease}
+html .dsaut{animation:dsaut .6s cubic-bezier(.3,.7,.4,1)}
+html .din{animation:din .3s ease-out both}
+@media (prefers-reduced-motion:reduce){html *,html *::before,html *::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important;scroll-behavior:auto!important}}
+/* ===== Étape 5 · composants de jeu partagés (28/11) =====
+   cartes de score (Mots fléchés, Tourniquet, Mots mêlés, Culture…) : carte pleine, pastille carrée colorée, score en gros ;
+   la carte du joueur dont c'est le tour est crème (comme sur la planche D-Fleches-Bois), les autres prune.
+   chrono : pastille sombre, jaune quand c'est ton tour, corail quand il reste peu de temps.
+   barre de temps : piste nuit, remplissage turquoise → jaune.
+   étiquettes (« Définition », « Mot mystère ») : petites capitales lilas, sans cadre. */
+html .sc{background:var(--glass2)!important;border:0!important;border-radius:16px!important;backdrop-filter:none!important;-webkit-backdrop-filter:none!important;box-shadow:0 3px 0 rgba(16,4,30,.4)!important;color:var(--ink)}
+html .sc::after{display:none!important}
+html .sc.turn{background:#fff3df!important;color:#3b1d5c!important;box-shadow:0 3px 0 #e2b97a!important}
+html .sc.turn b,html .sc.turn .note{color:#3b1d5c!important}
+html .sc.idle{opacity:.7;filter:none}
+html .sc .pi{border-radius:9px!important;background:var(--c,#2ec4b6)!important;color:#08302c!important;font-weight:900!important}
+html .sc .pi::before{display:none!important}
+html .sc .sv{font:900 1.35rem Nunito,Inter,sans-serif!important;color:var(--ink)!important}
+html .sc.turn .sv{color:#0b6b60!important}
+html .rclk{background:#24113d!important;color:#fff3df!important;border:0!important;border-radius:999px!important;box-shadow:none!important}
+html .turn .rclk{background:var(--dact)!important;color:var(--dactink)!important}
+html .rclk.low,html .turn .rclk.low{background:#ff6b6b!important;color:#2a0f1a!important}
+html[data-theme="light"] .rclk{background:#3b1d5c!important;color:#fff3df!important}
+html .tline2{background:#24113d!important;box-shadow:none!important;border-radius:999px}
+html[data-theme="light"] .tline2{background:#e6d6f3!important}
+html .tline2 i{background:linear-gradient(90deg,#2ec4b6,#ffd23f)!important;box-shadow:none!important;filter:none!important}
+html .tag2{background:transparent!important;border:0!important;padding:0!important;color:#c9b6e0!important;letter-spacing:.12em!important}
+html[data-theme="light"] .tag2{color:#7a4fb3!important}
+html .pi.i1,html .pi.i2{background:var(--c,#2ec4b6)!important}
+/* barre de définition / d'indice : carte crème, mot en gros, bouton Valider prune foncé (bouton principal posé sur du crème) */
+html .rdclue,html .flclue{background:#fff3df!important;color:#3b1d5c!important;box-shadow:inset 0 -4px 0 #e2b97a,0 8px 20px rgba(16,4,30,.28)!important;border-radius:20px!important}
+html .rdclue .tag2,html .flclue .tag2{color:#7a4fb3!important}
+html .rdclue .clueTxt b,html .flclue .clueTxt b{color:#2a0f1a!important;font:900 1.15rem/1.15 Nunito,Inter,sans-serif!important}
+html .rdclue .note,html .flclue .note{color:#5e4a75!important}
+html .rdclue .btn:not(.primary),html .flclue .btn:not(.primary){background:#f1dfc0!important;color:#3b1d5c!important;box-shadow:0 3px 0 #e2b97a!important}
+html .rdclue .btn.primary,html .flclue .btn.primary{background:#3b1d5c!important;color:var(--dact)!important;box-shadow:0 4px 0 #24113d!important}
+/* mot mystère : cases de bois */
+html .slots span{background:#fff3df!important;color:#5b2a91!important;border:0!important;box-shadow:inset 0 -3px 0 #e2b97a!important;border-radius:8px!important}
+html .slots span.on{box-shadow:inset 0 -3px 0 #e2b97a,0 0 0 3px var(--dact)!important}
+html .slots.myst span.got{background:var(--dact)!important;color:#2a0f1a!important;box-shadow:inset 0 -3px 0 #c79a00!important}
+html .flbar{background:var(--glass)!important}
+/* ===== Étape 6.1 · Mots fléchés « bois sur nuit » (planche D-Fleches-Bois) =====
+   cadre nuit et liseré crème ; cases crème ; définitions prune, texte blanc, flèche jaune ;
+   mot en cours jaune, case active jaune clair entourée d'encre ; lettres trouvées à la couleur du joueur (assombrie pour rester lisible sur crème). */
+html .fgrid{background:#1a0b2e!important;border:3px solid #fff3df!important;border-radius:14px!important;gap:3px!important;padding:3px}
+html .fc{background:#fff3df!important;color:#3b1d5c!important;border-radius:5px}
+html .fc.q{background:#3b1d5c!important;color:#fff!important;font-weight:800!important}
+html .fc.q .h~.h,html .fc.q .h+.h{border-top:1px solid rgba(255,243,223,.35)!important}
+html .fc.q .h.qsel{background:#5b2a91!important;color:var(--dact)!important}
+html .fc .ar{color:var(--dact)!important;text-shadow:none!important}
+html .fc .n{background:#ff6b6b!important;color:#2a0f1a!important}
+html .fc.pic{background:#24113d!important}
+html .fc.paper,html .fc.rv{color:#a08ab8!important}
+html .fc.jp{background:#fff3df!important;box-shadow:none!important}
+html .fc.jp .L{color:color-mix(in srgb,var(--fc) 55%,#1a0b2e)!important;text-shadow:none!important;font-weight:900}
+html .fc.live .L{color:color-mix(in srgb,var(--fc) 55%,#1a0b2e)!important;opacity:.55}
+html .fc.pend .L{color:#3b1d5c!important}
+html .fc.pend:not(.cur){outline:2px dashed #7a4fb3!important}
+html .fc.cur{background:var(--dact)!important;box-shadow:none!important}
+html .fc.cur.caret{background:#ffe88a!important;box-shadow:inset 0 0 0 3px #2a0f1a!important}
+html .fc.cur.caret::before{background:#2a0f1a!important}
+html .fc.wrong{background:#ff6b6b!important;color:#2a0f1a!important}
+html .fc.db{box-shadow:inset 0 -3px 0 #ff6b6b!important}html .fc.dr{box-shadow:inset -3px 0 0 #ff6b6b!important}
+html[data-theme="light"] .fgrid{background:#3b1d5c!important;border-color:#3b1d5c!important}
+/* couleurs des joueurs (pastilles, anneaux) : turquoise et corail de la palette */
+html:root,html:root[data-theme="light"]{--p1:#2ec4b6;--p2:#ff6b6b}

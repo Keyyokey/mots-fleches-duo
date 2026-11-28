@@ -15,6 +15,7 @@ def emit(prefix, ext, body):
 SK_JS, SK_CSS, JEU, ICO = src("sk.js"), src("sk.css"), src("jeu.css"), src("icones.js")
 u_skjs, u_skcss, u_jeu, u_ico = emit("sk", "js", SK_JS), emit("sk", "css", SK_CSS), emit("jeu", "css", JEU), emit("ic", "js", ICO)
 u_theme = emit("theme", "css", src("theme.css"))   # style D (28/11) : chargé en dernier, juste avant </head>, sur les pages de jeu
+u_thac = emit("theme-accueil", "css", src("theme_accueil.css"))   # style D de la page d'accueil (étape 4)
 JEUX = {"fl.html", "mm.html", "rd.html", "cg.html", "mg.html", "md.html", "ml.html", "sd.html", "poker.html"}
 H = "[0-9a-f]{10}"
 # icônes dessinées (public/d/icons.js, source unique) : copie à empreinte pour toutes les pages
@@ -56,6 +57,7 @@ for name in PAGES:
     s = re.sub(r'<script (?:id="mj-js"|src="/d/mj-' + H + r'\.js")></script>', '<script src="' + u_mj + '"></script>', s)
     # style D : une seule feuille, toujours la dernière de l'en-tête
     s = re.sub(r'<link rel="stylesheet" href="/d/theme-' + H + r'\.css">', '', s)
+    s = re.sub(r'<link rel="stylesheet" href="/d/theme-accueil-' + H + r'\.css">', '', s)
     if name in JEUX: s = s.replace('</head>', '<link rel="stylesheet" href="' + u_theme + '"></head>', 1)
     open(p, "w", encoding="utf8").write(s)
     print(f"{name:10s} {n0 // 1024:4d} Ko → {len(s) // 1024:4d} Ko")
@@ -65,6 +67,8 @@ s2 = re.sub(r'<script (?:id="mj-js"|src="/d/mj-' + H + r'\.js")></script>', '<sc
 s2 = re.sub(r'<script (?:id="compte-js"|src="/d/compte-' + H + r'\.js")></script>', '<script src="' + u_cpt + '"></script>', s2)
 s2 = re.sub(r'<script>// ---------- invitations : un joueur du salon.*?</script>', '<script src="' + u_inv + '"></script>', s2, count=1, flags=re.S)
 s2 = re.sub(r'<script src="/d/invit-' + H + r'\.js"></script>', '<script src="' + u_inv + '"></script>', s2)
-s2 = re.sub(r'<script src="/d/ic-' + H + r'\.js"></script>', '<script src="' + u_ico + '"></script>', s2)   # icônes « verre » (même fichier que les jeux)
+s2 = re.sub(r'<script src="/d/ic-' + H + r'\.js"></script>', '<script src="' + u_ico + '"></script>', s2)   # croix des fenêtres (même fichier que les jeux)
+s2 = re.sub(r'<link rel="stylesheet" href="/d/theme-accueil-' + H + r'\.css">', '', s2)
+s2 = s2.replace('</head>', '<link rel="stylesheet" href="' + u_thac + '"></head>', 1)   # style D de l'accueil, toujours en dernier
 if s2 != s: open(p, "w", encoding="utf8").write(s2)
 print(u_skjs, u_skcss, u_jeu, u_ico, u_icons)
